@@ -1,0 +1,507 @@
+openapi: 3.2.0
+info:
+  title: Folio Fql Query API
+  version: v1
+  description: 'Operations tagged fqlQuery across 4 of this provider''s published API definitions: folio-folio-query-tool-metadata-querytool-openapi.json, folio-mod-fqm-manager-openapi.json, folio-folio-query-tool-metadata-querytool-openapi.yml, folio-mod-fqm-manager-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-etesting-snapshot-kong.ci.folio.org/
+tags:
+- name: fqlQuery
+paths:
+  /query:
+    get:
+      operationId: runFqlQuery
+      description: Runs an FQL query
+      tags:
+      - fqlQuery
+      parameters:
+      - $ref: '#/components/parameters/fqlQuery'
+      - $ref: '#/components/parameters/entityTypeIdQueryParam'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Query result
+          content:
+            application/json:
+              example:
+                content:
+                - id:
+                    type: object
+                  item_status:
+                    type: object
+                totalRecords: 1
+              schema:
+                $ref: '#/components/schemas/ResultsetPage'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Run fql query
+      x-summary-source: derived
+    post:
+      operationId: runFqlQueryAsync
+      description: Runs an FQL query asynchronously
+      tags:
+      - fqlQuery
+      requestBody:
+        description: Query request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitQuery'
+      responses:
+        '200':
+          description: The identifier for the query run
+          content:
+            application/json:
+              example:
+                queryId: 37140576-be84-1a0e-7546-0912d8320019
+              schema:
+                $ref: '#/components/schemas/QueryIdentifier'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Run fql query async
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /query/{queryId}:
+    get:
+      operationId: getQuery
+      description: Get details of a submitted query, optionally including the results
+      tags:
+      - fqlQuery
+      parameters:
+      - $ref: '#/components/parameters/queryId'
+      - $ref: '#/components/parameters/includeResults'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Details of the submitted query
+          content:
+            application/json:
+              example:
+                entityTypeId: 0cb79a4c-f7eb-4941-a104-745224ae0292
+                fqlQuery: user_active == true
+                queryId: 37140576-be84-1a0e-7546-0912d8320019
+                startDate: '2023-04-04T21:56:08.673+00:00'
+                status: IN_PROGRESS
+              schema:
+                $ref: '#/components/schemas/QueryDetails'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get query
+      x-summary-source: derived
+    delete:
+      operationId: deleteQuery
+      description: Delete a query and its results
+      tags:
+      - fqlQuery
+      parameters:
+      - $ref: '#/components/parameters/queryId'
+      responses:
+        '204':
+          description: Query has been deleted
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Delete query
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /query/{queryId}/sortedIds:
+    get:
+      operationId: getSortedIds
+      description: Get ids of query results in sorted order
+      tags:
+      - fqlQuery
+      parameters:
+      - $ref: '#/components/parameters/queryId'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Details of the submitted query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryResultIds'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get sorted ids
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /query/contents:
+    post:
+      tags:
+      - fqlQuery
+      operationId: getContents
+      description: get contents for list of ids
+      requestBody:
+        description: Contents request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentsRequest'
+      responses:
+        '200':
+          description: A page of list contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contents'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get contents
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /query/contents/privileged:
+    post:
+      tags:
+      - fqlQuery
+      operationId: getContentsPrivileged
+      description: get contents for list of ids using a specified user proxy
+      requestBody:
+        description: Contents request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentsRequest'
+      responses:
+        '200':
+          description: A page of list contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contents'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get contents privileged
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /fqm/status:
+    get:
+      operationId: getQueryStatusSummaries
+      tags:
+      - fqlQuery
+      description: Get the status and statistics for all running queries
+      responses:
+        '200':
+          description: Status and statistics for all running queries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryStatusSummaries'
+      summary: Get query status summaries
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    UUID:
+      description: The content row represented as a map.
+      type: string
+      format: uuid
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    queryResultIds:
+      type: array
+      items:
+        type: array
+        items:
+          type: string
+    QueryIdentifier:
+      description: The identifier of the query.
+      type: object
+      properties:
+        queryId:
+          $ref: '#/components/schemas/UUID'
+      additionalProperties: false
+    ContentsRequest:
+      description: Request for a set of contents
+      type: object
+      properties:
+        entityTypeId:
+          $ref: '#/components/schemas/UUID'
+        fields:
+          description: Fields to be included in results
+          type: array
+          items:
+            type: string
+        ids:
+          description: Ids to retrieve results for
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        localize:
+          description: Whether to localize dates in content response
+          type: boolean
+          default: false
+        userId:
+          $ref: '#/components/schemas/UUID'
+      required:
+      - entityTypeId
+      - fields
+      - ids
+      additionalProperties: false
+    ResultsetPage:
+      type: object
+      description: The page with content.
+      properties:
+        content:
+          description: The rows of the page.
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultsetContent'
+        totalRecords:
+          description: The total number of records in this resultset.
+          type: integer
+      required:
+      - content
+      additionalProperties: false
+    QueryDetails:
+      type: object
+      description: The page with content.
+      properties:
+        content:
+          description: The rows of the page.
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultsetContent'
+        totalRecords:
+          description: The total number of records in this resultset.
+          type: integer
+        queryId:
+          description: ID of the query
+          type: string
+          format: UUID
+        fqlQuery:
+          description: FQL query
+          type: string
+        entityTypeId:
+          description: ID of the entity type
+          type: string
+          format: UUID
+        fields:
+          description: Fields to be included in query results
+          type: array
+          items:
+            type: string
+        status:
+          description: Status of the resultset
+          type: string
+          enum:
+          - QUEUED
+          - IN_PROGRESS
+          - SUCCESS
+          - FAILED
+          - CANCELLED
+          - MAX_SIZE_EXCEEDED
+        failureReason:
+          description: Reason for query execution failure (if execution failed)
+          type: string
+        startDate:
+          description: Date and time when the query execution was started
+          type: string
+          format: date-time
+        endDate:
+          description: Date and time when the query execution was completed
+          type: string
+          format: date-time
+        crossTenant:
+          description: Indicates whether a query is cross-tenant
+          type: boolean
+          default: false
+      required:
+      - entityTypeId
+      - status
+      - startDate
+      - queryId
+      - fqlQuery
+      additionalProperties: false
+    SubmitQuery:
+      description: Request to submit query
+      type: object
+      properties:
+        fqlQuery:
+          type: string
+        entityTypeId:
+          $ref: '#/components/schemas/UUID'
+        fields:
+          description: Fields to be included in query results
+          type: array
+          items:
+            type: string
+        sortResults:
+          description: Whether to sort results based on entity type's sort criteria
+          type: boolean
+        maxSize:
+          description: Maximum number of results to retrieve for the query
+          type: integer
+      required:
+      - entityTypeId
+      - fqlQuery
+      additionalProperties: false
+    ResultsetContent:
+      description: The content row represented as a map.
+      type: object
+      additionalProperties:
+        type: object
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        code:
+          type: string
+          description: Error message code; see implementing module's API documentation for possible values
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+      - code
+    contents:
+      type: array
+      items:
+        type: object
+        additionalProperties:
+          type: object
+    queryStatusSummaries:
+      type: array
+      items:
+        $ref: '#/components/schemas/QueryStatusSummary'
+    QueryStatusSummary:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Query status summary
+      type: object
+      properties:
+        queryId:
+          description: Query ID
+          type: string
+          format: uuid
+        entityTypeId:
+          description: The entity type ID used for the query (if it is available to your user, otherwise <inaccessible>)
+          type: string
+        status:
+          description: Status of the query (should match folio-query-tool-metadata enum values)
+          type: string
+        startedAt:
+          description: The timestamp when the query started
+          type: string
+          format: date-time
+        endedAt:
+          description: The timestamp when the query ended
+          type: string
+          format: date-time
+        numFields:
+          description: Number of fields in the query
+          type: integer
+        totalRecords:
+          description: Number of records retrieved for the query
+          type: integer
+      additionalProperties: false
+      required:
+      - queryId
+      - entityTypeId
+      - status
+      - startedAt
+      - numFields
+  parameters:
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 2147483647
+      required: false
+      description: Limit the number of elements returned in the response
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+      required: false
+      description: Skip over a number of elements by specifying an offset value for the query
+    includeResults:
+      name: includeResults
+      in: query
+      required: false
+      description: Indicates if query results should be included in the query details response
+      schema:
+        type: boolean
+    fields:
+      name: fields
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+      required: false
+      description: fields to include in the query results
+    queryId:
+      name: queryId
+      in: path
+      required: true
+      description: UUID of the query
+      schema:
+        $ref: '#/components/schemas/UUID'
+    entityTypeIdQueryParam:
+      name: entityTypeId
+      in: query
+      required: true
+      description: UUID of the entity type
+      schema:
+        $ref: '#/components/schemas/UUID'
+    fqlQuery:
+      name: query
+      in: query
+      schema:
+        type: string
+      required: true
+      description: A complete query expressed as a FQL string. It should contain the from part that defines the entity type and the where/criteria part.
+  responses:
+    badRequestResponse:
+      description: Invalid request
+      content:
+        application/json:
+          example:
+            message: Entity type ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
+            code: entity.type.not.found
+          schema:
+            $ref: '#/components/schemas/error'
+x-refined-from:
+- folio-folio-query-tool-metadata-querytool-openapi.json
+- folio-mod-fqm-manager-openapi.json
+- folio-folio-query-tool-metadata-querytool-openapi.yml
+- folio-mod-fqm-manager-openapi.yml

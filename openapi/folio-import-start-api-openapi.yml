@@ -1,0 +1,58 @@
+openapi: 3.2.0
+info:
+  title: Folio import, start API
+  version: v1
+  description: 'Operations tagged import, start across 2 of this provider''s published API definitions: folio-mod-linked-data-import-openapi.json, folio-mod-linked-data-import-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: import, start
+paths:
+  /linked-data-import/start:
+    post:
+      operationId: startImport
+      tags:
+      - import, start
+      description: Starts the process of Linked Data Import and returns ID of Import Job Instance
+      parameters:
+      - name: fileName
+        in: query
+        required: true
+        description: The name of a file to be imported from S3. Should be located in Tenant's folder
+        schema:
+          type: string
+      - name: contentType
+        in: query
+        required: false
+        description: Content type of the file to be imported (e.g., application/ld+json, text/turtle). JSON by default.
+        schema:
+          type: string
+      - name: defaultWorkType
+        in: query
+        required: false
+        description: Default Work extra type - MONOGRAPH or SERIAL
+        schema:
+          $ref: '#/components/schemas/defaultWorkType'
+      responses:
+        '200':
+          description: ID of Linked Data Import job instance started
+          content:
+            text/plain:
+              schema:
+                type: string
+        '404':
+          description: No file is found in S3
+        '500':
+          description: Internal Server Error
+      summary: Start import
+      x-summary-source: derived
+components:
+  schemas:
+    defaultWorkType:
+      type: string
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Default Work extra type - MONOGRAPH or SERIAL
+      enum:
+      - MONOGRAPH
+      - SERIAL
+x-refined-from:
+- folio-mod-linked-data-import-openapi.json
+- folio-mod-linked-data-import-openapi.yml

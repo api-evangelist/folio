@@ -1,0 +1,470 @@
+openapi: 3.2.0
+info:
+  title: Folio Shared Inventory Upsert Matchkey API
+  version: v5.0
+  description: 'Operations tagged Shared Inventory Upsert Matchkey across 2 of this provider''s published API definitions: folio-mod-inventory-update-inventory-update-5-0-openapi.json, folio-mod-inventory-update-inventory-update-5-0-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Shared Inventory Upsert Matchkey
+paths:
+  /shared-inventory-upsert-matchkey:
+    description: Create, update, "delete" instance, replace its holdings and items, based on instance match key.
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    put:
+      operationId: upsertByMatchkey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/inventory-record-set'
+      responses:
+        '200':
+          description: Inventory recordset successfully created or updated by match key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/upsert-response-200-207'
+        '207':
+          description: Partially successful update of record set. Errors listed in response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/upsert-response-200-207'
+        '400':
+          description: 'Bad request, for example: non-JSON in request body; inventory record set without an instance.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-response'
+        '422':
+          description: One or more validation errors encountered. No updates performed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-response'
+        '500':
+          description: Internal error in the module or in storage module.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-response'
+      tags:
+      - Shared Inventory Upsert Matchkey
+      summary: Upsert by matchkey
+      x-summary-source: derived
+    delete:
+      operationId: sharedIndexDeletion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/shared-index-deletion'
+      responses:
+        '200':
+          description: Record set was successfully found by local ID and cleaned up.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/upsert-response-200-207'
+        '400':
+          description: 'Bad request, for example: non-JSON in request body.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-response'
+        '404':
+          description: Did not find existing instance (record set) to clean up for given local ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-response'
+        '422':
+          description: One or more validation errors encountered. No deletion performed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-response'
+        '500':
+          description: Internal error in the module or in storage during delete by local ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error-response'
+      tags:
+      - Shared Inventory Upsert Matchkey
+      summary: Shared index deletion
+      x-summary-source: derived
+  /shared-inventory-upsert-matchkey/fetch/{id}:
+    description: Retrieve single Inventory record set either by instance UUID or HRID.
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - in: path
+      name: id
+      required: true
+      description: Instance UUID or HRID.
+      schema:
+        type: string
+    get:
+      operationId: getSharedInstance
+      responses:
+        '200':
+          description: Inventory record set found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/get-recordset-response'
+      tags:
+      - Shared Inventory Upsert Matchkey
+      summary: Get shared instance
+      x-summary-source: derived
+components:
+  schemas:
+    holdings-record:
+      type: object
+      description: A holdings record in compliance with the schema of the given version of the underlying `holdings-storage` API, optionally with embedded items.
+      properties:
+        items:
+          type: array
+          description: Inventory items listed by the holdings record
+          items:
+            $ref: '#/components/schemas/item'
+    inventory-record-set:
+      type: object
+      description: An instance record and an array of holdings records with embedded items.
+      properties:
+        instance:
+          $ref: '#/components/schemas/instance'
+        holdingsRecords:
+          type: array
+          description: Collection of holdings of the instance, each holdings record with embedded items.
+          items:
+            $ref: '#/components/schemas/holdings-record'
+        processing:
+          type: object
+          description: An object holding supporting pieces of data and/or processing instructions for Inventory update processing.
+          properties:
+            institutionId:
+              type: string
+              description: The FOLIO UUID of the institution that provided the source records for the update; necessary for certain clean-up tasks in a shared inventory.
+            localIdentifier:
+              type: string
+              description: The source system's unique identifier for the source record of this update request; necessary for certain clean-up tasks in a shared inventory.
+            identifierTypeId:
+              type: string
+              description: The FOLIO UUID for the identifier type for the local record IDs coming from the given library.
+    error-response:
+      type: object
+      description: Response on a unsuccessful upsert request for a single record.
+      properties:
+        category:
+          type: string
+          description: Type of problem, typically error category STORAGE.
+        statusCode:
+          type: string
+          description: The HTTP status code assigned to the error.
+        message:
+          anyOf:
+          - type: string
+          - type: object
+          description: Error message returned by Inventory storage.
+        shortMessage:
+          type: string
+          description: A short error message that might be used by the client to count similar error occurrences.
+        entityType:
+          type: string
+          description: The record type for which a problem occurred.
+        transaction:
+          type: string
+          description: Type of REST operation for which the problem occurred.
+        entity:
+          type: object
+          description: The JSON object that was pushed to Inventory storage when the problem occurred.
+        details:
+          type: object
+          description: Any further details, i.e. additional context for the problem.
+    upsert-response-200-207:
+      type: object
+      description: Response on a successful or partially successful single record upsert request
+      properties:
+        instance:
+          $ref: '#/components/schemas/instance'
+        holdingsRecords:
+          type: array
+          items:
+            $ref: '#/components/schemas/holdings-record'
+        instanceRelations:
+          type: object
+          description: Collection of the instance's relations to other instances.
+          properties:
+            parentInstances:
+              type: array
+              description: The instance's relations to parent instances.
+              items:
+                type: object
+                properties:
+                  subInstanceId:
+                    type: string
+                    description: UUID of the child instance (= the present instance).
+                  superInstanceId:
+                    type: string
+                    description: UUID of the parent instance.
+                  instanceRelationshipTypeId:
+                    type: string
+                    description: UUID of the type of relation - i.e. a multipart monograph relation.
+                  CREATE_PROVISIONAL_INSTANCE:
+                    $ref: '#/components/schemas/instance'
+            childInstances:
+              type: array
+              description: The instance's relations to child instances.
+              items:
+                type: object
+                properties:
+                  subInstanceId:
+                    type: string
+                    description: UUID of the child instance.
+                  superInstanceId:
+                    type: string
+                    description: UUID of the parent instance (= the present instance).
+                  instanceRelationshipTypeId:
+                    type: string
+                    description: UUID of the type of relation - i.e. a multipart monograph relation.
+                  CREATE_PROVISIONAL_INSTANCE:
+                    $ref: '#/components/schemas/instance'
+            precedingTitles:
+              type: array
+              description: The instance's relations to preceding titles.
+              items:
+                type: object
+                properties:
+                  succeedingInstanceId:
+                    type: string
+                    description: UUID of the succeeding title (= the present instance).
+                  precedingInstanceId:
+                    type: string
+                    description: UUID of the preceding title.
+                  CREATE_PROVISIONAL_INSTANCE:
+                    $ref: '#/components/schemas/instance'
+            succeedingTitles:
+              type: array
+              description: The instance's relations to succeeding titles.
+              items:
+                type: object
+                properties:
+                  succeedingInstanceId:
+                    type: string
+                    description: UUID of the succeeding title.
+                  precedingInstanceId:
+                    type: string
+                    description: UUID of the preceding title (= the present instance).
+                  CREATE_PROVISIONAL_INSTANCE:
+                    $ref: '#/components/schemas/instance'
+        metrics:
+          $ref: '#/components/schemas/metrics'
+        errors:
+          type: array
+          description: If status is 207, a list of problems encountered during upsert request
+          items:
+            $ref: '#/components/schemas/error-response'
+    metrics:
+      type: object
+      description: Report on the number of operations performed, by record type, transaction type, and outcome.
+      properties:
+        INSTANCE:
+          type: object
+          description: Reports the number of operations performed on instance records by transaction type and outcome.
+          properties:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            UPDATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+        HOLDINGS_RECORD:
+          type: object
+          description: Reports the number of operations performed on holdings records by transaction type and outcome.
+          properties:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            UPDATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+        ITEM:
+          type: object
+          description: Reports the number of operations performed on item records by transaction type and outcome.
+          properties:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            UPDATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+        INSTANCE_RELATION_SHIP:
+          type: object
+          description: Reports the number of operations performed for the instance's parent-child relationships.
+          properties:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+            PROVISIONAL_INSTANCE:
+              $ref: '#/components/schemas/outcomes'
+        INSTANCE_TITLE_SUCCESSION:
+          type: object
+          description: Reports the number of operations performed for the instance's preceding-succeeding relationships.
+          properties:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+            PROVISIONAL_INSTANCE:
+              $ref: '#/components/schemas/outcomes'
+    outcomes:
+      type: object
+      description: Reports the number of different outcomes of operations of a given type per entity type.
+      properties:
+        COMPLETED:
+          type: integer
+          description: Number of successfully completed operations of a given type per entity type.
+        FAILED:
+          type: integer
+          description: Number of failed operations of a given type per entity type.
+        SKIPPED:
+          type: integer
+          description: Number of skipped operations of a given type per entity type.
+        PENDING:
+          type: integer
+          description: Number operations of a given type that were unresolved per entity type
+    get-recordset-response:
+      type: object
+      description: Response on a successful get request.
+      properties:
+        instance:
+          $ref: '#/components/schemas/instance'
+        holdingsRecords:
+          type: array
+          description: Collection of holdings of the Instance, each holdings record with embedded items as it was pushed to Inventory storage.
+          items:
+            $ref: '#/components/schemas/holdings-record'
+        instanceRelations:
+          type: object
+          description: Collections of the instance's relations to other instances.
+          properties:
+            parentInstances:
+              type: array
+              description: The instance's relations to parent instances.
+              items:
+                type: object
+                properties:
+                  subInstanceId:
+                    type: string
+                    description: UUID of the child instance (= this instance).
+                  superInstanceId:
+                    type: string
+                    description: UUID of the parent instance.
+                  instanceRelationshipTypeId:
+                    type: string
+                    description: UUID of the type of relations - ie a multipart monograph relation.
+            childInstances:
+              type: array
+              description: The instance's relations to child instances.
+              items:
+                type: object
+                description: The instance's relation to a child instance.
+                properties:
+                  subInstanceId:
+                    type: string
+                    description: UUID of the child instance.
+                  superInstanceId:
+                    type: string
+                    description: UUID of the parent instance (= this instance).
+                  instanceRelationshipTypeId:
+                    type: string
+                    description: UUID of the type of relations - ie a multipart monograph relation.
+            precedingTitles:
+              type: array
+              description: The instance's relations to preceding titles.
+              items:
+                type: object
+                description: The instance's relation to a preceding title.
+                properties:
+                  succeedingInstanceId:
+                    type: string
+                    description: UUID of the succeeding title (= this instance).
+                  precedingInstanceId:
+                    type: string
+                    description: UUID of a preceding title of the instance.
+            succeedingTitles:
+              type: array
+              description: The instance's relations to succeeding title.
+              items:
+                type: object
+                description: The instance's relations to succeeding titles.
+                properties:
+                  succeedingInstanceId:
+                    type: string
+                    description: UUID of the succeeding title.
+                  precedingInstanceId:
+                    type: string
+                    description: UUID of a preceding title (= this instance).
+    shared-index-deletion:
+      type: object
+      description: Deletion record for deleting a library's contributions to an instance in a shared index.
+      properties:
+        institutionId:
+          type: string
+          description: UUID representing the institution who's contributions to a shared instance should be removed.
+        localIdentifier:
+          type: string
+          description: A library's legacy identifier for a bibliographic record that is to be removed from a shared instance
+        oaiIdentifier:
+          type: string
+          description: The record identifier of an OAI-PMH feed, for a bibliographic record that is to be removed from a shared instance.
+        identifierTypeId:
+          type: string
+          description: ID for the identifier type attached to all identifier values from the institution who's contributions to a shared Instance should be removed.
+      oneOf:
+      - required:
+        - institutionId
+        - localIdentifier
+        - identifierTypeId
+      - required:
+        - institutionId
+        - oaiIdentifier
+        - identifierTypeId
+    item:
+      type: object
+      description: An item record in compliance with the schema of the given version of the underlying `item-storage` API.
+    instance:
+      type: object
+      description: An instance record in compliance with the schema of the given version of the underlying `instance-storage` API.
+  parameters:
+    okapi_tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: false
+      schema:
+        type: string
+    okapi_url:
+      in: header
+      name: X-Okapi-Url
+      description: Okapi URL
+      required: false
+      schema:
+        type: string
+    okapi_token:
+      in: header
+      name: X-Okapi-Token
+      description: Okapi Token
+      required: false
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-inventory-update-inventory-update-5-0-openapi.json
+- folio-mod-inventory-update-inventory-update-5-0-openapi.yml

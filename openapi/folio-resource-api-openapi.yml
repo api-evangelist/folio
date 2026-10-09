@@ -1,0 +1,2032 @@
+openapi: 3.2.0
+info:
+  title: Folio Resource API
+  version: v1
+  description: 'Operations tagged resource across 2 of this provider''s published API definitions: folio-mod-linked-data-openapi.json, folio-mod-linked-data-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Resource
+paths:
+  /linked-data/resource:
+    post:
+      operationId: createResource
+      tags:
+      - Resource
+      description: Create a Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/resourceRequestDto'
+      responses:
+        '200':
+          description: Created resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceResponseDto'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Create resource
+      x-summary-source: derived
+  /linked-data/resource/{id}:
+    get:
+      operationId: getResourceById
+      tags:
+      - Resource
+      description: Get a resource by id
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Resource as json string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceResponseDto'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          description: No Resource is found by id
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get resource by id
+      x-summary-source: derived
+    put:
+      operationId: updateResource
+      tags:
+      - Resource
+      description: Update a resource by id
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          application/json:
+            example: example/resourceRequest.sample
+            schema:
+              $ref: '#/components/schemas/resourceRequestDto'
+      responses:
+        '200':
+          description: Updated resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceResponseDto'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          description: No resource is found by id
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Update resource
+      x-summary-source: derived
+    delete:
+      operationId: deleteResource
+      tags:
+      - Resource
+      description: Delete a resource by id
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Resource deleted
+        '404':
+          description: No resource is found by id
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Delete resource
+      x-summary-source: derived
+  /linked-data/resource/{id}/marc:
+    get:
+      operationId: getResourceMarcViewById
+      tags:
+      - Resource
+      description: Get a marc view of resource by id
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Marc view of resource as json string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceMarcViewDto'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          description: No Resource is found by id
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get resource marc view by id
+      x-summary-source: derived
+  /linked-data/resource/{id}/rdf:
+    get:
+      operationId: exportInstanceToRdf
+      tags:
+      - Resource
+      description: Export Instance resource to RDF by id
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Exported RDF resource as json string
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Resource is found by id but it is not an Instance
+        '404':
+          description: No Instance is found by id
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Export instance to rdf
+      x-summary-source: derived
+  /linked-data/resource/metadata/{inventoryId}/id:
+    get:
+      operationId: getResourceIdByResourceInventoryId
+      tags:
+      - Resource
+      description: Get id of a resource by its inventory id
+      parameters:
+      - $ref: '#/components/parameters/inventoryId'
+      responses:
+        '200':
+          description: Json object with id of a resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceIdDto'
+        '404':
+          description: No resource id is found by its inventory id
+      summary: Get resource id by resource inventory id
+      x-summary-source: derived
+  /linked-data/inventory-instance/{inventoryId}/import-supported:
+    get:
+      operationId: checkMarcBibImportableToGraph
+      tags:
+      - Resource
+      description: Check if marc bibliographic record can be imported into linked data graph.
+      parameters:
+      - $ref: '#/components/parameters/inventoryId'
+      responses:
+        '200':
+          description: true if marc bibliographic record can be imported into linked data graph, false otherwise.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: true|false
+        '404':
+          description: No Record is found by inventory id
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Check marc bib importable to graph
+      x-summary-source: derived
+  /linked-data/inventory-instance/{inventoryId}/preview:
+    get:
+      operationId: getResourcePreviewByInventoryId
+      tags:
+      - Resource
+      description: Get the preview of a resource
+      parameters:
+      - $ref: '#/components/parameters/inventoryId'
+      responses:
+        '200':
+          description: Resource as json string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceResponseDto'
+        '404':
+          description: No Record is found by inventory id
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get resource preview by inventory id
+      x-summary-source: derived
+  /linked-data/inventory-instance/{inventoryId}/import:
+    post:
+      operationId: importMarcRecord
+      tags:
+      - Resource
+      description: Create a Resource derived from MARC record
+      parameters:
+      - $ref: '#/components/parameters/inventoryId'
+      - $ref: '#/components/parameters/profileIdQuery'
+      responses:
+        '201':
+          description: Json object with id of a resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resourceIdDto'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          description: No Record is found by inventory id
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Import marc record
+      x-summary-source: derived
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    TitleFieldRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Title of the Work or Instance resource
+      properties:
+        title:
+          type: array
+          description: The title of the work or instance
+          items:
+            type: object
+            oneOf:
+            - type: object
+              title: PrimaryTitleField
+              properties:
+                PrimaryTitle:
+                  type: object
+                  $ref: '#/components/schemas/PrimaryTitle'
+                  x-json-property: http://bibfra.me/vocab/library/Title
+                  description: The primary title of the work or instance
+            - type: object
+              title: VariantTitleField
+              properties:
+                VariantTitle:
+                  type: object
+                  $ref: '#/components/schemas/VariantTitle'
+                  x-json-property: http://bibfra.me/vocab/library/VariantTitle
+                  description: The variant title of the work or instance
+            - type: object
+              title: ParallelTitleField
+              properties:
+                ParallelTitle:
+                  type: object
+                  $ref: '#/components/schemas/ParallelTitle'
+                  x-json-property: http://bibfra.me/vocab/library/ParallelTitle
+                  description: The parallel title of the work or instance
+          x-json-property: http://bibfra.me/vocab/library/title
+          x-field-extra-annotation: '@org.folio.linked.data.validation.PrimaryTitleConstraint'
+    AuthorityRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Authority request DTO
+      allOf:
+      - $ref: '#/components/schemas/ProfileIdField'
+      - $ref: '#/components/schemas/Authority'
+      - type: object
+        properties:
+          map:
+            type: array
+            items:
+              $ref: '#/components/schemas/MapRequest'
+            x-json-property: http://library.link/vocab/map
+    Language:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Language object
+      type: object
+      x-from-string-field: term
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - properties:
+          code:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/code
+          term:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/term
+          link:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/link
+    marcRecord:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: MARC view container
+      type: object
+      properties:
+        content:
+          type: string
+          description: MARC view of resource in json
+    BaseTitleResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Base Title Fields
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/BaseTitle'
+    AccessLocation:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: AccessLocation
+      allOf:
+      - type: object
+        properties:
+          link:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/link
+          note:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/note
+    CopyrightEventResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Copyright event object
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/CopyrightEvent'
+    CategoryResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Category object
+      x-from-string-field: term
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/Category'
+    IdentifierRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Identifier request DTO
+      allOf:
+      - type: object
+        properties:
+          value:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/name
+          status:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Status'
+            x-json-property: http://bibfra.me/vocab/library/status
+          qualifier:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/qualifier
+    LanguageWithType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Language object with corresponding types
+      type: object
+      properties:
+        types:
+          type: array
+          items:
+            type: string
+          x-json-property: _types
+          description: The list of language types
+        codes:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Language'
+          x-json-property: _codes
+          description: List of language objects corresponding to the specified types.
+    ParallelTitleResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Parallel Title Info
+      allOf:
+      - $ref: '#/components/schemas/BaseTitleResponse'
+      - $ref: '#/components/schemas/ParallelTitle'
+    Status:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Status Info
+      allOf:
+      - type: object
+        properties:
+          link:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/link
+          value:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/label
+    DissertationResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Dissertation object
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/DissertationBase'
+      - type: object
+        properties:
+          _grantingInstitutionReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ReferenceResponse'
+    PartOfSeries:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Schema for a 'part of series' object which indicates if a work is part of a series.
+      allOf:
+      - type: object
+        properties:
+          name:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/name
+          issn:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/issn
+          volume:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/volume
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+    ProviderEventResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Provider Event
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/ProviderEventBase'
+      - type: object
+        properties:
+          providerPlace:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/PlaceResponse'
+            x-json-property: http://bibfra.me/vocab/lite/providerPlace
+    VariantTitle:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Variant Title Info
+      allOf:
+      - $ref: '#/components/schemas/BaseTitle'
+      - type: object
+        properties:
+          note:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/note
+          date:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/date
+          variantType:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/variantType
+    Classification:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Classification object
+      allOf:
+      - $ref: '#/components/schemas/ClassificationBase'
+      - type: object
+        properties:
+          status:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Status'
+            x-json-property: http://bibfra.me/vocab/library/status
+          _assigningSourceReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Reference'
+    FolioMetadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Metadata of the instance resource
+      properties:
+        source:
+          type: string
+          enum:
+          - MARC
+          - LINKED_DATA
+          description: The source of the instance
+        inventoryId:
+          type: string
+          description: ID of the instance in the Inventory application
+        srsId:
+          type: string
+          description: ID of the MARC bib record in the SRS application
+    ClassificationResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Dewey decimal classification object
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/ClassificationBase'
+      - type: object
+        properties:
+          status:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/StatusResponse'
+            x-json-property: http://bibfra.me/vocab/library/status
+          _assigningSourceReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ReferenceResponse'
+    HubRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Hub request DTO
+      allOf:
+      - $ref: '#/components/schemas/ProfileIdField'
+      - $ref: '#/components/schemas/TitleFieldRequest'
+      - type: object
+        properties:
+          languages:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Language'
+            x-json-property: http://bibfra.me/vocab/lite/language
+          _creatorReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Agent'
+          _contributorReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Agent'
+    WorkRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Work request DTO
+      allOf:
+      - $ref: '#/components/schemas/ProfileIdField'
+      - $ref: '#/components/schemas/TitleFieldRequest'
+      - type: object
+        properties:
+          targetAudience:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Category'
+            x-json-property: http://bibfra.me/vocab/library/targetAudience
+          tableOfContents:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/tableOfContents
+          summary:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/summary
+          _languages:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/LanguageWithType'
+            x-json-property: _languages
+          _notes:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Note'
+            x-json-property: _notes
+          subjects:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Reference'
+            x-json-property: http://bibfra.me/vocab/lite/subject
+          classification:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Classification'
+            x-json-property: http://bibfra.me/vocab/lite/classification
+          _creatorReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Agent'
+          _contributorReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Agent'
+          content:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Category'
+            x-json-property: http://bibfra.me/vocab/library/content
+          _geographicCoverageReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Reference'
+          _genreReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Reference'
+          dateStart:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/dateStart
+          dateEnd:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/dateEnd
+          governmentPublication:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Category'
+            x-json-property: http://bibfra.me/vocab/library/governmentPublication
+          originPlace:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Place'
+            x-json-property: http://bibfra.me/vocab/library/originPlace
+          dissertation:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Dissertation'
+            x-json-property: http://bibfra.me/vocab/scholar/dissertation
+          illustrations:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Category'
+            x-json-property: http://bibfra.me/vocab/library/illustrations
+          supplementaryContent:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Category'
+            x-json-property: http://bibfra.me/vocab/library/supplementaryContent
+          partOfSeries:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/PartOfSeries'
+            x-json-property: http://bibfra.me/vocab/relation/isPartOf
+            x-field-extra-annotation: '@org.folio.linked.data.validation.PartOfSeriesTitleConstraint'
+          characteristic:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Category'
+            x-json-property: http://bibfra.me/vocab/library/characteristic
+          _hubs:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/HubReferenceWithType'
+          _instanceReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/IdField'
+    PrimaryTitleResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Primary Title Info
+      allOf:
+      - $ref: '#/components/schemas/BaseTitleResponse'
+      - $ref: '#/components/schemas/PrimaryTitle'
+    ProviderEventRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Provider Event
+      allOf:
+      - $ref: '#/components/schemas/ProviderEventBase'
+      - type: object
+        properties:
+          providerPlace:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Place'
+            x-json-property: http://bibfra.me/vocab/lite/providerPlace
+    resourceRequestDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Resource request DTO
+      x-class-extra-annotation: '@org.folio.linked.data.validation.LccnUniqueConstraint'
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID of the resource
+        resource:
+          type: object
+          title: resourceRequestField
+          description: Resource request. Contains either an Instance or a Work request.
+          oneOf:
+          - title: InstanceField
+            properties:
+              Instance:
+                type: object
+                $ref: '#/components/schemas/InstanceRequest'
+                x-json-property: http://bibfra.me/vocab/lite/Instance
+                description: Instance request DTO
+          - title: WorkField
+            properties:
+              Work:
+                type: object
+                $ref: '#/components/schemas/WorkRequest'
+                x-json-property: http://bibfra.me/vocab/lite/Work
+                description: Work request DTO
+          - title: HubField
+            properties:
+              Hub:
+                type: object
+                $ref: '#/components/schemas/HubRequest'
+                x-json-property: http://bibfra.me/vocab/lite/Hub
+                description: Hub request DTO
+          - title: AuthorityField
+            properties:
+              Authority:
+                type: object
+                $ref: '#/components/schemas/AuthorityRequest'
+                x-json-property: _authority
+                description: Authority request DTO
+    VariantTitleResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Variant Title Info
+      allOf:
+      - $ref: '#/components/schemas/BaseTitleResponse'
+      - $ref: '#/components/schemas/VariantTitle'
+    Extent:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Extent
+      allOf:
+      - type: object
+        properties:
+          label:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/label
+          materialsSpec:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/materialsSpecified
+          note:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/note
+    PublicationFrequency:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Publication frequency DTO
+      type: object
+      properties:
+        label:
+          type: array
+          items:
+            type: string
+          description: Publication frequency label
+          x-json-property: http://bibfra.me/vocab/lite/label
+        link:
+          type: array
+          items:
+            type: string
+          description: Publication frequency link
+          x-json-property: http://bibfra.me/vocab/lite/link
+    HubResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Work Info
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/ProfileIdField'
+      - $ref: '#/components/schemas/TitleFieldResponse'
+      - type: object
+        properties:
+          languages:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Language'
+            x-json-property: http://bibfra.me/vocab/lite/language
+          _creatorReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/AgentResponse'
+          _contributorReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/AgentResponse'
+      x-implements:
+      - org.folio.linked.data.model.dto.HasTitle
+      - org.folio.linked.data.model.dto.HasCreator
+    TitleFieldResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Title of the Work or Instance resource
+      properties:
+        title:
+          type: array
+          description: The title of the work or instance
+          items:
+            type: object
+            oneOf:
+            - type: object
+              title: PrimaryTitleFieldResponse
+              properties:
+                PrimaryTitle:
+                  type: object
+                  $ref: '#/components/schemas/PrimaryTitleResponse'
+                  x-json-property: http://bibfra.me/vocab/library/Title
+                  description: The primary title of the work or instance
+            - type: object
+              title: VariantTitleFieldResponse
+              properties:
+                VariantTitle:
+                  type: object
+                  $ref: '#/components/schemas/VariantTitleResponse'
+                  x-json-property: http://bibfra.me/vocab/library/VariantTitle
+                  description: The variant title of the work or instance
+            - type: object
+              title: ParallelTitleFieldResponse
+              properties:
+                ParallelTitle:
+                  type: object
+                  $ref: '#/components/schemas/ParallelTitleResponse'
+                  x-json-property: http://bibfra.me/vocab/library/ParallelTitle
+                  description: The parallel title of the work or instance
+          x-json-property: http://bibfra.me/vocab/library/title
+    resourceIdDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Resource id DTO
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+    ClassificationBase:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Classification base object
+      allOf:
+      - type: object
+        properties:
+          code:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/code
+          source:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/source
+          itemNumber:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/itemNumber
+          editionNumber:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/editionNumber
+          edition:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/edition
+    Place:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Place
+      allOf:
+      - type: object
+        properties:
+          name:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/name
+          code:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/code
+          label:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/label
+          link:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/link
+    PrimaryTitle:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Primary Title Info
+      allOf:
+      - $ref: '#/components/schemas/BaseTitle'
+      - type: object
+        properties:
+          nonSortNum:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/bflc/nonSortNum
+    Reference:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Schema representing reference to a resource in the FOLIO graph or an external source from where the resource can be imported into FOLIO graph
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - type: object
+        properties:
+          label:
+            type: string
+          srsId:
+            type: string
+            description: ID of the MARC record in FOLIO's SRS system
+          rdfLink:
+            type: string
+            description: Hyperlink to an RDF resource in Bibframe 2 ontology (https://id.loc.gov/ontologies/bibframe.html)
+    IdField:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Schema representing the ID of a resource in the graph
+      type: object
+      properties:
+        id:
+          type: string
+          description: Hash / ID of the resource
+    WorkResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Work Info
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/ProfileIdField'
+      - $ref: '#/components/schemas/TitleFieldResponse'
+      - type: object
+        properties:
+          targetAudience:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CategoryResponse'
+            x-json-property: http://bibfra.me/vocab/library/targetAudience
+          tableOfContents:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/tableOfContents
+          summary:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/summary
+          _languages:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/LanguageWithType'
+            x-json-property: _languages
+          _notes:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Note'
+            x-json-property: _notes
+          subjects:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ReferenceResponse'
+            x-json-property: http://bibfra.me/vocab/lite/subject
+          classification:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ClassificationResponse'
+            x-json-property: http://bibfra.me/vocab/lite/classification
+          _creatorReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/AgentResponse'
+          _contributorReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/AgentResponse'
+          content:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CategoryResponse'
+            x-json-property: http://bibfra.me/vocab/library/content
+          _instanceReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/InstanceResponse'
+          _geographicCoverageReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ReferenceResponse'
+          _genreReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ReferenceResponse'
+          dateStart:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/dateStart
+          dateEnd:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/dateEnd
+          governmentPublication:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CategoryResponse'
+            x-json-property: http://bibfra.me/vocab/library/governmentPublication
+          originPlace:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/PlaceResponse'
+            x-json-property: http://bibfra.me/vocab/library/originPlace
+          dissertation:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/DissertationResponse'
+            x-json-property: http://bibfra.me/vocab/scholar/dissertation
+          illustrations:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CategoryResponse'
+            x-json-property: http://bibfra.me/vocab/library/illustrations
+          supplementaryContent:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CategoryResponse'
+            x-json-property: http://bibfra.me/vocab/library/supplementaryContent
+          partOfSeries:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/PartOfSeries'
+            x-json-property: http://bibfra.me/vocab/relation/isPartOf
+          characteristic:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CategoryResponse'
+            x-json-property: http://bibfra.me/vocab/library/characteristic
+          _hubs:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/HubReferenceWithType'
+          _analyticalEntry:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/LightWork'
+      x-implements:
+      - org.folio.linked.data.model.dto.HasTitle
+      - org.folio.linked.data.model.dto.HasCreator
+    PublicationFrequencyResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Publication frequency DTO
+      x-from-string-field: label
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/PublicationFrequency'
+      - type: object
+        properties:
+          code:
+            type: array
+            items:
+              type: string
+            description: Publication frequency code
+            x-json-property: http://bibfra.me/vocab/library/code
+    resourceResponseDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Resource response DTO
+      type: object
+      properties:
+        resource:
+          type: object
+          title: resourceResponseField
+          description: Resource response. Contains either an Instance or a Work
+          oneOf:
+          - title: InstanceResponseField
+            properties:
+              Instance:
+                type: object
+                $ref: '#/components/schemas/InstanceResponse'
+                x-json-property: http://bibfra.me/vocab/lite/Instance
+                description: Instance response DTO.
+          - title: WorkResponseField
+            properties:
+              Work:
+                type: object
+                $ref: '#/components/schemas/WorkResponse'
+                x-json-property: http://bibfra.me/vocab/lite/Work
+                description: Work response DTO.
+          - title: HubResponseField
+            properties:
+              Hub:
+                type: object
+                $ref: '#/components/schemas/HubResponse'
+                x-json-property: http://bibfra.me/vocab/lite/Hub
+                description: Hub response DTO.
+          - title: AuthorityResponseField
+            properties:
+              Authority:
+                type: object
+                $ref: '#/components/schemas/AuthorityResponse'
+                x-json-property: _authority
+                description: Authority response DTO
+    MapResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Identifier field response discriminated union
+      title: MapResponse
+      oneOf:
+      - type: object
+        title: LccnFieldResponse
+        properties:
+          Lccn:
+            type: object
+            $ref: '#/components/schemas/IdentifierResponse'
+            x-json-property: http://library.link/identifier/LCCN
+      - type: object
+        title: IssnFieldResponse
+        properties:
+          Issn:
+            type: object
+            $ref: '#/components/schemas/IdentifierResponse'
+            x-json-property: http://library.link/identifier/ISSN
+      - type: object
+        title: IsbnFieldResponse
+        properties:
+          Isbn:
+            type: object
+            $ref: '#/components/schemas/IdentifierResponse'
+            x-json-property: http://library.link/identifier/ISBN
+      - type: object
+        title: IanFieldResponse
+        properties:
+          Ian:
+            type: object
+            $ref: '#/components/schemas/IdentifierResponse'
+            x-json-property: http://library.link/identifier/IAN
+      - type: object
+        title: OtherIdFieldResponse
+        properties:
+          Identifier:
+            type: object
+            $ref: '#/components/schemas/IdentifierResponse'
+            x-json-property: http://library.link/identifier/UNKNOWN
+    MapRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Identifier field discriminated union
+      title: IdentifierField
+      oneOf:
+      - type: object
+        title: LccnField
+        properties:
+          Lccn:
+            type: object
+            $ref: '#/components/schemas/IdentifierRequest'
+            x-json-property: http://library.link/identifier/LCCN
+            x-field-extra-annotation: '@org.folio.linked.data.validation.LccnPatternConstraint'
+      - type: object
+        title: IssnField
+        properties:
+          Issn:
+            type: object
+            $ref: '#/components/schemas/IdentifierRequest'
+            x-json-property: http://library.link/identifier/ISSN
+      - type: object
+        title: IsbnField
+        properties:
+          Isbn:
+            type: object
+            $ref: '#/components/schemas/IdentifierRequest'
+            x-json-property: http://library.link/identifier/ISBN
+      - type: object
+        title: IanField
+        properties:
+          Ian:
+            type: object
+            $ref: '#/components/schemas/IdentifierRequest'
+            x-json-property: http://library.link/identifier/IAN
+      - type: object
+        title: OtherIdField
+        properties:
+          Identifier:
+            type: object
+            $ref: '#/components/schemas/IdentifierRequest'
+            x-json-property: http://library.link/identifier/UNKNOWN
+    ProviderEventBase:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Provider Event
+      allOf:
+      - type: object
+        properties:
+          date:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/date
+          name:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/name
+          providerDate:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/providerDate
+          simplePlace:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/place
+    AdminMetadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Administrative metadata for an Instance
+      allOf:
+      - type: object
+        properties:
+          transcribingAgency:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/transcribingAgency
+          catalogingAgency:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/catalogingAgency
+          modifyingAgency:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/modifyingAgency
+          createdDate:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/createdDate
+          controlNumber:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/controlNumber
+          catalogingLanguage:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Language'
+            x-json-property: http://bibfra.me/vocab/lite/catalogingLanguage
+    ParallelTitle:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Parallel Title Info
+      allOf:
+      - $ref: '#/components/schemas/BaseTitle'
+      - type: object
+        properties:
+          note:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/note
+          date:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/date
+    Dissertation:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Dissertation object
+      allOf:
+      - $ref: '#/components/schemas/DissertationBase'
+      - type: object
+        properties:
+          _grantingInstitutionReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Reference'
+    HubReferenceWithType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Hub reference with relation type
+      allOf:
+      - type: object
+        properties:
+          _relation:
+            type: string
+          _hub:
+            $ref: '#/components/schemas/Reference'
+    ProfileIdField:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Schema for the profile ID field used in request and response
+      type: object
+      properties:
+        profileId:
+          type: integer
+          format: int16
+          description: ID of the profile
+      required:
+      - profileId
+    PlaceResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Place
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/Place'
+    Agent:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Schema representing an agent, including their type and roles.
+      allOf:
+      - $ref: '#/components/schemas/Reference'
+      - type: object
+        properties:
+          type:
+            type: string
+          roles:
+            type: array
+            items:
+              type: string
+    AuthorityResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Authority response DTO
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/ProfileIdField'
+      - $ref: '#/components/schemas/Authority'
+      - type: object
+        properties:
+          map:
+            type: array
+            items:
+              $ref: '#/components/schemas/MapResponse'
+            x-json-property: http://library.link/vocab/map
+    Authority:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Authority object
+      allOf:
+      - type: object
+        properties:
+          name:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/name
+            x-field-extra-annotation: '@org.folio.linked.data.validation.AuthorityNameConstraint'
+          numeration:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/numeration
+          titles:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/titles
+          date:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/date
+          miscInfo:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/miscInfo
+          attribution:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/attribution
+          nameAlternative:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/nameAlternative
+          affiliation:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/scholar/affiliation
+          numberOfParts:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/numberOfParts
+          subordinateUnit:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/subordinateUnit
+          place:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/place
+          geographicCoverage:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/geographicCoverage
+    BaseTitle:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Base Title Fields
+      allOf:
+      - type: object
+        properties:
+          partName:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/partName
+          partNumber:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/partNumber
+          mainTitle:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/mainTitle
+          subTitle:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/subTitle
+    DissertationBase:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Dissertation base object
+      allOf:
+      - type: object
+        properties:
+          note:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/note
+          degree:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/degree
+          date:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/date
+          miscInfo:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/miscInfo
+          dissertationID:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/dissertationID
+    LightWork:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Light Work
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - type: object
+        properties:
+          label:
+            type: string
+          _relation:
+            type: string
+    AgentResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Response schema for an agent, extending the Agent definition with additional properties such as agent types and isPreferred flag.
+      allOf:
+      - $ref: '#/components/schemas/Agent'
+      - type: object
+        properties:
+          types:
+            type: array
+            items:
+              type: string
+          isPreferred:
+            type: boolean
+            description: Indicates whether resource is controlled or not
+    Category:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Category object
+      allOf:
+      - type: object
+        properties:
+          code:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/code
+          term:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/term
+          link:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/link
+          source:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/source
+    StatusResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Status Info
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/Status'
+    Note:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Note DTO
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            type: string
+          description: The note text
+        type:
+          type: array
+          items:
+            type: string
+          description: The note type
+    SupplementaryContent:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: SupplementaryContent
+      allOf:
+      - type: object
+        properties:
+          link:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/link
+          name:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/name
+    ReferenceResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Response schema for a reference, extending the Reference definition with additional properties such as reference types and isPreferred flag.
+      allOf:
+      - $ref: '#/components/schemas/Reference'
+      - type: object
+        properties:
+          types:
+            type: array
+            items:
+              type: string
+          isPreferred:
+            type: boolean
+            description: Indicates whether resource is controlled or not
+    InstanceRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Instance request DTO
+      allOf:
+      - $ref: '#/components/schemas/ProfileIdField'
+      - $ref: '#/components/schemas/TitleFieldRequest'
+      - type: object
+        properties:
+          production:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ProviderEventRequest'
+            x-json-property: http://bibfra.me/vocab/library/production
+          publication:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ProviderEventRequest'
+            x-json-property: http://bibfra.me/vocab/library/publication
+          distribution:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ProviderEventRequest'
+            x-json-property: http://bibfra.me/vocab/library/distribution
+          manufacture:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ProviderEventRequest'
+            x-json-property: http://bibfra.me/vocab/library/manufacture
+          map:
+            type: array
+            items:
+              $ref: '#/components/schemas/MapRequest'
+            x-json-property: http://library.link/vocab/map
+          supplementaryContent:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/SupplementaryContent'
+            x-json-property: http://bibfra.me/vocab/library/supplementaryContent
+          accessLocation:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/AccessLocation'
+            x-json-property: http://bibfra.me/vocab/library/accessLocation
+          media:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Category'
+            x-json-property: http://bibfra.me/vocab/library/media
+          carrier:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Category'
+            x-json-property: http://bibfra.me/vocab/library/carrier
+          edition:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/edition
+          copyright:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CopyrightEvent'
+            x-json-property: http://bibfra.me/vocab/library/copyright
+          extent:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Extent'
+            x-json-property: http://bibfra.me/vocab/lite/extent
+          dimensions:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/dimensions
+          projectProvisionDate:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/bflc/projectedProvisionDate
+            description: Projected publication date (YYMM)
+          issuance:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/issuance
+          statementOfResponsibility:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/statementOfResponsibility
+          bookFormat:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Category'
+            x-json-property: http://bibfra.me/vocab/library/bookFormat
+          publicationFrequency:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/PublicationFrequency'
+            x-json-property: http://bibfra.me/vocab/library/publicationFrequency
+          adminMetadata:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/AdminMetadata'
+            x-json-property: http://bibfra.me/vocab/library/adminMetadata
+          _notes:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Note'
+            x-json-property: _notes
+          _workReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/IdField'
+            x-field-extra-annotation: '@org.folio.linked.data.validation.InstanceSingleWorkConstraint'
+    InstanceResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Instance resource info
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/ProfileIdField'
+      - $ref: '#/components/schemas/TitleFieldResponse'
+      - type: object
+        properties:
+          production:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ProviderEventResponse'
+            x-json-property: http://bibfra.me/vocab/library/production
+          publication:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ProviderEventResponse'
+            x-json-property: http://bibfra.me/vocab/library/publication
+          distribution:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ProviderEventResponse'
+            x-json-property: http://bibfra.me/vocab/library/distribution
+          manufacture:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ProviderEventResponse'
+            x-json-property: http://bibfra.me/vocab/library/manufacture
+          map:
+            type: array
+            items:
+              $ref: '#/components/schemas/MapResponse'
+            x-json-property: http://library.link/vocab/map
+          supplementaryContent:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/SupplementaryContentResponse'
+            x-json-property: http://bibfra.me/vocab/library/supplementaryContent
+          accessLocation:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/AccessLocationResponse'
+            x-json-property: http://bibfra.me/vocab/library/accessLocation
+          media:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CategoryResponse'
+            x-json-property: http://bibfra.me/vocab/library/media
+          carrier:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CategoryResponse'
+            x-json-property: http://bibfra.me/vocab/library/carrier
+          edition:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/edition
+          copyright:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CopyrightEventResponse'
+            x-json-property: http://bibfra.me/vocab/library/copyright
+          extent:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/ExtentResponse'
+            x-json-property: http://bibfra.me/vocab/lite/extent
+          dimensions:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/dimensions
+          projectProvisionDate:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/bflc/projectedProvisionDate
+            description: Projected publication date (YYMM)
+          issuance:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/issuance
+          statementOfResponsibility:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/statementOfResponsibility
+          bookFormat:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/CategoryResponse'
+            x-json-property: http://bibfra.me/vocab/library/bookFormat
+          publicationFrequency:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/PublicationFrequencyResponse'
+            x-json-property: http://bibfra.me/vocab/library/publicationFrequency
+          adminMetadata:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/AdminMetadata'
+            x-json-property: http://bibfra.me/vocab/library/adminMetadata
+          _notes:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/Note'
+            x-json-property: _notes
+          _workReference:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/WorkResponse'
+          folioMetadata:
+            $ref: '#/components/schemas/FolioMetadata'
+      x-implements: org.folio.linked.data.model.dto.HasTitle
+    AccessLocationResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: AccessLocation
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/AccessLocation'
+    SupplementaryContentResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: SupplementaryContent
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/SupplementaryContent'
+    resourceMarcViewDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Resource marc view DTO
+      properties:
+        id:
+          type: string
+          description: ID of the resource
+        recordType:
+          type: string
+          description: view format of the resource
+        parsedRecord:
+          type: object
+          $ref: '#/components/schemas/marcRecord'
+          description: MARC record
+    error:
+      description: An error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+    IdentifierResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Identifier response DTO
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - type: object
+        properties:
+          value:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/name
+          status:
+            type: array
+            items:
+              type: object
+              $ref: '#/components/schemas/StatusResponse'
+            x-json-property: http://bibfra.me/vocab/library/status
+          qualifier:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/library/qualifier
+    CopyrightEvent:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Copyright event object
+      allOf:
+      - type: object
+        properties:
+          date:
+            type: array
+            items:
+              type: string
+            x-json-property: http://bibfra.me/vocab/lite/date
+    ExtentResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Extent
+      x-from-string-field: label
+      allOf:
+      - $ref: '#/components/schemas/IdField'
+      - $ref: '#/components/schemas/Extent'
+  parameters:
+    profileIdQuery:
+      name: profileId
+      in: query
+      required: false
+      description: ID of the profile
+      schema:
+        type: integer
+        format: int16
+    inventoryId:
+      name: inventoryId
+      in: path
+      required: true
+      description: Inventory ID (999 $i) of the MARC record in SRS
+      schema:
+        type: string
+    id:
+      name: id
+      in: path
+      required: true
+      description: Linked Data resource id
+      schema:
+        type: integer
+        format: int64
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example: example/unknownError.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example: examples/validationErrorResponse.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mod-linked-data-openapi.json
+- folio-mod-linked-data-openapi.yml

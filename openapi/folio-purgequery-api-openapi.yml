@@ -1,0 +1,106 @@
+openapi: 3.2.0
+info:
+  title: Folio Purge Query API
+  version: v1
+  description: 'Operations tagged purgeQuery across 2 of this provider''s published API definitions: folio-mod-fqm-manager-openapi.json, folio-mod-fqm-manager-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-etesting-snapshot-kong.ci.folio.org/
+tags:
+- name: purgeQuery
+paths:
+  /query/purge:
+    post:
+      operationId: deleteOldQueries
+      tags:
+      - purgeQuery
+      description: Deletes all queries that are older than the configured duration.
+      responses:
+        '200':
+          description: IDs of deleted queries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurgedQueries'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Delete old queries
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    PurgedQueries:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: IDs of deleted queries
+      description: IDs of deleted queries
+      type: object
+      properties:
+        deletedQueryIds:
+          description: Ids of the deleted queries
+          type: array
+          items:
+            type: string
+            format: UUID
+      required:
+      - deletedQueryIds
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        code:
+          type: string
+          description: Error message code
+          enum:
+          - entity.type.access.denied
+          - entity.type.in.use
+          - entity.type.invalid
+          - entity.type.not.found
+          - entity.type.source.missing
+          - field.not.found
+          - migration.query.changed
+          - permissions.missing
+          - query.invalid
+          - query.not.found
+          - query.too.large
+          - unknown.error
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+      - code
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+  responses:
+    badRequestResponse:
+      description: Invalid request
+      content:
+        application/json:
+          example:
+            message: Entity type ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
+            code: entity.type.not.found
+          schema:
+            $ref: '#/components/schemas/error'
+x-refined-from:
+- folio-mod-fqm-manager-openapi.json
+- folio-mod-fqm-manager-openapi.yml

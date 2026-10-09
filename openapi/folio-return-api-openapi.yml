@@ -1,0 +1,74 @@
+openapi: 3.2.0
+info:
+  title: Folio Return API
+  version: v1
+  description: 'Operations tagged Return across 2 of this provider''s published API definitions: folio-mod-remote-storage-openapi.json, folio-mod-remote-storage-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /remote-storage/
+tags:
+- name: Return
+paths:
+  /return/{remoteStorageConfigurationId}:
+    post:
+      responses:
+        '200':
+          description: Return the item by barcode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/returnItemResponse'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Return the item by barcode
+      operationId: returnItemByBarcode
+      parameters:
+      - name: remoteStorageConfigurationId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/checkInItem'
+        required: true
+      tags:
+      - Return
+      summary: Return item by barcode
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+components:
+  schemas:
+    returnItemResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Value of item's barcode to check in an item at service points
+      properties:
+        isHoldRecallRequestExist:
+          description: Barcode of the item to be checked in
+          type: boolean
+          default: 'false'
+      additionalProperties: false
+      required:
+      - isHoldRecallRequestExist
+    checkInItem:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Value of item's barcode to check in an item at service points
+      properties:
+        itemBarcode:
+          description: Barcode of the item to be checked in
+          type: string
+      additionalProperties: false
+      required:
+      - itemBarcode
+x-refined-from:
+- folio-mod-remote-storage-openapi.json
+- folio-mod-remote-storage-openapi.yml

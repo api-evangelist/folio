@@ -1,0 +1,640 @@
+openapi: 3.2.0
+info:
+  title: Folio Files API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Files across 4 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-licenses-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Files
+paths:
+  /erm/files:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Files
+      summary: Get a set of File records
+      operationId: getFiles
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/FileResults'
+                - $ref: '#/components/schemas/FileResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    post:
+      tags:
+      - Files
+      summary: Upload a file
+      operationId: postFiles
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - upload
+              properties:
+                upload:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/files/{fileId}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/fileId'
+    get:
+      tags:
+      - Files
+      summary: Get a specified File record
+      operationId: getFile
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    delete:
+      tags:
+      - Files
+      summary: Delete a specified File record
+      operationId: deleteFile
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/files/{fileId}/raw:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/fileId'
+    get:
+      tags:
+      - Files
+      summary: Download the raw contents of a specified File record
+      operationId: getFileRaw
+      description: Streams the stored file bytes back with the content type recorded against the File record (rather than a fixed content type).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/files:
+    description: Supports search and upload of files
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Files
+      summary: Get a set of file records
+      operationId: getLicensesFiles
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/FileUploadResults'
+                - $ref: '#/components/schemas/FileUploadResultsArray'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: getFiles
+    post:
+      tags:
+      - Files
+      summary: Upload a file
+      operationId: postFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - upload
+              properties:
+                upload:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUpload'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/files/{fileId}:
+    get:
+      tags:
+      - Files
+      summary: Get a specified file record
+      operationId: getLicensesFilesByFileId
+      parameters:
+      - $ref: '#/components/parameters/fileId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUpload'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: getFile
+    delete:
+      tags:
+      - Files
+      summary: Delete a specified file record
+      operationId: deleteLicensesFilesByFileId
+      parameters:
+      - $ref: '#/components/parameters/fileId'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteFile
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/files/{fileId}/raw:
+    get:
+      tags:
+      - Files
+      summary: Download the raw content of a specified file
+      operationId: getLicensesFilesByFileIdRaw
+      parameters:
+      - $ref: '#/components/parameters/fileId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK. The response body is the raw file content; the Content-Type header reflects the original uploaded file's content type.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: getFileRaw
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  parameters:
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    fileId:
+      in: path
+      name: fileId
+      description: UUID for a file
+      required: true
+      schema:
+        type: string
+        format: uuid
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+  schemas:
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    FileResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/File'
+    FileResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/FileResultsArray'
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    File:
+      type: object
+      required:
+      - id
+      - name
+      - size
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          type: string
+          description: MIME type of the uploaded file
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          description: Original filename of the uploaded file
+        size:
+          type: integer
+          description: Size of the uploaded file in bytes
+    FileUpload:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          description: Original filename of the uploaded file
+        contentType:
+          type: string
+          description: MIME type of the uploaded file
+        size:
+          type: integer
+          description: Size of the uploaded file in bytes
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+    FileUploadResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/FileUpload'
+    ValidationError:
+      type: object
+      required:
+      - message
+      - path
+      - _links
+      properties:
+        message:
+          type: string
+        path:
+          type: string
+        _links:
+          type: object
+          required:
+          - self
+          properties:
+            self:
+              type: object
+              required:
+              - href
+              properties:
+                href:
+                  type: string
+                  format: uri
+    FileUploadResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/FileUploadResultsArray'
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-licenses-openapi.json
+- folio-mod-agreements-openapi.yml
+- folio-mod-licenses-openapi.yml

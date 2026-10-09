@@ -1,0 +1,170 @@
+openapi: 3.2.0
+info:
+  title: Folio Tlr Settings API
+  version: v1
+  description: 'Operations tagged tlrSettings across 2 of this provider''s published API definitions: folio-mod-tlr-tlr-settings-openapi.json, folio-mod-tlr-tlr-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: tlrSettings
+paths:
+  /tlr/settings:
+    get:
+      description: Retrieve TLR Settings
+      operationId: getTlrSettings
+      tags:
+      - tlrSettings
+      responses:
+        '200':
+          $ref: '#/components/responses/tlr-settings'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get tlr settings
+      x-summary-source: derived
+    put:
+      description: Update TLR Settings
+      operationId: putTlrSettings
+      tags:
+      - tlrSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TlrSettings'
+        required: true
+      responses:
+        '204':
+          description: Request successfully updated
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Put tlr settings
+      x-summary-source: derived
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    TlrSettings:
+      description: TLR Settings in a multi-tenant environment with Сonsortia support enabled
+      type: object
+      properties:
+        id:
+          description: ID of the ECS TLR Settings
+          $ref: '#/components/schemas/uuid'
+        ecsTlrFeatureEnabled:
+          description: Indicates if TLR feature is enabled
+          type: boolean
+        excludeFromEcsRequestLendingTenantSearch:
+          description: Array of tenant IDs to exclude from ECS request lending tenant search
+          type: array
+          items:
+            type: string
+      required:
+      - ecsTlrFeatureEnabled
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+  responses:
+    tlr-settings:
+      description: TLR Settings
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TlrSettings'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Unexpected error
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request is invalid
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mod-tlr-tlr-settings-openapi.json
+- folio-mod-tlr-tlr-settings-openapi.yml

@@ -1,0 +1,73 @@
+openapi: 3.2.0
+info:
+  title: Folio Update ASR Item Status Being Retrieved API
+  version: v1
+  description: 'Operations tagged UpdateASRItemStatusBeingRetrieved across 2 of this provider''s published API definitions: folio-edge-dematic-openapi.json, folio-edge-dematic-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /asrService/asr/
+tags:
+- name: UpdateASRItemStatusBeingRetrieved
+paths:
+  /updateASRItemStatusBeingRetrieved/{remoteStorageConfigurationId}:
+    post:
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/updateAsrItem'
+        required: true
+      responses:
+        '200':
+          description: The polling API for retrievals
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Chek-in item
+      operationId: updateAsrItemCheckIn
+      parameters:
+      - $ref: '#/components/parameters/storage_id'
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      tags:
+      - UpdateASRItemStatusBeingRetrieved
+      summary: Update asr item check in
+      x-summary-source: derived
+    servers:
+    - url: /asrService/asr/
+components:
+  parameters:
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: true
+      schema:
+        type: string
+    storage_id:
+      name: remoteStorageConfigurationId
+      in: path
+      required: true
+      schema:
+        type: string
+    x-okapi-tenant:
+      name: x-okapi-tenant
+      in: header
+      required: true
+      schema:
+        type: string
+  schemas:
+    updateAsrItem:
+      type: object
+      properties:
+        itemBarcode:
+          type: string
+        itemStatus:
+          type: string
+        operatorId:
+          type: string
+x-refined-from:
+- folio-edge-dematic-openapi.json
+- folio-edge-dematic-openapi.yml

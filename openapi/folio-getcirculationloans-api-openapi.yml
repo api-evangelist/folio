@@ -1,0 +1,560 @@
+openapi: 3.2.0
+info:
+  title: Folio Get Circulation Loans API
+  version: v1
+  description: 'Operations tagged getCirculationLoans across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: getCirculationLoans
+paths:
+  /circulation-bff/loans:
+    get:
+      operationId: findCirculationLoansByQuery
+      parameters:
+      - $ref: '#/components/parameters/query'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/totalRecords'
+      tags:
+      - getCirculationLoans
+      responses:
+        '200':
+          description: List of circulation loans with extended information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/circulationLoans'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find circulation loans by query
+      x-summary-source: derived
+components:
+  parameters:
+    offset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        description: Skip over a number of elements by specifying an offset value for the query
+        default: 0
+        example: 0
+        minimum: 0
+        maximum: 2147483647
+    totalRecords:
+      name: totalRecords
+      in: query
+      required: false
+      schema:
+        type: string
+        description: "How to calculate the totalRecords property.\n  - \"exact\" for the correct number\n  - \"estimated\" for an estimation\n  - \"auto\" to automatically select \"exact\" or \"estimated\"\n  - \"none\" for suppressing the totalRecords property.\nFor details see https://github.com/folio-org/raml-module-builder#estimated-totalrecords\n"
+        default: auto
+        pattern: exact|estimated|none|auto
+    query:
+      name: query
+      in: query
+      required: true
+      schema:
+        type: string
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        description: "Limit the number of elements returned in the response.\nUsing limit=0 will return totalRecords with the exact value.\nFor details about totalRecords see:\n  - https://github.com/folio-org/raml-module-builder#estimated-totalrecords\n"
+        default: 10
+        example: 10
+        minimum: 0
+        maximum: 2147483647
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
+    bffSearchItemCallNumberComponents:
+      type: object
+      description: Elements of a full call number generated from the item or holding
+      properties:
+        callNumber:
+          type: string
+          description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item
+        prefix:
+          type: string
+          description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item
+        suffix:
+          type: string
+          description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    circulationLoans:
+      title: Collection of loans
+      description: Collection of circulation loans
+      type: object
+      properties:
+        loans:
+          description: Paged collection of circulation loans
+          id: loans
+          type: array
+          items:
+            $ref: '#/components/schemas/circulationLoan'
+        totalRecords:
+          description: Total number of circulation loan records
+          type: integer
+    bffSearchItemInTransitDestinationServicePoint:
+      type: object
+      description: Service point an item is intended to be transited to (should only be present when in transit)
+      properties:
+        id:
+          description: The ID of the service point
+          type: string
+          format: uuid
+        name:
+          description: Name of the service point
+          type: string
+    loanItem:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: CirculationLoanItem
+      description: Circulation Loan Item
+      properties:
+        id:
+          description: ID of the item
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        tenantId:
+          description: Tenant identifier
+          type: string
+        title:
+          description: The title of the item lent to the patron
+          type: string
+        callNumber:
+          description: Deprecated call number from the holdings record, use callNumberComponents.callNumber instead
+          type: string
+        callNumberComponents:
+          $ref: '#/components/schemas/bffSearchItemCallNumberComponents'
+        copyNumber:
+          description: Item copy number
+          type: string
+        editions:
+          description: The edition statements, imprints and other publication source information
+          type: array
+          uniqueItems: true
+          items:
+            description: The edition statement, imprint and other publication source information
+            type: string
+        materialType:
+          description: The material type from the item record
+          type: object
+          properties:
+            name:
+              description: Name of the material type
+              type: string
+        contributors:
+          description: Contributors from the instance record
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                description: Name of the contributor
+                type: string
+        primaryContributor:
+          description: primary contributor of the item
+          type: string
+        holdingsRecordId:
+          description: The ID of the holdings for the item
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        instanceId:
+          description: The ID of the instance for the item
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        instanceHrid:
+          type: string
+          description: The human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID
+        barcode:
+          description: The barcode of the item
+          type: string
+        location:
+          description: The effective location of the item
+          type: object
+          properties:
+            name:
+              description: The name of the location
+              type: string
+        status:
+          description: Overall status of the item
+          type: object
+          properties:
+            name:
+              description: Name of the item status
+              type: string
+            date:
+              type: string
+              description: Date time when status was last changed
+              format: date-time
+        inTransitDestinationServicePointId:
+          description: Service point an item is intended to be transited to (should only be present when in transit)
+          type: string
+          format: uuid
+        inTransitDestinationServicePoint:
+          $ref: '#/components/schemas/bffSearchItemInTransitDestinationServicePoint'
+        enumeration:
+          description: Item`s enumeration
+          type: string
+        chronology:
+          description: Item`s chronology
+          type: string
+        volume:
+          description: Item`s volume
+          type: string
+        displaySummary:
+          description: Display summary about the item
+          type: string
+        datesOfPublication:
+          type: array
+          description: Dates of publication, distribution, etc.
+          items:
+            description: Date (year YYYY) of publication, distribution, etc.
+            type: string
+        accessionNumber:
+          type: string
+          description: Also called inventory number
+        physicalDescriptions:
+          type: array
+          description: Physical description of the described resource, including its extent, dimensions, and such other physical details as a description of any accompanying materials and unit type and size
+          items:
+            type: string
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    circulationLoan:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: Loan
+      description: Links the item with the patron and applies certain conditions based on policies
+      properties:
+        id:
+          description: Unique ID (generated UUID) of the loan
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        userId:
+          description: ID of the patron the item was lent to. Required for open loans, not required for closed loans (for anonymization).
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        borrower:
+          description: Additional information about the borrower of the item, taken from the user referred to by the userId
+          type: object
+          properties:
+            firstName:
+              description: first name of the borrower (read only, defined by the server)
+              type: string
+            lastName:
+              description: last name of the borrower (read only, defined by the server)
+              type: string
+            middleName:
+              description: middle name of the borrower (read only, defined by the server)
+              type: string
+            barcode:
+              description: barcode used to identify the borrower (read only, defined by the server)
+              type: string
+            preferredFirstName:
+              description: preferred first name of the borrower (read only, defined by the server)
+              type: string
+            patronGroup:
+              description: current patron group of the borrower (read only, defined by the server)
+              type: string
+        proxyUserId:
+          description: ID of the user representing a proxy for the patron
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        itemId:
+          description: ID of the item lent to the patron
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        loanPolicyId:
+          description: ID of last policy used in relation to this loan
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        loanPolicy:
+          description: Additional information about the loan policy of the item, taken from the loan loanPolicyId
+          type: object
+          properties:
+            name:
+              description: Name of last policy used in relation to this loan (read only, defined by the server)
+              type: string
+        overdueFinePolicyId:
+          description: ID of last overdue fine policy used in relation to this loan
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        overdueFinePolicy:
+          description: Additional information about the overdue fine policy of the item, taken from the loan overdueFinePolicyId
+          type: object
+          properties:
+            name:
+              description: Name of last overdue fine policy used in relation to this loan (read only, defined by the server)
+              type: string
+        lostItemPolicyId:
+          description: ID of last lost item policy used in relation to this loan
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        lostItemPolicy:
+          description: Additional information about the lost item policy of the item, taken from the loan lostItemPolicyId
+          type: object
+          properties:
+            name:
+              description: Name of last lost item policy used in relation to this loan (read only, defined by the server)
+              type: string
+        item:
+          $ref: '#/components/schemas/loanItem'
+        itemEffectiveLocationIdAtCheckOut:
+          description: The effective location, at the time of checkout, of the item loaned to the patron.
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        status:
+          description: Overall status of the loan
+          type: object
+          properties:
+            name:
+              description: Name of the status (currently can be any value, values commonly used are Open and Closed)
+              type: string
+        loanDate:
+          description: Date and time when the loan began
+          type: string
+          format: date-time
+        dueDate:
+          description: Date and time when the item is due to be returned
+          type: string
+          format: date-time
+        returnDate:
+          description: Date and time when the item was returned
+          type: string
+          format: date-time
+        systemReturnDate:
+          description: Date and time when return was processed
+          type: string
+          format: date-time
+        action:
+          description: Last action performed on a loan (currently can be any value, values commonly used are checkedout and checkedin)
+          type: string
+        actionComment:
+          description: Last action performed on a loan comments
+          type: string
+        renewalCount:
+          description: Count of how many times a loan has been renewed (incremented by the client)
+          type: integer
+          minimum: 0
+        dueDateChangedByRecall:
+          description: Is due date changed by recall request
+          type: boolean
+        dueDateChangedByNearExpireUser:
+          description: Indicates whether or not this loan had its due date modified by a expired user
+          type: boolean
+        dueDateChangedByHold:
+          description: Is due date changed by hold request
+          type: boolean
+        checkoutServicePointId:
+          description: ID of the Service Point where the last checkout occurred
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        checkinServicePointId:
+          description: ID of the Service Point where the last checkin occurred
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        checkoutServicePoint:
+          description: Service Point where the last checkout occurred
+          type: object
+          properties:
+            name:
+              description: Unique name of the service point
+              type: string
+            code:
+              description: Short code for the service point
+              type: string
+            discoveryDisplayName:
+              description: Human readable name
+              type: string
+            description:
+              description: Service Point description data
+              type: string
+            shelvingLagTime:
+              description: Time to shelving
+              type: integer
+            pickupLocation:
+              description: Is this a pickup location
+              type: boolean
+            holdShelfClosedLibraryDateManagement:
+              description: Hold shelf closed date strategy
+              type: string
+        checkinServicePoint:
+          description: Service Point where the last checkin occurred
+          type: object
+          $schema: http://json-schema.org/draft-04/schema#
+          properties:
+            name:
+              description: Unique name of the service point
+              type: string
+            code:
+              description: Short code for the service point
+              type: string
+            discoveryDisplayName:
+              description: Human readable name
+              type: string
+            description:
+              description: Service Point description data
+              type: string
+            shelvingLagTime:
+              description: Time to shelving
+              type: integer
+            pickupLocation:
+              description: Is this a pickup location
+              type: boolean
+            holdShelfClosedLibraryDateManagement:
+              description: Hold shelf closed date strategy
+              type: string
+        patronGroupAtCheckout:
+          description: Patron Group at checkout
+          type: object
+          properties:
+            id:
+              description: Unique ID (generated UUID) of the patron group
+              type: string
+              pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+            name:
+              description: Patron group name
+              type: string
+        feesAndFines:
+          description: Fees and fines associated with loans
+          type: object
+          properties:
+            amountRemainingToPay:
+              type: number
+              description: Total remaining amount due on fees and fines for the loan (read only, defined by the server)
+        declaredLostDate:
+          description: Date and time the item was declared lost during this loan
+          type: string
+          format: date-time
+        isDcb:
+          description: Indicates whether or not this loan is associated for DCB use case
+          type: boolean
+        metadata:
+          description: Metadata about creation and changes to loan, provided by the server (client should not provide)
+          type: object
+          $schema: http://json-schema.org/draft-04/schema#
+          id: metadata.schema
+          title: Metadata Schema
+          properties:
+            createdDate:
+              description: Date and time when the record was created
+              type: string
+              format: date-time
+            createdByUserId:
+              description: ID of the user who created the record (when available)
+              type: string
+              pattern: ^[a-fA-F0-9]{8}-[a-fA-F]{4}-[a-fA-F]{4}-[a-f]{4}-[a-f]{12}$
+            createdByUsername:
+              description: Username of the user who created the record (when available)
+              type: string
+            updatedDate:
+              description: Date and time when the record was last updated
+              type: string
+              format: date-time
+            updatedByUserId:
+              description: ID of the user who last updated the record (when available)
+              type: string
+              pattern: ^[a-fA-F]{8}-[a-f]{4}-[a-f]{4}-[a-f]{4}-[a-f]{12}$
+            updatedByUsername:
+              description: Username of the user who last updated the record (when available)
+              type: string
+  examples:
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
+    unprocessableEntityResponse:
+      description: Validation error for the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            response:
+              $ref: '#/components/examples/validationErrorResponse'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            validationErrorResponse:
+              $ref: '#/components/examples/validationErrorResponse'
+x-refined-from:
+- folio-mod-circulation-bff-circulationbff-openapi.json
+- folio-mod-circulation-bff-circulationbff-openapi.yml

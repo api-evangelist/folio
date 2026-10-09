@@ -1,0 +1,519 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-custom-entity-type-schema.json",
+  "title": "Custom Entity Type Schema",
+  "description": "A definition of a custom entity types that can be used in the Query Tool",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-folio-query-tool-metadata-querytool-openapi.yml#/components/schemas/customEntityType",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "#/$defs/EntityType",
+      "required": []
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "_version": {
+          "description": "FQL query version, used for migrations",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/description"
+        },
+        "private": {
+          "$ref": "#/$defs/private"
+        },
+        "owner": {
+          "description": "A UUID identifying entity type owner",
+          "type": "string",
+          "format": "uuid"
+        },
+        "shared": {
+          "description": "Denotes if the entity type is shared (true) or private (false)",
+          "type": "boolean",
+          "default": false
+        },
+        "createdAt": {
+          "description": "The creation timestamp of the entity type",
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "description": "The update timestamp of the entity type",
+          "type": "string",
+          "format": "date-time"
+        },
+        "isCustom": {
+          "description": "Discriminator field to distinguish custom entity types from system entity types",
+          "type": "boolean",
+          "default": true,
+          "const": true
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "EntityDataType": {
+      "type": "object",
+      "properties": {
+        "dataType": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataType"
+      ]
+    },
+    "EntityType": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A UUID identifying entity type",
+          "type": "string"
+        },
+        "name": {
+          "description": "The unique name of entity type like User, Loan, Item, etc.",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of the entity type",
+          "type": "string"
+        },
+        "labelAlias": {
+          "description": "The identifier used for a localized label/name for this entity.",
+          "type": "string"
+        },
+        "private": {
+          "description": "This flag denotes whether the entity type is private or not. Private entity types cannot be accessed by users for querying.",
+          "type": "boolean"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityTypeColumn"
+          },
+          "default": []
+        },
+        "crossTenantQueriesEnabled": {
+          "description": "Indicates if this entity type supports cross-tenant queries",
+          "type": "boolean",
+          "default": false
+        },
+        "defaultSort": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityTypeDefaultSort"
+          }
+        },
+        "groupByFields": {
+          "description": "Ordered list of fields used in the GROUP BY clause for this entity type",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityTypeSource"
+          },
+          "default": []
+        },
+        "requiredPermissions": {
+          "description": "List of permissions required to query this entity type",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "filterConditions": {
+          "description": "Filter conditions to be included in the WHERE clause of this entity type",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "additionalEcsConditions": {
+          "description": "Additional conditions to be included in the WHERE clause of this entity type in ECS environments",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "deleted": {
+          "description": "Indicates if this entity type is deleted",
+          "type": "boolean",
+          "default": false
+        },
+        "usedBy": {
+          "description": "List of modules that use this entity type",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "private"
+      ],
+      "additionalProperties": true
+    },
+    "description": {
+      "description": "A description of the entity type",
+      "type": "string"
+    },
+    "entityTypeColumn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Entity Type Column Schema",
+      "description": "A definition of the entity type column",
+      "allOf": [
+        {
+          "$ref": "#/$defs/field"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "visibleByDefault": {
+              "description": "Indicates if the column should be shown by default when the entity is viewed.",
+              "type": "boolean"
+            },
+            "isCustomField": {
+              "description": "Indicates if the column belongs to the custom field.",
+              "type": "boolean"
+            },
+            "isIdColumn": {
+              "description": "Indicates if the column is part of the unique identifier for this entity type",
+              "type": "boolean"
+            },
+            "sourceAlias": {
+              "description": "Source alias for this column",
+              "type": "string"
+            },
+            "essential": {
+              "description": "Indicates if a column is crucial to the definition of an entity type",
+              "type": "boolean"
+            },
+            "joinsTo": {
+              "description": "A set of columns which this column may be joined to",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/join"
+              },
+              "default": []
+            },
+            "originalEntityTypeId": {
+              "description": "[Internal only, not for definitions] The simplest entity type that this column is derived from",
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxColumnWidth": {
+              "description": "The maximum width of the column when displayed in the UI",
+              "type": "integer"
+            }
+          },
+          "required": []
+        }
+      ]
+    },
+    "entityTypeDefaultSort": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Default sort criteria for an entity type",
+      "description": "A definition of default sort criteria for an entity type",
+      "type": "object",
+      "properties": {
+        "columnName": {
+          "description": "Name of the column using which entity type has to be sorted",
+          "type": "string"
+        },
+        "direction": {
+          "description": "Direction of the sort (Ascending or Descending)",
+          "type": "string",
+          "enum": [
+            "ASC",
+            "DESC"
+          ]
+        }
+      },
+      "required": [
+        "columnName",
+        "direction"
+      ]
+    },
+    "entityTypeSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Entity Type Source",
+      "description": "Definition for an entity type source, which provide a set of fields and can be joined with other sources",
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "description": "Type of source. Valid values are db, entity-type",
+              "type": "string"
+            },
+            "alias": {
+              "description": "Alias of this source to be used in query/later joins",
+              "type": "string"
+            },
+            "name": {
+              "description": "Name of this source. If set, this will override any source name translations",
+              "type": "string"
+            },
+            "joinedViaEntityType": {
+              "description": "[Internal use only, should not be included in definitions] The owning entity's alias, if this source's joining is handled by a parent entity in a cross-entity join",
+              "type": "string"
+            },
+            "order": {
+              "description": "Order of the inherited fields from this source, relative to the fields from other sources. Defaults to 1073741823 (INT_MAX/2)",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "type",
+            "alias"
+          ]
+        }
+      ]
+    },
+    "field": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Source/query column details",
+      "description": "Properties for sourcing/querying a column or nested property",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of this field.",
+          "type": "string"
+        },
+        "dataType": {
+          "description": "The data type for this field.",
+          "$ref": "#/$defs/EntityDataType"
+        },
+        "labelAlias": {
+          "description": "A pre-localized identifier used to label/name this column.",
+          "type": "string"
+        },
+        "queryable": {
+          "description": "Indicates whether this column can be used in a query.",
+          "type": "boolean"
+        },
+        "queryOnly": {
+          "description": "Indicates whether this column can be used for querying only. If true, the column can be used in a query but cannot be included in results.",
+          "type": "boolean"
+        },
+        "source": {
+          "description": "Reference to the root entity type column, from where the values of this column are sourced.",
+          "$ref": "#/$defs/sourceColumn"
+        },
+        "valueSourceApi": {
+          "description": "Configuration defining where the available values for a column can be accessed",
+          "$ref": "#/$defs/valueSourceApi"
+        },
+        "valueGetter": {
+          "description": "Configuration defining how to fetch values of this column from the underlying datasource.",
+          "type": "string"
+        },
+        "filterValueGetter": {
+          "description": "Configuration defining how to filter values of this column from the underlying datasource when indexed values aren't very user-friendly.",
+          "type": "string"
+        },
+        "idColumnName": {
+          "description": "Name of the corresponding ID column, if this column contains the value of an ID.",
+          "type": "string"
+        },
+        "valueFunction": {
+          "description": "Configuration defining how to transform a static value for comparison with values produced by the filterValueGetter. This is useful when the filterValueGetter does extra processing that is not visible to the user. The static value can be referenced with ':value'",
+          "type": "string"
+        },
+        "hidden": {
+          "description": "Indicates if the field is hidden in UI",
+          "type": "boolean",
+          "default": false
+        },
+        "values": {
+          "type": "array",
+          "description": "Array of values for this column",
+          "items": {
+            "$ref": "#/$defs/valueWithLabel"
+          }
+        },
+        "ecsOnly": {
+          "description": "Indicates if the field is available only in ECS environments",
+          "type": "boolean"
+        },
+        "validated": {
+          "description": "Indicates if the field values are validated against a predefined format or set of values",
+          "type": "boolean",
+          "default": false
+        },
+        "localizeForExports": {
+          "description": "Indicates if the field values should be localized when exported (e.g., translating enum values or formatted values for exports)",
+          "type": "boolean",
+          "default": false
+        },
+        "defaultValue": {
+          "description": "Default value for this field if none is provided"
+        },
+        "availableOperators": {
+          "description": "The operators available for this field when building queries. When set, this overrides the default operator set for the data type. When absent, the default operators for the data type are used.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "dataType"
+      ]
+    },
+    "id": {
+      "description": "A UUID identifying entity type",
+      "type": "string"
+    },
+    "join": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Definition of a possible field join",
+      "description": "A listing of a way for a field to join to another",
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "description": "The ID of the target entity type",
+              "type": "string",
+              "format": "uuid"
+            },
+            "targetField": {
+              "description": "The field on the target entity type",
+              "type": "string"
+            },
+            "type": {
+              "description": "Type of join expression (e.g. custom, equality-simple, equality-cast-uuid)",
+              "type": "string"
+            },
+            "direction": {
+              "$ref": "#/$defs/joinDirection"
+            }
+          },
+          "required": [
+            "targetId",
+            "targetField",
+            "type"
+          ]
+        }
+      ]
+    },
+    "joinDirection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "description": "Direction of the join, from the perspective of :this JOIN :target (e.g. inner, left, right)",
+      "type": "string",
+      "enum": [
+        "inner",
+        "left",
+        "right",
+        "full"
+      ]
+    },
+    "private": {
+      "description": "This flag denotes whether the entity type is private or not. Private entity types cannot be accessed by users for querying.",
+      "type": "boolean"
+    },
+    "sourceColumn": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Source of an entity type column",
+      "description": "Source of an entity type column, from where the values for the column can be derived",
+      "type": "object",
+      "properties": {
+        "entityTypeId": {
+          "description": "A UUID identifying the source entity type",
+          "type": "string",
+          "format": "uuid"
+        },
+        "type": {
+          "description": "Name of the source type. Possible values: entity-type, fqm. Default: entity-type",
+          "type": "string",
+          "default": "entity-type",
+          "enum": [
+            "entity-type",
+            "fqm"
+          ]
+        },
+        "name": {
+          "description": "Name of the source within the source type (e.g., 'currency')",
+          "type": "string"
+        },
+        "columnName": {
+          "description": "Name of the source column",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entityTypeId",
+        "columnName"
+      ]
+    },
+    "valueSourceApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Value source API config",
+      "description": "Configuration for a column's value source API, where the available values can be accessed",
+      "type": "object",
+      "properties": {
+        "path": {
+          "description": "Relative path to the FOLIO module API endpoint that can provide the available column values. Example: 'material-types'",
+          "type": "string"
+        },
+        "valueJsonPath": {
+          "description": "JsonPath defining how to access the values provided by the API",
+          "type": "string"
+        },
+        "labelJsonPath": {
+          "description": "JsonPath defining how to access the labels for the values provided by the API",
+          "type": "string"
+        },
+        "queryParams": {
+          "description": "Map of query parameters to be passed to API endpoint",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "path",
+        "valueJsonPath",
+        "labelJsonPath"
+      ]
+    },
+    "valueWithLabel": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Column value with label Schema",
+      "description": "A value with a label",
+      "type": "object",
+      "properties": {
+        "value": {
+          "description": "The actual value that will be used in the query",
+          "type": "string"
+        },
+        "label": {
+          "description": "The user-friendly name used in dropdowns, etc. If the label is not provided the value will be used instead.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  }
+}

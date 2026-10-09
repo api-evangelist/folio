@@ -1,0 +1,844 @@
+openapi: 3.2.0
+info:
+  title: Folio List API
+  version: 1.0.0
+  description: 'Operations tagged list across 2 of this provider''s published API definitions: folio-mod-lists-list-openapi.json, folio-mod-lists-list-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-etesting-snapshot-kong.ci.folio.org/
+tags:
+- name: List
+paths:
+  /lists:
+    get:
+      summary: ListEntity all reports
+      operationId: getAllLists
+      tags:
+      - List
+      parameters:
+      - name: ids
+        in: query
+        description: List of ids to retrieve information for
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            format: UUID
+      - name: entityTypeIds
+        in: query
+        description: List of entityTypeIds to retrieve information for
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            format: UUID
+      - name: offset
+        in: query
+        description: Offset to start retrieving list information for
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        description: how many item to return
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      - name: search
+        in: query
+        description: Search term for list name or description
+        required: false
+        schema:
+          type: string
+      - name: active
+        in: query
+        description: Indicates whether list should be active or not
+        required: false
+        schema:
+          type: boolean
+      - name: private
+        in: query
+        description: Indicates whether list should be private or not
+        required: false
+        schema:
+          type: boolean
+      - name: canned
+        in: query
+        description: Indicates whether returned lists should be canned/system generated. When omitted, both canned and non-canned lists are returned.
+        required: false
+        schema:
+          type: boolean
+      - name: createdBy
+        in: query
+        description: Only return lists created by users with these IDs
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            format: UUID
+      - name: updatedBy
+        in: query
+        description: Only return lists last updated by users with these IDs
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            format: UUID
+      - name: includeDeleted
+        in: query
+        description: Indicates if deleted lists should be included in the results (default false)
+        required: false
+        schema:
+          type: boolean
+      - name: updatedAsOf
+        in: query
+        description: Indicates the minimum create/update timestamp to filter lists by
+        required: false
+        schema:
+          type: string
+          format: offset-date-time
+      - name: sortBy
+        in: query
+        description: Field to sort by. Supported values are name, updatedDate, and recordsCount
+        required: false
+        schema:
+          type: string
+          pattern: ^(name|updatedDate|recordsCount)$
+          enum:
+          - name
+          - updatedDate
+          - recordsCount
+      - name: sortOrder
+        in: query
+        description: Sort direction. Supported values are asc and desc
+        required: false
+        schema:
+          type: string
+          pattern: ^(asc|desc)$
+          enum:
+          - asc
+          - desc
+      responses:
+        '200':
+          description: A paged array of reports
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSummaryResultsDTO'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+    post:
+      summary: Create a List
+      operationId: createList
+      tags:
+      - List
+      requestBody:
+        description: List object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListRequestDTO'
+      responses:
+        '201':
+          description: returns if a list created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDTO'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /lists/{id}:
+    delete:
+      summary: Delete List with the provided id
+      operationId: deleteList
+      tags:
+      - List
+      description: delete the list with the specific id (if exists).
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: List has been deleted
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+    get:
+      operationId: getListById
+      tags:
+      - List
+      description: gets the specific list information (if exists).
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: returns specific list information (if exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDTO'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get list by id
+      x-summary-source: derived
+    put:
+      summary: Update a List
+      operationId: updateList
+      tags:
+      - List
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        description: List object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListUpdateRequestDTO'
+      responses:
+        '200':
+          description: returns if a list updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDTO'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /lists/{id}/refresh:
+    post:
+      operationId: performRefresh
+      tags:
+      - List
+      description: Perform refresh of the list.
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '201':
+          description: Refresh request successfully submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRefreshDTO'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Perform refresh
+      x-summary-source: derived
+    delete:
+      operationId: cancelRefresh
+      tags:
+      - List
+      description: Cancel refresh of the list.
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Refresh cancelled
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Cancel refresh
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /lists/{id}/contents:
+    get:
+      operationId: getListContents
+      tags:
+      - List
+      description: gets the list contents (if exists).
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - name: fields
+        in: query
+        description: List of fields to retrieve content for
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: offset
+        in: query
+        description: Offset to start retrieving items from
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        description: How many items to return
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 100
+      responses:
+        '200':
+          description: A page of list contents
+          headers:
+            x-next:
+              description: A link to the next page of list contents
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsetPage'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get list contents
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /lists/{id}/versions:
+    get:
+      operationId: getListVersions
+      tags:
+      - List
+      description: Get all the historic versions of the specified list.
+      parameters:
+      - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: Getting all the historic versions of the list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: null
+                  $ref: '#/components/schemas/ListVersionDTO'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get list versions
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /lists/{id}/versions/{versionNumber}:
+    get:
+      operationId: getListVersion
+      tags:
+      - List
+      description: Get a specific historic version of the specified list.
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/versionNumber'
+      responses:
+        '200':
+          description: Get the requested historic list version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVersionDTO'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get list version
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    ListSummaryDTO:
+      description: List Summary DTO
+      type: object
+      properties:
+        id:
+          description: List id
+          type: string
+          format: UUID
+        name:
+          description: List name
+          type: string
+        entityTypeId:
+          description: ID of the entity Type
+          type: string
+          format: UUID
+        createdByUsername:
+          description: Created By Username
+          type: string
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        isActive:
+          description: Indicates if a List is Active or not
+          type: boolean
+        isPrivate:
+          description: Indicate if a List is Private or not
+          type: boolean
+        isCanned:
+          description: Indicates if a List is canned or not
+          type: boolean
+        isDeleted:
+          description: Indicates if a List has been deleted
+          type: boolean
+        updatedBy:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: UUID
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        recordsCount:
+          description: record count for refresh
+          type: number
+        refreshedDate:
+          description: End date for successful refresh
+          type: string
+          format: date-time
+        refreshedByUsername:
+          description: Username who did the refresh
+          type: string
+        isRefreshing:
+          description: Indicates if list refresh is in progress
+          type: boolean
+        latestRefreshFailed:
+          description: Indicates if the most recent list refresh failed
+          type: boolean
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - entityTypeId
+    ListAppError:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+      - code
+    ListSummaryResultsDTO:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List summary results DTO
+      type: object
+      properties:
+        content:
+          description: array of content
+          type: array
+          items:
+            $ref: '#/components/schemas/ListSummaryDTO'
+        totalRecords:
+          description: Total number of records
+          type: integer
+          format: int64
+        totalPages:
+          description: Total number of pages
+          type: integer
+      additionalProperties: false
+      required:
+      - content
+      - totalRecords
+      - totalPages
+      ListSummaryDTO:
+        description: List Summary DTO
+        type: object
+        properties:
+          id:
+            description: List id
+            type: string
+            format: UUID
+          name:
+            description: List name
+            type: string
+          entityTypeId:
+            description: ID of the entity Type
+            type: string
+            format: UUID
+          createdByUsername:
+            description: Created By Username
+            type: string
+          createdDate:
+            description: Date and time when the record was created
+            type: string
+            format: date-time
+          isActive:
+            description: Indicates if a List is Active or not
+            type: boolean
+          isPrivate:
+            description: Indicate if a List is Private or not
+            type: boolean
+          isCanned:
+            description: Indicates if a List is canned or not
+            type: boolean
+          isDeleted:
+            description: Indicates if a List has been deleted
+            type: boolean
+          updatedBy:
+            description: ID of the user who last updated the record (when available)
+            type: string
+            format: UUID
+          updatedByUsername:
+            description: Username of the user who last updated the record (when available)
+            type: string
+          updatedDate:
+            description: Date and time when the record was last updated
+            type: string
+            format: date-time
+          recordsCount:
+            description: record count for refresh
+            type: number
+          refreshedDate:
+            description: End date for successful refresh
+            type: string
+            format: date-time
+          refreshedByUsername:
+            description: Username who did the refresh
+            type: string
+          isRefreshing:
+            description: Indicates if list refresh is in progress
+            type: boolean
+          latestRefreshFailed:
+            description: Indicates if the most recent list refresh failed
+            type: boolean
+        additionalProperties: false
+        required:
+        - id
+        - name
+        - entityTypeId
+    ListRequestDTO:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List Request DTO
+      type: object
+      properties:
+        name:
+          description: List name
+          type: string
+          minLength: 1
+        description:
+          description: List description
+          type: string
+        entityTypeId:
+          description: ID of the entity Type
+          type: string
+          format: UUID
+        fqlQuery:
+          description: FQL Query
+          type: string
+        fields:
+          description: Fields to be included in list contents
+          type: array
+          items:
+            type: string
+        isActive:
+          description: Indicates a List is Active or not
+          type: boolean
+        isPrivate:
+          description: Indicates a List is Private or not
+          type: boolean
+        queryId:
+          description: Optional id of query to create list from
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - name
+      - entityTypeId
+      - isActive
+      - isPrivate
+    ListVersionDTO:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List Version DTO
+      type: object
+      properties:
+        id:
+          description: Version id
+          type: string
+          format: UUID
+        name:
+          description: List name
+          type: string
+        description:
+          description: List description
+          type: string
+        fqlQuery:
+          description: FQL Query
+          type: string
+        fields:
+          description: Fields to be included in list contents
+          type: array
+          items:
+            type: string
+        isActive:
+          description: Indicates a List is Active or not
+          type: boolean
+        isPrivate:
+          description: Indicates a List is Private or not
+          type: boolean
+        updatedBy:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: UUID
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        listId:
+          description: list id
+          type: string
+          format: UUID
+        version:
+          description: Number of version
+          type: integer
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - version
+    ResultsetPage:
+      type: object
+    ListDTO:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List Entity DTO
+      type: object
+      properties:
+        id:
+          description: List id
+          type: string
+          format: UUID
+        name:
+          description: List name
+          type: string
+        description:
+          description: List description
+          type: string
+        entityTypeId:
+          description: ID of the entity Type
+          type: string
+          format: UUID
+        fqlQuery:
+          description: FQL Query
+          type: string
+        fields:
+          description: Fields to be included in list contents
+          type: array
+          items:
+            type: string
+        createdBy:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: UUID
+        createdByUsername:
+          description: Created By Username
+          type: string
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        isActive:
+          description: Indicates a List is Active or not
+          type: boolean
+        isPrivate:
+          description: Indicates a List is Private or not
+          type: boolean
+        isCanned:
+          description: Indicates if a List is canned or not
+          type: boolean
+        isDeleted:
+          description: Indicates if a List has been deleted
+          type: boolean
+        updatedBy:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: UUID
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        successRefresh:
+          description: List Refresh Information
+          $ref: '#/components/schemas/ListRefreshDTO'
+        inProgressRefresh:
+          description: List In-Progress Refresh Information
+          $ref: '#/components/schemas/ListRefreshDTO'
+        failedRefresh:
+          description: List Failed Refresh Information
+          $ref: '#/components/schemas/ListRefreshDTO'
+        version:
+          description: Number of version
+          type: integer
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - version
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    ListUpdateRequestDTO:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List Update Request DTO
+      type: object
+      properties:
+        name:
+          description: List name
+          type: string
+          minLength: 1
+        description:
+          description: List description
+          type: string
+        fqlQuery:
+          description: FQL Query
+          type: string
+        fields:
+          description: Fields to be included in list contents
+          type: array
+          items:
+            type: string
+        isActive:
+          description: Indicates a List is Active or not
+          type: boolean
+        isPrivate:
+          description: Indicates a List is Private or not
+          type: boolean
+        version:
+          description: Number of version
+          type: integer
+        queryId:
+          description: Query ID
+          type: string
+          format: UUID
+      additionalProperties: false
+      required:
+      - name
+      - isActive
+      - isPrivate
+      - version
+    ListRefreshDTO:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List Refresh Details DTO
+      type: object
+      properties:
+        id:
+          description: List Refresh id
+          type: string
+          format: UUID
+        listId:
+          description: List id
+          type: string
+          format: UUID
+        status:
+          description: Status of the refresh
+          type: string
+          enum:
+          - IN_PROGRESS
+          - SUCCESS
+          - FAILED
+          - CANCELLED
+        refreshStartDate:
+          description: Date and time when the list refresh was started
+          type: string
+          format: date-time
+        refreshEndDate:
+          description: Date and time when the list refresh was completed
+          type: string
+          format: date-time
+        refreshedBy:
+          description: ID of the user who refreshed the list
+          type: string
+          format: UUID
+        refreshedByUsername:
+          description: Username of the user who refreshed the list
+          type: string
+        recordsCount:
+          description: Number of the records found
+          type: integer
+        contentVersion:
+          description: Number of times list has been refreshed
+          type: integer
+        error:
+          description: Error encountered during list refresh
+          $ref: '#/components/schemas/ListAppError'
+        listVersion:
+          description: Contains the version of the list
+          type: integer
+      additionalProperties: false
+      required:
+      - id
+      - listId
+      - status
+      - refreshStartDate
+      - refreshedBy
+      - refreshedByUsername
+  parameters:
+    versionNumber:
+      name: versionNumber
+      in: path
+      required: true
+      description: Integer number of the requested version
+      schema:
+        type: integer
+        minimum: 1
+    id:
+      name: id
+      in: path
+      required: true
+      description: id of the list
+      schema:
+        type: string
+        format: UUID
+  responses:
+    badRequestResponse:
+      description: Invalid request
+      content:
+        application/json:
+          example:
+            message: List with ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
+            code: read-list.not.found
+          schema:
+            $ref: '#/components/schemas/ListAppError'
+x-refined-from:
+- folio-mod-lists-list-openapi.json
+- folio-mod-lists-list-openapi.yml

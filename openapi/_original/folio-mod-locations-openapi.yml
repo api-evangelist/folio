@@ -1,0 +1,1765 @@
+# x-archived-from: folio-mod-locations-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.3
+info:
+  contact:
+    name: Spitfire team
+  description: API for managing locations and service points
+  title: Locations and Service Points API
+  version: 1.0.0
+servers:
+- description: Development environments.
+  url: https://folio-{environment}.ci.folio.org
+  variables:
+    environment:
+      default: edev-spitfire-diku
+      enum:
+      - edev-spitfire-diku
+      - edev-spitfire-consortium
+- description: Reference environments.
+  url: https://folio-{environment}.ci.folio.org
+  variables:
+    environment:
+      default: etesting-snapshot-diku
+      enum:
+      - etesting-snapshot-diku
+      - etesting-snapshot-2-diku
+      - etesting-sprint-fs09000000
+tags:
+- description: Manage locations.
+  name: locations
+- description: Manage service points.
+  name: service-points
+- description: Manage service points users.
+  name: service-points-users
+paths:
+  /location-storage/locations:
+    delete:
+      description: Delete all locations.
+      operationId: deleteLocations
+      responses:
+        '204':
+          description: All locations deleted.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Internal server error.
+      summary: Delete all locations
+      tags:
+      - locations
+    get:
+      description: Return a list of locations.
+      operationId: getLocations
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Whether to include shadow records in the response or not.
+        in: query
+        name: includeShadow
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/locationsCollection'
+          description: Collection of locations.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Bad request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Internal server error.
+      summary: Get locations
+      tags:
+      - locations
+    post:
+      description: Create a new location.
+      operationId: createLocation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/location'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/location'
+          description: Created location.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Bad request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Internal server error.
+      summary: Create location
+      tags:
+      - locations
+  /location-storage/locations/{id}:
+    delete:
+      description: Delete a location by id.
+      operationId: deleteLocationById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Location deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete location by id
+      tags:
+      - locations
+    get:
+      description: Retrieve a location by id.
+      operationId: getLocationById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/location'
+          description: Location record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get location by id
+      tags:
+      - locations
+    put:
+      description: Update a location by id.
+      operationId: updateLocationById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/location'
+        required: true
+      responses:
+        '204':
+          description: Location updated successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Bad request.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update location by id
+      tags:
+      - locations
+  /location-storage/institutions:
+    delete:
+      description: Delete all institutions.
+      operationId: deleteLocationInstitutions
+      responses:
+        '204':
+          description: All institutions deleted.
+      summary: Delete institutions
+      tags:
+      - locations
+    get:
+      description: Return a list of institutions.
+      operationId: getLocationInstitutions
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Whether to include shadow records in the response or not.
+        in: query
+        name: includeShadow
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/institutionsCollection'
+          description: Collection of institutions.
+      summary: Get institutions
+      tags:
+      - locations
+    post:
+      description: Create a new institution.
+      operationId: createLocationInstitution
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/institution'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/institution'
+          description: Created institution.
+      summary: Create institution
+      tags:
+      - locations
+  /location-storage/institutions/{id}:
+    delete:
+      description: Delete an existing institution by its unique identifier.
+      operationId: deleteLocationInstitutionById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Institution deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete institution by id
+      tags:
+      - locations
+    get:
+      description: Retrieve a single institution by its unique identifier.
+      operationId: getLocationInstitutionById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/institution'
+          description: Institution record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get institution by id
+      tags:
+      - locations
+    put:
+      description: Update an existing institution by its unique identifier.
+      operationId: updateLocationInstitutionById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/institution'
+        required: true
+      responses:
+        '204':
+          description: Institution updated successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update institution by id
+      tags:
+      - locations
+  /location-storage/campuses:
+    delete:
+      description: Delete all campus records.
+      operationId: deleteLocationCampuses
+      responses:
+        '204':
+          description: All campuses deleted.
+      summary: Delete campuses
+      tags:
+      - locations
+    get:
+      description: Return a list of campuses.
+      operationId: getLocationCampuses
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Whether to include shadow records in the response or not.
+        in: query
+        name: includeShadow
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/campusesCollection'
+          description: Collection of campuses.
+      summary: Get campuses
+      tags:
+      - locations
+    post:
+      description: Create a new campus record.
+      operationId: createLocationCampus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/campus'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/campus'
+          description: Created campus.
+      summary: Create campus
+      tags:
+      - locations
+  /location-storage/campuses/{id}:
+    delete:
+      description: Delete an existing campus by its unique identifier.
+      operationId: deleteLocationCampusById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Campus deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete campus by id
+      tags:
+      - locations
+    get:
+      description: Retrieve a single campus by its unique identifier.
+      operationId: getLocationCampusById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/campus'
+          description: Campus record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get campus by id
+      tags:
+      - locations
+    put:
+      description: Update an existing campus by its unique identifier.
+      operationId: updateLocationCampusById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/campus'
+        required: true
+      responses:
+        '204':
+          description: Campus updated successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update campus by id
+      tags:
+      - locations
+  /location-storage/libraries:
+    delete:
+      description: Delete all library records.
+      operationId: deleteLocationLibraries
+      responses:
+        '204':
+          description: All libraries deleted.
+      summary: Delete libraries
+      tags:
+      - locations
+    get:
+      description: Return a list of libraries.
+      operationId: getLocationLibraries
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Whether to include shadow records in the response or not.
+        in: query
+        name: includeShadow
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/librariesCollection'
+          description: Collection of libraries.
+      summary: Get libraries
+      tags:
+      - locations
+    post:
+      description: Create a new library record.
+      operationId: createLocationLibrary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/library'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/library'
+          description: Created library.
+      summary: Create library
+      tags:
+      - locations
+  /location-storage/libraries/{id}:
+    delete:
+      description: Delete an existing library by its unique identifier.
+      operationId: deleteLocationLibraryById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Library deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete library by id
+      tags:
+      - locations
+    get:
+      description: Retrieve a single library by its unique identifier.
+      operationId: getLocationLibraryById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/library'
+          description: Library record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get library by id
+      tags:
+      - locations
+    put:
+      description: Update an existing library by its unique identifier.
+      operationId: updateLocationLibraryById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/library'
+        required: true
+      responses:
+        '204':
+          description: Library updated successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update library by id
+      tags:
+      - locations
+  /service-point-storage/service-points:
+    delete:
+      description: Delete all service point records.
+      operationId: deleteServicePoints
+      responses:
+        '204':
+          description: All service points deleted.
+      summary: Delete service points
+      tags:
+      - service-points
+    get:
+      description: Return a list of service points.
+      operationId: getServicePoints
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Should ECS request routing service points be included in the response.
+        in: query
+        name: includeRoutingServicePoints
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePointsCollection'
+          description: Collection of service points.
+      summary: Get service points
+      tags:
+      - service-points
+    post:
+      description: Create a new service point record.
+      operationId: createServicePoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/servicePoint'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePoint'
+          description: Created service point.
+      summary: Create service point
+      tags:
+      - service-points
+  /service-point-storage/service-points/{id}:
+    delete:
+      description: Delete an existing service point by its unique identifier.
+      operationId: deleteServicePointById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Service point deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete service point by id
+      tags:
+      - service-points
+    get:
+      description: Retrieve a single service point by its unique identifier.
+      operationId: getServicePointById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePoint'
+          description: Service point record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get service point by id
+      tags:
+      - service-points
+    put:
+      description: Update an existing service point by its unique identifier.
+      operationId: updateServicePointById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/servicePoint'
+        required: true
+      responses:
+        '204':
+          description: Service point updated successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update service point by id
+      tags:
+      - service-points
+  /service-point-storage/service-points-users:
+    delete:
+      description: Delete all service points user records.
+      operationId: deleteServicePointsUsers
+      responses:
+        '204':
+          description: All service points users deleted.
+      summary: Delete service points users
+      tags:
+      - service-points-users
+    get:
+      description: Return a list of service points users.
+      operationId: getServicePointsUsers
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePointsUsersCollection'
+          description: Collection of service points users.
+      summary: Get service points users
+      tags:
+      - service-points-users
+    post:
+      description: Create a new service points user record.
+      operationId: createServicePointsUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/servicePointsUser'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePointsUser'
+          description: Created service points user.
+      summary: Create service points user
+      tags:
+      - service-points-users
+  /service-point-storage/service-points-users/{id}:
+    delete:
+      description: Delete an existing service points user by their unique identifier.
+      operationId: deleteServicePointsUserById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Service points user deleted successfully.
+      summary: Delete service points user by id
+      tags:
+      - service-points-users
+    get:
+      description: Retrieve a single service points user by their unique identifier.
+      operationId: getServicePointsUserById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePointsUser'
+          description: Service points user record.
+      summary: Get service points user by id
+      tags:
+      - service-points-users
+    put:
+      description: Update an existing service points user by their unique identifier.
+      operationId: updateServicePointsUserById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/servicePointsUser'
+        required: true
+      responses:
+        '204':
+          description: Service points user updated successfully.
+      summary: Update service points user by id
+      tags:
+      - service-points-users
+components:
+  parameters:
+    query-param:
+      description: CQL query expression.
+      in: query
+      name: query
+      required: false
+      schema:
+        type: string
+    limit-param:
+      description: Limit the number of elements returned.
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 10
+        minimum: 0
+        type: integer
+    offset-param:
+      description: Skip over a number of elements.
+      in: query
+      name: offset
+      required: false
+      schema:
+        default: 0
+        minimum: 0
+        type: integer
+    include-shadow-param:
+      description: Whether to include shadow records in the response or not.
+      in: query
+      name: includeShadow
+      required: false
+      schema:
+        default: false
+        type: boolean
+    id-param:
+      description: Record identifier.
+      in: path
+      name: id
+      required: true
+      schema:
+        format: uuid
+        type: string
+  responses:
+    badRequestResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorCollection'
+      description: Bad request.
+    internalServerErrorResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorCollection'
+      description: Internal server error.
+    notFoundResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorCollection'
+      description: Resource not found.
+  schemas:
+    locationsCollection:
+      description: List of locations
+      example:
+        totalRecords: 0
+        locations:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          discoveryDisplayName: discoveryDisplayName
+          libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          description: description
+          isActive: true
+          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isFloatingCollection: true
+          name: name
+          details:
+            key: ''
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+          servicePointIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          discoveryDisplayName: discoveryDisplayName
+          libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          description: description
+          isActive: true
+          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isFloatingCollection: true
+          name: name
+          details:
+            key: ''
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+          servicePointIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        locations:
+          description: List of locations
+          items:
+            $ref: '#/components/schemas/location'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - locations
+      - totalRecords
+      title: Locations Collection
+      type: object
+    errorCollection:
+      description: Collection of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      title: Error Collection
+      type: object
+    location:
+      additionalProperties: false
+      description: 'Location: the forth-level location unit below institution, campus, and library'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        discoveryDisplayName: discoveryDisplayName
+        libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        description: description
+        isActive: true
+        primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isFloatingCollection: true
+        name: name
+        details:
+          key: ''
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+        servicePointIds:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: ID of the location
+          format: uuid
+          type: string
+        name:
+          description: Name of the location
+          type: string
+        code:
+          description: Code of the location, usually an abbreviation of the name
+          type: string
+        description:
+          description: Description of the location
+          type: string
+        discoveryDisplayName:
+          description: Name of the location to be shown in the discovery
+          type: string
+        isActive:
+          description: Whether this location is active. Inactive locations can no longer been used
+          type: boolean
+        institutionId:
+          description: The ID of the institution, the first-level location unit, this location belongs to
+          format: uuid
+          type: string
+        campusId:
+          description: The ID of the campus, the second-level location unit, this location belongs to
+          format: uuid
+          type: string
+        libraryId:
+          description: The ID of the library, the third-level location unit, this location belongs to
+          format: uuid
+          type: string
+        details:
+          additionalProperties: true
+          description: Details about this location
+          type: object
+        primaryServicePoint:
+          description: The ID of the primary service point of this location
+          format: uuid
+          type: string
+        servicePointIds:
+          description: All service points that this location has
+          items:
+            description: The ID of a service point that belongs to this location
+            format: uuid
+            type: string
+          type: array
+        isFloatingCollection:
+          description: Items checked in/out from this location can be checked in/out to other locations with the same flag
+          type: boolean
+        isShadow:
+          default: false
+          description: Whether this location is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - campusId
+      - code
+      - institutionId
+      - libraryId
+      - name
+      - primaryServicePoint
+      title: Location
+      type: object
+    institutionsCollection:
+      description: A collection of institutions (top-level location units)
+      example:
+        locinsts:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        totalRecords: 0
+      properties:
+        locinsts:
+          description: List of institution
+          items:
+            $ref: '#/components/schemas/institution'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - locinsts
+      - totalRecords
+      title: Institutions Collection
+      type: object
+    institution:
+      additionalProperties: false
+      description: 'Institution: highest-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of institution
+          format: uuid
+          type: string
+        name:
+          description: Name of institution
+          type: string
+        code:
+          description: Distinct code for institution
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - code
+      - name
+      title: Institution
+      type: object
+    campusesCollection:
+      description: A collection of campuses (second-level location units)
+      example:
+        loccamps:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        totalRecords: 0
+      properties:
+        loccamps:
+          description: List of campuses
+          items:
+            $ref: '#/components/schemas/campus'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - loccamps
+      - totalRecords
+      title: Campuses Collection
+      type: object
+    campus:
+      additionalProperties: false
+      description: 'Campus: second-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of the campus
+          format: uuid
+          type: string
+        name:
+          description: Name of the campus
+          type: string
+        code:
+          description: Distinct code for the campus
+          type: string
+        institutionId:
+          description: ID of the institution that the campus unit belongs to
+          format: uuid
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - code
+      - institutionId
+      - name
+      title: Campus
+      type: object
+    librariesCollection:
+      description: A collection of libraries (third-level location units)
+      example:
+        totalRecords: 0
+        loclibs:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+      properties:
+        loclibs:
+          description: List of libraries
+          items:
+            $ref: '#/components/schemas/library'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - loclibs
+      - totalRecords
+      title: Libraries Collection
+      type: object
+    library:
+      additionalProperties: false
+      description: 'Library: third-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        name: name
+        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of the library
+          format: uuid
+          type: string
+        name:
+          description: Name of the library
+          type: string
+        code:
+          description: Distinct code for the library
+          type: string
+        campusId:
+          description: ID of the campus that the library belongs to
+          format: uuid
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - campusId
+      - code
+      - name
+      title: Library
+      type: object
+    servicePointsCollection:
+      description: Collection of service points
+      example:
+        totalRecords: 1
+        servicepoints:
+        - holdShelfClosedLibraryDateManagement: Keep_the_current_due_date
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          discoveryDisplayName: discoveryDisplayName
+          description: description
+          pickupLocation: true
+          staffSlips:
+          - printByDefault: true
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - printByDefault: true
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          defaultCheckInActionForUseAtLocation: Keep_on_hold_shelf
+          ecsRequestRouting: false
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          shelvingLagTime: 0
+          holdShelfExpiryPeriod:
+            duration: 6
+            intervalId: Days
+        - holdShelfClosedLibraryDateManagement: Keep_the_current_due_date
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          discoveryDisplayName: discoveryDisplayName
+          description: description
+          pickupLocation: true
+          staffSlips:
+          - printByDefault: true
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - printByDefault: true
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          defaultCheckInActionForUseAtLocation: Keep_on_hold_shelf
+          ecsRequestRouting: false
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          shelvingLagTime: 0
+          holdShelfExpiryPeriod:
+            duration: 6
+            intervalId: Days
+      properties:
+        servicepoints:
+          description: List of service points
+          items:
+            $ref: '#/components/schemas/servicePoint'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - servicepoints
+      - totalRecords
+      title: Service Points Collection
+      type: object
+    servicePoint:
+      additionalProperties: false
+      description: Service point
+      example:
+        holdShelfClosedLibraryDateManagement: Keep_the_current_due_date
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        discoveryDisplayName: discoveryDisplayName
+        description: description
+        pickupLocation: true
+        staffSlips:
+        - printByDefault: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - printByDefault: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        defaultCheckInActionForUseAtLocation: Keep_on_hold_shelf
+        ecsRequestRouting: false
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        shelvingLagTime: 0
+        holdShelfExpiryPeriod:
+          duration: 6
+          intervalId: Days
+      properties:
+        id:
+          description: ID of the service point
+          format: uuid
+          type: string
+        name:
+          description: Name of the service point
+          type: string
+        code:
+          description: Code of the service point
+          type: string
+        discoveryDisplayName:
+          description: Discovery display name of the service point
+          type: string
+        description:
+          description: Description of the service point
+          type: string
+        shelvingLagTime:
+          description: Shelving lag time
+          type: integer
+        pickupLocation:
+          description: Indicates whether or not the service point is a pickup location
+          type: boolean
+        holdShelfExpiryPeriod:
+          $ref: '#/components/schemas/holdShelfExpiryPeriod'
+        holdShelfClosedLibraryDateManagement:
+          default: Keep_the_current_due_date
+          description: Closed library date management associated with hold shelf
+          enum:
+          - Keep_the_current_due_date
+          - Move_to_the_end_of_the_previous_open_day
+          - Move_to_the_end_of_the_next_open_day
+          - Keep_the_current_due_date_time
+          - Move_to_end_of_current_service_point_hours
+          - Move_to_beginning_of_next_open_service_point_hours
+          type: string
+        defaultCheckInActionForUseAtLocation:
+          description: Default action when checking in an item that is for use in the library (i.e. in reading room)
+          enum:
+          - Keep_on_hold_shelf
+          - Close_loan_and_return_item
+          - Ask_for_action
+          type: string
+        staffSlips:
+          description: List of staff slips for this service point
+          items:
+            $ref: '#/components/schemas/servicePointStaffSlip'
+          type: array
+        ecsRequestRouting:
+          default: false
+          description: Indicates a service point used for the ECS functionality
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - code
+      - discoveryDisplayName
+      - name
+      title: Service Point
+      type: object
+    servicePointsUsersCollection:
+      description: Collection of service points users
+      example:
+        totalRecords: 0
+        servicePointsUsers:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          defaultServicePointId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          servicePointsIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          userId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          defaultServicePointId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          servicePointsIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          userId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        servicePointsUsers:
+          description: List of service points users
+          items:
+            $ref: '#/components/schemas/servicePointsUser'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - servicePointsUsers
+      - totalRecords
+      title: Service Points Users Collection
+      type: object
+    servicePointsUser:
+      additionalProperties: false
+      description: The list of service points a user is allowed to work at, and the default service point for that user
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        defaultServicePointId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        servicePointsIds:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        userId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: ID of the service points user
+          format: uuid
+          type: string
+        userId:
+          description: ID of the user
+          format: uuid
+          type: string
+        servicePointsIds:
+          description: List of service points a user is allowed to work at
+          items:
+            description: ID of a service point
+            format: uuid
+            type: string
+          type: array
+        defaultServicePointId:
+          description: ID of the user's default service point
+          format: uuid
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - userId
+      title: Service Points User
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      title: Error
+      type: object
+    metadata:
+      additionalProperties: false
+      description: Metadata about creation and changes to records
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      readOnly: true
+      title: Metadata
+      type: object
+    holdShelfExpiryPeriod:
+      additionalProperties: false
+      description: Expiration period for items on the hold shelf at the service point
+      example:
+        duration: 6
+        intervalId: Days
+      properties:
+        duration:
+          description: Duration interval
+          type: integer
+        intervalId:
+          default: Days
+          description: Unit of time for the duration
+          enum:
+          - Minutes
+          - Hours
+          - Days
+          - Weeks
+          - Months
+          type: string
+      required:
+      - duration
+      - intervalId
+      title: Hold Shelf Expiry Period
+      type: object
+    servicePointStaffSlip:
+      additionalProperties: false
+      description: Service point staff slip
+      example:
+        printByDefault: true
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: The ID of the staff slip
+          format: uuid
+          type: string
+        printByDefault:
+          description: Whether or not to print the staff slip by default
+          type: boolean
+      required:
+      - id
+      - printByDefault
+      title: Service Point Staff Slip
+      type: object
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: invalid
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      title: Parameter
+      type: object

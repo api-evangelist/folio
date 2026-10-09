@@ -1,0 +1,248 @@
+# x-archived-from: folio-folio-vertx-lib-tenant-2-0-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Tenant API
+  version: v2
+paths:
+  /_/tenant:
+    parameters:
+    - $ref: '#/components/parameters/okapi-tenant'
+    - $ref: '#/components/parameters/okapi-token'
+    - $ref: '#/components/parameters/okapi-url'
+    post:
+      description: Start tenant operation
+      operationId: postTenant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tenantAttributes'
+        required: true
+      responses:
+        '201':
+          description: Tenant job created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenantJob'
+        '204':
+          description: Tenant Job completed
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '413':
+          $ref: '#/components/responses/trait_413'
+        '422':
+          $ref: '#/components/responses/trait_validate_422'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /_/tenant/{id}:
+    parameters:
+    - $ref: '#/components/parameters/okapi-tenant'
+    - $ref: '#/components/parameters/okapi-token'
+    - $ref: '#/components/parameters/okapi-url'
+    - in: path
+      name: id
+      required: true
+      description: job identifier
+      schema:
+        type: string
+        format: uuid
+    get:
+      description: Get tenant job
+      operationId: getTenantJob
+      parameters:
+      - in: query
+        name: wait
+        required: false
+        description: wait until job change, but no longer than the wait time - in milliseconds. 0 means "no wait" and is behavior if omitted.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: job returned OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenantJob'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          description: job id not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          $ref: '#/components/responses/trait_500'
+    delete:
+      description: delete tenant job
+      operationId: deleteTenantJob
+      responses:
+        '204':
+          description: Delete job ok
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          description: job id not found
+        '500':
+          $ref: '#/components/responses/trait_500'
+components:
+  responses:
+    trait_validate_422:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          examples:
+            response:
+              value: examples/errors.sample
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Invalid JSON in request
+    trait_413:
+      description: Payload Too large
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Payload Too Large
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
+  schemas:
+    tenantAttributes:
+      title: Tenant job attributes
+      description: Configuration how to install, upgrade or delete a module for a tenant
+      type: object
+      properties:
+        module_from:
+          description: Existing module ID. If omitted, the module is not enabled already
+          type: string
+        module_to:
+          description: Target module ID. If omitted, the existing module is disabled.
+          type: string
+        purge:
+          description: On disable should data also be purged
+          type: boolean
+        parameters:
+          description: Parameters that controls what tenant init (eg reference data)
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+    tenantJob:
+      title: Tenant job
+      description: Tenant job information
+      type: object
+      properties:
+        id:
+          description: Job ID
+          type: string
+          format: uuid
+        tenant:
+          description: Tenant ID
+          type: string
+        tenantAttributes:
+          description: Module information - content to initiate operation
+          $ref: '#/components/schemas/tenantAttributes'
+        complete:
+          description: Whether job is complete (true) or ongoing (false)
+          type: boolean
+        error:
+          description: Error message if error has occurred
+          type: string
+        messages:
+          description: Additional messages (warnings, errors)
+          type: array
+          items:
+            type: string
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    parameters:
+      description: List of key/value parameters
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: The key for this parameter
+          type: string
+        value:
+          description: The value of this parameter
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+  parameters:
+    okapi-tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: true
+      schema:
+        type: string
+        pattern: ^[_a-z][_a-z0-9]*$
+    okapi-token:
+      in: header
+      name: X-Okapi-Token
+      description: Okapi Token
+      required: false
+      schema:
+        type: string
+    okapi-url:
+      in: header
+      name: X-Okapi-Url
+      description: Okapi URL
+      required: false
+      schema:
+        type: string

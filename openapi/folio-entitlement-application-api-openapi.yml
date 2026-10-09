@@ -1,0 +1,122 @@
+openapi: 3.2.0
+info:
+  title: Folio Entitlement Application API
+  version: v1
+  description: 'Operations tagged entitlement-application across 2 of this provider''s published API definitions: folio-mgr-tenant-entitlements-openapi.json, folio-mgr-tenant-entitlements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: entitlement-application
+paths:
+  /entitlements/{tenantName}/applications:
+    get:
+      operationId: findEntitledApplicationsByTenantName
+      description: List of application descriptors entitled for the tenant
+      tags:
+      - entitlement-application
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      - $ref: '#/components/parameters/path-tenant-name'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      responses:
+        '200':
+          description: A list of application descriptors entitled for the tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applicationDescriptors'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find entitled applications by tenant name
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    applicationDescriptors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Collection of application descriptors
+      properties:
+        applicationDescriptors:
+          description: List of application descriptors
+          type: array
+          id: applicationDescriptor
+          items:
+            $ref: '#/components/schemas/applicationDescriptor'
+        totalRecords:
+          type: integer
+      required:
+      - applicationDescriptors
+      - totalRecords
+    applicationDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Application descriptor
+      type: object
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+  parameters:
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: false
+      description: An OKAPI authentication token
+      schema:
+        type: string
+    x-okapi-tenant:
+      name: x-okapi-tenant
+      in: header
+      required: true
+      description: An OKAPI tenant
+      schema:
+        type: string
+    path-tenant-name:
+      in: path
+      required: true
+      name: tenantName
+      description: Tenant name
+      schema:
+        type: string
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+  responses:
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mgr-tenant-entitlements-openapi.json
+- folio-mgr-tenant-entitlements-openapi.yml

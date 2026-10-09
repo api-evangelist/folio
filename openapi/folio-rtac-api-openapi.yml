@@ -1,0 +1,1173 @@
+openapi: 3.2.0
+info:
+  title: Folio RTAC API
+  version: '1.0'
+  description: 'Operations tagged RTAC across 4 of this provider''s published API definitions: folio-edge-rtac-openapi.json, folio-mod-rtac-cache-openapi.json, folio-edge-rtac-openapi.yml, folio-mod-rtac-cache-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: RTAC
+paths:
+  /rtac/{instanceId}:
+    get:
+      tags:
+      - RTAC
+      operationId: getInstanceRtac
+      summary: Get RTAC info for a single instance
+      parameters:
+      - $ref: '#/components/parameters/instance-id-path'
+      - $ref: '#/components/parameters/fullPeriodicals'
+      - $ref: '#/components/parameters/lang'
+      - $ref: '#/components/parameters/authorization'
+      - $ref: '#/components/parameters/apiKey'
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-url-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceHoldings'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/InstanceHoldings'
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/InstanceHoldings'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /rtac:
+    get:
+      tags:
+      - RTAC
+      operationId: getBatchRtac
+      summary: Get RTAC info for multiple instances
+      parameters:
+      - $ref: '#/components/parameters/instanceIds'
+      - $ref: '#/components/parameters/fullPeriodicals'
+      - $ref: '#/components/parameters/lang'
+      - $ref: '#/components/parameters/authorization'
+      - $ref: '#/components/parameters/apiKey'
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-url-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchHoldingsResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BatchHoldingsResponse'
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/BatchHoldingsResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /rtac-cache/search/{instanceId}:
+    get:
+      tags:
+      - RTAC
+      summary: Search RTAC holdings
+      operationId: searchRtacCacheHoldings
+      parameters:
+      - $ref: '#/components/parameters/instance-id-path'
+      - $ref: '#/components/parameters/search-query-parameter'
+      - $ref: '#/components/parameters/available-parameter'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/authorization'
+      - $ref: '#/components/parameters/apiKey'
+      responses:
+        '200':
+          description: RTAC holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /rtac-cache/{instanceId}:
+    get:
+      tags:
+      - RTAC
+      summary: Retrieve RTAC holdings for a single instance
+      operationId: getRtacCacheHoldingsById
+      parameters:
+      - $ref: '#/components/parameters/instance-id-path'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/authorization'
+      - $ref: '#/components/parameters/apiKey'
+      responses:
+        '200':
+          description: RTAC holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /rtac-cache/batch:
+    post:
+      tags:
+      - RTAC
+      summary: Retrieve RTAC holdings in batch
+      operationId: postRtacCacheBatchHoldings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rtacRequest'
+      responses:
+        '200':
+          description: RTAC batch holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /rtac-cache/{id}:
+    get:
+      tags:
+      - RTAC
+      summary: Browse RTAC holdings for a single instance
+      operationId: getRtacCacheById
+      parameters:
+      - name: id
+        in: path
+        description: The UUID of a FOLIO instance
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/sort-param'
+      - $ref: '#/components/parameters/offset-param'
+      - $ref: '#/components/parameters/limit-param'
+      responses:
+        '200':
+          description: RTAC holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacHoldings'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      x-operation-id-source: normalized
+      x-operation-id-original: getRtacCacheHoldingsById
+  /rtac-cache/invalidate:
+    post:
+      tags:
+      - RTAC
+      summary: Invalidate RTAC cache entries by instance IDs
+      operationId: postRtacCacheInvalidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rtacRequest_2'
+      responses:
+        '204':
+          description: RTAC cache entries invalidated successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /rtac-cache/invalidate-all:
+    post:
+      tags:
+      - RTAC
+      summary: Invalidate all RTAC cache entries
+      operationId: postRtacCacheInvalidateAll
+      responses:
+        '204':
+          description: All RTAC cache entries invalidated successfully
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /rtac-cache/prewarm:
+    get:
+      tags:
+      - RTAC
+      summary: Get prewarming job statuses
+      operationId: getRtacCachePreWarmingJobs
+      parameters:
+      - $ref: '#/components/parameters/offset-param'
+      - $ref: '#/components/parameters/limit-param'
+      responses:
+        '200':
+          description: RTAC Prewarming Job status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacPreWarmingJobs'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      tags:
+      - RTAC
+      summary: Submit cache prewarming job
+      operationId: postRtacCachePreWarmingJob
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rtacSubmitPreWarming'
+      responses:
+        '200':
+          description: RTAC Prewarming Job submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacPreWarmingJob'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /rtac-cache/prewarm/{id}:
+    get:
+      tags:
+      - RTAC
+      summary: Get prewarming job status by ID
+      operationId: getRtacCachePreWarmingJob
+      parameters:
+      - name: id
+        in: path
+        description: The UUID of a RTAC prewarming job
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: RTAC Prewarming Job status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacPreWarmingJob'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+components:
+  parameters:
+    apiKey:
+      name: apiKey
+      in: query
+      description: apikey for authorization
+      required: false
+      schema:
+        type: string
+    instanceIds:
+      name: instanceIds
+      in: query
+      description: List of Folio instance identifiers
+      required: false
+      schema:
+        type: string
+        pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}[, ]*)+$
+    instance-id-path:
+      name: instanceId
+      in: path
+      description: Course Instance's UUID
+      required: true
+      schema:
+        type: string
+    fullPeriodicals:
+      name: fullPeriodicals
+      in: query
+      description: Flag for including items data
+      required: false
+      schema:
+        type: boolean
+        default: false
+    authorization:
+      name: authorization
+      in: header
+      description: apikey for authorization
+      required: false
+      schema:
+        type: string
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    x-okapi-url-header:
+      name: x-okapi-url
+      in: header
+      description: x-okapi-url header value
+      required: false
+      schema:
+        type: string
+    lang:
+      name: lang
+      in: query
+      description: Requested language
+      required: false
+      example: en
+      schema:
+        pattern: '[a-zA-Z]{2}'
+        default: en
+        type: string
+    available-parameter:
+      name: available
+      in: query
+      description: Filter by holdings that are available
+      required: false
+      schema:
+        type: boolean
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100000
+        default: 0
+    sort:
+      name: sort
+      in: query
+      description: 'Sort criteria in the format: `property,direction` (e.g., `locationName,asc`).
+
+        Supported properties are: effectiveShelvingOrder, libraryName, locationName, status.
+
+        The default sort order is effectiveShelvingOrder, libraryName, locationName, status (ascending).
+
+        '
+      schema:
+        type: string
+    search-query-parameter:
+      name: query
+      in: query
+      description: The keyword query in CQL format
+      required: true
+      schema:
+        type: string
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 100
+    offset-param:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100000
+        default: 0
+    query-param:
+      name: query
+      in: query
+      description: A search query to find holdings by volume, location name, or call number
+      required: true
+      schema:
+        type: string
+    sort-param:
+      name: sort
+      in: query
+      description: 'A list of sort criteria in the format: `property,(asc|desc)`.
+
+        Supported properties are: effectiveShelvingOrder, libraryName, locationName, status.
+
+        If the direction is omitted for a property, the default direction is `desc` for effectiveShelvingOrder and `asc` for other properties.
+
+        The default sort order is effectiveShelvingOrder (descending), status (ascending), libraryName (ascending), locationName (ascending).
+
+        '
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    available-param:
+      name: available
+      in: query
+      description: Filter by holdings that are available
+      required: false
+      schema:
+        type: boolean
+    limit-param:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 100
+  schemas:
+    Library:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Library name
+        code:
+          type: string
+          description: Library code
+      xml:
+        name: library
+    HoldingsError:
+      type: object
+      properties:
+        message:
+          description: Error message text
+          type: string
+        code:
+          description: Error code
+          type: string
+      xml:
+        name: error
+    HoldingsNote:
+      type: object
+      properties:
+        note:
+          type: string
+          description: Text content of the note
+        holdingsNoteTypeName:
+          type: string
+          description: Name of the holdings note type
+      xml:
+        name: notes
+    Error:
+      type: object
+      properties:
+        code:
+          description: Error status code
+          type: integer
+        errorMessage:
+          description: Error message text
+          type: string
+    HoldingsStatement:
+      type: object
+      properties:
+        statement:
+          type: string
+          description: Statement text
+        note:
+          type: string
+          description: Note for the statement
+    Holding:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the holding
+        callNumber:
+          type: string
+          description: Call number for the item
+        location:
+          type: string
+          description: Location name
+        locationCode:
+          type: string
+          description: Location code
+        locationId:
+          type: string
+          description: Location identifier
+        status:
+          type: string
+          description: Item status
+        dueDate:
+          type: string
+          description: Due date if item is checked out
+        tempLocation:
+          type: string
+          description: Temporary location
+        volume:
+          type: string
+          description: Volume information
+        temporaryLoanType:
+          type: string
+          description: Temporary loan type
+        permanentLoanType:
+          type: string
+          description: Permanent loan type
+        holdingsCopyNumber:
+          type: string
+          description: Holdings copy number
+        itemCopyNumber:
+          type: string
+          description: Item copy number
+        itemDisplayOrder:
+          type: integer
+          format: int32
+          description: Display order for the item
+        barcode:
+          type: string
+          description: Item barcode
+        suppressFromDiscovery:
+          type: boolean
+          description: Whether item is suppressed from discovery
+        totalHoldRequests:
+          type: integer
+          format: int32
+          description: Total number of hold requests
+        materialType:
+          $ref: '#/components/schemas/MaterialType'
+        library:
+          $ref: '#/components/schemas/Library'
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsNote'
+          xml:
+            name: notes
+            wrapped: false
+        holdingsStatements:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsStatement'
+          xml:
+            name: holdingsStatements
+            wrapped: false
+        holdingsStatementsForIndexes:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsStatement'
+          xml:
+            name: holdingsStatementsForIndexes
+            wrapped: false
+        holdingsStatementsForSupplements:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsStatement'
+          xml:
+            name: holdingsStatementsForSupplements
+            wrapped: false
+      xml:
+        name: holding
+    BatchHoldingsResponse:
+      type: object
+      required:
+      - holdings
+      properties:
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstanceHoldings'
+          xml:
+            wrapped: false
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsError'
+          xml:
+            name: error
+            wrapped: true
+      xml:
+        name: instances
+    InstanceHoldings:
+      type: object
+      properties:
+        instanceId:
+          type: string
+          description: The instance identifier
+          xml:
+            name: instanceId
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Holding'
+          xml:
+            name: holding
+      xml:
+        name: holdings
+    MaterialType:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Material type identifier
+        name:
+          type: string
+          description: Material type name
+      xml:
+        name: materialType
+    rtacRequest:
+      description: Define format of request data with instances ids
+      type: object
+      properties:
+        instanceIds:
+          description: Inventory instances identifiers
+          type: array
+          items:
+            $ref: '#/components/schemas/uuid'
+      additionalProperties: false
+      required:
+      - instanceIds
+    uuid:
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    rtacPreWarmingJobs:
+      title: RtacPreWarmingJobs
+      type: object
+      description: Represents a pre-warming job statuses and metadata.
+      properties:
+        jobs:
+          description: List of pre-warming jobs.
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacPreWarmingJob'
+        totalRecords:
+          description: Total number of pre-warming jobs.
+          type: integer
+          minimum: 0
+      required:
+      - totalRecords
+      additionalProperties: false
+    rtacHolding:
+      type: object
+      description: Real Time Availability Check (RTAC) holding details
+      additionalProperties: false
+      properties:
+        instanceId:
+          type: string
+          description: The FOLIO id of the instance record
+        id:
+          type: string
+          description: The id of the record, can be itemId, pieceId or holdingsId depending on the type
+        instanceFormatIds:
+          type: array
+          items:
+            type: string
+          description: The FOLIO ids of the instance's nature of content
+        holdingsId:
+          type: string
+          description: The FOLIO id of the holdings record
+        type:
+          type: string
+          enum:
+          - item
+          - piece
+          - holding
+          description: Type of source for RTAC record
+        barcode:
+          description: Unique inventory control number for physical resources, used largely for circulation purposes
+          type: string
+        location:
+          type: object
+          description: The location of the holding
+          properties:
+            id:
+              type: string
+              description: The location id of the holding
+            code:
+              type: string
+              description: The location code of the holding
+            name:
+              type: string
+              description: The location name of the holding
+        callNumber:
+          type: string
+          description: The call number of the holding
+        status:
+          type: string
+          description: The availability status of the holding
+        dueDate:
+          type: string
+          format: date-time
+          description: The date when the holding will be available
+        volume:
+          type: string
+          description: Volume details for the holding (item)
+        temporaryLoanType:
+          type: string
+          description: Name of the temporary loan type for a given item
+        permanentLoanType:
+          type: string
+          description: Name of the default loan type for a given item
+        materialType:
+          type: object
+          description: Define what type of thing the item is
+          properties:
+            id:
+              type: string
+            name:
+              description: label for the material type
+              type: string
+        library:
+          type: object
+          description: The third-level location unit
+          properties:
+            id:
+              description: id of the library
+              type: string
+            code:
+              description: distinct code for the library
+              type: string
+            name:
+              description: name of the library
+              type: string
+        suppressFromDiscovery:
+          description: Indicate if record should not be displayed in a discovery system
+          type: boolean
+        totalHoldRequests:
+          description: The total number of requested items for the patron
+          type: integer
+        notes:
+          description: Notes about action, copy, binding etc.
+          type: array
+          items:
+            type: object
+            properties:
+              holdingsNoteTypeName:
+                description: Name of the holdings note type
+                type: string
+              note:
+                description: Text content of the note
+                type: string
+            required:
+            - holdingsNoteTypeName
+            - note
+        holdingsStatements:
+          description: Notes about action, copy, binding etc.
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHoldingsStatement'
+        holdingsStatementsForIndexes:
+          description: Holdings record indexes statements
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHoldingsStatement'
+        holdingsStatementsForSupplements:
+          description: Holdings record supplements statements
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHoldingsStatement'
+        holdingsCopyNumber:
+          type: string
+          description: Piece ID (usually barcode) for systems that do not use holdings record
+        itemCopyNumber:
+          type: string
+          description: Copy number is the piece identifier. The copy number reflects if the library has a copy of a single-volume monograph; a copy of a multi-volume, (e.g. Copy 1, or C.7.)
+        effectiveShelvingOrder:
+          type: string
+          description: A system generated normalization of the call number that allows for call number sorting in reports and search results
+        isBoundWith:
+          type: boolean
+          default: false
+          description: Indicates whether the record is part of a bound-with
+        createdAt:
+          type: string
+          description: Record creation date
+          format: date-time
+      required:
+      - instanceId
+      - id
+      - type
+      - status
+    rtacHoldingsBatch:
+      type: object
+      description: Batch holdings response
+      properties:
+        holdings:
+          description: Real Time Availability Check (RTAC) holding details
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHoldingsSummary'
+        errors:
+          description: Errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+          minimum: 0
+      additionalItems: false
+      additionalProperties: false
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    rtacHoldingsStatement:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Holdings record statement
+      additionalProperties: false
+      type: object
+      properties:
+        statement:
+          description: Textual description of the holdings of supplementary material
+          type: string
+        note:
+          description: Note attached to a holdings statement
+          type: string
+    rtacHoldings:
+      type: object
+      additionalProperties: false
+      description: Collection of holdings
+      properties:
+        instanceId:
+          description: UUID of the instance
+          $ref: '#/components/schemas/uuid'
+        holdings:
+          description: Collection of holdings
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHolding'
+        totalRecords:
+          description: Total number of records available
+          type: integer
+          minimum: 0
+      required:
+      - holdings
+      - instanceId
+      - totalRecords
+    rtacHoldingsSummary:
+      type: object
+      description: Real Time Availability Check (RTAC) holding summary details
+      additionalProperties: false
+      properties:
+        instanceId:
+          type: string
+          description: The FOLIO instance id
+        hasVolumes:
+          type: boolean
+          description: Indicates if the holding has volume information
+        instanceFormatIds:
+          type: array
+          items:
+            type: string
+          description: The FOLIO ids of the instance's nature of content
+        statusSummaries:
+          type: array
+          description: A summary of all statuses organized by library and location ids
+          items:
+            $ref: '#/components/schemas/statusSummary'
+      required:
+      - instanceId
+      - hasVolumes
+    rtacPreWarmingJob:
+      title: RtacPreWarmingJob
+      type: object
+      description: Represents a pre-warming job status and metadata.
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Job unique identifier.
+        startDate:
+          type: string
+          format: date-time
+          description: Job start timestamp (UTC).
+        endDate:
+          type: string
+          format: date-time
+          description: Job end timestamp (UTC) if completed or failed.
+        status:
+          type: string
+          description: Current job status.
+          enum:
+          - RUNNING
+          - COMPLETED
+          - FAILED
+        errorMessage:
+          type: string
+          description: Error details if job failed.
+      required:
+      - id
+      - startDate
+      - status
+      additionalProperties: false
+    rtacSubmitPreWarming:
+      description: Submit pre-warming request
+      type: object
+      properties:
+        instanceIds:
+          description: Inventory instance identifiers to pre-warm
+          type: array
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+    statusSummary:
+      type: object
+      description: Location Availability Summary Schema
+      properties:
+        libraryId:
+          type: string
+          description: The library id of the holding
+        locationId:
+          type: string
+          description: The location id of the holding
+        locationCode:
+          type: string
+          description: The location code of the holding
+        status:
+          type: string
+          description: The FOLIO status for the item, holding or piece
+        statusCount:
+          type: integer
+          description: The count for the status for the library location
+        type:
+          type: string
+          description: The type of the resource (item, holding, piece)
+          enum:
+          - item
+          - piece
+          - holding
+    rtacRequest_2:
+      description: Define format of request data with instances ids
+      type: object
+      properties:
+        instanceIds:
+          description: Inventory instances identifiers
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/uuid'
+      additionalProperties: false
+      required:
+      - instanceIds
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error parameters
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    rtacRequest_3:
+      description: Define format of request data with instances ids
+      type: object
+      properties:
+        instanceIds:
+          description: Inventory instances identifiers
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/uuid'
+      additionalProperties: false
+      required:
+      - instanceIds
+  responses:
+    accessDeniedResponse:
+      description: Access Denied
+      content:
+        application/json:
+          example:
+            code: 403
+            errorMessage: Access denied
+          schema:
+            $ref: '#/components/schemas/Error'
+    unprocessableEntityErrorResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 422
+            errorMessage: Unable to be process entity
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+x-refined-from:
+- folio-edge-rtac-openapi.json
+- folio-mod-rtac-cache-openapi.json
+- folio-edge-rtac-openapi.yml
+- folio-mod-rtac-cache-openapi.yml

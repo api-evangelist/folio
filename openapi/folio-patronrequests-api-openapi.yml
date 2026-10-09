@@ -1,0 +1,392 @@
+openapi: 3.2.0
+info:
+  title: Folio Patron Requests API
+  version: 1.0.0
+  description: 'Operations tagged PatronRequests across 2 of this provider''s published API definitions: folio-edge-ill-openapi.json, folio-edge-ill-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+tags:
+- name: PatronRequests
+paths:
+  /illService/tenants/{tenantId}/patronrequests/openURL:
+    get:
+      tags:
+      - PatronRequests
+      description: Get OpenURL for patron; Interprets an OpenUrl version 0.1 or 1.0
+      operationId: openURL
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      - name: queryParameters
+        in: query
+        required: false
+        description: 'Interprets an OpenURL version 0.1 or 1.0.
+
+
+          All parameters are accepted as query parameters and passed as a map containing:
+
+
+          **Request Parameters (v1.0):**
+
+          - req.emailAddress: Requester email address
+
+          - req.id: Requester ID
+
+
+          **Referent Metadata Parameters (v1.0):**
+
+          - rft.artnum: Article number
+
+          - rft.atitle: Article title
+
+          - rft.au: Author
+
+          - rft.aufirst: Author first name
+
+          - rft.auinitl: Author initials (last)
+
+          - rft.auinit: Author initials
+
+          - rft.auinitm: Author initials (middle)
+
+          - rft.aulast: Author last name
+
+          - rft.bici: Book item and contribution identifier
+
+          - rft.btitle: Book title
+
+          - rft.coden: CODEN identifier
+
+          - rft.creator: Creator
+
+          - rft.edition: Edition
+
+          - rft.eissn: Electronic ISSN
+
+          - rft.genre: Genre/type of resource
+
+          - rft.identifier.illiad: ILLiad identifier
+
+          - rft.isbn: ISBN
+
+          - rft.issn: ISSN
+
+          - rft.issue: Issue number
+
+          - rft.jtitle: Journal title
+
+          - rft.epage: End page
+
+          - rft.spage: Start page
+
+          - rft.pages: Total pages
+
+          - rft.part: Part
+
+          - rft.date: Publication date
+
+          - rft.place: Place of publication
+
+          - rft.pub: Publisher
+
+          - rft.quarter: Quarter
+
+          - rft.sici: Serial Item and Contribution Identifier
+
+          - rft.ssn: Serial Standard Number
+
+          - rft.title: Title
+
+          - rft.volume: Volume
+
+
+          **Service Parameters (v1.0):**
+
+          - svc.neededBy: Service needed by date
+
+          - svc.note: Service note
+
+          - svc.pickupLocation: Service pickup location
+
+          - svc.id: Service ID
+
+
+          **Legacy Parameters (v0.1):**
+
+          - artnum: Article Number
+
+          - aufirst: Author first name
+
+          - auinitl: Author first initial
+
+          - auinit: Author middle initial
+
+          - aulast: Author last name
+
+          - auinitm: Author middle initial
+
+          - bici: BICI
+
+          - bici: BICI
+
+          - coden: Coden
+
+          - genre: Genre
+
+          - issn: ISSN
+
+          - eissn: EISSN
+
+          - isbn: ISBN
+
+          - issue: Issue
+
+          - epage: End Page
+
+          - spage: Start Page
+
+          - pages: Number Of Pages
+
+          - part: Part
+
+          - pickupLocation: Pickup location
+
+          - date: Date
+
+          - quarter: Quarter
+
+          - ssn: SSN
+
+          - sici: SICI
+
+          - sharedIndexId: Shared index ID
+
+          - title: Title
+
+          - stitle: Abbreviated title
+
+          - atitle: Article title
+
+          - volume: Volume
+
+          '
+        explode: true
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Open URL
+      x-summary-source: derived
+    servers:
+    - url: /
+  /illService/tenants/{tenantId}/patronrequests/{patronRequestId}/agreeCopyright:
+    put:
+      tags:
+      - PatronRequests
+      description: Agree to the copyright terms for the patron request
+      operationId: agreeCopyright
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      - $ref: '#/components/parameters/patron-request-id'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Agree copyright
+      x-summary-source: derived
+    servers:
+    - url: /
+  /illService/tenants/{tenantId}/patronrequests/{patronRequestId}/fetchCopyright:
+    get:
+      tags:
+      - PatronRequests
+      description: Fetch the copyright details for the patron request
+      operationId: fetchCopyright
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      - $ref: '#/components/parameters/patron-request-id'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Fetch copyright
+      x-summary-source: derived
+    servers:
+    - url: /
+  /illService/tenants/{tenantId}/patronrequests/{patronRequestId}/viewDocument:
+    get:
+      tags:
+      - PatronRequests
+      description: View the document associated with the patron request
+      operationId: viewDocument
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      - $ref: '#/components/parameters/patron-request-id'
+      responses:
+        '200':
+          description: Successful response - the document is streamed as-is from the backend (mod-ill)
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: View document
+      x-summary-source: derived
+    servers:
+    - url: /
+components:
+  parameters:
+    tenant-id:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: diku
+    patron-request-id:
+      name: patronRequestId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: 3c3f172c-6874-4c56-88e1-2350a3d90320
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        name: field
+        value: must not be empty
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+      example:
+        message: Entity already exists.
+        type: EntityExistsException
+        code: entity_exists
+        parameters:
+        - name: id
+          value: 5ac63bf6-20e4-4449-9efd-01dbca051acf
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Error Message Text
+          type: ServiceException
+          code: error_code
+          parameters:
+          - name: cause
+            value: Service exception cause
+        total_records: 1
+  responses:
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            errors:
+            - code: service
+              type: InternalServerErrorException
+              message: Unknown Service Exception
+            total_records: 1
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            errors:
+            - code: validation
+              type: BadRequest
+              message: The input provided is invalid.
+              parameters:
+              - name: field
+                value: must not be empty
+            total_records: 1
+    NotFound:
+      description: Resource Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            errors:
+            - code: not_found
+              type: EntityNotFoundException
+              message: Entity is not found.
+              parameters:
+              - name: id
+                value: 5ac63bf6-20e4-4449-9efd-01dbca051acf
+            total_records: 1
+x-refined-from:
+- folio-edge-ill-openapi.json
+- folio-edge-ill-openapi.yml

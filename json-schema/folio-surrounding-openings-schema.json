@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-surrounding-openings-schema.json",
+  "title": "surroundingOpenings",
+  "description": "Information for three dates: one before when the SP is open, one representing an opening or closure for the current date, and one after the provided date where the SP is open.  If there are no openings before or after a given date, then an opening object will be returned with the date immediately following, denoting a closure.",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-mod-calendar-openapi.yml#/components/schemas/surroundingOpenings",
+  "type": "object",
+  "properties": {
+    "openings": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/singleDayOpening"
+      }
+    }
+  },
+  "required": [
+    "openings"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "singleDayOpening": {
+      "description": "Opening information for a single day",
+      "type": "object",
+      "properties": {
+        "date": {
+          "description": "The date (YYYY-MM-DD) that this object is describing openings for",
+          "type": "string",
+          "format": "date"
+        },
+        "allDay": {
+          "description": "If the service point is open or closed for the entire day",
+          "type": "boolean"
+        },
+        "open": {
+          "description": "If the service point is open on this day",
+          "type": "boolean"
+        },
+        "exceptional": {
+          "description": "If this opening (or closure) was the result of an exception",
+          "type": "boolean"
+        },
+        "exceptionName": {
+          "description": "The name of an exception, if this day was affected by one",
+          "type": "string"
+        },
+        "openings": {
+          "description": "A list of all the opening ranges of the service point on this day",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/singleDayOpeningRange"
+          }
+        }
+      },
+      "required": [
+        "date",
+        "allDay",
+        "open",
+        "exceptional",
+        "openings"
+      ],
+      "additionalProperties": false
+    },
+    "singleDayOpeningRange": {
+      "description": "A time for a single opening range on a given day",
+      "type": "object",
+      "properties": {
+        "startTime": {
+          "description": "The start time of this opening",
+          "type": "string",
+          "format": "time"
+        },
+        "endTime": {
+          "description": "The end time of this opening",
+          "type": "string",
+          "format": "time"
+        }
+      },
+      "required": [
+        "startTime",
+        "endTime"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

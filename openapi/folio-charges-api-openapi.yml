@@ -1,0 +1,477 @@
+openapi: 3.2.0
+info:
+  title: Folio Charges API
+  version: 3.2.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Charges across 2 of this provider''s published API definitions: folio-mod-oa-openapi.json, folio-mod-oa-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Charges
+paths:
+  /oa/charges:
+    description: Supports search and creation of charges.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Charges
+      summary: Get a set of charge records
+      operationId: getCharges
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ChargeResults'
+                - $ref: '#/components/schemas/ChargeResultsArray'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    post:
+      tags:
+      - Charges
+      summary: Create charge record
+      operationId: postCharge
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Charge'
+              - required:
+                - owner
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Charge'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /oa/charges/{id}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/chargeId'
+    get:
+      tags:
+      - Charges
+      summary: Get a specified charge record
+      operationId: getCharge
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Charge'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpringBootErrorResponse'
+        '500':
+          description: Internal server error
+    put:
+      tags:
+      - Charges
+      summary: Update charge record
+      operationId: putCharge
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Charge'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Charge'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpringBootErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+      - Charges
+      summary: Delete a specified charge record
+      operationId: deleteCharge
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpringBootErrorResponse'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  parameters:
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    chargeId:
+      in: path
+      name: id
+      description: UUID for a charge
+      required: true
+      schema:
+        type: string
+        format: uuid
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+  schemas:
+    Charge:
+      type: object
+      required:
+      - id
+      - amount
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        owner:
+          type: string
+          format: uuid
+          writeOnly: true
+        amount:
+          $ref: '#/components/schemas/MonetaryValue'
+        exchangeRate:
+          $ref: '#/components/schemas/ExchangeRate'
+        description:
+          type: string
+        paymentPeriod:
+          type: string
+          pattern: ^([0-9]{4})?$
+        category:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        discount:
+          type: number
+          default: 0
+        discountType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        discountNote:
+          type: string
+        tax:
+          type: number
+        chargeStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        invoiceReference:
+          type: string
+          format: uuid
+        invoiceLineItemReference:
+          type: string
+          format: uuid
+        payers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payer'
+        estimatedInvoicePrice:
+          readOnly: true
+          $ref: '#/components/schemas/MonetaryValue'
+        estimatedPrice:
+          readOnly: true
+          $ref: '#/components/schemas/MonetaryValue'
+    ExchangeRate:
+      type: object
+      required:
+      - id
+      - fromCurrency
+      - toCurrency
+      - coefficient
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        fromCurrency:
+          type: string
+        toCurrency:
+          type: string
+        coefficient:
+          type: number
+    ChargeResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Charge'
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+    Refdata:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+    SpringBootErrorResponse:
+      type: object
+      description: Spring Boot's default error body. Emitted by the servlet container itself when a request ends in an error status with no response body written by the application, rather than by this app's own error handling - so it does not match the `HttpError` shape used elsewhere in this API.
+      properties:
+        timestamp:
+          type: integer
+          description: Epoch milliseconds
+        status:
+          type: integer
+        error:
+          type: string
+        path:
+          type: string
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    MonetaryValue:
+      type: object
+      required:
+      - id
+      - baseCurrency
+      - value
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        baseCurrency:
+          type: string
+        value:
+          type: number
+          multipleOf: 0.01
+          description: Monetary amount, fixed to 2 decimal places
+    Payer:
+      type: object
+      required:
+      - id
+      - payer
+      - payerAmount
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        payer:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        payerAmount:
+          type: number
+        payerNote:
+          type: string
+    ChargeResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/ChargeResultsArray'
+    ValidationError:
+      type: object
+      required:
+      - message
+      - path
+      - _links
+      properties:
+        message:
+          type: string
+        path:
+          type: string
+        _links:
+          type: object
+          required:
+          - self
+          properties:
+            self:
+              type: object
+              required:
+              - href
+              properties:
+                href:
+                  type: string
+                  format: uri
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-oa-openapi.json
+- folio-mod-oa-openapi.yml

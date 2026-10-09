@@ -1,0 +1,254 @@
+openapi: 3.2.0
+info:
+  title: Folio Facets API
+  version: v4.1.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged facets across 2 of this provider''s published API definitions: folio-mod-search-openapi.json, folio-mod-search-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://{environment}-okapi.ci.folio.org
+  variables:
+    environment:
+      default: folio-dev-spitfire
+      enum:
+      - folio-dev-spitfire
+      - folio-perf-spitfire
+- description: Reference environments.
+  url: https://folio-{environment}-okapi.dev.folio.org
+  variables:
+    environment:
+      default: snapshot
+      enum:
+      - snapshot
+      - snapshot-2
+tags:
+- description: Provides endpoints to retrieve aggregated information (facets) about records, such as counts of records by specific fields or ranges of values. This can be used for faceted search or browsing.
+  name: Facets
+paths:
+  /search/{recordType}/facets:
+    get:
+      description: Provides list of facets for the record type
+      operationId: getFacets
+      parameters:
+      - description: Type of record to get facets for.
+        in: path
+        name: recordType
+        required: true
+        schema:
+          $ref: '#/components/schemas/recordType'
+      - description: A CQL query string with search conditions.
+        in: query
+        name: query
+        required: true
+        schema:
+          type: string
+      - description: List of facet names.
+        in: query
+        name: facet
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                facetResult:
+                  $ref: '#/components/examples/facetResult'
+              schema:
+                $ref: '#/components/schemas/facetResult'
+          description: Facet search result
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Facets
+      tags:
+      - Facets
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: 'null'
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    errorResponse:
+      description: A set of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        total_records:
+          description: Total number of errors
+          type: integer
+      type: object
+    facetItem:
+      description: Facet item description
+      example:
+        id: id
+        totalRecords: 0.8008281904610115
+      properties:
+        id:
+          description: Facet value
+          type: string
+        totalRecords:
+          description: Amount of search results for that facet
+          type: number
+      type: object
+    facetResult:
+      description: Facet result response
+      example:
+        facets:
+          key:
+            values:
+            - id: id
+              totalRecords: 0.8008281904610115
+            - id: id
+              totalRecords: 0.8008281904610115
+            totalRecords: 6
+        totalRecords: 1
+      properties:
+        facets:
+          additionalProperties:
+            $ref: '#/components/schemas/facet'
+          description: Map with found facet items, key is the facet name, value - facet object with found values
+          type: object
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          description: Amount of facets found
+          type: integer
+      type: object
+    facet:
+      description: Result value for specific facet
+      example:
+        values:
+        - id: id
+          totalRecords: 0.8008281904610115
+        - id: id
+          totalRecords: 0.8008281904610115
+        totalRecords: 6
+      properties:
+        values:
+          items:
+            $ref: '#/components/schemas/facetItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          description: Amount of facet items
+          type: integer
+      type: object
+    recordType:
+      enum:
+      - instances
+      - authorities
+      - contributors
+      - subjects
+      - classifications
+      - call-numbers
+      type: string
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      type: object
+  examples:
+    facetResult:
+      value:
+        facets:
+          source:
+            values:
+            - id: MARC
+              totalRecords: 20
+            - id: FOLIO
+              totalRecords: 10
+            totalRecords: 2
+        totalRecords: 1
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+x-refined-from:
+- folio-mod-search-openapi.json
+- folio-mod-search-openapi.yml

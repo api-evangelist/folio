@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-application-flow-schema.json",
+  "title": "Application Entitlement Flow Schema",
+  "description": "An entitlement flow result for a single application",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-mgr-tenant-entitlements-openapi.yml#/components/schemas/applicationFlow",
+  "id": "applicationEntitlement.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "An application entitlement flow identifier",
+      "type": "string",
+      "format": "uuid"
+    },
+    "applicationId": {
+      "description": "An application descriptor identifier",
+      "type": "string"
+    },
+    "tenantId": {
+      "description": "A tenant identifier",
+      "type": "string",
+      "format": "uuid"
+    },
+    "flowId": {
+      "description": "An entitlement flow identifier",
+      "type": "string",
+      "format": "uuid"
+    },
+    "type": {
+      "description": "Application flow entitlement type",
+      "$ref": "#/$defs/entitlementType"
+    },
+    "status": {
+      "description": "Application flow execution status",
+      "$ref": "#/$defs/executionStatus"
+    },
+    "startedAt": {
+      "description": "An application flow start timestamp",
+      "type": "string",
+      "format": "date-time"
+    },
+    "finishedAt": {
+      "description": "An application flow end timestamp",
+      "type": "string",
+      "format": "date-time"
+    },
+    "stages": {
+      "description": "A list with executed stage results",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/flowStage"
+      }
+    }
+  },
+  "$defs": {
+    "entitlementType": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "types/entitlementType.json",
+      "title": "Tenant Entitlement Type Schema",
+      "description": "A tenant entitlement type",
+      "type": "string",
+      "enum": [
+        "entitle",
+        "revoke",
+        "upgrade"
+      ]
+    },
+    "executionStatus": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "types/entitlementFlowStatus.json",
+      "title": "Application/Stage Execution Status Schema",
+      "description": "An application/stage execution status",
+      "type": "string",
+      "enum": [
+        "queued",
+        "in_progress",
+        "cancelled",
+        "cancellation_failed",
+        "failed",
+        "finished"
+      ]
+    },
+    "flowStage": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "flowStage.json",
+      "title": "Flow Stage Schema",
+      "description": "Flow stage descriptor. A stage can be part of global flow or specific application flow.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A unique stage identifier",
+          "type": "string",
+          "format": "uuid"
+        },
+        "flowId": {
+          "description": "A parent flow identifier (global or application flow)",
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "description": "A stage name",
+          "type": "string"
+        },
+        "status": {
+          "description": "Stage execution status",
+          "$ref": "#/$defs/executionStatus"
+        },
+        "errorType": {
+          "description": "A relevant error type caused stage failure or cancellation, nullable if stage is finished",
+          "type": "string"
+        },
+        "errorMessage": {
+          "description": "A relevant error message caused stage failure or cancellation, nullable if stage is finished",
+          "type": "string"
+        },
+        "startedAt": {
+          "description": "Stage execution start timestamp",
+          "type": "string",
+          "format": "date-time"
+        },
+        "finishedAt": {
+          "description": "Stage execution end timestamp",
+          "type": "string",
+          "format": "date-time"
+        },
+        "retriesCount": {
+          "description": "Number of retries performed during flow stage operations",
+          "type": "integer"
+        },
+        "retriesInfo": {
+          "description": "Error information on operations failures that caused retries",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,353 @@
+openapi: 3.2.0
+info:
+  title: Folio Note Types API
+  version: 3.0.0
+  description: 'Operations tagged note-types across 2 of this provider''s published API definitions: folio-mod-notes-openapi.json, folio-mod-notes-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: note-types
+paths:
+  /note-types:
+    get:
+      description: Return a list of note types
+      operationId: getNoteTypeCollection
+      tags:
+      - note-types
+      parameters:
+      - $ref: '#/components/parameters/cqlQueryNoteType'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/NoteTypeCollection'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          description: Unexpected error
+      summary: Get note type collection
+      x-summary-source: derived
+    post:
+      description: Create a new note type.
+      operationId: createNoteType
+      tags:
+      - note-types
+      requestBody:
+        $ref: '#/components/requestBodies/NoteTypeBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/NoteType'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          description: Unexpected error
+      summary: Create note type
+      x-summary-source: derived
+  /note-types/{id}:
+    parameters:
+    - $ref: '#/components/parameters/resourceId'
+    get:
+      description: Retrieve note type with given ID
+      operationId: getNoteType
+      tags:
+      - note-types
+      responses:
+        '200':
+          $ref: '#/components/responses/NoteType'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          description: Unexpected error
+      summary: Get note type
+      x-summary-source: derived
+    put:
+      description: Update note type with given ID
+      operationId: updateNoteType
+      tags:
+      - note-types
+      requestBody:
+        $ref: '#/components/requestBodies/NoteTypeBody'
+      responses:
+        '204':
+          description: Note Type successfully updated
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Unexpected error
+      summary: Update note type
+      x-summary-source: derived
+    delete:
+      description: Delete note type with given ID
+      operationId: deleteNoteType
+      tags:
+      - note-types
+      responses:
+        '204':
+          description: Note type deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Unexpected error
+      summary: Delete note type
+      x-summary-source: derived
+components:
+  schemas:
+    userInfo:
+      type: object
+      description: User Display Information
+      properties:
+        lastName:
+          type: string
+          readOnly: true
+          description: Last name of the user
+        firstName:
+          type: string
+          readOnly: true
+          description: First name of the user
+        middleName:
+          type: string
+          readOnly: true
+          description: Middle name or initial of the user
+      example:
+        lastName: Doe
+        firstName: John
+        middleName: X.
+    noteTypeCollection:
+      type: object
+      title: Collection of note types
+      description: Collection of note types
+      properties:
+        noteTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/noteType'
+        totalRecords:
+          type: integer
+          readOnly: true
+          description: Total amount of note types
+      required:
+      - noteTypes
+      example:
+        noteTypes:
+        - id: 118dbd8c-5ba0-47a9-a850-34bbb1dbf3b7
+          name: Important Note
+        - id: 46669e09-8b45-4ede-afbd-ca73bb89cdb3
+          label: Urgent Note
+        totalRecords: 2
+    uuid:
+      type: string
+      format: uuid
+    errors:
+      type: object
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+    noteType:
+      type: object
+      title: Note Type
+      description: Defines type of note
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+          description: A UUID identifying this note type
+          x-fqm-value-getter: ${source}.id
+          x-fqm-visibility: hidden
+          x-fqm-essential: true
+        name:
+          type: string
+          description: The unique name of this type
+          maxLength: 255
+          x-fqm-value-getter: ${source}.name
+          x-fqm-visibility: all
+          x-fqm-essential: true
+          x-fqm-id-column-name: id
+          x-fqm-value-source-api:
+            path: note-types
+            valueJsonPath: $.noteTypes.*.id
+            labelJsonPath: $.noteTypes.*.name
+          x-fqm-visible-by-default: true
+        usage:
+          type: object
+          readOnly: true
+          description: Type usage statistics
+          x-fqm-ignore: true
+          properties:
+            isAssigned:
+              type: boolean
+              readOnly: true
+              description: Is this note type assigned to any note
+          required:
+          - noteTotal
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readOnly: true
+          description: The metadata
+      required:
+      - name
+      example:
+        id: 118dbd8c-5ba0-47a9-a850-34bbb1dbf3b7
+        name: Important Note
+    metadata:
+      type: object
+      title: Metadata
+      description: Metadata about creation and changes to records
+      properties:
+        createdDate:
+          type: string
+          format: date-time
+          description: Date and time when the record was created
+          x-fqm-value-getter: to_char(${source}.created_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+          x-fqm-visibility: all
+          x-fqm-visible-by-default: true
+          x-fqm-essential: true
+        createdByUserId:
+          $ref: '#/components/schemas/uuid'
+          description: ID of the user who created the record
+          x-fqm-value-getter: ${source}.created_by
+          x-fqm-visibility: all
+          x-fqm-visible-by-default: false
+          x-fqm-essential: true
+          x-fqm-joins-to-raw:
+          - targetId: bb058933-cd06-4539-bd3a-6f248ff98ee2
+            targetField: id
+            direction: left
+            type: equality-cast-uuid
+          - targetId: f2615ea6-450b-425d-804d-6a495afd9308
+            targetField: id
+            direction: left
+            type: equality-cast-uuid
+        createdByUsername:
+          type: string
+          description: Username of the user who created the record (when available)
+          x-fqm-ignore: true
+        createdBy:
+          $ref: '#/components/schemas/userInfo'
+          description: Additional information of the user who created the record (when available)
+          x-fqm-ignore: true
+        updatedDate:
+          type: string
+          format: date-time
+          description: Date and time when the record was last updated
+          x-fqm-value-getter: to_char(${source}.updated_date, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+          x-fqm-visibility: all
+          x-fqm-visible-by-default: false
+          x-fqm-essential: true
+        updatedByUserId:
+          $ref: '#/components/schemas/uuid'
+          description: ID of the user who last updated the record
+          x-fqm-value-getter: ${source}.updated_by
+          x-fqm-visibility: all
+          x-fqm-visible-by-default: false
+          x-fqm-essential: true
+          x-fqm-joins-to-raw:
+          - targetId: bb058933-cd06-4539-bd3a-6f248ff98ee2
+            targetField: id
+            direction: left
+            type: equality-cast-uuid
+          - targetId: f2615ea6-450b-425d-804d-6a495afd9308
+            targetField: id
+            direction: left
+            type: equality-cast-uuid
+        updatedByUsername:
+          type: string
+          description: Username of the user who updated the record (when available)
+          x-fqm-ignore: true
+        updatedBy:
+          $ref: '#/components/schemas/userInfo'
+          description: Additional information of the user who updated the record (when available)
+          x-fqm-ignore: true
+      required:
+      - createdDate
+  parameters:
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+      required: false
+      description: Skip over a number of elements by specifying an offset value for the query
+    cqlQueryNoteType:
+      name: query
+      in: query
+      schema:
+        type: string
+        default: cql.allRecords=1
+      required: false
+      description: A query expressed as a CQL string, for details see [Note Types API](https://github.com/folio-org/mod-notes/blob/master/docs/api-guide.md#note-types-api)
+    resourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/uuid'
+      description: The UUID of a resource
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 1000
+        minimum: 1
+        maximum: 2147483647
+      required: false
+      description: Limit the number of elements returned in the response
+  responses:
+    Unauthorized:
+      description: Not authorized to perform requested action
+      content:
+        text/plain:
+          example: unable to perform action -- unauthorized
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    NoteType:
+      description: Returns a note type
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/noteType'
+    NoteTypeCollection:
+      description: Returns a note types collectiom
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/noteTypeCollection'
+    NotFound:
+      description: Resource with a given ID not found
+      content:
+        text/plain:
+          example: resource not found
+  requestBodies:
+    NoteTypeBody:
+      description: Note type object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/noteType'
+x-refined-from:
+- folio-mod-notes-openapi.json
+- folio-mod-notes-openapi.yml

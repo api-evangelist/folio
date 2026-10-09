@@ -1,0 +1,314 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Allowed service points API",
+  "version": "v1"
+ },
+ "tags": [
+  {
+   "name": "AllowedServicePoints"
+  }
+ ],
+ "paths": {
+  "/tlr/allowed-service-points": {
+   "get": {
+    "description": "Retrieve allowed service points",
+    "operationId": "getAllowedServicePoints",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/operation"
+     },
+     {
+      "$ref": "#/components/parameters/patronGroupId"
+     },
+     {
+      "$ref": "#/components/parameters/requesterId"
+     },
+     {
+      "$ref": "#/components/parameters/instanceId"
+     },
+     {
+      "$ref": "#/components/parameters/requestId"
+     },
+     {
+      "$ref": "#/components/parameters/itemId"
+     }
+    ],
+    "tags": [
+     "allowedServicePoints"
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/success"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequest"
+     },
+     "422": {
+      "$ref": "#/components/responses/validationFailed"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerError"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "allowedServicePointsResponse": {
+    "$ref": "#/components/schemas/AllowedServicePointsResponse"
+   },
+   "errorResponse": {
+    "$ref": "#/components/schemas/errors"
+   },
+   "uuid": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/",
+    "type": "string",
+    "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
+   },
+   "AllowedServicePoints": {
+    "description": "List of allowed pickup service points",
+    "type": "array",
+    "default": null,
+    "minItems": 1,
+    "uniqueItems": true,
+    "items": {
+     "type": "object",
+     "properties": {
+      "id": {
+       "$ref": "#/components/schemas/uuid"
+      },
+      "name": {
+       "description": "Service point name",
+       "type": "string"
+      },
+      "discoveryDisplayName": {
+       "description": "discoveryDisplayName of Service point",
+       "type": "string"
+      }
+     },
+     "required": [
+      "id",
+      "name"
+     ]
+    }
+   },
+   "AllowedServicePointsResponse": {
+    "description": "Allowed pickup service points grouped by request type",
+    "type": "object",
+    "properties": {
+     "Page": {
+      "$ref": "#/components/schemas/AllowedServicePoints"
+     },
+     "Hold": {
+      "$ref": "#/components/schemas/AllowedServicePoints"
+     },
+     "Recall": {
+      "$ref": "#/components/schemas/AllowedServicePoints"
+     }
+    }
+   },
+   "parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "description": "Parameter key",
+      "type": "string"
+     },
+     "value": {
+      "description": "Parameter value",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "parameters": {
+    "description": "List of key/value parameters of an error",
+    "type": "array",
+    "items": {
+     "type": "object",
+     "$ref": "#/components/schemas/parameter"
+    },
+    "additionalProperties": false
+   },
+   "error": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "type": "object",
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message"
+    ]
+   },
+   "errors": {
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "id": "errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   }
+  },
+  "parameters": {
+   "operation": {
+    "name": "operation",
+    "in": "query",
+    "required": true,
+    "schema": {
+     "type": "string",
+     "enum": [
+      "create",
+      "replace"
+     ]
+    }
+   },
+   "patronGroupId": {
+    "name": "patronGroupId",
+    "in": "query",
+    "required": false,
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    }
+   },
+   "requesterId": {
+    "name": "requesterId",
+    "in": "query",
+    "required": false,
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    }
+   },
+   "instanceId": {
+    "name": "instanceId",
+    "in": "query",
+    "required": false,
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    }
+   },
+   "requestId": {
+    "name": "requestId",
+    "in": "query",
+    "required": false,
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    }
+   },
+   "itemId": {
+    "name": "itemId",
+    "in": "query",
+    "required": false,
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    }
+   }
+  },
+  "responses": {
+   "success": {
+    "description": "Allowed service points grouped by request type",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/AllowedServicePointsResponse"
+      }
+     }
+    }
+   },
+   "badRequest": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "example": {
+       "errors": [
+        {
+         "message": "Request is invalid"
+        }
+       ],
+       "total_records": 1
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   },
+   "validationFailed": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "example": {
+       "errors": [
+        {
+         "message": "Request is invalid"
+        }
+       ],
+       "total_records": 1
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   },
+   "internalServerError": {
+    "description": "When unhandled exception occurred during code execution, e.g. NullPointerException",
+    "content": {
+     "application/json": {
+      "example": {
+       "errors": [
+        {
+         "message": "Unexpected error"
+        }
+       ],
+       "total_records": 1
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   }
+  }
+ }
+}

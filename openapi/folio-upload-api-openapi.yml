@@ -1,0 +1,42 @@
+openapi: 3.2.0
+info:
+  title: Folio Upload API
+  version: v1
+  description: 'Operations tagged upload across 2 of this provider''s published API definitions: folio-mod-linked-data-import-openapi.json, folio-mod-linked-data-import-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Upload
+paths:
+  /linked-data-import/files:
+    post:
+      operationId: uploadFile
+      tags:
+      - Upload
+      description: Uploads a local file into tenant-specific folder in configured S3 bucket
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Uploaded file name in S3
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Invalid upload request
+        '500':
+          description: Internal Server Error
+      summary: Upload file
+      x-summary-source: derived
+x-refined-from:
+- folio-mod-linked-data-import-openapi.json
+- folio-mod-linked-data-import-openapi.yml

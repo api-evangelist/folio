@@ -1,0 +1,369 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "quickMARC MARC Specifications",
+  "version": "1.2",
+  "description": "API for retrieving MARC field specifications by record type and field tag",
+  "contact": {
+   "name": "FOLIO"
+  }
+ },
+ "tags": [
+  {
+   "name": "marc-specifications",
+   "description": "Operations for retrieving MARC field specifications"
+  }
+ ],
+ "servers": [
+  {
+   "url": "https://folio-edev-spitfire-diku.ci.folio.org",
+   "description": "Development environment."
+  },
+  {
+   "url": "https://folio-etesting-{environment}.ci.folio.org",
+   "description": "Reference environments.",
+   "variables": {
+    "environment": {
+     "default": "snapshot-diku",
+     "enum": [
+      "snapshot-diku",
+      "sprint-fs09000000"
+     ]
+    }
+   }
+  }
+ ],
+ "paths": {
+  "/marc-specifications/{recordType}/{fieldTag}": {
+   "get": {
+    "tags": [
+     "marc-specifications"
+    ],
+    "summary": "Get MARC specification",
+    "description": "Retrieves MARC field specification for the given record type and field tag",
+    "operationId": "getMarcSpecification",
+    "parameters": [
+     {
+      "name": "recordType",
+      "in": "path",
+      "required": true,
+      "description": "Type of MARC record",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "bibliographic",
+        "holdings",
+        "authority"
+       ]
+      },
+      "example": "bibliographic"
+     },
+     {
+      "name": "fieldTag",
+      "in": "path",
+      "required": true,
+      "description": "Three-digit MARC field tag",
+      "schema": {
+       "type": "string",
+       "pattern": "^[0-9]{3}$"
+      },
+      "example": "008"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "MARC specification successfully retrieved",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/marcSpecification"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad request, e.g. invalid record type or field tag format",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/error"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "MARC specification not found for the given record type and field tag",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/error"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal server error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/error"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "error": {
+    "type": "object",
+    "description": "Error response",
+    "properties": {
+     "message": {
+      "type": "string",
+      "description": "Error message",
+      "example": "may not be null"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error type identifier",
+      "example": "1"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error code",
+      "example": "-1"
+     },
+     "parameters": {
+      "type": "array",
+      "description": "Additional error parameters",
+      "items": {
+       "type": "object",
+       "properties": {
+        "key": {
+         "type": "string",
+         "example": "moduleTo"
+        },
+        "value": {
+         "type": "string",
+         "example": "null"
+        }
+       }
+      }
+     }
+    }
+   },
+   "marcSpec": {
+    "$ref": "#/components/schemas/marcSpecification"
+   },
+   "marcFormat": {
+    "type": "string",
+    "description": "MARC Format",
+    "enum": [
+     "BIBLIOGRAPHIC",
+     "HOLDINGS",
+     "AUTHORITY"
+    ]
+   },
+   "marcSpecificationCondition": {
+    "type": "object",
+    "description": "Specification condition definition",
+    "properties": {
+     "tag": {
+      "description": "Field's tag",
+      "type": "string",
+      "pattern": "^([0-9]{3})|(LDR)$",
+      "example": "001"
+     },
+     "positions": {
+      "description": "Map of condition definitions",
+      "type": "object",
+      "additionalProperties": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1,
+        "example": "a"
+       }
+      }
+     }
+    },
+    "required": [
+     "tag",
+     "positions"
+    ]
+   },
+   "marcSpecificationItemValue": {
+    "type": "object",
+    "description": "Specification item value definition",
+    "properties": {
+     "code": {
+      "description": "Value code",
+      "type": "string",
+      "example": "e"
+     },
+     "name": {
+      "description": "Value name",
+      "type": "string",
+      "example": "Detailed date"
+     }
+    }
+   },
+   "marcSpecificationItem": {
+    "type": "object",
+    "description": "Specification item definition",
+    "properties": {
+     "code": {
+      "description": "Item code",
+      "type": "string",
+      "example": "Entered"
+     },
+     "name": {
+      "description": "Item name",
+      "type": "string",
+      "example": "Date entered on file"
+     },
+     "order": {
+      "description": "Item order",
+      "type": "integer",
+      "example": 0
+     },
+     "position": {
+      "description": "Position in field",
+      "type": "integer",
+      "example": 0
+     },
+     "length": {
+      "description": "Length from position",
+      "type": "integer",
+      "example": 5
+     },
+     "isArray": {
+      "description": "Is item an array of values",
+      "type": "boolean",
+      "example": false
+     },
+     "readOnly": {
+      "description": "Is item read only",
+      "type": "boolean",
+      "example": true
+     },
+     "allowedValues": {
+      "type": "array",
+      "nullable": true,
+      "items": {
+       "$ref": "#/components/schemas/marcSpecificationItemValue"
+      }
+     }
+    },
+    "required": [
+     "code",
+     "name",
+     "order",
+     "position",
+     "length",
+     "isArray",
+     "readOnly"
+    ]
+   },
+   "marcSpecificationType": {
+    "type": "object",
+    "description": "Specification type definition",
+    "properties": {
+     "code": {
+      "description": "Type codename",
+      "type": "string",
+      "example": "books"
+     },
+     "identifiedBy": {
+      "description": "Conditions used to identify MARC specification type",
+      "type": "object",
+      "properties": {
+       "or": {
+        "description": "Single condition",
+        "type": "array",
+        "items": {
+         "$ref": "#/components/schemas/marcSpecificationCondition"
+        }
+       }
+      },
+      "required": [
+       "or"
+      ]
+     },
+     "items": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/marcSpecificationItem"
+      }
+     }
+    },
+    "required": [
+     "code",
+     "identifiedBy",
+     "items"
+    ]
+   },
+   "marcSpecification": {
+    "type": "object",
+    "description": "MARC specification definition",
+    "properties": {
+     "tag": {
+      "description": "Field's tag",
+      "type": "string",
+      "pattern": "^[0-9]{3}$",
+      "example": "008"
+     },
+     "format": {
+      "$ref": "#/components/schemas/marcFormat"
+     },
+     "label": {
+      "description": "Label of the specification",
+      "type": "string"
+     },
+     "url": {
+      "description": "Url to details about field spec",
+      "type": "string",
+      "format": "uri"
+     },
+     "repeatable": {
+      "description": "If this field can appear multiple time in MARC record",
+      "type": "boolean"
+     },
+     "required": {
+      "description": "If this field is required in MARC record",
+      "type": "boolean"
+     },
+     "spec": {
+      "type": "object",
+      "description": "Details of the specification",
+      "properties": {
+       "types": {
+        "description": "Array of types",
+        "type": "array",
+        "items": {
+         "$ref": "#/components/schemas/marcSpecificationType"
+        }
+       }
+      },
+      "required": [
+       "types"
+      ]
+     }
+    },
+    "required": [
+     "tag",
+     "format",
+     "label",
+     "url",
+     "repeatable",
+     "required",
+     "spec"
+    ]
+   }
+  }
+ }
+}

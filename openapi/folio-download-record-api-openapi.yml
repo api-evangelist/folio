@@ -1,0 +1,72 @@
+openapi: 3.2.0
+info:
+  title: Folio Download Record API
+  version: v1
+  description: 'Operations tagged Download Record across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+tags:
+- name: Download Record
+paths:
+  /download-record/{recordId}:
+    get:
+      description: Download single authority or instance record by id
+      operationId: downloadRecordById
+      parameters:
+      - name: recordId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      - name: idType
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/idType'
+      - name: utf
+        in: query
+        description: Specify whether to encode the file in UTF-8.
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: suppress999ff
+        in: query
+        description: Specify whether to suppress 999ff field.
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: A file download in binary format
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Internal server errors
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Download Record
+      summary: Download record by id
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+components:
+  schemas:
+    idType:
+      description: Specifies the type of record to download.
+      type: string
+      enum:
+      - AUTHORITY
+      - INSTANCE
+    uuid:
+      type: string
+      format: uuid
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-data-export-openapi.yml

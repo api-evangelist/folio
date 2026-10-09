@@ -1,0 +1,215 @@
+openapi: 3.2.0
+info:
+  title: Folio List Export API
+  version: 1.0.0
+  description: 'Operations tagged listExport across 2 of this provider''s published API definitions: folio-mod-lists-list-openapi.json, folio-mod-lists-list-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-etesting-snapshot-kong.ci.folio.org/
+tags:
+- name: listExport
+paths:
+  /lists/{id}/exports:
+    post:
+      operationId: exportList
+      tags:
+      - listExport
+      description: Exports the list.
+      parameters:
+      - $ref: '#/components/parameters/id'
+      requestBody:
+        description: Export request
+        required: false
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '201':
+          description: returns if a list export request submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListExportDTO'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Export list
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /lists/{id}/exports/{exportId}:
+    get:
+      operationId: getExportDetails
+      tags:
+      - listExport
+      description: Get details of an export request
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/exportId'
+      responses:
+        '200':
+          description: Returns details of requested exportId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListExportDTO'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get export details
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /lists/{id}/exports/{exportId}/cancel:
+    post:
+      operationId: cancelExport
+      tags:
+      - listExport
+      description: Cancel the export.
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/exportId'
+      responses:
+        '204':
+          description: Export cancelled
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Cancel export
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /lists/{id}/exports/{exportId}/download:
+    get:
+      operationId: downloadList
+      tags:
+      - listExport
+      description: Download the exported file.
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/exportId'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Download list
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    ListAppError:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+      - code
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    ListExportDTO:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List Export DTO
+      type: object
+      properties:
+        exportId:
+          description: List Export id
+          type: string
+          format: UUID
+        listId:
+          description: List Id
+          type: string
+          format: UUID
+        status:
+          description: Status of the export
+          type: string
+          enum:
+          - IN_PROGRESS
+          - SUCCESS
+          - FAILED
+          - CANCELLED
+        startDate:
+          description: Date and time when the export request was submitted
+          type: string
+          format: date-time
+        endDate:
+          description: Date and time when the export was completed
+          type: string
+          format: date-time
+        createdBy:
+          description: ID of the user who wants to export the list
+          type: string
+          format: UUID
+        fields:
+          description: List of fields to export
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+      required:
+      - exportId
+      - listId
+      - status
+      - startDate
+      - createdBy
+  parameters:
+    exportId:
+      name: exportId
+      in: path
+      required: true
+      description: exportId of the list
+      schema:
+        type: string
+        format: UUID
+    id:
+      name: id
+      in: path
+      required: true
+      description: id of the list
+      schema:
+        type: string
+        format: UUID
+  responses:
+    badRequestResponse:
+      description: Invalid request
+      content:
+        application/json:
+          example:
+            message: List with ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
+            code: read-list.not.found
+          schema:
+            $ref: '#/components/schemas/ListAppError'
+x-refined-from:
+- folio-mod-lists-list-openapi.json
+- folio-mod-lists-list-openapi.yml

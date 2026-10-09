@@ -1,0 +1,584 @@
+openapi: 3.2.0
+info:
+  title: Folio Multi Item Batch Requests API
+  version: v1
+  description: 'Operations tagged multiItemBatchRequests across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: multiItemBatchRequests
+paths:
+  /circulation-bff/batch-requests:
+    post:
+      operationId: createBatchRequest
+      description: Create Multi-Item Batch Request
+      tags:
+      - multiItemBatchRequests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/batchRequest'
+        required: true
+      responses:
+        '201':
+          description: Multi-Item Batch Request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/batchRequestResponse'
+              examples:
+                objectExample:
+                  value:
+                    batchId: 69abbd7d-b4a6-4376-8453-bf349c579a91
+                    requestDate: '2024-01-01T00:12:00Z'
+                    requesterId: 73b17dee-d278-4128-b0fd-5d9f801b0400
+                    patronComments: patron comments
+                    mediatedWorkflow: Multi-Item request
+                    mediatedRequestStatus: In Progress
+                    itemRequestsStats:
+                      total: 3
+                      pending: 0
+                      inProgress: 1
+                      completed: 1
+                      failed: 1
+                    metadata:
+                      createdDate: '2025-05-16T09:15:50.691+00:00'
+                      createdByUserId: b7e131c6-f6d5-424b-935b-089d3704cc55
+                      updatedDate: '2025-05-16T09:15:50.691+00:00'
+                      updatedByUserId: b7e131c6-f6d5-424b-935b-089d3704cc55
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Create batch request
+      x-summary-source: derived
+    get:
+      description: Get Multi-Item Batch Request Collection
+      operationId: getBatchRequestCollection
+      tags:
+      - multiItemBatchRequests
+      parameters:
+      - name: query
+        in: query
+        schema:
+          type: string
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Multi-Item Batch Requests Collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/batchRequestCollectionResponse'
+              examples:
+                objectExample:
+                  value:
+                    mediatedBatchRequests:
+                    - batchId: 69abbd7d-b4a6-4376-8453-bf349c579a91
+                      requestDate: '2024-01-01T00:12:00Z'
+                      requesterId: 73b17dee-d278-4128-b0fd-5d9f801b0400
+                      patronComments: patron comments
+                      mediatedWorkflow: Multi-Item request
+                      mediatedRequestStatus: In Progress
+                      metadata:
+                        createdDate: '2025-05-16T09:15:50.691+00:00'
+                        createdByUserId: b7e131c6-f6d5-424b-935b-089d3704cc55
+                        updatedDate: '2025-05-16T09:15:50.691+00:00'
+                        updatedByUserId: b7e131c6-f6d5-424b-935b-089d3704cc55
+                    totalRecords: 1
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get batch request collection
+      x-summary-source: derived
+  /circulation-bff/batch-requests/{batchId}:
+    get:
+      description: Get Multi-Item Batch request by ID
+      operationId: getBatchRequestById
+      tags:
+      - multiItemBatchRequests
+      parameters:
+      - name: batchId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The UUID of the batch request
+      responses:
+        '200':
+          description: Multi-Item Batch Request retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/batchRequestResponse'
+              examples:
+                objectExample:
+                  value:
+                    batchId: 69abbd7d-b4a6-4376-8453-bf349c579a91
+                    requestDate: '2024-01-01T00:12:00Z'
+                    requesterId: 73b17dee-d278-4128-b0fd-5d9f801b0400
+                    patronComments: patron comments
+                    mediatedWorkflow: Multi-Item request
+                    mediatedRequestStatus: In Progress
+                    itemRequestsStats:
+                      total: 3
+                      pending: 0
+                      inProgress: 1
+                      completed: 1
+                      failed: 1
+                    metadata:
+                      createdDate: '2025-05-16T09:15:50.691+00:00'
+                      createdByUserId: b7e131c6-f6d5-424b-935b-089d3704cc55
+                      updatedDate: '2025-05-16T09:15:50.691+00:00'
+                      updatedByUserId: b7e131c6-f6d5-424b-935b-089d3704cc55
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get batch request by id
+      x-summary-source: derived
+  /circulation-bff/batch-requests/{batchId}/details:
+    get:
+      description: Retrieve multi-item batch request details by batch id (deprecated, use /instance/{instanceId}/batch-requests/{batchId}/details instead)
+      operationId: getMultiItemBatchRequestDetailsByBatchIdLegacy
+      tags:
+      - multiItemBatchRequests
+      parameters:
+      - name: batchId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The UUID of the batch request
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Multi-Item Batch Requests Collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/batchRequestDetailsResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get multi item batch request details by batch id legacy
+      x-summary-source: derived
+  /circulation-bff/instance/{instanceId}/batch-requests/{batchId}/details:
+    get:
+      description: Retrieve multi-item batch request details by batch id
+      operationId: getMultiItemBatchRequestDetailsByBatchId
+      tags:
+      - multiItemBatchRequests
+      parameters:
+      - name: instanceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The UUID of the instance whose details are being requested
+      - name: batchId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The UUID of the batch request
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Multi-Item Batch Requests Collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/batchRequestDetailsResponse'
+              examples:
+                objectExample:
+                  value:
+                    mediatedBatchRequestDetails:
+                    - batchId: 69abbd7d-b4a6-4376-8453-bf349c579a91
+                      requesterId: 73b17dee-d278-4128-b0fd-5d9f801b0400
+                      itemId: 53a91b3e-f95f-4121-8ae0-1d281d846993
+                      pickupServicePointId: 0761b1bc-57a1-4551-9dfa-0b186f508357
+                      patronComments: patron comments
+                      confirmedRequestId: aa5549b2-26b9-4f33-9466-b22a41baff78
+                      mediatedRequestStatus: Completed
+                      requestStatus: Open - Not yet filled
+                      metadata:
+                        createdDate: '2025-05-16T09:15:50.691+00:00'
+                        createdByUserId: b7e131c6-f6d5-424b-935b-089d3704cc55
+                        updatedDate: '2025-05-16T09:15:50.691+00:00'
+                        updatedByUserId: b7e131c6-f6d5-424b-935b-089d3704cc55
+                    totalRecords: 1
+                    instance:
+                      id: 7212ba6a-8dcf-45a1-be9a-ffaa847c4423
+                      title: Interesting Times
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get multi item batch request details by batch id
+      x-summary-source: derived
+components:
+  parameters:
+    offset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        description: Skip over a number of elements by specifying an offset value for the query
+        default: 0
+        example: 0
+        minimum: 0
+        maximum: 2147483647
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        description: "Limit the number of elements returned in the response.\nUsing limit=0 will return totalRecords with the exact value.\nFor details about totalRecords see:\n  - https://github.com/folio-org/raml-module-builder#estimated-totalrecords\n"
+        default: 10
+        example: 10
+        minimum: 0
+        maximum: 2147483647
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
+    batchRequest:
+      type: object
+      description: Mediated Multi-Item Batch Request
+      properties:
+        batchId:
+          description: UUID of the batch request
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: UUID of the requesting user (patron)
+          $ref: '#/components/schemas/uuid'
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        mediatedWorkflow:
+          description: Mediated workflow that mediated batch request follows
+          type: string
+          enum:
+          - Multi-Item request
+        itemRequests:
+          description: Multi Item batch request details that represents info for the array of item requests
+          type: array
+          items:
+            type: object
+            properties:
+              itemId:
+                description: UUID of the item being requested
+                $ref: '#/components/schemas/uuid'
+              pickupServicePointId:
+                description: UUID of the pickup service point
+                $ref: '#/components/schemas/uuid'
+            additionalProperties: false
+            required:
+            - itemId
+            - pickupServicePointId
+      additionalProperties: false
+      required:
+      - requesterId
+      - itemRequests
+      - mediatedWorkflow
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    batchRequestDetail:
+      type: object
+      description: Multi-Item Batch Request Detail
+      properties:
+        batchId:
+          description: UUID of the mediated batch request
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: UUID of the item
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: UUID of the requesting patron (user)
+          $ref: '#/components/schemas/uuid'
+        pickupServicePointId:
+          description: UUID of the pickup service point
+          $ref: '#/components/schemas/uuid'
+        mediatedRequestStatus:
+          description: Status of the batch request detail
+          type: string
+          enum:
+          - Pending
+          - In progress
+          - Completed
+          - Failed
+        requestStatus:
+          description: Status of circulation request
+          type: string
+        confirmedRequestId:
+          description: Confirmed circulation request ID
+          $ref: '#/components/schemas/uuid'
+        errorCode:
+          description: Error code if the request failed
+          type: string
+        errorDetails:
+          description: Error details if the request failed
+          type: string
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        metadata:
+          description: request metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - batchId
+      - requesterId
+      - mediatedRequestStatus
+    batchRequestCollectionResponse:
+      description: Collection of Multi-Item Batch Requests
+      type: object
+      properties:
+        mediatedBatchRequests:
+          description: A list of multi-item batch requests
+          type: array
+          items:
+            $ref: '#/components/schemas/batchRequestResponse'
+        totalRecords:
+          description: Total number of requests
+          type: integer
+      additionalProperties: false
+      required:
+      - mediatedBatchRequests
+      - totalRecords
+    batchRequestDetailsResponse:
+      description: Collection of multi-item batch request details
+      type: object
+      properties:
+        mediatedBatchRequestDetails:
+          description: A list of batch request details
+          type: array
+          items:
+            $ref: '#/components/schemas/batchRequestDetail'
+        totalRecords:
+          description: Total number of requests
+          type: integer
+        instance:
+          description: Instance data resolved for the requested instance id
+          type: object
+          properties:
+            id:
+              description: UUID of the instance
+              $ref: '#/components/schemas/uuid'
+            title:
+              description: Title of the instance
+              type: string
+          additionalProperties: false
+      additionalProperties: false
+      required:
+      - mediatedBatchRequestDetails
+      - totalRecords
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    batchRequestResponse:
+      type: object
+      description: DTO for Multi-Item Batch Request
+      properties:
+        batchId:
+          description: UUID of the batch request
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: UUID of the requesting patron (user)
+          $ref: '#/components/schemas/uuid'
+        mediatedRequestStatus:
+          description: Status of the batch request
+          type: string
+          enum:
+          - Pending
+          - In progress
+          - Completed
+          - Failed
+        itemRequestsStats:
+          description: Statistics of item requests in the mediated batch request
+          type: object
+          properties:
+            total:
+              description: Total number of item requests
+              type: integer
+            pending:
+              description: Number of pending item requests
+              type: integer
+            inProgress:
+              description: Number of item requests in progress
+              type: integer
+            completed:
+              description: Number of completed item requests
+              type: integer
+            failed:
+              description: Number of failed item requests
+              type: integer
+        requestDate:
+          description: Date when the batch request was placed
+          type: string
+          format: date-time
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        mediatedWorkflow:
+          description: Mediated workflow that mediated batch request follows
+          type: string
+          enum:
+          - Multi-Item request
+        metadata:
+          description: Batch request metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - batchId
+      - requesterId
+      - requestDate
+      - mediatedRequestStatus
+      - mediatedWorkflow
+    metadata:
+      type: object
+      description: Record metadata
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+  examples:
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+    unprocessableEntityResponse:
+      description: Validation error for the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            response:
+              $ref: '#/components/examples/validationErrorResponse'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            validationErrorResponse:
+              $ref: '#/components/examples/validationErrorResponse'
+x-refined-from:
+- folio-mod-circulation-bff-circulationbff-openapi.json
+- folio-mod-circulation-bff-circulationbff-openapi.yml

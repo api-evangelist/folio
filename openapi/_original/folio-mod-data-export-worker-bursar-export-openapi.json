@@ -1,0 +1,2868 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Fees and fines for bursar export schemas",
+  "version": "v1"
+ },
+ "servers": [
+  {
+   "url": "https://stub.com/"
+  }
+ ],
+ "paths": {
+  "/stub": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "stub"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "ownerdatacollection": {
+    "$ref": "#/components/schemas/OwnerDataCollection"
+   },
+   "userdataCollection": {
+    "$ref": "#/components/schemas/UserCollection"
+   },
+   "accountdataCollection": {
+    "$ref": "#/components/schemas/AccountdataCollection"
+   },
+   "feefineactionCollection": {
+    "$ref": "#/components/schemas/FeefineactionCollection"
+   },
+   "transferdataCollection": {
+    "$ref": "#/components/schemas/TransferdataCollection"
+   },
+   "servicepoints": {
+    "$ref": "#/components/schemas/ServicePoints"
+   },
+   "bursarExportJob": {
+    "description": "Bursar export job schema",
+    "type": "object",
+    "properties": {
+     "filter": {
+      "description": "Filter to use for the regular export",
+      "$ref": "#/components/schemas/bursarExportFilter"
+     },
+     "groupByPatron": {
+      "description": "Choose whether to group fee/fines by patron",
+      "type": "boolean"
+     },
+     "groupByPatronFilter": {
+      "description": "Filter to use for the export when grouping by patron",
+      "$ref": "#/components/schemas/bursarExportFilterAggregate"
+     },
+     "header": {
+      "description": "Header format for the export file",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/bursarExportHeaderFooterToken"
+      }
+     },
+     "data": {
+      "description": "Data format for the export file",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/bursarExportDataToken"
+      }
+     },
+     "footer": {
+      "description": "Footer format for the export file",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/bursarExportHeaderFooterToken"
+      }
+     },
+     "transferInfo": {
+      "description": "Transfer information for the export",
+      "$ref": "#/components/schemas/bursarExportTransferCriteria"
+     },
+     "dryRun": {
+      "description": "Whether this export is a dry run (i.e. no actual transfer will be performed)",
+      "type": "boolean"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "filter",
+     "groupByPatron",
+     "header",
+     "data",
+     "footer",
+     "transferInfo"
+    ]
+   },
+   "ediConfig": {
+    "$ref": "#/components/schemas/EdiConfig"
+   },
+   "ediEmail": {
+    "$ref": "#/components/schemas/EdiEmail"
+   },
+   "ediFtp": {
+    "$ref": "#/components/schemas/EdiFtp"
+   },
+   "ediSchedule": {
+    "$ref": "#/components/schemas/EdiSchedule"
+   },
+   "scheduleParameters": {
+    "$ref": "#/components/schemas/ScheduleParameters"
+   },
+   "vendorEdiOrdersExportConfig": {
+    "$ref": "#/components/schemas/VendorEdiOrdersExportConfig"
+   },
+   "eHoldingsExportConfig": {
+    "$ref": "#/components/schemas/EHoldingsExportConfig"
+   },
+   "exportConfig": {
+    "$ref": "#/components/schemas/ExportConfig"
+   },
+   "exportConfigCollection": {
+    "$ref": "#/components/schemas/ExportConfigCollection"
+   },
+   "itemCollection": {
+    "$ref": "#/components/schemas/ItemCollection"
+   },
+   "Metadata": {
+    "type": "object",
+    "title": "Metadata Schema",
+    "properties": {
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdByUserId": {
+      "description": "ID of the user who created the record (when available)",
+      "type": "string",
+      "format": "uuid"
+     },
+     "createdByUsername": {
+      "description": "Username of the user who created the record (when available)",
+      "type": "string",
+      "maxLength": 50
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedByUserId": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "format": "uuid"
+     },
+     "updatedByUsername": {
+      "description": "Username of the user who last updated the record (when available)",
+      "type": "string",
+      "maxLength": 50
+     }
+    },
+    "additionalProperties": false
+   },
+   "Owner": {
+    "type": "object",
+    "title": "CRUD Owner schema",
+    "properties": {
+     "owner": {
+      "description": "Service desk (known as a fee/fine owner) is library-defined and is associated with specific fees/fines",
+      "type": "string"
+     },
+     "desc": {
+      "description": "Owner description",
+      "type": "string"
+     },
+     "servicePointOwner": {
+      "description": "Service points associated to a Owner",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "value": {
+         "description": "ID of the service-point",
+         "type": "string"
+        },
+        "label": {
+         "description": "Service-point name label",
+         "type": "string"
+        }
+       },
+       "required": [
+        "value"
+       ]
+      }
+     },
+     "defaultChargeNoticeId": {
+      "description": "ID of the fee/fine charge template",
+      "type": "string"
+     },
+     "defaultActionNoticeId": {
+      "description": "ID of the fee/fine action template",
+      "type": "string"
+     },
+     "metadata": {
+      "description": "Metadata about creation to owner, provided by the server",
+      "type": "object",
+      "$ref": "#/components/schemas/Metadata"
+     },
+     "id": {
+      "description": "Owner id, UUID",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   },
+   "OwnerDataCollection": {
+    "type": "object",
+    "properties": {
+     "owners": {
+      "description": "List of owner items",
+      "type": "array",
+      "id": "ownersData",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/Owner"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "required": [
+     "owners",
+     "totalRecords"
+    ]
+   },
+   "Address": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "A unique id for this address",
+      "type": "string"
+     },
+     "countryId": {
+      "description": "The country code for this address",
+      "type": "string"
+     },
+     "addressLine1": {
+      "description": "Address, Line 1",
+      "type": "string"
+     },
+     "addressLine2": {
+      "description": "Address, Line 2",
+      "type": "string"
+     },
+     "city": {
+      "description": "City name",
+      "type": "string"
+     },
+     "region": {
+      "description": "Region",
+      "type": "string"
+     },
+     "postalCode": {
+      "description": "Postal Code",
+      "type": "string"
+     },
+     "addressTypeId": {
+      "description": "A UUID that corresponds with an address type object",
+      "type": "string"
+     },
+     "primaryAddress": {
+      "description": "Is this the user's primary address?",
+      "type": "boolean"
+     }
+    },
+    "additionalProperties": false
+   },
+   "Personal": {
+    "type": "object",
+    "properties": {
+     "lastName": {
+      "description": "The user's surname",
+      "type": "string"
+     },
+     "firstName": {
+      "description": "The user's given name",
+      "type": "string"
+     },
+     "middleName": {
+      "description": "The user's middle name (if any)",
+      "type": "string"
+     },
+     "preferredFirstName": {
+      "description": "The user's preferred name",
+      "type": "string"
+     },
+     "email": {
+      "description": "The user's email address",
+      "type": "string"
+     },
+     "phone": {
+      "description": "The user's primary phone number",
+      "type": "string"
+     },
+     "mobilePhone": {
+      "description": "The user's mobile phone number",
+      "type": "string"
+     },
+     "dateOfBirth": {
+      "type": "string",
+      "description": "The user's birth date",
+      "format": "date-time"
+     },
+     "addresses": {
+      "description": "Physical addresses associated with the user",
+      "type": "array",
+      "minItems": 0,
+      "items": {
+       "$ref": "#/components/schemas/Address"
+      }
+     },
+     "preferredContactTypeId": {
+      "description": "Id of user's preferred contact type",
+      "type": "string"
+     },
+     "profilePictureLink": {
+      "description": "Link to the profile picture",
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "lastName"
+    ]
+   },
+   "Tags": {
+    "type": "object",
+    "title": "tags",
+    "properties": {
+     "tagList": {
+      "description": "List of tags",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "additionalProperties": false
+   },
+   "User": {
+    "type": "object",
+    "title": "User Schema",
+    "properties": {
+     "username": {
+      "description": "A unique name belonging to a user. Typically used for login",
+      "type": "string"
+     },
+     "id": {
+      "description": "A globally unique (UUID) identifier for the user",
+      "type": "string"
+     },
+     "externalSystemId": {
+      "description": "An ID that corresponds to an external authority",
+      "type": "string"
+     },
+     "barcode": {
+      "description": "The library barcode for this user",
+      "type": "string"
+     },
+     "active": {
+      "description": "A flag to determine if a user can log in, take out loans, etc.",
+      "type": "boolean"
+     },
+     "type": {
+      "description": "The class of user",
+      "type": "string"
+     },
+     "patronGroup": {
+      "description": "A UUID corresponding to the group the user belongs to",
+      "type": "string"
+     },
+     "departments": {
+      "description": "A UUIDs corresponding to the departments the user belongs to",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+       "type": "string",
+       "format": "uuid"
+      }
+     },
+     "meta": {
+      "description": "Deprecated",
+      "type": "object"
+     },
+     "proxyFor": {
+      "description": "Deprecated",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "personal": {
+      "$ref": "#/components/schemas/Personal"
+     },
+     "enrollmentDate": {
+      "description": "The date in which the user joined the organization",
+      "type": "string",
+      "format": "date-time"
+     },
+     "expirationDate": {
+      "description": "The date for when the user becomes inactive",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdDate": {
+      "description": "Deprecated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedDate": {
+      "description": "Deprecated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/Metadata"
+     },
+     "tags": {
+      "$ref": "#/components/schemas/Tags"
+     },
+     "customFields": {
+      "description": "Object that contains custom field",
+      "type": "object",
+      "additionalProperties": true
+     },
+     "preferredEmailCommunication": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "Support",
+        "Programs",
+        "Services"
+       ]
+      },
+      "maxItems": 3,
+      "uniqueItems": true,
+      "description": "Preferred email communication types"
+     }
+    },
+    "additionalProperties": false
+   },
+   "FacetValue": {
+    "type": "object",
+    "properties": {
+     "count": {
+      "type": "integer",
+      "description": "Count of facet values"
+     },
+     "value": {
+      "type": "object",
+      "description": "Value Object"
+     }
+    }
+   },
+   "Facet": {
+    "type": "object",
+    "properties": {
+     "facetValues": {
+      "type": "array",
+      "description": "Array of facet values",
+      "items": {
+       "$ref": "#/components/schemas/FacetValue"
+      },
+      "additionalProperties": false
+     },
+     "type": {
+      "type": "string",
+      "description": "Type of facet"
+     }
+    },
+    "additionalProperties": false
+   },
+   "Diagnostic": {
+    "type": "object",
+    "properties": {
+     "source": {
+      "type": "string",
+      "description": "Source reporting the diagnostic information"
+     },
+     "code": {
+      "type": "string",
+      "description": "Diagnostic Code"
+     },
+     "message": {
+      "type": "string",
+      "description": "Diagnostic Message"
+     },
+     "module": {
+      "type": "string",
+      "description": "Module reporting diagnostic information"
+     },
+     "recordCount": {
+      "type": "integer",
+      "description": "Record Count for diagnostics"
+     },
+     "query": {
+      "type": "string",
+      "description": "CQL Query associated with results"
+     }
+    }
+   },
+   "ResultInfo": {
+    "type": "object",
+    "properties": {
+     "totalRecords": {
+      "type": "integer",
+      "description": "Total number of records"
+     },
+     "responseTime": {
+      "type": "number",
+      "description": "Response time"
+     },
+     "facets": {
+      "type": "array",
+      "description": "Array of facets",
+      "items": {
+       "$ref": "#/components/schemas/Facet"
+      }
+     },
+     "diagnostics": {
+      "type": "array",
+      "description": "Array of diagnostic information",
+      "items": {
+       "$ref": "#/components/schemas/Diagnostic"
+      }
+     }
+    },
+    "additionalProperties": false
+   },
+   "UserCollection": {
+    "type": "object",
+    "properties": {
+     "users": {
+      "description": "List of userdata items",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/User"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     },
+     "resultInfo": {
+      "$ref": "#/components/schemas/ResultInfo",
+      "readonly": true
+     }
+    },
+    "required": [
+     "users",
+     "totalRecords"
+    ]
+   },
+   "Status": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "description": "Name of the status (values used are Open and Closed)",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "PaymentStatus": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "description": "Name of the status (values used are Outstanding, Paid partially, Paid fully, Waived partially, Waived fully, Transferred partially, Transferred fully, Refunded partially, Refunded fully, Cancelled as error)",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "ItemStatus": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "description": "Name of the item state",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "Account": {
+    "type": "object",
+    "title": "Account schema",
+    "properties": {
+     "amount": {
+      "description": "Amount of the fine/fee",
+      "type": "number"
+     },
+     "remaining": {
+      "description": "Remaining of the fine/fee",
+      "type": "number"
+     },
+     "dateCreated": {
+      "description": "Date and time the account of the fine/fee was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "dateUpdated": {
+      "description": "Date and time the account of the fine/fee was updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "status": {
+      "description": "Overall status of the fee/fine",
+      "type": "object",
+      "$ref": "#/components/schemas/Status"
+     },
+     "paymentStatus": {
+      "description": "Overall status of the payment/waive/transfer/refund/cancel",
+      "type": "object",
+      "$ref": "#/components/schemas/PaymentStatus"
+     },
+     "feeFineType": {
+      "description": "Fee/fine that is up to the desecration of the user",
+      "type": "string"
+     },
+     "feeFineOwner": {
+      "description": "Owner of the fee/fine defined by the library and is associated with specific fees/fines",
+      "type": "string"
+     },
+     "title": {
+      "description": "The title associated with the item",
+      "type": "string"
+     },
+     "callNumber": {
+      "description": "Identifier (Call number) assigned to an item",
+      "type": "string"
+     },
+     "barcode": {
+      "description": "Text, with input likely validated by the barcode scanner",
+      "type": "string"
+     },
+     "materialType": {
+      "description": "Material type what define what type of thing the item is",
+      "type": "string"
+     },
+     "itemStatus": {
+      "description": "The status of the item",
+      "type": "object",
+      "$ref": "#/components/schemas/ItemStatus"
+     },
+     "location": {
+      "description": "Effective location is used to know the current home location for the item",
+      "type": "string"
+     },
+     "metadata": {
+      "description": "Metadata about creation to user fine/fee account, provided by the server",
+      "type": "object",
+      "$ref": "#/components/schemas/Metadata"
+     },
+     "dueDate": {
+      "description": "Date time when the item is due to be returned",
+      "type": "string",
+      "format": "date-time"
+     },
+     "returnedDate": {
+      "description": "Date time when the item is returned and the loan ends, if the user does not have a loan associated, hyphen (-) is added as default",
+      "type": "string",
+      "format": "date-time"
+     },
+     "loanId": {
+      "description": "ID of the loan",
+      "type": "string"
+     },
+     "userId": {
+      "description": "ID of the user",
+      "type": "string"
+     },
+     "itemId": {
+      "description": "ID of the item",
+      "type": "string"
+     },
+     "materialTypeId": {
+      "description": "ID of the materialType",
+      "type": "string"
+     },
+     "feeFineId": {
+      "description": "ID of the fee/fine",
+      "type": "string"
+     },
+     "ownerId": {
+      "description": "ID of the owner",
+      "type": "string"
+     },
+     "id": {
+      "description": "User fine/fee account id, UUID",
+      "type": "string"
+     },
+     "holdingsRecordId": {
+      "description": "Item field: item.holdingsRecordId",
+      "type": "string",
+      "readOnly": true
+     },
+     "instanceId": {
+      "description": "Holdings record field: holdingsRecord.instanceId",
+      "type": "string",
+      "readOnly": true
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "amount",
+     "remaining",
+     "userId",
+     "feeFineId",
+     "ownerId",
+     "id"
+    ]
+   },
+   "AccountdataCollection": {
+    "type": "object",
+    "properties": {
+     "accounts": {
+      "description": "List of account items",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Account"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     },
+     "resultInfo": {
+      "$ref": "#/components/schemas/ResultInfo",
+      "readonly": true
+     }
+    },
+    "required": [
+     "accounts",
+     "totalRecords"
+    ]
+   },
+   "Feefineaction": {
+    "type": "object",
+    "title": "Fee/fine actions schema",
+    "properties": {
+     "dateAction": {
+      "description": "Date and time the transaction of the fine/fee was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "typeAction": {
+      "description": "Type of activity including the type of transaction",
+      "type": "string"
+     },
+     "comments": {
+      "description": "Additional information entered as part of the activity or on this screen as a 'Staff info only' activity",
+      "type": "string"
+     },
+     "notify": {
+      "description": "A flag to determine if a patron should be notified or not",
+      "type": "boolean"
+     },
+     "amountAction": {
+      "description": "Amount of activity",
+      "type": "number"
+     },
+     "balance": {
+      "description": "Calculated amount of remaining balance based on original fee/fine and what has been paid/waived/tranferred/refunded",
+      "type": "number"
+     },
+     "transactionInformation": {
+      "description": "Number or other transaction id related to payment",
+      "type": "string"
+     },
+     "createdAt": {
+      "description": "ID of the service point where the action was created",
+      "type": "string"
+     },
+     "originalCreatedAt": {
+      "description": "Original invalid (non-UUID) value of 'createdAt' moved here when UUID-validation was enabled for 'createdAt'",
+      "type": "string"
+     },
+     "source": {
+      "description": "Person who processed activity (from login information)",
+      "type": "string"
+     },
+     "paymentMethod": {
+      "description": "Overall status of the action-setting",
+      "type": "string"
+     },
+     "accountId": {
+      "description": "ID of the accounts",
+      "type": "string"
+     },
+     "userId": {
+      "description": "ID of the user",
+      "type": "string"
+     },
+     "id": {
+      "description": "Fine/fee action id, UUID",
+      "type": "string"
+     }
+    },
+    "required": [
+     "accountId",
+     "userId"
+    ]
+   },
+   "FeefineactionCollection": {
+    "type": "object",
+    "properties": {
+     "feefineactions": {
+      "description": "List of feefineaction items",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Feefineaction"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "required": [
+     "feefineactions",
+     "totalRecords"
+    ]
+   },
+   "Transfer": {
+    "type": "object",
+    "title": "CRUD Fee/Fine Transfer Accounts Settings schema",
+    "properties": {
+     "accountName": {
+      "description": "Transfer account name",
+      "type": "string"
+     },
+     "desc": {
+      "description": "Transfer account description",
+      "type": "string"
+     },
+     "metadata": {
+      "description": "Metadata about creation to transfer account, provided by the server",
+      "type": "object",
+      "$ref": "#/components/schemas/Metadata"
+     },
+     "ownerId": {
+      "description": "ID of the owner",
+      "type": "string"
+     },
+     "id": {
+      "description": "Transfer account id, UUID",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "accountName"
+    ]
+   },
+   "TransferdataCollection": {
+    "type": "object",
+    "properties": {
+     "transfers": {
+      "description": "List of transfer items",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/Transfer"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     },
+     "resultInfo": {
+      "type": "object",
+      "$ref": "#/components/schemas/ResultInfo",
+      "readonly": true
+     }
+    },
+    "required": [
+     "transfers",
+     "totalRecords"
+    ]
+   },
+   "TimePeriod": {
+    "type": "object",
+    "properties": {
+     "duration": {
+      "type": "integer",
+      "description": "Duration interval"
+     },
+     "intervalId": {
+      "type": "string",
+      "description": "Unit of time for the duration",
+      "enum": [
+       "Minutes",
+       "Hours",
+       "Days",
+       "Weeks",
+       "Months"
+      ],
+      "default": "Days"
+     }
+    },
+    "required": [
+     "duration",
+     "intervalId"
+    ],
+    "additionalProperties": false
+   },
+   "StaffSlip": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "The ID of the staff slip"
+     },
+     "printByDefault": {
+      "type": "boolean",
+      "description": "Whether or not to print the staff slip by default"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "printByDefault"
+    ]
+   },
+   "ServicePoint": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Id of service-point object"
+     },
+     "name": {
+      "type": "string",
+      "description": "service-point name, a required field"
+     },
+     "code": {
+      "type": "string",
+      "description": "service-point code, a required field"
+     },
+     "discoveryDisplayName": {
+      "type": "string",
+      "description": "display name, a required field"
+     },
+     "description": {
+      "type": "string",
+      "description": "description of the service-point"
+     },
+     "shelvingLagTime": {
+      "type": "integer",
+      "description": "shelving lag time"
+     },
+     "pickupLocation": {
+      "type": "boolean",
+      "description": "indicates whether or not the service point is a pickup location"
+     },
+     "holdShelfExpiryPeriod": {
+      "type": "object",
+      "$ref": "#/components/schemas/TimePeriod",
+      "description": "expiration period for items on the hold shelf at the service point"
+     },
+     "staffSlips": {
+      "type": "array",
+      "description": "List of staff slips for this service point",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/StaffSlip"
+      }
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/Metadata",
+      "readonly": true
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "code",
+     "discoveryDisplayName"
+    ]
+   },
+   "ServicePoints": {
+    "type": "object",
+    "properties": {
+     "servicepoints": {
+      "description": "List of service points",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/ServicePoint"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "required": [
+     "servicepoints",
+     "totalRecords"
+    ]
+   },
+   "bursarExportFilterAge": {
+    "description": "Filter by fees within certain days range",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "Age"
+     },
+     "numDays": {
+      "description": "Number of days",
+      "type": "integer",
+      "minimum": 1
+     },
+     "condition": {
+      "description": "Condition to get days range",
+      "type": "string",
+      "enum": [
+       "LESS_THAN_EQUAL",
+       "LESS_THAN",
+       "GREATER_THAN",
+       "GREATER_THAN_EQUAL"
+      ]
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "numDays",
+     "condition"
+    ]
+   },
+   "bursarExportFilterAmount": {
+    "description": "Filter by fee amount",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "Amount"
+     },
+     "amount": {
+      "description": "Amount to filter by",
+      "type": "integer"
+     },
+     "condition": {
+      "description": "Condition to filter by",
+      "type": "string",
+      "enum": [
+       "LESS_THAN_EQUAL",
+       "LESS_THAN",
+       "GREATER_THAN",
+       "GREATER_THAN_EQUAL"
+      ]
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "amount",
+     "condition"
+    ]
+   },
+   "bursarExportFilterFeeType": {
+    "description": "Filter by fee type",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "FeeType"
+     },
+     "feeFineTypeId": {
+      "description": "Id of fee/fine type to filter by",
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "feeFineTypeId"
+    ]
+   },
+   "bursarExportFilterFeeFineOwner": {
+    "description": "Filter by fee fine owner",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "FeeFineOwner"
+     },
+     "feeFineOwner": {
+      "description": "Id of fee/fine owner to filter by",
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "feeFineOwner"
+    ]
+   },
+   "bursarExportFilterLocation": {
+    "description": "Filter by location",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "Location"
+     },
+     "locationId": {
+      "description": "Id of location to filter by",
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "locationId"
+    ]
+   },
+   "bursarExportFilterPatronGroup": {
+    "description": "Filter by patron group",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "PatronGroup"
+     },
+     "patronGroupId": {
+      "description": "Id of patron group to filter by",
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "patronGroupId"
+    ]
+   },
+   "bursarExportFilterServicePoint": {
+    "description": "Filter by service point",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "ServicePoint"
+     },
+     "servicePointId": {
+      "description": "Id of service point to filter by",
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "servicePointId"
+    ]
+   },
+   "bursarExportFilterCondition": {
+    "description": "Filter conditional operations",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "Condition"
+     },
+     "operation": {
+      "description": "Conditional operation of the filter",
+      "type": "string",
+      "enum": [
+       "AND",
+       "OR"
+      ]
+     },
+     "criteria": {
+      "description": "Criteria to apply of the filter",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/bursarExportFilter"
+      }
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "operation",
+     "criteria"
+    ]
+   },
+   "bursarExportFilterNegation": {
+    "description": "Negation of filter for bursar export",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "Negation"
+     },
+     "criteria": {
+      "description": "Filter to negate",
+      "$ref": "#/components/schemas/bursarExportFilter"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "criteria"
+    ]
+   },
+   "bursarExportFilterPass": {
+    "description": "Filter that is always true",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "Pass"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type"
+    ]
+   },
+   "bursarExportFilter": {
+    "description": "Filter for bursar export job",
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/bursarExportFilterAge"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportFilterAmount"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportFilterFeeType"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportFilterLocation"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportFilterPatronGroup"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportFilterServicePoint"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportFilterCondition"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportFilterNegation"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportFilterPass"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportFilterFeeFineOwner"
+     }
+    ],
+    "discriminator": {
+     "propertyName": "type",
+     "mapping": {
+      "Age": "#/components/schemas/bursarExportFilterAge",
+      "Amount": "#/components/schemas/bursarExportFilterAmount",
+      "FeeType": "#/components/schemas/bursarExportFilterFeeType",
+      "FeeFineOwner": "#/components/schemas/bursarExportFilterFeeFineOwner",
+      "Location": "#/components/schemas/bursarExportFilterLocation",
+      "PatronGroup": "#/components/schemas/bursarExportFilterPatronGroup",
+      "ServicePoint": "#/components/schemas/bursarExportFilterServicePoint",
+      "Condition": "#/components/schemas/bursarExportFilterCondition",
+      "Negation": "#/components/schemas/bursarExportFilterNegation",
+      "Pass": "#/components/schemas/bursarExportFilterPass"
+     }
+    }
+   },
+   "bursarExportFilterAggregate": {
+    "description": "Filter by aggregate data",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of filter",
+      "type": "string",
+      "default": "Aggregate"
+     },
+     "property": {
+      "description": "Property to filter on",
+      "type": "string",
+      "enum": [
+       "NUM_ROWS",
+       "TOTAL_AMOUNT"
+      ]
+     },
+     "amount": {
+      "description": "Amount to filter on",
+      "type": "integer"
+     },
+     "condition": {
+      "description": "Condition to filter on",
+      "type": "string",
+      "enum": [
+       "LESS_THAN_EQUAL",
+       "LESS_THAN",
+       "GREATER_THAN",
+       "GREATER_THAN_EQUAL"
+      ]
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "property",
+     "amount",
+     "condition"
+    ]
+   },
+   "bursarExportTokenAggregate": {
+    "description": "Token to represent aggregated result of multiple fees",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of data token",
+      "type": "string",
+      "default": "Aggregate"
+     },
+     "value": {
+      "description": "Data to represent",
+      "type": "string",
+      "enum": [
+       "NUM_ROWS",
+       "TOTAL_AMOUNT"
+      ]
+     },
+     "decimal": {
+      "type": "boolean",
+      "description": "Whether to return value with decimal. Only applicable for total amount"
+     },
+     "lengthControl": {
+      "description": "Control length of the token",
+      "$ref": "#/components/schemas/bursarExportTokenLengthControl"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "value",
+     "decimal"
+    ]
+   },
+   "bursarExportTokenConstant": {
+    "description": "Token to represent a constant used as an arbitrary string",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of data token",
+      "type": "string",
+      "default": "Constant"
+     },
+     "value": {
+      "description": "Value of the constant",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "value"
+    ]
+   },
+   "bursarExportTokenCurrentDate": {
+    "description": "Token to represent part of date",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of data token",
+      "type": "string",
+      "default": "Date"
+     },
+     "value": {
+      "description": "Type of date value to represent",
+      "$ref": "#/components/schemas/bursarExportTokenDateType"
+     },
+     "timezone": {
+      "description": "Timezone to use for date",
+      "type": "string"
+     },
+     "lengthControl": {
+      "description": "Control length of the token",
+      "$ref": "#/components/schemas/bursarExportTokenLengthControl"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "value",
+     "timezone"
+    ]
+   },
+   "bursarExportTokenLengthControl": {
+    "description": "Token to fill in or truncate the length of another token",
+    "type": "object",
+    "properties": {
+     "character": {
+      "description": "Character to fill in with",
+      "type": "string",
+      "maxLength": 1
+     },
+     "length": {
+      "description": "Desired length for the token",
+      "type": "integer"
+     },
+     "direction": {
+      "description": "Direction to fill in or truncate from",
+      "type": "string",
+      "enum": [
+       "FRONT",
+       "BACK"
+      ]
+     },
+     "truncate": {
+      "description": "Whether to truncate the token if it is longer than the desired length",
+      "type": "boolean"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "character",
+     "length",
+     "direction",
+     "truncate"
+    ]
+   },
+   "bursarExportTokenDateType": {
+    "description": "Schema to represent the type of date information",
+    "type": "string",
+    "enum": [
+     "YEAR_LONG",
+     "YEAR_SHORT",
+     "MONTH",
+     "DATE",
+     "HOUR",
+     "MINUTE",
+     "SECOND",
+     "QUARTER",
+     "WEEK_OF_YEAR_ISO",
+     "WEEK_YEAR_ISO",
+     "DAY_OF_YEAR",
+     "YYYYMMDD",
+     "YYYY-MM-DD",
+     "MMDDYYYY",
+     "DDMMYYYY"
+    ]
+   },
+   "bursarExportHeaderFooterToken": {
+    "description": "Token permitted in header/footer",
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/bursarExportTokenAggregate"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenConstant"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenCurrentDate"
+     }
+    ],
+    "discriminator": {
+     "propertyName": "type",
+     "mapping": {
+      "Aggregate": "#/components/schemas/bursarExportTokenAggregate",
+      "Constant": "#/components/schemas/bursarExportTokenConstant",
+      "CurrentDate": "#/components/schemas/bursarExportTokenCurrentDate"
+     }
+    }
+   },
+   "bursarExportTokenFeeDate": {
+    "description": "Token to represent part of date about a fee",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of data token",
+      "type": "string",
+      "default": "FeeDate"
+     },
+     "property": {
+      "description": "Property of fee to be represented by token",
+      "type": "string",
+      "enum": [
+       "CREATED",
+       "UPDATED",
+       "DUE",
+       "RETURNED"
+      ]
+     },
+     "value": {
+      "description": "Type of date value to represent",
+      "$ref": "#/components/schemas/bursarExportTokenDateType"
+     },
+     "placeholder": {
+      "description": "Placeholder value to use if date is not available",
+      "type": "string"
+     },
+     "timezone": {
+      "description": "Timezone to use for date",
+      "type": "string"
+     },
+     "lengthControl": {
+      "description": "Control length of token",
+      "$ref": "#/components/schemas/bursarExportTokenLengthControl"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "property",
+     "value",
+     "placeholder",
+     "timezone"
+    ]
+   },
+   "bursarExportTokenFeeAmount": {
+    "description": "Token to represent fee amount",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of data token",
+      "type": "string",
+      "default": "FeeAmount"
+     },
+     "decimal": {
+      "description": "Whether to return value with decimal",
+      "type": "boolean"
+     },
+     "lengthControl": {
+      "description": "Control length of the token",
+      "$ref": "#/components/schemas/bursarExportTokenLengthControl"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "decimal"
+    ]
+   },
+   "bursarExportTokenFeeMetadata": {
+    "description": "Token to represent fee metadata",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of data token",
+      "type": "string",
+      "default": "FeeMetadata"
+     },
+     "value": {
+      "description": "Metadata to represent",
+      "type": "string",
+      "enum": [
+       "FEE_FINE_TYPE_ID",
+       "FEE_FINE_TYPE_NAME"
+      ]
+     },
+     "lengthControl": {
+      "description": "Control length of token",
+      "$ref": "#/components/schemas/bursarExportTokenLengthControl"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "value"
+    ]
+   },
+   "bursarExportTokenItemData": {
+    "description": "Token to represent item data",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of token",
+      "type": "string",
+      "default": "ItemData"
+     },
+     "value": {
+      "description": "Item data to represent",
+      "type": "string",
+      "enum": [
+       "BARCODE",
+       "NAME",
+       "MATERIAL_TYPE",
+       "INSTITUTION_ID",
+       "CAMPUS_ID",
+       "LIBRARY_ID",
+       "LOCATION_ID"
+      ]
+     },
+     "placeholder": {
+      "description": "Placeholder text to display when no value is available",
+      "type": "string"
+     },
+     "lengthControl": {
+      "description": "Control length of token",
+      "$ref": "#/components/schemas/bursarExportTokenLengthControl"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "value",
+     "placeholder"
+    ]
+   },
+   "bursarExportTokenUserData": {
+    "description": "Token to represent user data",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of data token",
+      "type": "string",
+      "default": "UserData"
+     },
+     "value": {
+      "description": "User data to represent",
+      "type": "string",
+      "enum": [
+       "FOLIO_ID"
+      ]
+     },
+     "lengthControl": {
+      "description": "Control length of token",
+      "$ref": "#/components/schemas/bursarExportTokenLengthControl"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "value"
+    ]
+   },
+   "bursarExportTokenUserDataOptional": {
+    "description": "Token to represent optional user data",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of data token",
+      "type": "string",
+      "default": "UserDataOptional"
+     },
+     "value": {
+      "description": "Optional user data to represent",
+      "type": "string",
+      "enum": [
+       "BARCODE",
+       "USERNAME",
+       "FIRST_NAME",
+       "MIDDLE_NAME",
+       "LAST_NAME",
+       "PATRON_GROUP_ID",
+       "EXTERNAL_SYSTEM_ID"
+      ]
+     },
+     "placeholder": {
+      "description": "Placeholder text to display when no value is present",
+      "type": "string"
+     },
+     "lengthControl": {
+      "description": "Control length of token",
+      "$ref": "#/components/schemas/bursarExportTokenLengthControl"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "value",
+     "placeholder"
+    ]
+   },
+   "bursarExportTokenConditional": {
+    "description": "Token to represent other data tokens depending on certain conditions",
+    "type": "object",
+    "properties": {
+     "type": {
+      "description": "Type of the data token",
+      "type": "string",
+      "default": "Conditional"
+     },
+     "conditions": {
+      "description": "Conditions to apply to the token",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "condition": {
+         "description": "Condition to apply to the item",
+         "$ref": "#/components/schemas/bursarExportFilter"
+        },
+        "value": {
+         "description": "Data to represent if the condition is true",
+         "$ref": "#/components/schemas/bursarExportDataToken"
+        }
+       },
+       "additionalProperties": false,
+       "required": [
+        "condition",
+        "value"
+       ]
+      }
+     },
+     "else": {
+      "description": "Data to represent if no condition is true",
+      "$ref": "#/components/schemas/bursarExportDataToken"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "conditions",
+     "else"
+    ]
+   },
+   "bursarExportDataToken": {
+    "description": "Usable token for bursar export",
+    "oneOf": [
+     {
+      "$ref": "#/components/schemas/bursarExportTokenAggregate"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenConstant"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenCurrentDate"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenFeeDate"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenFeeAmount"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenFeeMetadata"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenItemData"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenUserData"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenUserDataOptional"
+     },
+     {
+      "$ref": "#/components/schemas/bursarExportTokenConditional"
+     }
+    ],
+    "discriminator": {
+     "propertyName": "type",
+     "mapping": {
+      "Aggregate": "#/components/schemas/bursarExportTokenAggregate",
+      "Constant": "#/components/schemas/bursarExportTokenConstant",
+      "CurrentDate": "#/components/schemas/bursarExportTokenCurrentDate",
+      "FeeDate": "#/components/schemas/bursarExportTokenFeeDate",
+      "FeeAmount": "#/components/schemas/bursarExportTokenFeeAmount",
+      "FeeMetadata": "#/components/schemas/bursarExportTokenFeeMetadata",
+      "ItemData": "#/components/schemas/bursarExportTokenItemData",
+      "UserData": "#/components/schemas/bursarExportTokenUserData",
+      "UserDataOptional": "#/components/schemas/bursarExportTokenUserDataOptional",
+      "Conditional": "#/components/schemas/bursarExportTokenConditional"
+     }
+    }
+   },
+   "bursarExportTransferCriteria": {
+    "description": "Transfer criteria",
+    "type": "object",
+    "properties": {
+     "conditions": {
+      "description": "Conditions to apply to the transfer of fees/fines",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "condition": {
+         "description": "Condition to apply tp this item",
+         "$ref": "#/components/schemas/bursarExportFilter"
+        },
+        "account": {
+         "description": "Account to transfer fees/fines that meet this condition to",
+         "type": "string",
+         "format": "uuid"
+        }
+       },
+       "additionalProperties": false,
+       "required": [
+        "condition",
+        "account"
+       ]
+      }
+     },
+     "else": {
+      "type": "object",
+      "description": "If none of the specified conditions is met",
+      "properties": {
+       "account": {
+        "description": "Account to transfer fees/fines that do not meet any specified conditions to",
+        "type": "string",
+        "format": "uuid"
+       }
+      },
+      "additionalProperties": false,
+      "required": []
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "conditions",
+     "else"
+    ]
+   },
+   "EdiConfig": {
+    "type": "object",
+    "properties": {
+     "accountNoList": {
+      "description": "The list of account numbers of the vendor",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "defaultAcquisitionMethods": {
+      "description": "Default acquisition methods for the accounts",
+      "type": "array",
+      "items": {
+       "description": "UUID of the acquisition method",
+       "type": "string",
+       "format": "uuid"
+      }
+     },
+     "ediNamingConvention": {
+      "description": "The naming convention for this EDI",
+      "type": "string"
+     },
+     "libEdiCode": {
+      "description": "The library code for this EDI",
+      "type": "string"
+     },
+     "libEdiType": {
+      "description": "The library type for this EDI",
+      "type": "string",
+      "enum": [
+       "014/EAN",
+       "31B/US-SAN",
+       "091/Vendor-assigned",
+       "092/Customer-assigned"
+      ]
+     },
+     "vendorEdiCode": {
+      "description": "The library code for this EDI",
+      "type": "string"
+     },
+     "vendorEdiType": {
+      "description": "The library type for this EDI",
+      "type": "string",
+      "enum": [
+       "014/EAN",
+       "31B/US-SAN",
+       "091/Vendor-assigned",
+       "092/Customer-assigned"
+      ]
+     },
+     "notes": {
+      "description": "The notes for this EDI",
+      "type": "string"
+     },
+     "sendAccountNumber": {
+      "description": "If true then send account number",
+      "type": "boolean",
+      "default": false
+     },
+     "supportOrder": {
+      "description": "If true then order support",
+      "type": "boolean",
+      "default": false
+     },
+     "supportInvoice": {
+      "description": "If true then invoice support",
+      "type": "boolean",
+      "default": false
+     }
+    }
+   },
+   "EdiEmail": {
+    "type": "object",
+    "properties": {
+     "emailFrom": {
+      "description": "Send email from address",
+      "type": "string",
+      "format": "email"
+     },
+     "emailTo": {
+      "description": "Send email to address",
+      "type": "string",
+      "format": "email"
+     },
+     "emailBcc": {
+      "description": "Blind carbon copy email address(es)",
+      "type": "array",
+      "items": {
+       "description": "Blind carbon copy email address",
+       "type": "string",
+       "format": "email"
+      }
+     },
+     "isPrimaryTransmissionMethod": {
+      "description": "Primary transmission method",
+      "type": "boolean"
+     },
+     "emailTemplate": {
+      "description": "UUID reference to the email template",
+      "type": "string",
+      "format": "uuid"
+     }
+    }
+   },
+   "EdiFtp": {
+    "type": "object",
+    "properties": {
+     "ftpConnMode": {
+      "description": "The FTP connection mode for this EDI",
+      "type": "string",
+      "enum": [
+       "Active",
+       "Passive"
+      ]
+     },
+     "ftpFormat": {
+      "description": "The FTP format for this EDI",
+      "type": "string",
+      "enum": [
+       "SFTP",
+       "FTP"
+      ]
+     },
+     "ftpMode": {
+      "description": "The FTP mode for this EDI",
+      "type": "string",
+      "enum": [
+       "ASCII",
+       "Binary"
+      ]
+     },
+     "ftpPort": {
+      "description": "The port for this EDI",
+      "type": "integer"
+     },
+     "invoiceDirectory": {
+      "description": "The invoice directory for this EDI",
+      "type": "string"
+     },
+     "isPrimaryTransmissionMethod": {
+      "description": "Primary transmission method",
+      "type": "boolean"
+     },
+     "notes": {
+      "description": "The notes for this EDI",
+      "type": "string"
+     },
+     "orderDirectory": {
+      "description": "The order directory for this EDI",
+      "type": "string"
+     },
+     "password": {
+      "description": "The login password for this EDI",
+      "type": "string"
+     },
+     "serverAddress": {
+      "description": "The server address for this EDI",
+      "type": "string"
+     },
+     "username": {
+      "description": "The login username for this EDI",
+      "type": "string"
+     }
+    }
+   },
+   "ScheduleParameters": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Schedule unique identifier",
+      "type": "string",
+      "format": "uuid"
+     },
+     "scheduleFrequency": {
+      "type": "integer",
+      "description": "Number of time periods"
+     },
+     "schedulePeriod": {
+      "type": "string",
+      "description": "Time period for repeating job",
+      "enum": [
+       "MONTH",
+       "WEEK",
+       "DAY",
+       "HOUR",
+       "EXACT_DATE",
+       "NONE"
+      ]
+     },
+     "schedulingDate": {
+      "description": "The date (MM/DD/YYYY) for this job to start running",
+      "format": "date-time",
+      "type": "string"
+     },
+     "scheduleTime": {
+      "type": "string",
+      "description": "Time to run the job"
+     },
+     "scheduleDay": {
+      "type": "integer",
+      "description": "Day of month to run the job (One-based)"
+     },
+     "weekDays": {
+      "type": "array",
+      "description": "Day of week to run the job",
+      "items": {
+       "type": "string",
+       "description": "Day of week",
+       "enum": [
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY"
+       ]
+      }
+     },
+     "timeZone": {
+      "type": "string",
+      "description": "Schedule time zone",
+      "default": "UTC"
+     }
+    }
+   },
+   "EdiSchedule": {
+    "type": "object",
+    "properties": {
+     "enableScheduledExport": {
+      "description": "Whether or not to enable scheduled for exports",
+      "type": "boolean",
+      "default": false
+     },
+     "scheduleParameters": {
+      "$ref": "#/components/schemas/ScheduleParameters"
+     },
+     "schedulingNotes": {
+      "description": "The schedule notes for this EDI job",
+      "type": "string"
+     }
+    }
+   },
+   "VendorEdiOrdersExportConfig": {
+    "type": "object",
+    "properties": {
+     "exportConfigId": {
+      "description": "UUID of the export configuration. Needed to find Jobs by export config UUID",
+      "type": "string",
+      "format": "uuid"
+     },
+     "vendorId": {
+      "description": "UUID of the acquisition method",
+      "type": "string",
+      "format": "uuid"
+     },
+     "configName": {
+      "description": "Configuration name",
+      "type": "string"
+     },
+     "configDescription": {
+      "description": "Configuration description",
+      "type": "string"
+     },
+     "ediConfig": {
+      "description": "EDI config for this vendor",
+      "$ref": "#/components/schemas/EdiConfig"
+     },
+     "ediEmail": {
+      "$ref": "#/components/schemas/EdiEmail"
+     },
+     "ediFtp": {
+      "$ref": "#/components/schemas/EdiFtp"
+     },
+     "ediSchedule": {
+      "$ref": "#/components/schemas/EdiSchedule"
+     },
+     "isDefaultConfig": {
+      "description": "If true then config is default",
+      "type": "boolean",
+      "default": false
+     },
+     "integrationType": {
+      "description": "Type of the integration",
+      "type": "string",
+      "enum": [
+       "Ordering",
+       "Claiming"
+      ]
+     },
+     "transmissionMethod": {
+      "description": "Transmission method",
+      "type": "string",
+      "enum": [
+       "FTP",
+       "File download",
+       "Email"
+      ]
+     },
+     "fileFormat": {
+      "description": "File format",
+      "type": "string",
+      "enum": [
+       "CSV",
+       "EDI"
+      ]
+     },
+     "claimPieceIds": {
+      "description": "Claim piece ids. Applicable only for Claiming integration type",
+      "type": "array",
+      "items": {
+       "description": "UUID of the piece",
+       "type": "string"
+      }
+     }
+    }
+   },
+   "EHoldingsExportConfig": {
+    "type": "object",
+    "properties": {
+     "recordId": {
+      "description": "Unique identifier of package - combination of providerId-packageId",
+      "example": "91525-1152699-659590",
+      "type": "string"
+     },
+     "recordType": {
+      "type": "string",
+      "description": "The record type",
+      "enum": [
+       "PACKAGE",
+       "RESOURCE"
+      ]
+     },
+     "titleSearchFilters": {
+      "description": "The filters needed to filter package titles",
+      "example": "filter[name]=title&sort=name",
+      "type": "string"
+     },
+     "packageFields": {
+      "description": "The list of package fields for export",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "titleFields": {
+      "description": "The list of title fields for export",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "required": [
+     "recordId",
+     "recordType"
+    ]
+   },
+   "ExportType": {
+    "type": "string",
+    "enum": [
+     "CIRCULATION_LOG",
+     "BURSAR_FEES_FINES",
+     "BATCH_VOUCHER_EXPORT",
+     "EDIFACT_ORDERS_EXPORT",
+     "CLAIMS",
+     "ORDERS_EXPORT",
+     "INVOICE_EXPORT",
+     "E_HOLDINGS",
+     "AUTH_HEADINGS_UPDATES",
+     "FAILED_LINKED_BIB_UPDATES"
+    ],
+    "default": "BURSAR_FEES_FINES"
+   },
+   "AuthorityControlExportConfig": {
+    "type": "object",
+    "properties": {
+     "fromDate": {
+      "description": "Report date range start",
+      "type": "string",
+      "format": "date"
+     },
+     "toDate": {
+      "description": "Report date range end",
+      "type": "string",
+      "format": "date"
+     }
+    },
+    "required": [
+     "fromDate",
+     "toDate"
+    ]
+   },
+   "ExportTypeSpecificParameters": {
+    "type": "object",
+    "properties": {
+     "bursarFeeFines": {
+      "$ref": "#/components/schemas/bursarExportJob"
+     },
+     "vendorEdiOrdersExportConfig": {
+      "$ref": "#/components/schemas/VendorEdiOrdersExportConfig"
+     },
+     "query": {
+      "description": "CQL query to be passed to the module which data is being exported. Use it to filter data.",
+      "type": "string",
+      "maxLength": 5000
+     },
+     "eHoldingsExportConfig": {
+      "$ref": "#/components/schemas/EHoldingsExportConfig"
+     },
+     "authorityControlExportConfig": {
+      "$ref": "#/components/schemas/AuthorityControlExportConfig"
+     }
+    }
+   },
+   "ExportConfig": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "type": {
+      "description": "Export type",
+      "$ref": "#/components/schemas/ExportType"
+     },
+     "configName": {
+      "description": "Configuration name",
+      "type": "string"
+     },
+     "tenant": {
+      "description": "Tenant id",
+      "type": "string"
+     },
+     "exportTypeSpecificParameters": {
+      "$ref": "#/components/schemas/ExportTypeSpecificParameters"
+     },
+     "scheduleFrequency": {
+      "type": "integer",
+      "description": "Number of time periods"
+     },
+     "schedulePeriod": {
+      "type": "string",
+      "description": "Time period for repeating job",
+      "enum": [
+       "WEEK",
+       "DAY",
+       "HOUR",
+       "NONE"
+      ]
+     },
+     "scheduleTime": {
+      "type": "string",
+      "description": "Time to run the job"
+     },
+     "weekDays": {
+      "type": "array",
+      "description": "Day of week to run the job",
+      "items": {
+       "type": "string",
+       "description": "Day of week",
+       "enum": [
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY"
+       ]
+      }
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "type",
+     "exportTypeSpecificParameters",
+     "schedulePeriod"
+    ]
+   },
+   "ExportConfigCollection": {
+    "type": "object",
+    "properties": {
+     "configs": {
+      "description": "List of configs",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ExportConfig"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "configs",
+     "totalRecords"
+    ]
+   },
+   "ContributorName": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "description": "The contributor name",
+      "type": "string"
+     }
+    }
+   },
+   "EffectiveCallNumberComponents": {
+    "type": "object",
+    "description": "Elements of a full call number generated from the item or holding",
+    "properties": {
+     "callNumber": {
+      "type": "string",
+      "description": "Effective Call Number is an identifier assigned to an item or its holding and associated with the item."
+     },
+     "prefix": {
+      "type": "string",
+      "description": "Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item."
+     },
+     "suffix": {
+      "type": "string",
+      "description": "Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item."
+     },
+     "typeId": {
+      "type": "string",
+      "description": "Effective Call Number Type Id is the call number type id assigned to the item or associated holding."
+     }
+    }
+   },
+   "ItemNote": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "itemNoteTypeId": {
+      "description": "Item note type, refers to a item-note-type reference record",
+      "type": "string"
+     },
+     "note": {
+      "description": "Text to display (e.g. action note, binding, use and reproduction)",
+      "type": "string"
+     },
+     "staffOnly": {
+      "description": "Records the fact that the record should only be displayed for staff",
+      "type": "boolean",
+      "default": false
+     }
+    }
+   },
+   "Source": {
+    "type": "object",
+    "description": "The user who added/updated the note. The property is generated by the server and needed to support sorting.",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "The id of the user who added/updated the note"
+     },
+     "personal": {
+      "$ref": "#/components/schemas/Personal"
+     }
+    }
+   },
+   "CirculationNote": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Note id"
+     },
+     "noteType": {
+      "type": "string",
+      "description": "Type of circulation process that the note applies to",
+      "enum": [
+       "Check in",
+       "Check out"
+      ]
+     },
+     "note": {
+      "type": "string",
+      "description": "Text to display"
+     },
+     "staffOnly": {
+      "type": "boolean",
+      "description": "Records the fact that the note should only be displayed for staff"
+     },
+     "source": {
+      "$ref": "#/components/schemas/Source"
+     },
+     "date": {
+      "type": "string",
+      "description": "Date and time the record is added/updated. The property is generated by the server and needed to support sorting."
+     }
+    },
+    "additionalProperties": false
+   },
+   "InventoryItemStatus": {
+    "description": "The status of the item",
+    "type": "object",
+    "properties": {
+     "name": {
+      "description": "Name of the item state (e.g. Available, Checked out, In transit, Awaiting pickup, On order). Default value is set to: Available",
+      "type": "string",
+      "enum": [
+       "Aged to lost",
+       "Available",
+       "Awaiting delivery",
+       "Awaiting pickup",
+       "Checked out",
+       "Claimed returned",
+       "Declared lost",
+       "Lost and paid",
+       "Long missing",
+       "Missing",
+       "In process",
+       "In process (non-requestable)",
+       "In transit",
+       "Intellectual item",
+       "On order",
+       "Order closed",
+       "Paged",
+       "Restricted",
+       "Unavailable",
+       "Unknown",
+       "Withdrawn"
+      ]
+     },
+     "date": {
+      "description": "Date of the current item state. E.g. date set when item state was changed by the Check out app",
+      "type": "string",
+      "format": "date-time"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "name"
+    ]
+   },
+   "MaterialType": {
+    "description": "Material type define what type of thing the item is",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Material type Id, refers to a material type reference record",
+      "type": "string"
+     },
+     "name": {
+      "description": "Material type name (e.g. Audio book, Audio disc, Computer file, Pamphelet) ",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "id"
+    ]
+   },
+   "BriefHoldingsRecord": {
+    "type": "object",
+    "description": "Information about a holdings record that links a title to the bound-with Item",
+    "properties": {
+     "id": {
+      "description": "The UUID of the holdingsRecord",
+      "type": "string"
+     },
+     "hrid": {
+      "description": "The human-readable ID of the holdingsRecord",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   },
+   "BriefInstance": {
+    "type": "object",
+    "description": "Information about an Instance / title that is bound with other title within this Item",
+    "properties": {
+     "id": {
+      "description": "The UUID of the Instance",
+      "type": "string"
+     },
+     "hrid": {
+      "description": "The human-readable ID of the Instance",
+      "type": "string"
+     },
+     "title": {
+      "description": "The title of the Instance",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   },
+   "Title": {
+    "type": "object",
+    "description": "A title that is bound with other titles within this Item",
+    "properties": {
+     "briefHoldingsRecord": {
+      "$ref": "#/components/schemas/BriefHoldingsRecord"
+     },
+     "briefInstance": {
+      "$ref": "#/components/schemas/BriefInstance"
+     }
+    }
+   },
+   "LoanType": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Loan type Id, refers to a loan type reference record",
+      "type": "string"
+     },
+     "name": {
+      "description": "Loan type name",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   },
+   "ItemLocation": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Location id",
+      "type": "string"
+     },
+     "name": {
+      "description": "location name",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   },
+   "ElectronicAccess": {
+    "type": "object",
+    "properties": {
+     "uri": {
+      "type": "string",
+      "description": "Uniform Resource Identifier (URI) is a string of characters designed for unambiguous identification of resources"
+     },
+     "linkText": {
+      "type": "string",
+      "description": "Link text is used for display in place of the URL"
+     },
+     "materialsSpecification": {
+      "type": "string",
+      "description": "Materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)"
+     },
+     "publicNote": {
+      "type": "string",
+      "description": "URL public note to be displayed in the discovery"
+     },
+     "relationshipId": {
+      "type": "string",
+      "description": "Relationship Id, refers to a Relationship type reference record. Relationship between the electronic resource at the location identified and the item described in the record as a whole. (E.g. values from MARC 21, tag field 856 2nd indicator, where the values are: No information provided, Resource, Version of resource, Related resource, No display constant generate"
+     }
+    },
+    "additionalProperties": false
+   },
+   "LastCheckIn": {
+    "type": "object",
+    "properties": {
+     "dateTime": {
+      "type": "string",
+      "description": "Date and time of the last check in of the item."
+     },
+     "servicePointId": {
+      "type": "string",
+      "description": "Service point ID being used by a staff member when item was scanned in Check in app."
+     },
+     "staffMemberId": {
+      "type": "string",
+      "description": "ID a staff member who scanned the item"
+     }
+    }
+   },
+   "Item": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Item id",
+      "type": "string"
+     },
+     "_version": {
+      "type": "integer",
+      "description": "Record version for optimistic locking"
+     },
+     "hrid": {
+      "type": "string",
+      "description": "The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID"
+     },
+     "holdingsRecordId": {
+      "description": "ID of the holdings record the item is a member of",
+      "type": "string"
+     },
+     "formerIds": {
+      "type": "array",
+      "description": "Previous identifiers assigned to the item",
+      "items": {
+       "type": "string"
+      }
+     },
+     "discoverySuppress": {
+      "type": "boolean",
+      "description": "Records the fact that the record should not be displayed in a discovery system"
+     },
+     "title": {
+      "type": "string",
+      "description": "Resouce title (read only, inherited from associated instance record)"
+     },
+     "contributorNames": {
+      "description": "A list of contributor names",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ContributorName"
+      }
+     },
+     "callNumber": {
+      "type": "string",
+      "description": "Call number is an identifier assigned to an item, usually printed on a label attached to the item, and used to determine its physical position in a shelving sequence (e.g. K1 .M44, read only, inherited from associated holdings record)"
+     },
+     "barcode": {
+      "description": "Text, with input likely validated by the barcode scanner",
+      "type": "string"
+     },
+     "effectiveShelvingOrder": {
+      "type": "string",
+      "description": "A system generated normalization of the call number that allows for call number sorting in reports and search results"
+     },
+     "accessionNumber": {
+      "type": "string",
+      "description": "Accession number is also called inventar number. Accession number is a unique number assigned to an item in the order in which it is added to a library collection. Most libraries assign accession numbers in continous numerical sequece, but some use a code system to indicate type of material and/or year of accession in addition to order of accession"
+     },
+     "itemLevelCallNumber": {
+      "description": "Call number is an identifier assigned to an item, usually printed on a label attached to the item, and used to determine its physical position in a shelving sequence (e.g. K1 .M44, read only, inherited from associated holdings record). The item level call number, is the call number on item level",
+      "type": "string"
+     },
+     "itemLevelCallNumberPrefix": {
+      "description": "Prefix of the call number on the item level",
+      "type": "string"
+     },
+     "itemLevelCallNumberSuffix": {
+      "description": "Suffix of the call number on the item level",
+      "type": "string"
+     },
+     "itemLevelCallNumberTypeId": {
+      "description": "Call number type, refers to a call-number-type reference record",
+      "type": "string"
+     },
+     "effectiveCallNumberComponents": {
+      "$ref": "#/components/schemas/EffectiveCallNumberComponents"
+     },
+     "volume": {
+      "description": "Volume is intended for monographs when a multipart monograph (e.g. a biography of Gerorge Bernard Shaw in three volumes)",
+      "type": "string"
+     },
+     "enumeration": {
+      "description": "Enumeration is the descriptive information for the numbering scheme of a serial, usually identified by level and a descriptive caption, e.g., level 0 = v. and level 1 = no. This means that each issue of the serial has a volume and an issue number that would appear (e.g. v.71:no.6-2)",
+      "type": "string"
+     },
+     "chronology": {
+      "description": "Chronology is the descriptive information for the dating scheme of a serial, usually identified by level, e.g., level 0 = year level 1 = month. This means that each issue of the serial has a month and a year on each issue (e.g. 1985:July-Dec.)",
+      "type": "string"
+     },
+     "yearCaption": {
+      "description": "In multipart monographs, a caption is characters used to label a level of chronology (e.g. 'year 1985')",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "itemIdentifier": {
+      "description": "Item identifier number, e.g. imported from the union catalogue (read only)",
+      "type": "string"
+     },
+     "copyNumber": {
+      "description": "Copy number is the piece identifier. The copy number reflects if the library has a copy of a single-volume monograph; a copy of a multi-volume, (e.g. Copy 1, or C.7.)",
+      "type": "string"
+     },
+     "numberOfPieces": {
+      "description": "Number of pieces. Used when an item is checked out or returned to verify that all parts are present (e.g. 7 CDs in a set)",
+      "type": "string"
+     },
+     "descriptionOfPieces": {
+      "description": "Text which descripe the pieces",
+      "type": "string"
+     },
+     "numberOfMissingPieces": {
+      "description": "Number of missing pieces",
+      "type": "string"
+     },
+     "missingPieces": {
+      "description": "Text which descripes the missing pieces",
+      "type": "string"
+     },
+     "missingPiecesDate": {
+      "description": "Date when the piece(s) went missing",
+      "type": "string"
+     },
+     "itemDamagedStatusId": {
+      "description": "Item Damage status Id, refers to an Item damage Status ID reference record",
+      "type": "string"
+     },
+     "itemDamagedStatusDate": {
+      "description": "Date when damage status was last changed",
+      "type": "string"
+     },
+     "administrativeNotes": {
+      "type": "array",
+      "description": "Administrative notes",
+      "items": {
+       "type": "string"
+      }
+     },
+     "notes": {
+      "description": "notes",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ItemNote"
+      }
+     },
+     "circulationNotes": {
+      "type": "array",
+      "description": "Notes to be displayed in circulation processes",
+      "items": {
+       "$ref": "#/components/schemas/CirculationNote"
+      }
+     },
+     "status": {
+      "$ref": "#/components/schemas/InventoryItemStatus"
+     },
+     "materialType": {
+      "$ref": "#/components/schemas/MaterialType"
+     },
+     "isBoundWith": {
+      "description": "Indicates if this Item is a bound-with",
+      "type": "boolean"
+     },
+     "boundWithTitles": {
+      "description": "List of titles that are bound together within this Item",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Title"
+      }
+     },
+     "permanentLoanType": {
+      "description": "Permanent loan type, is the default loan type for a given item. Loan types are tenant-defined in a reference table in Settings, Inventory, Item, Loan type (e.g. Can circulate, Course reserves, Reading room, Selected)",
+      "$ref": "#/components/schemas/LoanType"
+     },
+     "temporaryLoanType": {
+      "description": "Temporary loan type, is the temporary loan type for a given item. Loan types are tenant-defined in a reference table in Settings, Inventory, Item, Loan type (e.g. Can circulate, Course reserves, Reading room, Selected)",
+      "$ref": "#/components/schemas/LoanType"
+     },
+     "permanentLocation": {
+      "description": "Permanent item location is the default location, shelving location, or holding which is a physical place where items are stored, or an Online location. The location is defined by Institutions, Campuses, libraries, and locations. Permanent location can be assigned at the holding level, and be overridden at the item level if needed",
+      "$ref": "#/components/schemas/ItemLocation"
+     },
+     "temporaryLocation": {
+      "description": "Temporary item location is the temporarily location, shelving location, or holding which is a physical place where items are stored, or an Online location. The location is defined by Institutions, Campuses, libraries, and locations. Permanent location can be assigned at the holding level, and be overridden at the item level if needed",
+      "$ref": "#/components/schemas/ItemLocation"
+     },
+     "effectiveLocation": {
+      "description": "The effective location is used by FOLIO and other integrated systems to know the current home location for the item (read only, derived from locations on HoldingsRecord and Item)",
+      "$ref": "#/components/schemas/ItemLocation"
+     },
+     "electronicAccess": {
+      "description": "Whether an item is available electronically",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ElectronicAccess"
+      }
+     },
+     "inTransitDestinationServicePointId": {
+      "description": "Service point an item is intended to be transited to (should only be present when in transit)",
+      "type": "string"
+     },
+     "statisticalCodeIds": {
+      "type": "array",
+      "description": "Statistical code Id, refers to a Statistical code reference record",
+      "items": {
+       "type": "string"
+      }
+     },
+     "purchaseOrderLineIdentifier": {
+      "type": "string",
+      "description": "ID referencing a remote purchase order object related to this item"
+     },
+     "metadata": {
+      "description": "Metadata about creation and changes, provided by the server (client should not provide)",
+      "type": "object",
+      "$ref": "#/components/schemas/Metadata"
+     },
+     "tags": {
+      "description": "arbitrary tags associated with this item",
+      "id": "tags",
+      "type": "object",
+      "$ref": "#/components/schemas/Tags"
+     },
+     "lastCheckIn": {
+      "description": "Information about when an item was last checked in",
+      "$ref": "#/components/schemas/LastCheckIn"
+     },
+     "displaySummary": {
+      "description": "A summary of the item",
+      "type": "string"
+     }
+    }
+   },
+   "ItemCollection": {
+    "type": "object",
+    "properties": {
+     "items": {
+      "description": "List of item records",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Item"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     },
+     "resultInfo": {
+      "$ref": "#/components/schemas/ResultInfo"
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,3455 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Mod Roles Keycloak API",
+  "version": "v1",
+  "description": "Mod Roles Keycloak API"
+ },
+ "servers": [
+  {
+   "url": "http://localhost:8081",
+   "description": "Locally deployed server"
+  }
+ ],
+ "paths": {
+  "/roles/{id}": {
+   "get": {
+    "description": "Get role by ID",
+    "operationId": "getRole",
+    "tags": [
+     "roles"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathRoleId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Retrieve a role by id",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/role"
+        },
+        "example": {
+         "$ref": "#/components/examples/roleResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "description": "Update a role",
+    "operationId": "updateRole",
+    "tags": [
+     "roles"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathRoleId"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/role"
+       },
+       "example": {
+        "$ref": "#/components/examples/roleRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Update existing role"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "description": "Delete a role",
+    "operationId": "deleteRole",
+    "tags": [
+     "roles"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathRoleId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Delete a role"
+     }
+    }
+   }
+  },
+  "/roles": {
+   "get": {
+    "description": "Get roles by query",
+    "operationId": "findRoles",
+    "tags": [
+     "roles"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Array of roles",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/roles"
+        },
+        "example": {
+         "$ref": "#/components/examples/roleResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "post": {
+    "description": "Create a role",
+    "operationId": "createRole",
+    "tags": [
+     "roles"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/role"
+       },
+       "example": {
+        "$ref": "#/components/examples/roleRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Created role object",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/role"
+        },
+        "example": {
+         "$ref": "#/components/examples/roleResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/roles/batch": {
+   "post": {
+    "description": "Create one or more roles",
+    "operationId": "createRoles",
+    "tags": [
+     "roles"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/rolesRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/rolesRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Array of created role or roles",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/roles"
+        },
+        "example": {
+         "$ref": "#/components/examples/rolesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/roles/users": {
+   "post": {
+    "description": "Create a record associating role with user",
+    "operationId": "assignRolesToUser",
+    "tags": [
+     "roles-users"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/userRolesRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/userRoleRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Assigned role to user",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/userRoles"
+        },
+        "example": {
+         "$ref": "#/components/examples/userRolesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "get": {
+    "description": "Search user-role relations by CQL query",
+    "operationId": "findUserRoles",
+    "tags": [
+     "roles-users"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Array of roles users",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/userRoles"
+        },
+        "example": {
+         "$ref": "#/components/examples/userRolesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/roles/users/{id}": {
+   "get": {
+    "description": "Get roles user by user ID",
+    "operationId": "getUserRoles",
+    "tags": [
+     "roles-users"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathUserId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Retrieve a user-role relation list by user ID",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/userRoles"
+        },
+        "example": {
+         "$ref": "#/components/examples/userRolesResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "description": "Update a roles user by user ID",
+    "operationId": "updateUserRoles",
+    "tags": [
+     "roles-users"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathUserId"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/userRolesRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/userRolesResponse"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Update existing roles user"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "description": "Delete a roles user by user ID",
+    "operationId": "deleteUserRoles",
+    "tags": [
+     "roles-users"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathUserId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Delete a roles user"
+     }
+    }
+   }
+  },
+  "/roles/capabilities": {
+   "post": {
+    "description": "Create a record associating one or more capabilities with the role",
+    "operationId": "createRoleCapabilities",
+    "tags": [
+     "role-capability"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/roleCapabilitiesRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/roleCapabilitiesRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Assigned roles to user",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/roleCapabilities"
+        },
+        "example": {
+         "$ref": "#/components/examples/roleCapabilitiesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "get": {
+    "description": "Get role-capability relation items by CQL query and pagination parameters",
+    "operationId": "getRoleCapabilities",
+    "tags": [
+     "role-capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Array of roles users",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/roleCapabilities"
+        },
+        "example": {
+         "$ref": "#/components/examples/roleCapabilitiesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/roles/{id}/capabilities": {
+   "get": {
+    "description": "Get capabilities assigned to role by role identifier",
+    "operationId": "findCapabilitiesByRoleId",
+    "tags": [
+     "role-capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathRoleId"
+     },
+     {
+      "$ref": "#/components/parameters/expand-capabilities"
+     },
+     {
+      "$ref": "#/components/parameters/dedup-capabilities"
+     },
+     {
+      "$ref": "#/components/parameters/includeDummy"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Assigned to a role capabilities in a paginated view",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/capabilities"
+        },
+        "example": {
+         "$ref": "#/components/examples/capabilitiesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "description": "Modifies the set of capabilities assigned to the specified role.",
+    "operationId": "updateRoleCapabilities",
+    "tags": [
+     "role-capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathRoleId"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/capabilitiesUpdateRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/capabilitiesUpdateRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "description": "Removes all capabilities assignments for the specified role identifier",
+    "operationId": "deleteRoleCapabilities",
+    "tags": [
+     "role-capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathRoleId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/roles/capability-sets": {
+   "post": {
+    "description": "Create a record associating one or more capabilities with the role",
+    "operationId": "createRoleCapabilitySets",
+    "tags": [
+     "role-capability-set"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/roleCapabilitySetsRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/roleCapabilitySetsRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Assigned roles to user",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/roleCapabilitySets"
+        },
+        "example": {
+         "$ref": "#/components/examples/roleCapabilitySetsResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "get": {
+    "description": "Get role-capability-set relation items by CQL query",
+    "operationId": "getRoleCapabilitySets",
+    "tags": [
+     "role-capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Array of roles users",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/roleCapabilitySets"
+        },
+        "example": {
+         "$ref": "#/components/examples/roleCapabilitySetsResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/roles/{id}/capability-sets": {
+   "get": {
+    "description": "Get capability sets assigned to role by role identifier",
+    "operationId": "getCapabilitySetsByRoleId",
+    "tags": [
+     "role-capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathRoleId"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Assigned to a role capabilities in a paginated view",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/capabilitySets"
+        },
+        "example": {
+         "$ref": "#/components/examples/capabilitySetsResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "description": "Modifies the set of capability sets assigned to the specified role.",
+    "operationId": "updateRoleCapabilitySets",
+    "tags": [
+     "role-capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathRoleId"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/capabilitySetsUpdateRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/capabilitySetsUpdateRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "description": "Removes all capability sets assignments for the specified role identifier",
+    "operationId": "deleteRoleCapabilitySets",
+    "tags": [
+     "role-capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathRoleId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/policies/{id}": {
+   "get": {
+    "description": "Get policy by ID",
+    "operationId": "getPolicy",
+    "tags": [
+     "policies"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathPolicyId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Retrieve a policy by id",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/policy"
+        },
+        "example": {
+         "$ref": "#/components/examples/policyResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "description": "Update a policy",
+    "operationId": "updatePolicy",
+    "tags": [
+     "policies"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathPolicyId"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/policy"
+       },
+       "example": {
+        "$ref": "#/components/examples/policyRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Update existing policy"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "description": "Delete a policy",
+    "operationId": "deletePolicy",
+    "tags": [
+     "policies"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathPolicyId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Delete a policy"
+     }
+    }
+   }
+  },
+  "/policies": {
+   "get": {
+    "description": "Get policies by query",
+    "operationId": "findPolicies",
+    "tags": [
+     "policies"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Array of policies",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/policies"
+        },
+        "example": {
+         "$ref": "#/components/examples/policiesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "post": {
+    "description": "Create a policy",
+    "operationId": "createPolicy",
+    "tags": [
+     "policies"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/policy"
+       },
+       "example": {
+        "$ref": "#/components/examples/timeBasedPolicy"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Created policy object",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/policy"
+        },
+        "example": {
+         "$ref": "#/components/examples/timeBasedPolicy"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/policies/batch": {
+   "post": {
+    "description": "Create one or more policies",
+    "operationId": "createPolicies",
+    "tags": [
+     "policies"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/policiesRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/policiesRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Array of created policy or policies",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/policies"
+        },
+        "example": {
+         "$ref": "#/components/examples/policiesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/roles-keycloak/migrations": {
+   "get": {
+    "operationId": "findMigrations",
+    "description": "Retrieve a list of permission migrations",
+    "tags": [
+     "migration"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Retrieve a list of permission migrations",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/permissionMigrationJobs"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "post": {
+    "operationId": "migratePermissions",
+    "description": "Migrate user permissions from mod-permissions to Keycloak",
+    "tags": [
+     "migration"
+    ],
+    "responses": {
+     "201": {
+      "description": "User migration jobs",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/permissionMigrationJob"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/roles-keycloak/migrations/{id}": {
+   "get": {
+    "description": "Retrieve a permission migration",
+    "operationId": "getMigration",
+    "tags": [
+     "migration"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathEntityId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Retrieve a permission migration by id",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/permissionMigrationJob"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "description": "Delete a permission migration",
+    "operationId": "deleteMigration",
+    "tags": [
+     "migration"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathEntityId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Delete a permission migration",
+      "content": {
+       "text/plain": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/roles-keycloak/migrations/{id}/errors": {
+   "get": {
+    "description": "Retrieve errors for a specific migration job",
+    "operationId": "getMigrationErrors",
+    "tags": [
+     "migration"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathEntityId"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A collection of migration errors",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/permissionMigrationErrors"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/capabilities": {
+   "get": {
+    "description": "Get capabilities by query",
+    "operationId": "findCapabilities",
+    "tags": [
+     "capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A collection of capabilities",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/capabilities"
+        },
+        "example": {
+         "$ref": "#/components/examples/capabilitiesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/capabilities/{id}": {
+   "get": {
+    "description": "Get capability by ID",
+    "operationId": "getCapabilityById",
+    "tags": [
+     "capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathEntityId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Retrieve a capability set by id",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/capability"
+        },
+        "example": {
+         "$ref": "#/components/examples/capabilityResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/capability-sets": {
+   "get": {
+    "description": "Get capabilities by query",
+    "operationId": "findCapabilitySets",
+    "tags": [
+     "capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A collection of capabilities",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/capabilitySets"
+        },
+        "example": {
+         "$ref": "#/components/examples/capabilitySetsResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/capability-sets/{id}": {
+   "get": {
+    "description": "Get capability set by ID",
+    "operationId": "getCapabilitySetById",
+    "tags": [
+     "capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathEntityId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Retrieve a capability set by id",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/capabilitySet"
+        },
+        "example": {
+         "$ref": "#/components/examples/capabilitySetResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/capability-sets/{id}/capabilities": {
+   "get": {
+    "description": "Find capabilities by capability set ID",
+    "operationId": "findCapabilitiesByCapabilitySetId",
+    "tags": [
+     "capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathEntityId"
+     },
+     {
+      "$ref": "#/components/parameters/includeDummy"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Retrieve a capabilities by capability set ID",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/capabilities"
+        },
+        "example": {
+         "$ref": "#/components/examples/capabilitiesResponse"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/users/capabilities": {
+   "post": {
+    "description": "Create a record associating one or more capabilities with a user.",
+    "operationId": "createUserCapabilities",
+    "tags": [
+     "user-capability"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/userCapabilitiesRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/userCapabilitiesRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Capabilities user",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/userCapabilities"
+        },
+        "example": {
+         "$ref": "#/components/examples/userCapabilitiesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "get": {
+    "description": "Search user capabilities by CQL query",
+    "operationId": "getUserCapabilities",
+    "tags": [
+     "user-capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A collection of capabilities users",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/userCapabilities"
+        },
+        "example": {
+         "$ref": "#/components/examples/userCapabilitiesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/users/{id}/capabilities": {
+   "get": {
+    "description": "Retrieve capabilities assigned to role by role identifier",
+    "operationId": "findCapabilitiesByUserId",
+    "tags": [
+     "user-capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathUserId"
+     },
+     {
+      "$ref": "#/components/parameters/expand-capabilities"
+     },
+     {
+      "$ref": "#/components/parameters/includeDummy"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Assigned to a role capabilities in a paginated view",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/capabilities"
+        },
+        "example": {
+         "$ref": "#/components/examples/capabilitiesResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "description": "Modifies the set of capabilities assigned to the specified user.",
+    "operationId": "updateUserCapabilities",
+    "tags": [
+     "user-capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathUserId"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/capabilitiesUpdateRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/capabilitiesUpdateRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "description": "Removes all capability assignments for the specified user identifier",
+    "operationId": "deleteUserCapabilities",
+    "tags": [
+     "user-capability"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathUserId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/users/capability-sets": {
+   "post": {
+    "description": "Create a record associating one or more capabilities with a user.",
+    "operationId": "createUserCapabilitySets",
+    "tags": [
+     "user-capability-set"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/userCapabilitySetsRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/userCapabilitySetsRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Capabilities user",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/userCapabilitySets"
+        },
+        "example": {
+         "$ref": "#/components/examples/userCapabilitySetsResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "get": {
+    "description": "Get user capabilities by CQL query and pagination parameters",
+    "operationId": "getUserCapabilitySets",
+    "tags": [
+     "user-capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A collection of capabilities users",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/userCapabilitySets"
+        },
+        "example": {
+         "$ref": "#/components/examples/userCapabilitySetsResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/users/capability-sets/query": {
+   "post": {
+    "description": "Query effective capability-set names for up to 500 users. Effective capability sets include sets assigned directly to a user and sets inherited through the user's assigned roles. More than 500 user IDs is a schema violation and returns 400 Bad Request with a validation_error on 'userIds'; split larger user lists across several requests.",
+    "operationId": "queryUserCapabilitySets",
+    "tags": [
+     "user-capability-set"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/userCapabilitySetsQueryRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Effective capability-set names for requested users",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/userCapabilitySetsQueryResult"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/users/{id}/capability-sets": {
+   "get": {
+    "description": "Retrieve capability sets assigned to role by role identifier",
+    "operationId": "getCapabilitySetsByUserId",
+    "tags": [
+     "user-capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathUserId"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Assigned to a role capabilities in a paginated view",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/capabilitySets"
+        },
+        "example": {
+         "$ref": "#/components/examples/capabilitySetsResponse"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "description": "Modifies the set of capability sets assigned to the specified user.",
+    "operationId": "updateUserCapabilitySets",
+    "tags": [
+     "user-capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathUserId"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/capabilitySetsUpdateRequest"
+       },
+       "example": {
+        "$ref": "#/components/examples/capabilitySetsUpdateRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "description": "Removes all capability set assignments for the specified user identifier",
+    "operationId": "deleteUserCapabilitySets",
+    "tags": [
+     "user-capability-set"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathUserId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/permissions/users/{id}": {
+   "get": {
+    "description": "Get permissions by user ID. If onlyVisible=true, then desiredPermissions are ignored. entitledOnly=true applies after onlyVisible and desiredPermissions filtering and may be combined with either.",
+    "operationId": "getPermissionsUser",
+    "tags": [
+     "permissions-users"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathEntityId"
+     },
+     {
+      "$ref": "#/components/parameters/onlyVisible"
+     },
+     {
+      "$ref": "#/components/parameters/desiredPermissions"
+     },
+     {
+      "$ref": "#/components/parameters/entitledOnly"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Retrieve permissions by user id",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/permissions_user"
+        },
+        "example": {
+         "$ref": "#/components/examples/permissionsUserResponse"
+        }
+       }
+      }
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     },
+     "501": {
+      "$ref": "#/components/responses/notImplementedResponse"
+     }
+    }
+   }
+  },
+  "/loadable-roles": {
+   "get": {
+    "description": "Get loadable roles by query",
+    "operationId": "findLoadableRoles",
+    "tags": [
+     "loadable-roles"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Array of roles",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/loadableRoles"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "description": "A default role is created or updated, role is populated with the specified permissions (capabilities and capability sets) as they become available in the system. Default role cannot be changed via Roles API.",
+    "operationId": "upsertLoadableRole",
+    "tags": [
+     "loadable-roles"
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/loadableRole"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Default loadable role was created or updated successfully",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/loadableRole"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "role": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Role schema",
+    "description": "Role",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Role identifier",
+      "type": "string",
+      "format": "uuid"
+     },
+     "name": {
+      "description": "A human-readable name/label for this role. Must not contain a '/' character",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^[^/]+$"
+     },
+     "description": {
+      "description": "Free form description of the role",
+      "type": "string"
+     },
+     "type": {
+      "description": "Role type",
+      "$ref": "#/components/schemas/roleType"
+     },
+     "metadata": {
+      "readOnly": true,
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "roles": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "roles.json",
+    "title": "Roles schema",
+    "description": "Roles",
+    "type": "object",
+    "properties": {
+     "roles": {
+      "description": "Role identifier",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/role"
+      },
+      "nullable": false
+     },
+     "totalRecords": {
+      "description": "The total number of roles matching the provided criteria",
+      "type": "integer",
+      "format": "int64"
+     }
+    },
+    "required": [
+     "roles"
+    ]
+   },
+   "rolesRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "roles.json",
+    "title": "Roles schema",
+    "description": "Roles",
+    "type": "object",
+    "properties": {
+     "roles": {
+      "description": "Collection of roles",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/role"
+      },
+      "minItems": 1,
+      "maxItems": 255
+     }
+    },
+    "required": [
+     "roles"
+    ]
+   },
+   "userRolesRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "userRolesRequest.json",
+    "title": "User-roles relation Batch Request Schema",
+    "description": "User-roles request body",
+    "type": "object",
+    "properties": {
+     "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "User identifier (UUID)"
+     },
+     "roleIds": {
+      "type": "array",
+      "description": "Role identifiers",
+      "items": {
+       "type": "string",
+       "format": "uuid",
+       "description": "Role identifier (UUID)"
+      }
+     }
+    }
+   },
+   "userRole": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "userRole.json",
+    "title": "User-Role Relation Model Schema",
+    "description": "User-role relation model",
+    "type": "object",
+    "properties": {
+     "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID of the user"
+     },
+     "roleId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Role identifier"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "userId",
+     "roleId"
+    ]
+   },
+   "userRoles": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "userRoles.json",
+    "title": "List of User-Role Relation Items Schema",
+    "description": "List of user-role relation items",
+    "type": "object",
+    "properties": {
+     "userRoles": {
+      "description": "List of user-role relation items",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/userRole"
+      },
+      "nullable": false
+     },
+     "totalRecords": {
+      "description": "The total number of user-role relation items matching the provided criteria",
+      "type": "integer"
+     }
+    }
+   },
+   "loadableRole": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Loadable Role schema",
+    "description": "Loadable Role",
+    "type": "object",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/role"
+     }
+    ],
+    "properties": {
+     "permissions": {
+      "description": "List of permissions associated with role",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/loadablePermission"
+      }
+     }
+    }
+   },
+   "loadableRoles": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "loadableRoles.json",
+    "title": "List of Loadable Roles Schema",
+    "description": "List of loadable roles",
+    "type": "object",
+    "properties": {
+     "loadableRoles": {
+      "description": "List of loadable roles",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/loadableRole"
+      },
+      "minItems": 1
+     },
+     "totalRecords": {
+      "readOnly": true,
+      "description": "The total number of records matching the provided criteria",
+      "type": "integer",
+      "format": "int64"
+     }
+    },
+    "required": [
+     "loadableRoles"
+    ]
+   },
+   "policy": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Object containing the details of the policy.",
+    "properties": {
+     "id": {
+      "description": "A unique identifier for this policy. System-generated if not provided.",
+      "type": "string",
+      "format": "uuid"
+     },
+     "name": {
+      "description": "A human-readable name/label for this policy. Required.",
+      "type": "string"
+     },
+     "description": {
+      "description": "Free form description of the policy. Optional.",
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of policy. Required.",
+      "$ref": "#/components/schemas/policyType"
+     },
+     "source": {
+      "description": "The source for the policy.",
+      "$ref": "#/components/schemas/sourceType"
+     },
+     "userPolicy": {
+      "description": "Object containing the details of the user-based policy",
+      "$ref": "#/components/schemas/userPolicy"
+     },
+     "timePolicy": {
+      "description": "Object containing the details of the time-based policy.",
+      "$ref": "#/components/schemas/timePolicy"
+     },
+     "rolePolicy": {
+      "description": "Object containing the details of the aggregated policy.",
+      "$ref": "#/components/schemas/rolePolicy"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "name",
+     "type"
+    ]
+   },
+   "policies": {
+    "type": "object",
+    "description": "A list of policies with additional meta information.",
+    "properties": {
+     "policies": {
+      "description": "A list of policies.",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/policy"
+      }
+     },
+     "totalRecords": {
+      "description": "The total number of roles matching the provided criteria",
+      "type": "integer"
+     }
+    }
+   },
+   "policiesRequest": {
+    "type": "object",
+    "description": "A list of policies with additional meta information.",
+    "properties": {
+     "policies": {
+      "description": "A list of policies.",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/policy"
+      },
+      "minItems": 1,
+      "maxItems": 255
+     }
+    },
+    "required": [
+     "policies"
+    ]
+   },
+   "capability": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Capability Set Object Schema",
+    "description": "Object containing details of a capability",
+    "properties": {
+     "id": {
+      "description": "A unique identifier for this capability",
+      "type": "string",
+      "format": "uuid"
+     },
+     "name": {
+      "description": "a human-readable name/label for this capability.  Takes the form of {resourceName}.{scope}, e.g. item.create",
+      "type": "string",
+      "readOnly": true
+     },
+     "description": {
+      "description": "Free form description of the capability",
+      "type": "string"
+     },
+     "resource": {
+      "description": "The resource this capability is associated with, e.g. item",
+      "type": "string",
+      "pattern": "^[A-Za-z\\s]+$"
+     },
+     "action": {
+      "description": "The action this capability is associated with, e.g. create",
+      "$ref": "#/components/schemas/capabilityAction"
+     },
+     "applicationId": {
+      "description": "The id of the application which defines the capability",
+      "type": "string"
+     },
+     "moduleId": {
+      "description": "The id of the module which defines the capability",
+      "type": "string"
+     },
+     "permission": {
+      "description": "Folio permission name",
+      "type": "string"
+     },
+     "endpoints": {
+      "type": "array",
+      "description": "List of assigned endpoints",
+      "items": {
+       "$ref": "#/components/schemas/endpoint"
+      }
+     },
+     "dummyCapability": {
+      "description": "Is capability dummy",
+      "type": "boolean"
+     },
+     "type": {
+      "description": "The type of capability",
+      "$ref": "#/components/schemas/capabilityType"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata",
+      "readOnly": true
+     },
+     "visible": {
+      "description": "Is visible in UI",
+      "type": "boolean"
+     },
+     "direct": {
+      "description": "Indicates whether the capability was directly assigned to the role (true) or inherited via a capability set (false). Populated only by GET /roles/{id}/capabilities.",
+      "type": "boolean",
+      "readOnly": true
+     }
+    },
+    "required": [
+     "resource",
+     "action",
+     "permissions",
+     "type",
+     "applicationId"
+    ]
+   },
+   "capabilities": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Capabilities Object Schema",
+    "description": "Response body containing capability records",
+    "type": "object",
+    "properties": {
+     "capabilities": {
+      "description": "A collection of capability sets",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/capability"
+      },
+      "minItems": 1
+     },
+     "totalRecords": {
+      "readOnly": true,
+      "description": "The total number of records matching the provided criteria",
+      "type": "integer",
+      "format": "int64"
+     }
+    },
+    "required": [
+     "capabilities"
+    ]
+   },
+   "capabilitySet": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Capability Set Object Schema",
+    "description": "Object containing details of a capability set",
+    "properties": {
+     "id": {
+      "description": "A unique identifier for this capability",
+      "type": "string",
+      "format": "uuid"
+     },
+     "name": {
+      "description": "a human-readable name/label for this capability.  Takes the form of {resourceName}.{scope}, e.g. item.create",
+      "type": "string",
+      "readOnly": true
+     },
+     "description": {
+      "description": "Free form description of the capability",
+      "type": "string"
+     },
+     "resource": {
+      "description": "The resource this capability is associated with, e.g. item",
+      "type": "string",
+      "pattern": "^[A-Za-z\\s]+$"
+     },
+     "action": {
+      "description": "The action this capability is associated with, e.g. create",
+      "$ref": "#/components/schemas/capabilityAction"
+     },
+     "applicationId": {
+      "description": "The id of the application which defines the capability",
+      "type": "string"
+     },
+     "moduleId": {
+      "description": "The id of the module which defines the capability",
+      "type": "string"
+     },
+     "type": {
+      "description": "The type of capability",
+      "$ref": "#/components/schemas/capabilityType"
+     },
+     "permission": {
+      "description": "Folio permission name",
+      "type": "string"
+     },
+     "capabilities": {
+      "description": "List with assigned capability ids",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "type": "string",
+       "description": "Capability identifier",
+       "format": "uuid"
+      }
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata",
+      "readOnly": true
+     },
+     "visible": {
+      "description": "Is visible in UI",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "resource",
+     "action",
+     "permissions",
+     "type",
+     "applicationId"
+    ]
+   },
+   "capabilitySets": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Capability Sets Object Schema",
+    "description": "Response body containing capability set records",
+    "type": "object",
+    "properties": {
+     "capabilitySets": {
+      "description": "A collection of capability sets",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/capabilitySet"
+      },
+      "minItems": 1
+     },
+     "totalRecords": {
+      "readOnly": true,
+      "description": "The total number of records matching the provided criteria",
+      "type": "integer",
+      "format": "int64"
+     }
+    },
+    "required": [
+     "capabilities"
+    ]
+   },
+   "capabilitiesUpdateRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Capability Relation Update Request Schema",
+    "description": "Request body to update capabilities assigned to entity (role, user, etc.)",
+    "type": "object",
+    "properties": {
+     "capabilityIds": {
+      "description": "List of capability identifiers",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability identifier",
+       "format": "uuid"
+      }
+     },
+     "capabilityNames": {
+      "description": "List of capability names",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability names"
+      }
+     }
+    }
+   },
+   "capabilitySetsUpdateRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Capability Set Relation Update Request Schema",
+    "description": "Request body to update capability sets assigned to entity (role, user, etc.)",
+    "type": "object",
+    "properties": {
+     "capabilitySetIds": {
+      "description": "List of capability set identifiers",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability identifier",
+       "format": "uuid"
+      }
+     },
+     "capabilitySetNames": {
+      "description": "List of capability names",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability names"
+      }
+     }
+    }
+   },
+   "userCapabilities": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User Capabilities Schema",
+    "description": "User capabilities collection",
+    "type": "object",
+    "properties": {
+     "totalRecords": {
+      "description": "The total number of records matching the provided criteria",
+      "type": "integer",
+      "format": "int64"
+     },
+     "userCapabilities": {
+      "description": "List with found/created user-capability relations",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/userCapability"
+      }
+     }
+    }
+   },
+   "userCapabilitySets": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User Capability Set Schema",
+    "description": "User capability set collection",
+    "type": "object",
+    "properties": {
+     "totalRecords": {
+      "readOnly": true,
+      "description": "The total number of records matching the provided criteria",
+      "type": "integer",
+      "format": "int64"
+     },
+     "userCapabilitySets": {
+      "description": "List with found/created user-capabilitySet relations",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/userCapabilitySet"
+      }
+     }
+    }
+   },
+   "userCapabilitiesRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User-Capability Request Schema",
+    "description": "Request body to assign existing capabilities to a user",
+    "type": "object",
+    "properties": {
+     "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "User identifier"
+     },
+     "capabilityIds": {
+      "description": "List of capability identifiers",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability identifier",
+       "format": "uuid"
+      },
+      "minItems": 1
+     }
+    },
+    "required": [
+     "userId",
+     "capabilityIds"
+    ]
+   },
+   "userCapabilitySetsRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User-CapabilitySet Request Schema",
+    "description": "Request body to assign existing capability sets to a user",
+    "type": "object",
+    "properties": {
+     "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "User identifier"
+     },
+     "capabilitySetIds": {
+      "description": "List of capability identifiers",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability set identifier",
+       "format": "uuid"
+      },
+      "minItems": 1
+     }
+    },
+    "required": [
+     "roleId",
+     "capabilitySetIds"
+    ]
+   },
+   "userCapabilitySetsQueryRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User Capability Sets Query Request Schema",
+    "description": "Request body to query effective capability-set names for users",
+    "type": "object",
+    "properties": {
+     "userIds": {
+      "description": "User identifiers",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "format": "uuid",
+       "description": "User identifier"
+      },
+      "minItems": 1,
+      "maxItems": 500
+     },
+     "capabilitySetNames": {
+      "description": "Optional exact-name whitelist for capability sets",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability-set name"
+      }
+     }
+    },
+    "required": [
+     "userIds"
+    ]
+   },
+   "userCapabilitySetNames": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User Capability Set Names Schema",
+    "description": "Effective capability-set names for a user",
+    "type": "object",
+    "properties": {
+     "userId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "User identifier"
+     },
+     "capabilitySetNames": {
+      "type": "array",
+      "description": "Effective capability-set names",
+      "items": {
+       "type": "string",
+       "description": "Capability-set name"
+      }
+     }
+    },
+    "required": [
+     "userId",
+     "capabilitySetNames"
+    ]
+   },
+   "userCapabilitySetsQueryResult": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User Capability Sets Query Result Schema",
+    "description": "Effective capability-set names for users",
+    "type": "object",
+    "properties": {
+     "userCapabilitySets": {
+      "description": "Effective capability-set names grouped by user",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/userCapabilitySetNames"
+      }
+     }
+    },
+    "required": [
+     "userCapabilitySets"
+    ]
+   },
+   "roleCapabilities": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Role-Capabilities Objects Schema",
+    "description": "Response body containing role-capabilities relations for search request",
+    "type": "object",
+    "properties": {
+     "totalRecords": {
+      "description": "The total number of role-capability objects matching the provided criteria",
+      "type": "integer",
+      "format": "int64"
+     },
+     "roleCapabilities": {
+      "description": "List with found/created role-capability relations",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/roleCapability"
+      }
+     }
+    }
+   },
+   "roleCapabilitySets": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Role-Capability Set Objects Schema",
+    "description": "Response body containing role-capabilitySet relations for search request",
+    "type": "object",
+    "properties": {
+     "totalRecords": {
+      "description": "The total number of role-capability objects matching the provided criteria",
+      "type": "integer",
+      "format": "int64"
+     },
+     "roleCapabilitySets": {
+      "description": "List with found/created role-capabilitySet relations",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/roleCapabilitySet"
+      }
+     }
+    }
+   },
+   "roleCapabilitiesRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Role-Capability Request Schema",
+    "description": "Request body to assign existing capabilities to a role",
+    "type": "object",
+    "properties": {
+     "roleId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID of the role"
+     },
+     "capabilityIds": {
+      "description": "List of capability identifiers",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability identifier",
+       "format": "uuid"
+      }
+     },
+     "capabilityNames": {
+      "description": "List of capability names",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability names"
+      }
+     }
+    },
+    "required": [
+     "roleId"
+    ]
+   },
+   "roleCapabilitySetsRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Role-CapabilitySet Request Schema",
+    "description": "Request body to assign existing capability sets to a role",
+    "type": "object",
+    "properties": {
+     "roleId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID of the role"
+     },
+     "capabilitySetIds": {
+      "description": "List of capability set identifiers",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability set identifier",
+       "format": "uuid"
+      }
+     },
+     "capabilitySetNames": {
+      "description": "List of capability set names",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "description": "Capability set names"
+      }
+     }
+    },
+    "required": [
+     "roleId"
+    ]
+   },
+   "permissionsUser": {
+    "$ref": "#/components/schemas/permissions_user"
+   },
+   "errorResponse": {
+    "$ref": "#/components/schemas/errors"
+   },
+   "permissionMigrationJob": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "permissionMigrationJob.json",
+    "title": "Permission Migration Job Schema",
+    "description": "A permission migration job entity for tracking migration's progress",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "An migration job identifier",
+      "type": "string",
+      "format": "uuid"
+     },
+     "totalRecords": {
+      "description": "Total number of records to be migrated",
+      "type": "integer"
+     },
+     "status": {
+      "description": "A permission migration job status",
+      "$ref": "#/components/schemas/permissionMigrationJobStatus"
+     },
+     "startedAt": {
+      "description": "A permission migration job start timestamp",
+      "type": "string",
+      "format": "date-time"
+     },
+     "finishedAt": {
+      "description": "A permission migration job end timestamp",
+      "type": "string",
+      "format": "date-time"
+     }
+    }
+   },
+   "permissionMigrationJobs": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "permissionMigrationJobs.json",
+    "title": "List of Permission Migration Jobs Schema",
+    "description": "A list of permission migration job entities",
+    "type": "object",
+    "properties": {
+     "migrations": {
+      "description": "List of Migration Jobs",
+      "type": "array",
+      "id": "migrations",
+      "items": {
+       "$ref": "#/components/schemas/permissionMigrationJob"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    }
+   },
+   "permissionMigrationError": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Permission migration error details",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Error log identifier",
+      "type": "string",
+      "format": "uuid"
+     },
+     "migrationJobId": {
+      "description": "Migration job identifier",
+      "type": "string",
+      "format": "uuid"
+     },
+     "errorType": {
+      "description": "Type of error",
+      "type": "string"
+     },
+     "errorMessage": {
+      "description": "Detailed error message",
+      "type": "string"
+     },
+     "failedEntityType": {
+      "description": "Type of entity that failed (e.g., ROLE, USER_ROLE)",
+      "type": "string"
+     },
+     "failedEntityId": {
+      "description": "Identifier or name of the failed entity",
+      "type": "string"
+     },
+     "occurredAt": {
+      "description": "When the error occurred",
+      "type": "string",
+      "format": "date-time"
+     }
+    },
+    "required": [
+     "id",
+     "migrationJobId",
+     "errorType",
+     "errorMessage",
+     "occurredAt"
+    ]
+   },
+   "permissionMigrationErrors": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of migration errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of migration errors",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/permissionMigrationError"
+      }
+     },
+     "totalRecords": {
+      "description": "Total number of migration errors",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "errors",
+     "totalRecords"
+    ]
+   },
+   "roleType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "description": "Role type",
+    "enum": [
+     "DEFAULT",
+     "REGULAR",
+     "CONSORTIUM"
+    ]
+   },
+   "metadata": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Metadata Schema",
+    "description": "Metadata about creation and changes to records, provided by the server (client should not provide)",
+    "type": "object",
+    "properties": {
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdByUserId": {
+      "description": "ID of the user who created the record (when available)",
+      "type": "string",
+      "format": "uuid"
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedByUserId": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false
+   },
+   "errors": {
+    "description": "A set of errors",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object"
+   },
+   "roleCapability": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Role-Capability Relation Schema",
+    "description": "Role-Capability Relation Schema",
+    "type": "object",
+    "properties": {
+     "roleId": {
+      "description": "Role identifier as UUID",
+      "type": "string",
+      "format": "uuid"
+     },
+     "capabilityId": {
+      "description": "Capability identifier as UUID",
+      "type": "string",
+      "format": "uuid"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata"
+     }
+    }
+   },
+   "capabilityAction": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The action this capability is associated with, e.g. create",
+    "type": "string",
+    "enum": [
+     "view",
+     "create",
+     "edit",
+     "delete",
+     "manage",
+     "execute"
+    ]
+   },
+   "httpMethod": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Http Method",
+    "type": "string",
+    "enum": [
+     "GET",
+     "HEAD",
+     "POST",
+     "PUT",
+     "PATCH",
+     "DELETE",
+     "OPTIONS",
+     "TRACE"
+    ]
+   },
+   "endpoint": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "id": "endpoint.json",
+    "description": "Object containing the details of the http-endpoint.",
+    "properties": {
+     "path": {
+      "type": "string",
+      "description": "Endpoint's static path / expression"
+     },
+     "method": {
+      "description": "Http Method",
+      "$ref": "#/components/schemas/httpMethod"
+     }
+    }
+   },
+   "capabilityType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The type of capability",
+    "type": "string",
+    "enum": [
+     "settings",
+     "data",
+     "procedural"
+    ]
+   },
+   "roleCapabilitySet": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Role-Capability Set Relation Schema",
+    "description": "Role-Capability Set Relation Schema",
+    "type": "object",
+    "properties": {
+     "roleId": {
+      "description": "Role identifier as UUID",
+      "type": "string",
+      "format": "uuid"
+     },
+     "capabilitySetId": {
+      "description": "Capability set identifier as UUID",
+      "type": "string",
+      "format": "uuid"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata"
+     }
+    }
+   },
+   "policyType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The type of policy. Required.",
+    "type": "string",
+    "enum": [
+     "USER",
+     "TIME",
+     "ROLE"
+    ]
+   },
+   "sourceType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Source type for roles and policies.",
+    "type": "string",
+    "enum": [
+     "SYSTEM",
+     "USER",
+     "CONSORTIUM"
+    ]
+   },
+   "policyLogicType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Policy logic enum",
+    "description": "The logic type of policy.",
+    "type": "string",
+    "enum": [
+     "POSITIVE",
+     "NEGATIVE"
+    ],
+    "default": "POSITIVE",
+    "examples": [
+     "POSITIVE",
+     "NEGATIVE"
+    ]
+   },
+   "userPolicy": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Object containing the details of the user-based policy",
+    "properties": {
+     "users": {
+      "description": "Collection of user IDs. Required.",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "format": "uuid"
+      }
+     },
+     "logic": {
+      "description": "User policy logic",
+      "$ref": "#/components/schemas/policyLogicType"
+     }
+    },
+    "required": [
+     "users"
+    ],
+    "example": {
+     "id": "3f3f3f3f-3f3f-3333-3f3f-3f3f3f3f3f3f",
+     "name": "user_based_policy",
+     "description": "This policy is meant to be an example",
+     "users": [
+      "f7f7f7f7-7777-f7f7-f7f7-f7f7f7f7f7f7",
+      "7f7f7f7f-7f7f-7777-7f7f-7f7f7f7f7f7f"
+     ],
+     "logic": "POSITIVE"
+    }
+   },
+   "timePolicy": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Object containing the details of the time-based policy.",
+    "required": [],
+    "properties": {
+     "repeat": {
+      "description": "Whether or not to repeat the policy.",
+      "type": "boolean",
+      "default": false
+     },
+     "start": {
+      "description": "Defines the time before which access must not be granted. Permission is granted only if the current date/time is later than or equal to this value. Ignored if repeat is true.",
+      "type": "string",
+      "format": "date-time"
+     },
+     "expires": {
+      "description": "Defines the time after which access must not be granted. Permission is granted only if the current date/time is earlier than or equal to this value. Must be greater than the start time. Ignored if repeat is true.",
+      "type": "string",
+      "format": "date-time"
+     },
+     "dayOfMonthStart": {
+      "description": "Defines the day of the month that access must be granted. You can also specify a range of dates. In this case, permission is granted only if the current day of the month is between or equal to the two values specified. Ignored if repeat is false.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 31
+     },
+     "dayOfMonthEnd": {
+      "description": "Defines the end of the day of the month range. Must be greater than dayOfMonthStart. Ignored if repeat is false.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 31
+     },
+     "monthStart": {
+      "description": "Defines the month that access must be granted. You can also specify a range of months. In this case, permission is granted only if the current month is between or equal to the two values specified. Ignored if repeat is false.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12
+     },
+     "monthEnd": {
+      "description": "Defines the end of the month range. Must be greater than monthStart. Ignored if repeat is false.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12
+     },
+     "hourStart": {
+      "description": "Defines the hour that access must be granted. You can also specify a range of hours. In this case, permission is granted only if the current hour is between or equal to the two values specified. Ignored if repeat is false.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 23
+     },
+     "hourEnd": {
+      "description": "Defines the end of the hour range. Must be greater than hourStart. Ignored if repeat is false.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 23
+     },
+     "minuteStart": {
+      "description": "Defines the minute that access must be granted. You can also specify a range of minutes. In this case, permission is granted only if the current minute is between or equal to the two values specified. Ignored if repeat is false.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 59
+     },
+     "minuteEnd": {
+      "description": "Defines the end of the minutes range. Must be greater than minuteStart. Ignored if repeat is false.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 59,
+      "min": "${minuteStart}"
+     },
+     "logic": {
+      "description": "Time policy logic",
+      "$ref": "#/components/schemas/policyLogicType"
+     }
+    }
+   },
+   "rolePolicyRole": {
+    "type": "object",
+    "description": "Object containing the details of the aggregated policy.",
+    "required": [
+     "id"
+    ],
+    "properties": {
+     "id": {
+      "description": "Specifies a role permitted by this policy. Required.",
+      "type": "string",
+      "format": "uuid"
+     },
+     "required": {
+      "description": "When creating a role-based policy, you can specify a specific role as Required. When you do that, the policy will grant access only if the user requesting access has been granted all the required roles.",
+      "type": "boolean",
+      "default": false
+     }
+    }
+   },
+   "rolePolicy": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Object containing the details of the aggregated policy.",
+    "properties": {
+     "roles": {
+      "description": "Specifies which roles are permitted by this policy. Required",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/rolePolicyRole"
+      }
+     },
+     "logic": {
+      "description": "User policy logic",
+      "$ref": "#/components/schemas/policyLogicType"
+     }
+    },
+    "required": [
+     "roles"
+    ]
+   },
+   "permissionMigrationJobStatus": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "migration/permissionMigrationJobStatus.json",
+    "title": "Permission Migration Job Status Schema",
+    "description": "An permission migration job status",
+    "type": "string",
+    "enum": [
+     "in_progress",
+     "failed",
+     "finished"
+    ]
+   },
+   "userCapability": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User Capability Schema",
+    "description": "User Capability",
+    "type": "object",
+    "properties": {
+     "userId": {
+      "description": "User identifier as UUID",
+      "type": "string",
+      "format": "uuid"
+     },
+     "capabilityId": {
+      "description": "Capability identifier as UUID",
+      "type": "string",
+      "format": "uuid"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "userId",
+     "capabilityId"
+    ]
+   },
+   "userCapabilitySet": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User Capability Set Schema",
+    "description": "User Capability Set",
+    "type": "object",
+    "properties": {
+     "userId": {
+      "description": "User identifier as UUID",
+      "type": "string",
+      "format": "uuid"
+     },
+     "capabilitySetId": {
+      "description": "Capability Set identifier as UUID",
+      "type": "string",
+      "format": "uuid"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "userId",
+     "capabilityId"
+    ]
+   },
+   "permissions_user": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Permissions User Schema",
+    "description": "Permissions user",
+    "type": "object",
+    "properties": {
+     "userId": {
+      "description": "Id of the user",
+      "type": "string",
+      "format": "uuid"
+     },
+     "permissions": {
+      "description": "List of permissions assigned to the user",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "description": "Permission names assigned to the user",
+       "type": "string"
+      }
+     }
+    },
+    "required": [
+     "userId",
+     "permissions"
+    ]
+   },
+   "loadablePermission": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "loadablePermission.json",
+    "title": "Loadable Permission schema",
+    "description": "Loadable Permission",
+    "type": "object",
+    "properties": {
+     "roleId": {
+      "description": "Loadable Role identifier",
+      "type": "string",
+      "format": "uuid"
+     },
+     "permissionName": {
+      "description": "Permission name",
+      "type": "string"
+     },
+     "capabilityId": {
+      "description": "Capability Id associated with this permission",
+      "type": "string",
+      "format": "uuid"
+     },
+     "capabilitySetId": {
+      "description": "Capability Set Id associated with this permission",
+      "type": "string",
+      "format": "uuid"
+     },
+     "metadata": {
+      "readOnly": true,
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "permissionName"
+    ]
+   }
+  },
+  "responses": {
+   "badRequestResponse": {
+    "description": "Error response in JSON format for validation errors.",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      },
+      "example": {
+       "$ref": "#/components/examples/badRequestResponse"
+      }
+     }
+    }
+   },
+   "notFoundResponse": {
+    "description": "Not found error response in JSON format for validation errors.",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      },
+      "example": {
+       "$ref": "#/components/examples/notFoundResponse"
+      }
+     }
+    }
+   },
+   "notImplementedResponse": {
+    "description": "Operation is not supported error response in JSON format for validation errors.",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      },
+      "example": {
+       "$ref": "#/components/examples/notImplementedResponse"
+      }
+     }
+    }
+   },
+   "internalServerErrorResponse": {
+    "description": "Error response for unhandled or critical server exceptions, e.g. NullPointerException.",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      },
+      "example": {
+       "$ref": "#/components/examples/internalServerErrorResponse"
+      }
+     }
+    }
+   }
+  },
+  "parameters": {
+   "pathEntityId": {
+    "in": "path",
+    "required": true,
+    "name": "id",
+    "description": "Entity id",
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    }
+   },
+   "pathRoleId": {
+    "in": "path",
+    "required": true,
+    "name": "id",
+    "description": "Role identifier",
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    },
+    "example": "1e985e76-e9ca-401c-ad8e-0d121a11111e"
+   },
+   "pathPolicyId": {
+    "in": "path",
+    "required": true,
+    "name": "id",
+    "description": "Policy identifier",
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    },
+    "example": "1e589e76-e9ca-401c-ad8e-0d121a11111e"
+   },
+   "pathUserId": {
+    "in": "path",
+    "required": true,
+    "name": "id",
+    "description": "User identifier",
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    },
+    "example": "1e111e76-1111-401c-ad8e-0d121a11111e"
+   },
+   "query": {
+    "in": "query",
+    "name": "query",
+    "description": "A query string to filter users based on matching criteria in fields.",
+    "required": false,
+    "schema": {
+     "type": "string"
+    },
+    "example": "role"
+   },
+   "expand": {
+    "in": "query",
+    "name": "expand",
+    "description": "Expand permissions for each role and capability.",
+    "required": false,
+    "schema": {
+     "type": "boolean",
+     "default": false
+    },
+    "example": false
+   },
+   "onlyVisible": {
+    "in": "query",
+    "name": "onlyVisible",
+    "description": "Return only visible permission sets",
+    "required": false,
+    "schema": {
+     "type": "boolean",
+     "default": false
+    },
+    "example": false
+   },
+   "limit": {
+    "in": "query",
+    "name": "limit",
+    "description": "Limit the number of elements returned in the response.",
+    "required": false,
+    "schema": {
+     "type": "integer",
+     "default": 10,
+     "minimum": 0
+    },
+    "example": 20
+   },
+   "offset": {
+    "in": "query",
+    "name": "offset",
+    "description": "Skip over a number of elements by specifying an offset value for the query.",
+    "required": false,
+    "schema": {
+     "type": "integer",
+     "default": 0,
+     "minimum": 0
+    },
+    "example": 2
+   },
+   "expand-capabilities": {
+    "in": "query",
+    "name": "expand",
+    "description": "Defines if capability sets must be expanded",
+    "required": false,
+    "schema": {
+     "type": "boolean",
+     "default": false
+    }
+   },
+   "dedup-capabilities": {
+    "in": "query",
+    "name": "dedup",
+    "description": "Defines if duplicate capabilities (assigned both directly and via a capability set) must be deduplicated. Only meaningful when expand=true.",
+    "required": false,
+    "schema": {
+     "type": "boolean",
+     "default": true
+    }
+   },
+   "includeDummy": {
+    "in": "query",
+    "name": "includeDummy",
+    "description": "Include dummy capabilities.",
+    "required": false,
+    "schema": {
+     "type": "boolean",
+     "default": false
+    },
+    "example": false
+   },
+   "desiredPermissions": {
+    "in": "query",
+    "name": "desiredPermissions",
+    "description": "A list of permissions to filter by",
+    "required": false,
+    "schema": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "example": [
+     "users.item.get",
+     "users.collection.*"
+    ]
+   },
+   "entitledOnly": {
+    "in": "query",
+    "name": "entitledOnly",
+    "description": "Return only permissions from currently entitled applications",
+    "required": false,
+    "schema": {
+     "type": "boolean",
+     "default": false
+    }
+   }
+  }
+ }
+}

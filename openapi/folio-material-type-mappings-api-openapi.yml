@@ -1,0 +1,332 @@
+openapi: 3.2.0
+info:
+  title: Folio Material Type Mappings API
+  version: v1
+  description: 'Operations tagged material-type-mappings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: material-type-mappings
+paths:
+  /central-servers/{centralServerId}/material-type-mappings:
+    get:
+      description: Get a list of material type mappings for the given central server
+      operationId: getMaterialTypeMappingsByServerId
+      tags:
+      - material-type-mappings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/materialTypeMappingsDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_malformed_query_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      summary: Get material type mappings by server id
+      x-summary-source: derived
+    post:
+      description: Add new material type mapping associated with the central server
+      operationId: postMaterialTypeMapping
+      tags:
+      - material-type-mappings
+      responses:
+        '201':
+          description: Material type mapping created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/materialTypeMappingDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '409':
+          $ref: '#/components/responses/trait_response_409'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/materialTypeMappingDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Post material type mapping
+      x-summary-source: derived
+    put:
+      description: Update (replace) the entire collection of material type mappings associated with the central server
+      operationId: updateMaterialTypeMappings
+      tags:
+      - material-type-mappings
+      responses:
+        '204':
+          description: Collection successfully updated
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '409':
+          $ref: '#/components/responses/trait_response_409'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/materialTypeMappingsDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Update material type mappings
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /central-servers/{centralServerId}/material-type-mappings/{id}:
+    get:
+      operationId: getMaterialTypeMappingById
+      tags:
+      - material-type-mappings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/materialTypeMappingDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      - $ref: '#/components/parameters/id'
+      summary: Get material type mapping by id
+      x-summary-source: derived
+    put:
+      operationId: updateMaterialTypeMapping
+      tags:
+      - material-type-mappings
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/materialTypeMappingDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      - $ref: '#/components/parameters/id'
+      summary: Update material type mapping
+      x-summary-source: derived
+    delete:
+      operationId: deleteMaterialTypeMapping
+      tags:
+      - material-type-mappings
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      - $ref: '#/components/parameters/id'
+      summary: Delete material type mapping
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  parameters:
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    materialTypeMappingsDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Material type mapping collection
+      type: object
+      properties:
+        materialTypeMappings:
+          description: List of material type mappings
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/materialTypeMappingDTO'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - materialTypeMappings
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    materialTypeMappingDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Material type mapping
+      type: object
+      properties:
+        id:
+          description: Mapping id
+          type: string
+          format: uuid
+        materialTypeId:
+          description: Material type id
+          type: string
+          format: uuid
+        centralItemType:
+          description: Central server item type
+          type: integer
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - materialTypeId
+      - centralItemType
+  responses:
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_409:
+      description: Item state conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_malformed_query_400:
+      description: Bad request, e.g. malformed query parameter.
+      content:
+        application/json:
+          example:
+            value:
+              $ref: examples/error.sample
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+x-refined-from:
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-inn-reach-settings-openapi.yml

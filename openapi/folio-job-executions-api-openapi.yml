@@ -1,0 +1,350 @@
+openapi: 3.2.0
+info:
+  title: Folio Job Executions API
+  version: v1
+  description: 'Operations tagged Job Executions across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+tags:
+- name: Job Executions
+paths:
+  /job-executions:
+    get:
+      description: API for getting JobExecutions by query
+      operationId: getJobExecutionsByQuery
+      parameters:
+      - $ref: '#/components/parameters/trait_queryable'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      responses:
+        '200':
+          description: Collection of job executions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jobExecutionCollection'
+              example:
+                jobExecutions:
+                - id: 67dfac11-1caf-4470-9ad1-d533f6360bdd
+                  hrId: 199
+                  exportedFiles:
+                  - fileId: 448ae575-daec-49c1-8041-d64c8ed8e5b1
+                    fileName: catrepbarcodes-20200116114002.mrc
+                  - fileId: 295e28b4-aea2-4458-9073-385a31e1da05
+                    fileName: fullexportbibonly-20200116103001.mrc
+                  - fileId: bb689511-5365-4050-8084-a03d94728d88
+                    fileName: umadm-n-20200116100503.mrc
+                  jobProfileInfo:
+                    id: 88dfac11-1caf-4470-9ad1-d533f6360bad
+                    destination: fileSystem
+                    name: default
+                  progress:
+                    exported: 109000
+                    failed: 485
+                    total: 109485
+                  completedDate: 2019-10-30T12:40:01.000+0000
+                  startedDate: 2019-10-30T12:37:02.000+0000
+                  runBy:
+                    firstName: Jane
+                    lastName: Doe
+                  status: SUCCESS
+                  metadata:
+                    createdDate: 2019-07-22T11:22:07.000+0000
+                    createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                    createdByUsername: janedoeuser
+                    updatedDate: 2019-07-27T13:28:54.000+0000
+                    updatedByUserId: ''
+                    updatedByUsername: ''
+                totalRecords: 1
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '401':
+          description: Not authorized to perform requested action
+          content:
+            text/plain:
+              example: unauthorized
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Job Executions
+      summary: Get job executions by query
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+  /job-executions/{jobExecutionId}:
+    delete:
+      description: Delete a specific job execution
+      operationId: deleteJobExecutionById
+      parameters:
+      - name: jobExecutionId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '204':
+          description: Item deleted successfully
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: JobExecution not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Job Executions
+      summary: Delete job execution by id
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+  /job-executions/{jobExecutionId}/download/{exportFileId}:
+    get:
+      description: API for getting the link to download files
+      operationId: getLinkToDownloadFiles
+      parameters:
+      - name: jobExecutionId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      - name: exportFileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: Job execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileDownload'
+              example:
+                fileId: 448ae575-daec-49c1-8041-d64c8ed8e5b1
+                link: https://test-aws-export-vk.s3.amazonaws.com/CatShip.mrc?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200220T185104Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3599&X-Amz-Credential=AKUAIZOH6UABI4QDF678%2F20200220%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=2d87fd96cd1b05ee74228ee9124bc0ad34196a08b03c62453e9588aa3e485a77
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Job Executions
+      summary: Get link to download files
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+components:
+  parameters:
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_queryable:
+      name: query
+      in: query
+      description: A query string to filter rules based on matching criteria in fields.
+      schema:
+        type: string
+  schemas:
+    jobExecution:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Job Execution Schema
+      type: object
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          format: uuid
+        hrId:
+          description: Human readable id
+          type: integer
+        exportedFiles:
+          description: List of exported files
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              fileId:
+                description: File unique identifier
+                type: string
+                format: uuid
+              fileName:
+                description: File name
+                type: string
+        jobProfileId:
+          description: Related JobProfile id
+          type: string
+          format: uuid
+        jobProfileName:
+          description: Related JobProfile name
+          type: string
+          readonly: true
+        progress:
+          description: Execution progress of the job
+          type: object
+          properties:
+            exported:
+              description: Number of successfully exported records
+              type: integer
+              default: 0
+            failed:
+              description: Number of records that are failed on export
+              type: integer
+              default: 0
+            duplicatedSrs:
+              description: Number of srs records that are duplicated
+              type: integer
+              default: 0
+            total:
+              description: Total number of records
+              type: integer
+              default: 0
+            readIds:
+              description: Number of readed ids for temp table for slicing
+              type: integer
+              default: 0
+        completedDate:
+          description: Date and time when the job execution completed
+          type: string
+          format: date-time
+        lastUpdatedDate:
+          description: Date and time when the job execution was last updated
+          type: string
+          format: date-time
+        startedDate:
+          description: Date and time when the job execution started
+          type: string
+          format: date-time
+        runBy:
+          description: First and last name of the user who triggered the job execution
+          type: object
+          properties:
+            firstName:
+              description: First name
+              type: string
+            lastName:
+              description: Last name
+              type: string
+            userId:
+              description: User id
+              type: string
+        status:
+          description: Status of files export
+          type: string
+          default: NEW
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - COMPLETED
+          - COMPLETED_WITH_ERRORS
+          - FAIL
+        metadata:
+          description: Metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - status
+    uuid:
+      type: string
+      format: uuid
+    jobExecutionCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of execution jobs
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutions:
+          description: List of execution jobs
+          type: array
+          id: jobExecutionList
+          items:
+            type: object
+            $ref: '#/components/schemas/jobExecution'
+        totalRecords:
+          type: integer
+      required:
+      - jobExecutions
+      - totalRecords
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    fileDownload:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: File that should be exported
+      type: object
+      properties:
+        fileId:
+          description: File unique identifier
+          type: string
+          format: uuid
+        link:
+          description: Download link to the file
+          type: string
+      required:
+      - fileId
+      - link
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-data-export-openapi.yml

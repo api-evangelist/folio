@@ -1,0 +1,229 @@
+openapi: 3.2.0
+info:
+  title: mod-authtoken Token API
+  version: v1
+tags:
+- name: Token
+paths:
+  /token:
+    parameters:
+    - $ref: '#/components/parameters/okapi-tenant-required'
+    - $ref: '#/components/parameters/okapi-url-required'
+    post:
+      description: Deprecated. Will be removed in a future release. Please use /token/sign instead. Returns a signed, non-expiring legacy access token.
+      operationId: token-legacy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signTokenPayload'
+        required: true
+      responses:
+        '201':
+          description: Created and signed token successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenResponseLegacy'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Token
+      summary: Token legacy
+      x-summary-source: derived
+  /token/sign:
+    parameters:
+    - $ref: '#/components/parameters/okapi-tenant-required'
+    - $ref: '#/components/parameters/okapi-url-required'
+    post:
+      description: 'Returns a signed, expiring access token and refresh token. Also returns the expiration
+
+        of each token in the body of the response. The access token time to live is 10 minutes and
+
+        the refresh token is one week.'
+      operationId: token-sign
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signTokenPayload'
+        required: true
+      responses:
+        '201':
+          description: Created and signed tokens successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenResponse'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Token
+      summary: Token sign
+      x-summary-source: derived
+  /token/refresh:
+    parameters:
+    - $ref: '#/components/parameters/okapi-tenant-required'
+    - $ref: '#/components/parameters/okapi-url-required'
+    post:
+      description: 'Returns a new refresh token and a new access token. Also returns the expiration of each token
+
+        in the body of the response. Time to live is 10 minutes for the access token and one week for
+
+        the refresh token.'
+      operationId: token-refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/refreshToken'
+        required: true
+      responses:
+        '201':
+          description: Refreshed tokens successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenResponse'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Token
+      summary: Token refresh
+      x-summary-source: derived
+  /token/invalidate:
+    parameters:
+    - $ref: '#/components/parameters/okapi-tenant-required'
+    - $ref: '#/components/parameters/okapi-url-required'
+    post:
+      description: Invalidate a single refresh token. An access token cannot be invalidated and remains valid until its expiration time; this is by design because the access token is stateless.
+      operationId: token-invalidate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/refreshToken'
+        required: true
+      responses:
+        '204':
+          description: Invalidated token successfully
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Token
+      summary: Token invalidate
+      x-summary-source: derived
+  /token/invalidate-all:
+    parameters:
+    - $ref: '#/components/parameters/okapi-tenant-required'
+    - $ref: '#/components/parameters/okapi-url-required'
+    post:
+      description: Invalidate all refresh tokens for a user. An access token cannot be invalidated and remains valid until its expiration time; this is by design because the access token is stateless.
+      operationId: token-invalidate-all
+      responses:
+        '204':
+          description: Invalidated tokens successfully
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Token
+      summary: Token invalidate all
+      x-summary-source: derived
+components:
+  schemas:
+    tokenResponseLegacy:
+      description: The signed JWT token based on the payload
+      type: object
+      properties:
+        token:
+          type: string
+          description: The JWT token
+      required:
+      - token
+      additionalProperties: false
+    signTokenPayload:
+      description: The POST body for the request to generate a signed token
+      type: object
+      properties:
+        payload:
+          type: object
+          description: The payload of the token signing request
+          properties:
+            sub:
+              type: string
+              description: The subject (the username) for the user
+          required:
+          - sub
+          additionalProperties: true
+      required:
+      - payload
+      additionalProperties: false
+    refreshToken:
+      description: The refresh token being presented to get a new refresh token and access token
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          description: The JWE refresh token
+      required:
+      - refreshToken
+      additionalProperties: false
+    tokenResponse:
+      description: A signed JWT token when used in the context of a dummy token. Otherwise, a signed JWT access token and a signed JWE refresh token.
+      type: object
+      properties:
+        token:
+          type: string
+          description: A dummy token
+        refreshToken:
+          type: string
+          description: A refresh token
+        accessToken:
+          type: string
+          description: An access token
+      additionalProperties: false
+  parameters:
+    okapi-url-required:
+      in: header
+      name: X-Okapi-Url
+      description: Okapi URL
+      required: true
+      schema:
+        type: string
+    okapi-tenant-required:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: true
+      schema:
+        type: string
+  responses:
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Invalid JSON in request

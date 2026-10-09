@@ -1,0 +1,386 @@
+# x-archived-from: folio-mod-mosaic-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Mosaic integration API
+  description: Mosaic integration API
+  version: 0.0.1
+servers:
+- url: /mosaic
+paths:
+  /validate:
+    description: Connectivity validation API
+    get:
+      summary: No-op API to validate connectivity
+      description: 'Simple endpoint called by edge-orders to check API key correctness and verify that it can make calls to other endpoints. This endpoint has no business logic, always responds with 200 {"status":"SUCCESS"}, and is used purely for connectivity testing.
+
+        '
+      operationId: getValidation
+      responses:
+        '200':
+          $ref: '#/components/responses/MosaicValidationResponse'
+  /orders:
+    description: Orders API
+    post:
+      summary: Create a new order in FOLIO
+      operationId: createMosaicOrder
+      requestBody:
+        $ref: '#/components/requestBodies/MosaicOrderRequest'
+      responses:
+        '201':
+          description: Order successfully created, returns the POL number
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: 10001-1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /configuration:
+    description: Configuration API
+    get:
+      summary: Get Mosaic configuration
+      operationId: getConfiguration
+      responses:
+        '200':
+          $ref: '#/components/responses/MosaicConfigurationResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      summary: Update Mosaic configuration
+      operationId: updateConfiguration
+      requestBody:
+        $ref: '#/components/requestBodies/MosaicConfigurationBody'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /template:
+    description: Template API
+    post:
+      summary: Generate default configuration template
+      operationId: generateDefaultTemplate
+      responses:
+        '201':
+          description: Default order template generated successfully
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  schemas:
+    MosaicValidation:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - SUCCESS
+          - FAILED
+      required:
+      - status
+    MosaicOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The UUID format string
+        title:
+          type: string
+          description: title of the material
+        assignedTo:
+          type: string
+          description: The UUID format string
+        contributors:
+          type: array
+          items:
+            type: object
+          description: list of contributors to the material
+        publicationDate:
+          type: string
+          description: date (year) of the material's publication
+        edition:
+          type: string
+          description: edition of the material
+        details:
+          type: object
+          description: details about this purchase order line
+        requesterName:
+          type: string
+          description: who requested this purchase order line
+        selectorName:
+          type: string
+          description: who selected this material
+        notes:
+          type: array
+          items:
+            type: string
+          description: free-form notes associated with this mosaic order
+        poLineDescription:
+          type: string
+          description: description for poLine
+        internalNote:
+          type: string
+          description: Internal note for this purchase order line
+        renewalNote:
+          type: string
+          description: Renewal note for this purchase order line
+        referenceNumbers:
+          type: object
+          description: Collection of reference number items
+        listUnitPrice:
+          type: number
+          description: The per-item list price for physical or resources of 'Other' order format
+        listUnitPriceElectronic:
+          type: number
+          description: The e-resource per-item list price
+        currency:
+          type: string
+          description: An ISO currency code
+        quantityPhysical:
+          type: integer
+          description: Quantity of physical items or resources of 'Other' order format
+        quantityElectronic:
+          type: integer
+          description: Quantity of electronic items in this purchase order line
+        additionalCost:
+          type: number
+          description: Lump sum that is added to the total estimated price - not affected by discount
+        discount:
+          type: number
+          description: Percentage (0 to 100) or amount (positive number) that is subtracted from the list price time quantities calculation before additional cost
+        discountType:
+          type: string
+          enum:
+          - amount
+          - percentage
+          default: percentage
+          description: Percentage or amount discount type. Only applied when 'discount' is also provided; otherwise the template value is preserved.
+        locations:
+          type: array
+          items:
+            type: object
+          description: Location records for this purchase order line
+        fundDistribution:
+          type: array
+          items:
+            type: object
+          description: Fund distribution records for this purchase order line
+        acquisitionMethod:
+          type: string
+          description: UUID of the acquisition method for this purchase order line
+        acqUnitIds:
+          type: array
+          items:
+            type: string
+          description: acquisition unit ids associated with this purchase order
+        billTo:
+          type: string
+          description: UUID for the billing address
+        shipTo:
+          type: string
+          description: UUID for the shipping address
+        vendor:
+          type: string
+          description: UUID for the vendor organization
+        workflowStatus:
+          type: string
+          description: the workflow status for this purchase order
+        format:
+          type: string
+          description: Order format (Physical Resource, Electronic Resource, P/E mix, Other)
+        physical:
+          type: object
+          description: details of this purchase order line relating to physical materials
+        eresource:
+          type: object
+          description: eresource-related details of this purchase order line
+        checkinItems:
+          type: boolean
+          description: receiving workflow flag
+        customFields:
+          type: array
+          items:
+            type: object
+          description: Mosaic custom fields for either the PO or POL
+        metadata:
+          type: object
+          description: Metadata about creation and changes to records
+    MosaicOrderRequest:
+      type: object
+      properties:
+        orderTemplateId:
+          type: string
+          description: The UUID format string
+        orderData:
+          $ref: '#/components/schemas/MosaicOrder'
+          description: the mosaic order
+      required:
+      - orderData
+    MosaicConfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The UUID format string
+        defaultTemplateId:
+          type: string
+          description: The UUID format string
+        metadata:
+          type: object
+          description: Metadata about creation and changes to records
+      required:
+      - id
+      - defaultTemplateId
+    OrderTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The UUID format string
+        templateName:
+          type: string
+          description: The order template name
+        templateCode:
+          type: string
+          description: The order template code
+        templateDescription:
+          type: string
+          description: The order template description
+        hiddenFields:
+          type: object
+          description: Fields for hidden from end user
+        categoryIds:
+          type: array
+          items:
+            type: string
+          description: UUIDs of order template categories
+      required:
+      - templateName
+    errors:
+      $ref: '#/components/schemas/Errors'
+    error:
+      $ref: '#/components/schemas/Error'
+    parameters:
+      $ref: '#/components/schemas/Parameters'
+    parameter:
+      $ref: '#/components/schemas/Parameter'
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+  requestBodies:
+    MosaicOrderRequest:
+      description: Mosaic Order object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MosaicOrderRequest'
+    MosaicConfigurationBody:
+      description: Mosaic configuration object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MosaicConfiguration'
+  responses:
+    MosaicValidationResponse:
+      description: Mosaic validation object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MosaicValidation'
+    MosaicConfigurationResponse:
+      description: Mosaic configuration object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MosaicConfiguration'
+    NoContent:
+      description: No content
+    BadRequest:
+      description: Bad request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the parameter or line/character number with malformed data) provided in the response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Conflict:
+      description: Resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error, e.g. due to misconfiguration
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'

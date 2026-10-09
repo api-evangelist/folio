@@ -1,0 +1,303 @@
+# x-archived-from: folio-mod-consortia-keycloak-publications-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Publish coordinator API
+  description: Publish coordinator API
+  version: 0.0.1
+servers:
+- url: /consortia/{consortiumId}/
+paths:
+  /publications:
+    post:
+      summary: Send post requests to the tenants
+      operationId: publishRequests
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      responses:
+        '201':
+          $ref: '#/components/responses/Publication'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      requestBody:
+        $ref: '#/components/requestBodies/Publication'
+  /publications/{publicationId}:
+    get:
+      summary: Get publication details
+      operationId: getPublicationDetails
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/publicationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/PublicationDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete publication by Id
+      operationId: deletePublicationById
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/publicationId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /publications/{publicationId}/results:
+    get:
+      summary: Get publication results
+      operationId: getPublicationResults
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/publicationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/PublicationResultCollection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  requestBodies:
+    Publication:
+      description: Publish coordinator request
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicationRequest'
+  responses:
+    Publication:
+      description: Returns a publish coordinator object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicationResponse'
+    PublicationDetails:
+      description: Returns a publish coordinator request details
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicationDetailsResponse'
+    PublicationResultCollection:
+      description: Returns a publish coordinator results
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicationResultCollection'
+    NoContent:
+      description: No content
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Unauthorized:
+      description: Not authorized to perform requested action
+      content:
+        text/plain:
+          example: unable to perform action -- unauthorized
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+    publicationId:
+      in: path
+      name: publicationId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of the publication
+  schemas:
+    uuid:
+      type: string
+      format: uuid
+    PublicationRequest:
+      type: object
+      title: Publication request
+      properties:
+        url:
+          description: URL for publishing requests for consortia tenants
+          type: string
+        method:
+          description: HTTP method
+          type: string
+        tenants:
+          description: Set of tenants to be requested
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+        payload:
+          description: Http request body
+          type: object
+      additionalProperties: false
+      required:
+      - url
+      - method
+    PublicationStatus:
+      description: publication status
+      enum:
+      - IN_PROGRESS
+      - ERROR
+      - COMPLETE
+    PublicationResponse:
+      type: object
+      title: Publication response
+      properties:
+        id:
+          description: id of publication record
+          $ref: '#/components/schemas/uuid'
+        status:
+          type: string
+          $ref: '#/components/schemas/PublicationStatus'
+      additionalProperties: false
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    PublicationStatusError:
+      description: publication status error
+      properties:
+        tenantId:
+          description: tenant name which failed to execute request
+          type: string
+        errorMessage:
+          description: error message of failed request
+          type: string
+        errorCode:
+          description: error code of failed request
+          type: integer
+    PublicationDetailsResponse:
+      type: object
+      title: Publication details response
+      properties:
+        id:
+          description: id of publication record
+          $ref: '#/components/schemas/uuid'
+        status:
+          type: string
+          $ref: '#/components/schemas/PublicationStatus'
+        dateTime:
+          description: the date of publication was created
+          type: string
+        request:
+          description: tenant request payload
+          type: string
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/PublicationStatusError'
+      additionalProperties: false
+    PublicationResult:
+      description: publication result
+      properties:
+        tenantId:
+          description: tenant name
+          type: string
+        response:
+          description: response message of tenant request
+          type: string
+        statusCode:
+          description: response code of tenant request
+          type: integer
+    PublicationResultCollection:
+      description: A JSON schema for the publication result collection
+      type: object
+      properties:
+        publicationResults:
+          type: array
+          description: The list of publication results
+          items:
+            type: object
+            $ref: '#/components/schemas/PublicationResult'
+        totalRecords:
+          type: integer

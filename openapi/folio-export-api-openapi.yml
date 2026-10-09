@@ -1,0 +1,942 @@
+openapi: 3.2.0
+info:
+  title: Folio Export API
+  version: '1.0'
+  description: 'Operations tagged Export across 4 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-data-export-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+- url: /data-export/
+tags:
+- name: Export
+paths:
+  /export:
+    description: Exports resources entitled (directly or via a package) across every agreement in the tenant. To scope this to a single agreement instead, use `/erm/sas/{agreementId}/resources/export/all/{format}`.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - in: query
+      name: subscriptionAgreementId
+      description: Undocumented in the module descriptor, but honoured by the implementation -- if supplied, scopes the export to this one agreement, equivalent to using the agreement-scoped export path.
+      required: false
+      schema:
+        type: string
+        format: uuid
+    get:
+      tags:
+      - Export
+      summary: Export all entitled resources as JSON
+      operationId: exportAll
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExportEntry'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      security:
+      - accessToken: []
+      - okapiToken: []
+    post:
+      description: Starts the export process
+      operationId: postDataExport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/exportRequest'
+            example:
+              fileDefinitionId: e5f54eb6-6d11-11ea-bc55-0242ac130003
+              jobProfileId: 2fd2bf30-9d03-4f7e-9393-df55eaef2c2f
+              idType: instance
+              recordType: INSTANCE
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '204':
+          description: Data export started
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Export
+      security:
+      - accessToken: []
+      - okapiToken: []
+      summary: Post data export
+      x-summary-source: derived
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /export/{format}:
+    description: Exports resources entitled (directly or via a package) across every agreement in the tenant, in the given format. To scope this to a single agreement instead, use `/erm/sas/{agreementId}/resources/export/all/{format}`.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/format'
+    - in: query
+      name: subscriptionAgreementId
+      description: Undocumented in the module descriptor, but honoured by the implementation -- if supplied, scopes the export to this one agreement, equivalent to using the agreement-scoped export path.
+      required: false
+      schema:
+        type: string
+        format: uuid
+    get:
+      tags:
+      - Export
+      summary: Export all entitled resources in a specified format
+      description: '`format: kbart` returns a tab-separated KBART file (one row per Package Content Item; Platform Title Instances and directly-entitled Title Instances are silently skipped). Any other `format` value returns the same JSON shape as the plain `/export` path.'
+      operationId: exportAllFormat
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExportEntry'
+            text/tab-separated-value;charset=UTF-8:
+              schema:
+                type: string
+                description: KBART-formatted TSV, with a header row followed by one row per Package Content Item.
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      security:
+      - accessToken: []
+      - okapiToken: []
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /export/current:
+    description: Exports resources currently entitled (directly or via a package) across every agreement in the tenant -- i.e. `coverage`/`accessStart`/`accessEnd` windows that are active today. To scope this to a single agreement instead, use `/erm/sas/{agreementId}/resources/export/current/{format}`.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - in: query
+      name: subscriptionAgreementId
+      description: Undocumented in the module descriptor, but honoured by the implementation -- if supplied, scopes the export to this one agreement, equivalent to using the agreement-scoped export path.
+      required: false
+      schema:
+        type: string
+        format: uuid
+    get:
+      tags:
+      - Export
+      summary: Export currently entitled resources as JSON
+      operationId: exportCurrent
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExportEntry'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      security:
+      - accessToken: []
+      - okapiToken: []
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /export/current/{format}:
+    description: Exports resources currently entitled (directly or via a package) across every agreement in the tenant, in the given format. To scope this to a single agreement instead, use `/erm/sas/{agreementId}/resources/export/current/{format}`.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/format'
+    - in: query
+      name: subscriptionAgreementId
+      description: Undocumented in the module descriptor, but honoured by the implementation -- if supplied, scopes the export to this one agreement, equivalent to using the agreement-scoped export path.
+      required: false
+      schema:
+        type: string
+        format: uuid
+    get:
+      tags:
+      - Export
+      summary: Export currently entitled resources in a specified format
+      description: '`format: kbart` returns a tab-separated KBART file (one row per Package Content Item; Platform Title Instances and directly-entitled Title Instances are silently skipped). Any other `format` value returns the same JSON shape as the plain `/export/current` path.'
+      operationId: exportCurrentFormat
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExportEntry'
+            text/tab-separated-value;charset=UTF-8:
+              schema:
+                type: string
+                description: KBART-formatted TSV, with a header row followed by one row per Package Content Item.
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      security:
+      - accessToken: []
+      - okapiToken: []
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  schemas:
+    IdentifierOccurrence:
+      type: object
+      properties:
+        title:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        identifier:
+          $ref: '#/components/schemas/Identifier'
+        status:
+          $ref: '#/components/schemas/Refdata'
+    Embargo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        movingWallStart:
+          $ref: '#/components/schemas/EmbargoStatement'
+        movingWallEnd:
+          $ref: '#/components/schemas/EmbargoStatement'
+    ExportEntry:
+      type: object
+      description: One exported resource, paired with the agreement entitlement (and, if entitled via a package, the package) it was exported for. The same resource can appear more than once if it is entitled through more than one package/agreement, or both directly and via a package.
+      required:
+      - agreementLine
+      - title
+      - coverage
+      - customCoverage
+      properties:
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        package:
+          type: object
+          description: Present only when this resource was reached via a package entitlement.
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            identifiers:
+              type: array
+              items:
+                $ref: '#/components/schemas/IdentifierOccurrence'
+        agreementLine:
+          type: object
+          description: The entitlement (agreement line) this row was exported for. Only a minimal subset of the entitlement is included here -- for the full record, look it up via `id` against `/erm/entitlements/{entitlementId}`.
+          properties:
+            id:
+              type: string
+              format: uuid
+            suppressFromDiscovery:
+              type: boolean
+            tags:
+              type: array
+              items:
+                $ref: '#/components/schemas/Tag'
+        platform:
+          allOf:
+          - $ref: '#/components/schemas/Platform'
+          description: Present when the resource is a Platform Title Instance or Package Content Item.
+        suppressFromDiscovery:
+          type: boolean
+          description: Present when the resource is a Platform Title Instance or Package Content Item.
+        embargo:
+          allOf:
+          - $ref: '#/components/schemas/Embargo'
+          description: Present only for Package Content Item resources with an embargo.
+        note:
+          type: string
+          description: Present only for Package Content Item resources with a note.
+        url:
+          type: string
+          description: Present when the resource is a Platform Title Instance or Package Content Item and has a URL.
+        templatedUrls:
+          type: array
+          description: URLs generated from String Templates (see `/erm/sts`) applicable to this resource's platform. Present when the resource is a Platform Title Instance or Package Content Item.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              name:
+                type: string
+              url:
+                type: string
+        depth:
+          type: string
+          description: Present only for Package Content Item resources.
+        coverage:
+          type: array
+          description: Coverage statements for this resource, or a custom coverage override if one applies (see `customCoverage`). Empty if there is no coverage.
+          items:
+            $ref: '#/components/schemas/CoverageStatement'
+        customCoverage:
+          type: boolean
+          description: True if `coverage` is a custom override rather than the resource's own coverage statements.
+        relatedTitles:
+          type: array
+          description: Related title instances, present only if the title has any.
+          items:
+            allOf:
+            - $ref: '#/components/schemas/TitleInstance'
+            description: A minimal title representation -- only id, name, type, publicationType, subType, identifiers and longName are populated.
+        title:
+          allOf:
+          - $ref: '#/components/schemas/TitleInstance'
+          description: The title instance for this resource. The `entitlements`, `coverage`, `work` and `platformInstances` relations are always omitted here, even where the full TitleInstance representation would include them.
+    PackageDescriptionUrl:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+    TitleInstanceRef:
+      description: A lightweight representation of a title instance, used where a title references another title (e.g. `TitleInstance.relatedTitles`). Unlike the full `TitleInstance` representation, fields such as `class`, `dateCreated` and `coverage` are not populated on this partial view, and it does not nest further `relatedTitles`.
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    Package:
+      type: object
+      required:
+      - name
+      - source
+      - reference
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.Pkg
+          source:
+            type: string
+          sourceDataCreated:
+            type: string
+            format: date-time
+          sourceDataUpdated:
+            type: string
+            format: date-time
+          sourceTitleCount:
+            type: integer
+          syncContentsFromSource:
+            type: boolean
+          reference:
+            type: string
+          nominalPlatform:
+            $ref: '#/components/schemas/Platform'
+          vendor:
+            $ref: '#/components/schemas/Organisation'
+          lifecycleStatus:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          availabilityScope:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          packageDescriptionUrls:
+            type: array
+            items:
+              $ref: '#/components/schemas/PackageDescriptionUrl'
+          contentTypes:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContentType'
+          availabilityConstraints:
+            type: array
+            items:
+              $ref: '#/components/schemas/AvailabilityConstraint'
+          resourceCount:
+            type: integer
+    AlternateResourceName:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    ErmResource:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        class:
+          type: string
+          enum:
+          - org.olf.kb.TitleInstance
+          - org.olf.kb.PlatformTitleInstance
+          - org.olf.kb.PackageContentItem
+          - org.olf.kb.Pkg
+        coverage:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoverageStatement'
+        customCoverage:
+          type: boolean
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        name:
+          type: string
+        normalizedName:
+          type: string
+          readOnly: true
+        description:
+          type: string
+        publicationType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        suppressFromDiscovery:
+          type: boolean
+        subType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        type:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        alternateResourceNames:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternateResourceName'
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifierOccurrence'
+        _object:
+          description: The full, type-specific representation of this resource (fields vary depending on `class`)
+          oneOf:
+          - $ref: '#/components/schemas/TitleInstance'
+          - $ref: '#/components/schemas/PlatformTitleInstance'
+          - $ref: '#/components/schemas/PackageContentItem'
+          - $ref: '#/components/schemas/Package'
+          discriminator:
+            propertyName: class
+            mapping:
+              org.olf.kb.TitleInstance: '#/components/schemas/TitleInstance'
+              org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
+              org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
+              org.olf.kb.Pkg: '#/components/schemas/Package'
+    TitleInstance:
+      type: object
+      required:
+      - name
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.TitleInstance
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          identifiers:
+            type: array
+            items:
+              $ref: '#/components/schemas/IdentifierOccurrence'
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+          relatedTitles:
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/TitleInstanceRef'
+    CoverageStatement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        summary:
+          type: string
+        startVolume:
+          type: string
+        startIssue:
+          type: string
+        endVolume:
+          type: string
+        endIssue:
+          type: string
+    PackageContentItem:
+      type: object
+      required:
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PackageContentItem
+          accessStart:
+            type: string
+            format: date
+          accessEnd:
+            type: string
+            format: date
+          addedTimestamp:
+            type: integer
+          depth:
+            type: string
+          lastSeenTimestamp:
+            type: integer
+          longName:
+            type: string
+          note:
+            type: string
+          removedTimestamp:
+            type: integer
+          embargo:
+            $ref: '#/components/schemas/Embargo'
+          pkg:
+            $ref: '#/components/schemas/Package'
+          pti:
+            $ref: '#/components/schemas/PlatformTitleInstance'
+    PlatformTitleInstance:
+      type: object
+      required:
+      - platform
+      - titleInstance
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PlatformTitleInstance
+          longName:
+            type: string
+          platform:
+            $ref: '#/components/schemas/Platform'
+          titleInstance:
+            $ref: '#/components/schemas/TitleInstance'
+          url:
+            type: string
+            format: uri
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    EmbargoStatement:
+      type: object
+      properties:
+        unit:
+          type: string
+          enum:
+          - days
+          - months
+          - years
+        length:
+          type: integer
+    AvailabilityConstraint:
+      type: object
+      required:
+      - id
+      - body
+      properties:
+        id:
+          type: string
+          format: uuid
+        body:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    ContentType:
+      type: object
+      required:
+      - id
+      - contentType
+      properties:
+        id:
+          type: string
+          format: uuid
+        contentType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    Platform:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        locators:
+          type: array
+          items:
+            type: object
+            properties:
+              domainName:
+                type: string
+              id:
+                type: string
+                format: uuid
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        normValue:
+          type: string
+        value:
+          type: string
+    Identifier:
+      type: object
+      properties:
+        ns:
+          type: object
+          properties:
+            value:
+              type: string
+        value:
+          type: string
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
+    exportRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data to start export process
+      type: object
+      additionalProperties: false
+      properties:
+        fileDefinitionId:
+          description: File definition id
+          type: string
+          format: uuid
+        jobProfileId:
+          description: Related Job profile id
+          type: string
+          format: uuid
+        recordType:
+          description: Defines a type of records to search by criteria or UUIDs
+          type: string
+          enum:
+          - INSTANCE
+          - HOLDINGS
+          - ITEM
+          - AUTHORITY
+          - LINKED_DATA
+        idType:
+          description: Type of provided uuids
+          type: string
+          enum:
+          - instance
+          - holding
+          - authority
+          default: instance
+        all:
+          description: True if all IDs of idType need to be exported, otherwise false
+          type: boolean
+          default: false
+        quick:
+          description: True if quick export, otherwise false
+          type: boolean
+          default: false
+        deletedRecords:
+          description: True if need to include deleted records, otherwise false
+          type: boolean
+          default: true
+        suppressedFromDiscovery:
+          description: True if need to include suppressed from discovery records, otherwise false
+          type: boolean
+          default: false
+        lastSlice:
+          description: True if within the current export the current slice from ID to ID is the last one
+          type: boolean
+          default: false
+        lastExport:
+          description: True the current export is the last one
+          type: boolean
+          default: false
+        metadata:
+          description: 'Meta information '
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - fileDefinitionId
+      - jobProfileId
+      - idType
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  parameters:
+    format:
+      in: path
+      name: format
+      required: true
+      schema:
+        type: string
+        enum:
+        - json
+        - kbart
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-data-export-openapi.json
+- folio-mod-agreements-openapi.yml
+- folio-mod-data-export-openapi.yml

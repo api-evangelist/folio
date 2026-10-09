@@ -1,0 +1,659 @@
+openapi: 3.2.0
+info:
+  title: Folio Get Circulation Requests API
+  version: v1
+  description: 'Operations tagged getCirculationRequests across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: getCirculationRequests
+paths:
+  /circulation-bff/requests:
+    get:
+      operationId: getRequests
+      description: Get ECS TLR or Circulation requests
+      parameters:
+      - name: query
+        in: query
+        required: false
+        description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+        example: (username=="ab*" or personal.firstName=="ab*" or personal.lastName=="ab*") and active=="true" sortby personal.lastName personal.firstName barcode
+        schema:
+          type: string
+          default: cql.allRecords=1
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/totalRecords'
+      tags:
+      - getCirculationRequests
+      responses:
+        '200':
+          description: List of ECS TLR or Circulation requests with extended information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requests'
+              examples:
+                objectExample:
+                  value:
+                    requests:
+                    - id: 89105c06-dbdb-4aa0-9695-d4d19c733270
+                      requestType: Recall
+                      requestLevel: Item
+                      requestDate: '2017-07-29T22:25:37Z'
+                      requesterId: 21932a85-bd00-446b-9565-46e0c1a5490b
+                      itemId: 195efae1-588f-47bd-a181-13a2eb437701
+                      instanceId: 195efae1-588f-47bd-a181-13a2eb434521
+                      holdingsRecordId: 195efae1-588f-47bd-a181-13a2eb434521
+                      fulfillmentPreference: Hold Shelf
+                      batchRequestInfo:
+                        batchRequestId: 195efae1-588f-47bd-a181-13a2eb434522
+                        batchRequestSubmittedAt: '2017-07-30T10:15:00Z'
+                      position: 1
+                    - id: f5cec279-0da6-4b44-a3df-f49b0903f325
+                      requestType: Hold
+                      requestLevel: Item
+                      requestDate: '2017-08-05T11:43:23Z'
+                      requesterId: 61d939e4-f2ae-4c53-95d2-224a802fa2a6
+                      itemId: 3e5d5433-a271-499c-94f4-5f3e4652e537
+                      instanceId: 1e7d3354-a271-499c-94f4-5f3e4652a345
+                      holdingsRecordId: 296efae1-588f-47bd-a181-13a2eb434521
+                      fulfillmentPreference: Delivery
+                      requestExpirationDate: '2017-08-31T22:25:37Z'
+                      holdShelfExpirationDate: '2017-09-01T22:25:37Z'
+                      position: 1
+                      instance:
+                        title: Children of Time
+                      item:
+                        barcode: '760932543816'
+                      requester:
+                        firstName: Stephen
+                        lastName: Jones
+                        middleName: Anthony
+                        barcode: '567023127436'
+                      tags:
+                        tagList:
+                        - new
+                        - important
+                    totalRecords: 2
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get requests
+      x-summary-source: derived
+components:
+  parameters:
+    offset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        description: Skip over a number of elements by specifying an offset value for the query
+        default: 0
+        example: 0
+        minimum: 0
+        maximum: 2147483647
+    totalRecords:
+      name: totalRecords
+      in: query
+      required: false
+      schema:
+        type: string
+        description: "How to calculate the totalRecords property.\n  - \"exact\" for the correct number\n  - \"estimated\" for an estimation\n  - \"auto\" to automatically select \"exact\" or \"estimated\"\n  - \"none\" for suppressing the totalRecords property.\nFor details see https://github.com/folio-org/raml-module-builder#estimated-totalrecords\n"
+        default: auto
+        pattern: exact|estimated|none|auto
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        description: "Limit the number of elements returned in the response.\nUsing limit=0 will return totalRecords with the exact value.\nFor details about totalRecords see:\n  - https://github.com/folio-org/raml-module-builder#estimated-totalrecords\n"
+        default: 10
+        example: 10
+        minimum: 0
+        maximum: 2147483647
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
+    request:
+      description: Request for an item that might be at a different location or already checked out to another patron
+      type: object
+      properties:
+        id:
+          description: UUID of the request
+          type: string
+          $ref: '#/components/schemas/uuid'
+        requestType:
+          description: Whether the item should be held upon return, recalled or paged for
+          type: string
+          enum:
+          - Hold
+          - Recall
+          - Page
+        requestLevel:
+          description: Level of the request - Item or Title
+          type: string
+          enum:
+          - Item
+          - Title
+        ecsRequestPhase:
+          description: Stage in ECS request process, absence of this field means this is a single-tenant request
+          type: string
+          enum:
+          - Primary
+          - Secondary
+        requestDate:
+          description: Date the request was made
+          type: string
+          format: date-time
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        requesterId:
+          description: ID of the user who made the request
+          type: string
+          $ref: '#/components/schemas/uuid'
+        proxyUserId:
+          description: ID of the user representing a proxy for the patron
+          type: string
+          $ref: '#/components/schemas/uuid'
+        instanceId:
+          description: ID of the instance being requested
+          type: string
+          $ref: '#/components/schemas/uuid'
+        holdingsRecordId:
+          description: ID of the holdings record being requested
+          type: string
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: ID of the item being requested
+          type: string
+          $ref: '#/components/schemas/uuid'
+        status:
+          description: Status of the request
+          type: string
+          enum:
+          - Open - Not yet filled
+          - Open - Awaiting pickup
+          - Open - In transit
+          - Open - Awaiting delivery
+          - Closed - Filled
+          - Closed - Cancelled
+          - Closed - Unfilled
+          - Closed - Pickup expired
+        cancellationReasonId:
+          description: The id of the request reason
+          type: string
+          $ref: '#/components/schemas/uuid'
+        cancelledByUserId:
+          description: The id of the user that cancelled the request
+          type: string
+          $ref: '#/components/schemas/uuid'
+        cancellationAdditionalInformation:
+          description: Additional information about a cancellation
+          type: string
+        cancelledDate:
+          description: Date the request was cancelled
+          type: string
+          format: date-time
+        position:
+          description: position of the request in a per-item request queue
+          type: integer
+          minimum: 1
+        instance:
+          description: Copy of some instance metadata (used for searching and sorting)
+          type: object
+          properties:
+            title:
+              description: title of the item
+              type: string
+            identifiers:
+              type: array
+              description: An extensible set of name-value pairs of identifiers associated with the resource
+              minItems: 0
+              items:
+                type: object
+                properties:
+                  value:
+                    type: string
+                    description: Resource identifier value
+                  identifierTypeId:
+                    type: string
+                    description: UUID of resource identifier type (e.g. ISBN, ISSN, LCCN, CODEN, Locally defined identifiers)
+                    $ref: '#/components/schemas/uuid'
+                required:
+                - value
+                - identifierTypeId
+          additionalProperties: true
+        item:
+          description: Copy of some item metadata (used for searching and sorting)
+          type: object
+          properties:
+            barcode:
+              description: barcode of the item
+              type: string
+          additionalProperties: true
+        requester:
+          description: Copy of some requesting patron metadata (used for searching and sorting), will be taken from the user referred to by the requesterId
+          readonly: true
+          type: object
+          properties:
+            firstName:
+              description: first name of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            lastName:
+              description: last name of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            middleName:
+              description: middle name of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            barcode:
+              description: barcode of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            patronGroupId:
+              description: UUID for the patron group that this user belongs to
+              type: string
+              readonly: true
+              $ref: '#/components/schemas/uuid'
+            patronGroup:
+              type: object
+              description: record for the user's patrongroup
+              $ref: '#/components/schemas/patronGroup'
+          additionalProperties: true
+        proxy:
+          description: Copy of some proxy patron metadata (used for searching and sorting), will be taken from the user referred to by the proxyUserId
+          readonly: true
+          type: object
+          properties:
+            firstName:
+              description: first name of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            lastName:
+              description: last name of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            middleName:
+              description: middle name of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            barcode:
+              description: barcode of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            patronGroupId:
+              description: UUID for the patrongroup that this user belongs to
+              type: string
+              readonly: true
+              $ref: '#/components/schemas/uuid'
+            patronGroup:
+              description: record for the user's patrongroup
+              type: object
+              readonly: true
+              properties:
+                id:
+                  description: ID of the patrongroup
+                  type: string
+                  readonly: true
+                  $ref: '#/components/schemas/uuid'
+                group:
+                  description: The unique name of the patrongroup
+                  type: string
+                  readonly: true
+                desc:
+                  description: A description of the patrongroup
+                  type: string
+                  readonly: true
+        fulfillmentPreference:
+          description: How should the request be fulfilled (whether the item should be kept on the hold shelf for collection or delivered to the requester)
+          type: string
+          enum:
+          - Hold Shelf
+          - Delivery
+        deliveryAddressTypeId:
+          description: Deliver to the address of this type, for the requesting patron
+          type: string
+          $ref: '#/components/schemas/uuid'
+        deliveryAddress:
+          description: Address the item is to be delivered to (derived from requester information)
+          type: object
+          readonly: true
+          properties:
+            addressLine1:
+              description: Address line 1
+              type: string
+              readonly: true
+            addressLine2:
+              description: Address line 2
+              type: string
+              readonly: true
+            city:
+              description: City name
+              type: string
+              readonly: true
+            region:
+              description: Region
+              type: string
+              readonly: true
+            postalCode:
+              description: Postal code
+              type: string
+              readonly: true
+            countryId:
+              description: Country code
+              type: string
+              readonly: true
+            addressTypeId:
+              description: Type of address (refers to address types)
+              type: string
+              readonly: true
+              $ref: '#/components/schemas/uuid'
+        requestExpirationDate:
+          description: Date when the request expires
+          type: string
+          format: date-time
+        holdShelfExpirationDate:
+          description: Date when an item returned to the hold shelf expires
+          type: string
+          format: date-time
+        pickupServicePointId:
+          description: The ID of the Service Point where this request can be picked up
+          type: string
+          $ref: '#/components/schemas/uuid'
+        pickupServicePoint:
+          description: The full object of the Service Point record from pickupServicePointId
+          readonly: true
+          properties:
+            name:
+              description: Unique name for the service point
+              type: string
+              readonly: true
+            code:
+              description: Unique code for the service point
+              type: string
+              readonly: true
+            discoveryDisplayName:
+              description: Human-readable name for the service point
+              type: string
+              readonly: true
+            description:
+              description: Description of the service point
+              type: string
+              readonly: true
+            shelvingLagTime:
+              description: Shelving lag time
+              type: integer
+              readonly: true
+            pickupLocation:
+              description: Is this service point a pickup location?
+              type: boolean
+              readonly: true
+        tags:
+          type: object
+          description: Tags
+          $ref: '#/components/schemas/uuid'
+        metadata:
+          description: Metadata about creation and changes to requests, provided by the server (client should not provide)
+          type: object
+          $ref: '#/components/schemas/metadata'
+        requestProcessingParameters:
+          type: object
+          description: Additional parameters used for request processing and discarded afterwards. Not part of request record.
+          properties:
+            overrideBlocks:
+              type: object
+              description: Blocks to override if user has corresponding permissions
+              $ref: '#/components/schemas/overrideBlocks'
+        searchIndex:
+          description: Request fields used for search
+          type: object
+          $ref: '#/components/schemas/requestSearchIndex'
+        batchRequestInfo:
+          description: Information about the batch request this request is part of
+          type: object
+          properties:
+            batchRequestId:
+              description: ID of the batch request
+              type: string
+              $ref: '#/components/schemas/uuid'
+            batchRequestSubmittedAt:
+              description: Date and time when the batch request was submitted
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - batchRequestId
+          - batchRequestSubmittedAt
+      required:
+      - requesterId
+      - requestType
+      - requestDate
+      - fulfillmentPreference
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    requestSearchIndex:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Request fields used for search
+      type: object
+      properties:
+        callNumberComponents:
+          type: object
+          description: Effective call number components
+          properties:
+            callNumber:
+              type: string
+              description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
+            prefix:
+              type: string
+              description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
+            suffix:
+              type: string
+              description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
+          additionalProperties: false
+        shelvingOrder:
+          type: string
+          description: A system generated normalization of the call number that allows for call number sorting in reports and search results
+        pickupServicePointName:
+          description: The name of the request pickup service point
+          type: string
+      additionalProperties: false
+    patronGroup:
+      description: patron group
+      type: object
+      properties:
+        id:
+          description: ID of the patron group
+          type: string
+          $ref: '#/components/schemas/uuid'
+        group:
+          description: The unique name of the patron group
+          type: string
+        desc:
+          description: A description of the patron group
+          type: string
+    overrideBlocks:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Blocks to override (e.g. during checkout or renewal)
+      properties:
+        itemNotLoanableBlock:
+          description: '''Item not loanable'' block'
+          type: object
+          properties:
+            dueDate:
+              description: Due date for a new loan
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - dueDate
+        patronBlock:
+          description: Automated patron block
+          type: object
+          additionalProperties: false
+        itemLimitBlock:
+          description: Item limit block
+          type: object
+          additionalProperties: false
+        renewalBlock:
+          description: Renewal block
+          type: object
+          additionalProperties: false
+        renewalDueDateRequiredBlock:
+          description: Override renewal block which requires due date field
+          type: object
+          properties:
+            dueDate:
+              description: Due date for a new loan
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - dueDate
+        comment:
+          description: Reason for override
+          type: string
+      additionalProperties: false
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    requests:
+      description: Collection of Item Requests
+      type: object
+      properties:
+        requests:
+          description: Paged collection of item requests
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/request'
+        totalRecords:
+          description: Total number of item requests
+          type: integer
+      required:
+      - requests
+      - totalRecords
+    metadata:
+      type: object
+      description: Record metadata
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+  examples:
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
+    unprocessableEntityResponse:
+      description: Validation error for the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            response:
+              $ref: '#/components/examples/validationErrorResponse'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            validationErrorResponse:
+              $ref: '#/components/examples/validationErrorResponse'
+x-refined-from:
+- folio-mod-circulation-bff-circulationbff-openapi.json
+- folio-mod-circulation-bff-circulationbff-openapi.yml

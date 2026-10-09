@@ -1,0 +1,549 @@
+openapi: 3.2.0
+info:
+  title: Folio Mediated Requests Actions API
+  version: v1
+  description: 'Operations tagged mediatedRequestsActions across 2 of this provider''s published API definitions: folio-mod-requests-mediated-openapi.json, folio-mod-requests-mediated-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: mediatedRequestsActions
+paths:
+  /requests-mediated/mediated-requests/{mediatedRequestId}/confirm:
+    post:
+      operationId: confirmMediatedRequest
+      tags:
+      - mediatedRequestsActions
+      parameters:
+      - $ref: '#/components/parameters/mediatedRequestId'
+      responses:
+        '204':
+          description: Mediated request successfully confirmed
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '422':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Confirm mediated request
+      x-summary-source: derived
+  /requests-mediated/mediated-requests/{mediatedRequestId}/decline:
+    post:
+      operationId: declineMediatedRequest
+      tags:
+      - mediatedRequestsActions
+      parameters:
+      - $ref: '#/components/parameters/mediatedRequestId'
+      responses:
+        '204':
+          description: Mediated request successfully declined
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Decline mediated request
+      x-summary-source: derived
+  /requests-mediated/confirm-item-arrival:
+    post:
+      operationId: confirmItemArrival
+      tags:
+      - mediatedRequestsActions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmItemArrivalRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful item arrival confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/confirmItemArrivalResponse'
+              example:
+                arrivalDate: '2024-08-22T13:03:12.440Z'
+                instance:
+                  id: 5bf370e0-8cca-4d9c-82e4-5170ab2a0a39
+                  title: A semantic web primer
+                item:
+                  id: 100d10bf-2f06-4aa0-be15-0b95b2d9f9e3
+                  barcode: '90000'
+                  enumeration: v.71:no.6-2
+                  volume: volume
+                  chronology: '2021'
+                  displaySummary: Tutorial Volume 2
+                  copyNumber: '186323'
+                  callNumberComponents:
+                    callNumber: BF2050 .M335 2001
+                    prefix: prefix
+                    suffix: suffix
+                mediatedRequest:
+                  id: 91c310f4-ad32-4c0d-8ab9-53bf09634a34
+                  status: Open - Item arrived
+                requester:
+                  id: 9812e24b-0a66-457a-832c-c5e789797e35
+                  barcode: '456'
+                  firstName: John
+                  lastName: Smith
+                  middleName: Doe
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Confirm item arrival
+      x-summary-source: derived
+  /requests-mediated/send-item-in-transit:
+    post:
+      operationId: sendItemInTransit
+      tags:
+      - mediatedRequestsActions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendItemInTransitRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful send item in transit confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sendItemInTransitResponse'
+              example:
+                inTransitDate: '2024-08-22T13:03:12.440Z'
+                instance:
+                  id: 5bf370e0-8cca-4d9c-82e4-5170ab2a0a39
+                  title: A semantic web primer
+                item:
+                  id: 100d10bf-2f06-4aa0-be15-0b95b2d9f9e3
+                  barcode: '90000'
+                  enumeration: v.71:no.6-2
+                  volume: volume
+                  chronology: '2021'
+                  displaySummary: Tutorial Volume 2
+                  copyNumber: '186323'
+                  callNumberComponents:
+                    callNumber: BF2050 .M335 2001
+                    prefix: prefix
+                    suffix: suffix
+                mediatedRequest:
+                  id: 91c310f4-ad32-4c0d-8ab9-53bf09634a34
+                  status: Open - In transit to be checked out
+                requester:
+                  id: 9812e24b-0a66-457a-832c-c5e789797e35
+                  barcode: '456'
+                  firstName: John
+                  lastName: Smith
+                  middleName: Doe
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Send item in transit
+      x-summary-source: derived
+components:
+  schemas:
+    sendItemInTransitResponse:
+      description: Send item in transit response
+      type: object
+      properties:
+        inTransitDate:
+          description: Date and time of item sent in transit
+          type: string
+          format: date-time
+        instance:
+          description: Instance data
+          type: object
+          properties:
+            id:
+              description: ID of the requested instance
+              type: string
+              format: uuid
+            title:
+              description: Title of the requested instance
+              type: string
+        item:
+          description: Item data
+          type: object
+          properties:
+            id:
+              description: ID of the requested item
+              type: string
+              format: uuid
+            barcode:
+              description: Barcode of the requested item
+              type: string
+            enumeration:
+              description: Enumeration of the item
+              type: string
+            volume:
+              description: Volume of the item
+              type: string
+            chronology:
+              description: Chronology of the item
+              type: string
+            displaySummary:
+              description: Display summary of the item
+              type: string
+            copyNumber:
+              description: Copy number of the item
+              type: string
+            callNumberComponents:
+              description: Components of the item's call number
+              type: object
+              properties:
+                callNumber:
+                  description: Call number of the item
+                  type: string
+                prefix:
+                  description: Prefix of the item's call number
+                  type: string
+                suffix:
+                  description: Suffix of the item's call number
+                  type: string
+              additionalProperties: false
+        staffSlipContext:
+          description: Staff slips data
+          type: object
+          properties:
+            item:
+              description: Staff slips item data
+              type: object
+              properties:
+                title:
+                  description: Title of the instance record
+                  type: string
+                primaryContributor:
+                  description: Primary contributor name from the instance record
+                  type: string
+                allContributors:
+                  description: List of contributor names from the instance record concatenated with semicolon
+                  type: string
+                barcode:
+                  description: Barcode of the item
+                  type: string
+                status:
+                  description: Status of the item
+                  type: string
+                enumeration:
+                  description: Enumeration of the item
+                  type: string
+                volume:
+                  description: Volume of the item
+                  type: string
+                chronology:
+                  description: Chronology of the item
+                  type: string
+                yearCaption:
+                  description: Year caption of the item
+                  type: string
+                materialType:
+                  description: Material type of the item
+                  type: string
+                loanType:
+                  description: Loan type of the item
+                  type: string
+                copy:
+                  description: Copy number of the item
+                  type: string
+                numberOfPieces:
+                  description: Number of item pieces
+                  type: string
+                displaySummary:
+                  description: Display summary of the item
+                  type: string
+                descriptionOfPieces:
+                  description: Description of item pieces
+                  type: string
+                effectiveLocationSpecific:
+                  description: Name of the effective location
+                  type: string
+                effectiveLocationLibrary:
+                  description: Library name of the effective location
+                  type: string
+                effectiveLocationCampus:
+                  description: Campus name of the effective location
+                  type: string
+                effectiveLocationInstitution:
+                  description: Institution name of the effective location
+                  type: string
+                effectiveLocationDiscoveryDisplayName:
+                  description: Discovery display name of the effective location
+                  type: string
+                effectiveLocationPrimaryServicePointName:
+                  description: Primary service point name of the effective location
+                  type: string
+                callNumber:
+                  description: Call number of the item
+                  type: string
+                callNumberPrefix:
+                  description: Prefix of the item's call number
+                  type: string
+                callNumberSuffix:
+                  description: Suffix of the item's call number
+                  type: string
+                lastCheckedInDateTime:
+                  description: Last checked in date of the item
+                  type: string
+                  format: date-time
+                toServicePoint:
+                  description: Destination service point of the item
+                  type: string
+                fromServicePoint:
+                  description: Last checked in service point of the item
+                  type: string
+        mediatedRequest:
+          description: Information about affected mediated request
+          type: object
+          properties:
+            id:
+              description: ID of the affected mediated request
+              type: string
+              format: uuid
+            status:
+              description: Status of the affected mediated request
+              type: string
+        requester:
+          description: Requester data
+          type: object
+          properties:
+            id:
+              description: ID of the requester
+              type: string
+              format: uuid
+            barcode:
+              description: Barcode of the requester
+              type: string
+            firstName:
+              description: First name of the requester
+              type: string
+            lastName:
+              description: Last name of the requester
+              type: string
+            middleName:
+              description: Middle name of the requester
+              type: string
+            addressLine1:
+              description: Address, Line 1
+              type: string
+            addressLine2:
+              description: Address, Line 2
+              type: string
+            city:
+              description: City name
+              type: string
+            countryId:
+              description: Country ID
+              type: string
+            region:
+              description: Region
+              type: string
+            postalCode:
+              description: Postal Code
+              type: string
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    ConfirmItemArrivalRequest:
+      description: Confirm item arrival request
+      type: object
+      properties:
+        itemBarcode:
+          description: Barcode of the confirmed item
+          type: string
+      required:
+      - itemBarcode
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    SendItemInTransitRequest:
+      description: Send item in transit request
+      type: object
+      properties:
+        itemBarcode:
+          description: Barcode of the sent item in transit
+          type: string
+      required:
+      - itemBarcode
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+    confirmItemArrivalResponse:
+      description: Confirm item arrival response
+      type: object
+      properties:
+        arrivalDate:
+          description: Date and time of item arrival
+          type: string
+          format: date-time
+        instance:
+          description: Instance data
+          type: object
+          properties:
+            id:
+              description: ID of the requested instance
+              type: string
+              format: uuid
+            title:
+              description: Title of the requested instance
+              type: string
+        item:
+          description: Item data
+          type: object
+          properties:
+            id:
+              description: ID of the requested item
+              type: string
+              format: uuid
+            barcode:
+              description: Barcode of the requested item
+              type: string
+            enumeration:
+              description: Enumeration of the item
+              type: string
+            volume:
+              description: Volume of the item
+              type: string
+            chronology:
+              description: Chronology of the item
+              type: string
+            displaySummary:
+              description: Display summary of the item
+              type: string
+            copyNumber:
+              description: Copy number of the item
+              type: string
+            callNumberComponents:
+              description: Components of the item's call number
+              type: object
+              properties:
+                callNumber:
+                  description: Call number of the item
+                  type: string
+                prefix:
+                  description: Prefix of the item's call number
+                  type: string
+                suffix:
+                  description: Suffix of the item's call number
+                  type: string
+              additionalProperties: false
+        mediatedRequest:
+          description: Information about affected mediated request
+          type: object
+          properties:
+            id:
+              description: ID of the affected mediated request
+              type: string
+              format: uuid
+            status:
+              description: Status of the affected mediated request
+              type: string
+        requester:
+          description: Requester data
+          type: object
+          properties:
+            id:
+              description: ID of the requester
+              type: string
+              format: uuid
+            barcode:
+              description: Barcode of the requester
+              type: string
+            firstName:
+              description: First name of the requester
+              type: string
+            lastName:
+              description: Last name of the requester
+              type: string
+            middleName:
+              description: Middle name of the requester
+              type: string
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Unexpected error
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse:
+      description: Invalid request response
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request is invalid
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+  parameters:
+    mediatedRequestId:
+      name: mediatedRequestId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+x-refined-from:
+- folio-mod-requests-mediated-openapi.json
+- folio-mod-requests-mediated-openapi.yml

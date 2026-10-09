@@ -1,0 +1,189 @@
+openapi: 3.2.0
+info:
+  title: Folio Refresh Shadow Locations API
+  version: 1.0.0
+  description: 'Operations tagged RefreshShadowLocations across 3 of this provider''s published API definitions: folio-mod-dcb-dcb-transaction-openapi.json, folio-edge-dcb-openapi.yml, folio-mod-dcb-dcb-transaction-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /dcbService/
+tags:
+- name: RefreshShadowLocations
+paths:
+  /dcb/shadow-locations/refresh:
+    description: dcb hub shadow location refresh endpoint
+    post:
+      requestBody:
+        $ref: '#/components/requestBodies/ShadowLocationRefreshBody'
+      tags:
+      - RefreshShadowLocations
+      operationId: refreshShadowLocation
+      responses:
+        '201':
+          $ref: '#/components/responses/RefreshShadowLocationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Refresh shadow location
+      x-summary-source: derived
+components:
+  schemas:
+    RefreshLocationUnitsStatus:
+      type: object
+      properties:
+        institutions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefreshLocationStatus'
+        campuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefreshLocationStatus'
+        libraries:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefreshLocationStatus'
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    DcbAgency:
+      type: object
+      description: DCB Agency object
+      properties:
+        name:
+          type: string
+          description: Name of the agency
+        code:
+          type: string
+          description: Code of the agency
+      required:
+      - name
+      - code
+    RefreshLocationStatus:
+      type: object
+      description: LocationEntity
+      properties:
+        code:
+          type: string
+        status:
+          $ref: '#/components/schemas/RefreshLocationStatusType'
+        cause:
+          type: string
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    RefreshShadowLocationResponse:
+      type: object
+      description: Response for shadow location refresh
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefreshLocationStatus'
+        location-units:
+          type: object
+          $ref: '#/components/schemas/RefreshLocationUnitsStatus'
+    DcbLocation:
+      type: object
+      description: DCB Location object
+      properties:
+        name:
+          type: string
+          description: Name of the location
+        code:
+          type: string
+          description: Code of the location
+        agency:
+          $ref: '#/components/schemas/DcbAgency'
+      required:
+      - name
+      - code
+      - agency
+    ShadowLocationRefreshBody:
+      type: object
+      properties:
+        agencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/DcbAgency'
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/DcbLocation'
+    RefreshLocationStatusType:
+      type: string
+      description: Status of refresh shadow location
+      enum:
+      - SUCCESS
+      - ERROR
+      - SKIPPED
+  requestBodies:
+    ShadowLocationRefreshBody:
+      description: DCB hub shadow location refresh request body
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ShadowLocationRefreshBody'
+  responses:
+    RefreshShadowLocationResponse:
+      description: DCB hub shadow location refresh response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RefreshShadowLocationResponse'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+x-refined-from:
+- folio-mod-dcb-dcb-transaction-openapi.json
+- folio-edge-dcb-openapi.yml
+- folio-mod-dcb-dcb-transaction-openapi.yml

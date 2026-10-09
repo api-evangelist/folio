@@ -1,0 +1,59 @@
+generated: '2026-10-09'
+method: searched
+source:
+- https://dev.folio.org/faqs/how-to-use-apis/
+- https://dev.folio.org/faqs/explain-cql/
+- https://dev.folio.org/guidelines/naming-conventions/
+- openapi/
+auth:
+  style: Token header through the Okapi gateway
+  headers: [X-Okapi-Token, X-Okapi-Tenant]
+  cookie: folioAccessToken (declared in mod-agreements, mod-licenses, mod-oa and mod-serials-management specs)
+  see: authentication/folio-authentication.yml
+multi_tenancy:
+  header: X-Okapi-Tenant
+  note: Requests are scoped to a tenant via the X-Okapi-Tenant header (declared across the specs).
+pagination:
+  style: offset
+  params: [offset, limit]
+  query_language: CQL (Contextual Query Language) via the `query` parameter
+  response_fields: [totalRecords]
+  evidence: offset/limit query parameters are declared on 44/49 operations across openapi/; CQL is explained at https://dev.folio.org/faqs/explain-cql/
+  note: Some Spring-based modules also use sortBy/sortOrder and size parameters.
+request_id_tracing:
+  headers: [X-Okapi-Trace]
+  note: X-Okapi-Trace is declared in the specs (108 occurrences).
+versioning:
+  note: Interface versions (major.minor) are declared in each module's ModuleDescriptor and resolved by Okapi; see lifecycle/folio-lifecycle.yml.
+errors:
+  envelope: '{"errors": [{"message", "type", "code", "parameters"}], "total_records"}'
+  note: The `errors` / `error` schema is declared in many specs (e.g. openapi/folio-mod-users-keycloak-openapi.yml); many
+    endpoints also return text/plain error bodies (163 4xx/5xx responses).
+rate_limit_signaling:
+  note: None documented; see rate-limits/folio-rate-limits.yml.
+idempotency:
+  coverage: partial
+  scope: [createTenantAttributes]
+  mechanism: No idempotency-key header. PUT is used for replace-by-id across modules; one POST is documented as idempotent.
+  evidence: 'openapi/folio-mgr-tenants-openapi.yml createTenantAttributes: "Create or replace tenant-attributes associated
+    with the specified tenant. Idempotent operation"'
+reversibility:
+  status: documented
+  surfaces:
+  - surface: Bulk operations
+    operationId: cancelOperationById
+    spec: openapi/folio-mod-bulk-operations-openapi.yml
+    window: null
+  - surface: INN-Reach holds
+    operationIds: [cancelPatronHoldTransaction, cancelItemHoldTransaction, cancelLocalHoldTransaction, cancelPatronHold, cancelItemHold]
+    spec: openapi/folio-mod-inn-reach-circulation-openapi.yml
+    window: null
+  - surface: INN-Reach contribution
+    operationId: cancelCurrentContributionByServerId
+    spec: openapi/folio-mod-inn-reach-contribution-openapi.yml
+    window: null
+  - surface: Lists
+    operationIds: [cancelRefresh, cancelExport]
+    spec: openapi/folio-mod-lists-list-openapi.yml
+    window: null
+  note: Cancel operations exist in the contracts; no docs page stating a reversal window was found, so window is null.

@@ -1,0 +1,217 @@
+openapi: 3.2.0
+info:
+  title: Folio Batch Job API
+  version: v1
+  description: 'Operations tagged batchJob across 2 of this provider''s published API definitions: folio-mod-linked-data-openapi.json, folio-mod-linked-data-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: batchJob
+paths:
+  /linked-data/reindex/full:
+    post:
+      operationId: fullReindex
+      tags:
+      - batchJob
+      description: Start the process of full reindexing of all resources in the database. All resources will be reindexed regardless of their current index state.
+      parameters:
+      - $ref: '#/components/parameters/resourceType'
+      responses:
+        '200':
+          description: ID of Reindex job execution
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Full reindex
+      x-summary-source: derived
+  /linked-data/reindex/incremental:
+    post:
+      operationId: incrementalReindex
+      tags:
+      - batchJob
+      description: Start the process of incremental reindexing of resources in the database. Only resources that have not been indexed yet (indexDate is null) will be reindexed.
+      parameters:
+      - $ref: '#/components/parameters/resourceType'
+      responses:
+        '200':
+          description: ID of Reindex job execution
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Incremental reindex
+      x-summary-source: derived
+  /linked-data/graphCleaning:
+    post:
+      operationId: graphCleaning
+      tags:
+      - batchJob
+      description: Start the process of cleaning the graph from orphaned nodes.
+      responses:
+        '200':
+          description: ID of GraphCleaning job execution
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Graph cleaning
+      x-summary-source: derived
+  /linked-data/batch/status:
+    get:
+      operationId: getBatchJobStatus
+      tags:
+      - batchJob
+      description: Get the status of a batch job by its execution ID.
+      parameters:
+      - $ref: '#/components/parameters/jobExecutionId'
+      responses:
+        '200':
+          description: Batch job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/batchJobStatusDto'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          description: No batch job found for the given ID
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get batch job status
+      x-summary-source: derived
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    batchJobStatusDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Batch job status DTO
+      type: object
+      properties:
+        jobName:
+          type: string
+          description: Spring Batch Job name - ReindexJob or GraphCleaningJob
+        startDate:
+          type: string
+          format: date-time
+          description: Date and time when the batch job was started
+        endDate:
+          type: string
+          format: date-time
+          description: Date and time when the batch job finished
+        startedBy:
+          type: string
+          description: ID of the user who started the batch job
+        reindexType:
+          type: string
+          enum:
+          - FULL
+          - INCREMENTAL
+          description: 'Type of reindex: full or incremental'
+        executionRound:
+          type: integer
+          format: int32
+          description: Job execution round
+        linesRead:
+          type: integer
+          format: int64
+          description: Total number of resources read during job execution
+        linesSent:
+          type: integer
+          format: int64
+          description: Total number of resources written during job execution
+        status:
+          type: string
+          description: Current status of the batch job (e.g. STARTED, COMPLETED, FAILED)
+    error:
+      description: An error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example: example/unknownError.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example: examples/validationErrorResponse.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+  parameters:
+    resourceType:
+      name: resourceType
+      in: query
+      required: false
+      description: 'The specified resource type to be re-indexed. Available options: HUB, WORK'
+      schema:
+        type: string
+    jobExecutionId:
+      name: jobExecutionId
+      in: query
+      required: true
+      description: The ID of the job execution
+      schema:
+        type: integer
+        format: int64
+x-refined-from:
+- folio-mod-linked-data-openapi.json
+- folio-mod-linked-data-openapi.yml

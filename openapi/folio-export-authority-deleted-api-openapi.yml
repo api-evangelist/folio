@@ -1,0 +1,139 @@
+openapi: 3.2.0
+info:
+  title: Folio Export Authority Deleted API
+  version: v1
+  description: 'Operations tagged Export Authority Deleted across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+tags:
+- name: Export Authority Deleted
+paths:
+  /export-authority-deleted:
+    post:
+      description: Export of deleted authority records
+      operationId: postExportDeletedAuthority
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/exportAuthorityDeletedRequest'
+            example:
+              offset: '0'
+              limit: 10
+              query: headingType=personalName&createdDate>2021-10-25T12:00:00.0
+      responses:
+        '200':
+          description: Data export of deleted authority completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exportAuthorityDeletedResponse'
+              example:
+                jobExecutionId: 5696d7aa-3bae-11eb-adc1-0242ac120002
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: invalid request parameters
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Export Authority Deleted
+      summary: Post export deleted authority
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+components:
+  schemas:
+    exportAuthorityDeletedRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data to start export deleted authority records process
+      type: object
+      additionalProperties: false
+      properties:
+        offset:
+          description: Skip over a number of elements by specifying an offset value for the query.
+          type: integer
+          default: 0
+          minimum: 0
+          maximum: 2147483647
+        limit:
+          description: Limit the number of elements returned in the response.
+          type: integer
+          default: 100
+          minimum: 0
+          maximum: 2000
+        query:
+          description: A query expressed as a CQL string
+          type: string
+    exportAuthorityDeletedResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data after executed export deleted authority process
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutionId:
+          description: UUID of the job execution, that had been used for export deleted process
+          type: string
+          format: uuid
+      required:
+      - jobExecutionId
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-data-export-openapi.yml

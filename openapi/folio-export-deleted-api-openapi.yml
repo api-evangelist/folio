@@ -1,0 +1,131 @@
+openapi: 3.2.0
+info:
+  title: Folio Export Deleted API
+  version: v1
+  description: 'Operations tagged Export Deleted across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+tags:
+- name: Export Deleted
+paths:
+  /export-deleted:
+    post:
+      description: Export of deleted MARC IDs
+      operationId: postExportDeletedMarcIds
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/exportDeletedMarcIdsRequest'
+            example:
+              from: '2024-04-26'
+              to: '2024-04-26'
+      responses:
+        '200':
+          description: Data export of deleted MARC IDs completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exportDeletedMarcIdsResponse'
+              example:
+                jobExecutionId: 5696d7aa-3bae-11eb-adc1-0242ac120002
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: invalid request parameters
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Export Deleted
+      summary: Post export deleted marc ids
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+components:
+  schemas:
+    exportDeletedMarcIdsResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data after executed export deleted MARC IDs process
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutionId:
+          description: UUID of the job execution, that had been used for export deleted process
+          type: string
+          format: uuid
+      required:
+      - jobExecutionId
+    exportDeletedMarcIdsRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data to start export deleted MARC IDs process
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          description: Starting date to search deleted
+          type: string
+          format: date
+        to:
+          description: Ending date to search deleted
+          type: string
+          format: date
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-data-export-openapi.yml

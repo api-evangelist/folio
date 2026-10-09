@@ -1,0 +1,1463 @@
+# x-archived-from: folio-folio-query-tool-metadata-querytool-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: FOLIO Query Tool API
+  version: v1
+  description: FOLIO Query Tool API
+servers:
+- url: https://folio-etesting-snapshot-kong.ci.folio.org/
+paths:
+  /entity-types/{entityTypeId}:
+    get:
+      operationId: getEntityType
+      description: Get definition of an Entity Type.
+      tags:
+      - entity-types
+      parameters:
+      - $ref: '#/components/parameters/entityTypeId'
+      - $ref: '#/components/parameters/include-hidden'
+      responses:
+        '200':
+          description: Definition of the requested entity type
+          content:
+            application/json:
+              example:
+                id: 0cb79a4c-f7eb-4941-a104-745224ae0292
+                name: item_details
+                private: false
+                columns: []
+              schema:
+                $ref: '#/components/schemas/EntityType'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /entity-types/{entityTypeId}/used-by:
+    patch:
+      operationId: updateEntityTypeUsedBy
+      description: Update the usedBy information for an Entity Type.
+      tags:
+      - entity-types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateUsedByRequest'
+      parameters:
+      - $ref: '#/components/parameters/entityTypeId'
+      responses:
+        '200':
+          description: Updated definition of the entity type
+          content:
+            application/json:
+              example:
+                id: 0cb79a4c-f7eb-4941-a104-745224ae0292
+                name: item_details
+                private: false
+                columns: []
+                usedBy:
+                - my-module
+              schema:
+                $ref: '#/components/schemas/EntityType'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /entity-types/{entityTypeId}/columns/{columnName}/values:
+    get:
+      operationId: getColumnValues
+      description: 'Deprecated in MODFQMMGR-1048: use GET /entity-types/{entityTypeId}/field-values?field=... instead. To be removed in MODFQMMGR-1052. Get the values of an entity type column.
+
+        '
+      deprecated: true
+      tags:
+      - entity-types
+      parameters:
+      - $ref: '#/components/parameters/entityTypeId'
+      - $ref: '#/components/parameters/columnName'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Values of an entity type column
+          content:
+            application/json:
+              example:
+                content:
+                - value: item_status
+                  name: Item Status
+              schema:
+                $ref: '#/components/schemas/columnValues'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /entity-types/{entityTypeId}/field-values:
+    get:
+      operationId: getFieldValues
+      description: Get the values of an entity type field (supports nested field paths).
+      tags:
+      - entity-types
+      parameters:
+      - $ref: '#/components/parameters/entityTypeId'
+      - $ref: '#/components/parameters/field'
+      - $ref: '#/components/parameters/search'
+      responses:
+        '200':
+          description: Values of an entity type column
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/columnValues'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /entity-types/custom:
+    post:
+      operationId: createCustomEntityType
+      tags:
+      - entity-types
+      - custom
+      description: Create a custom entity type
+      requestBody:
+        description: Custom entity type definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/customEntityType'
+      responses:
+        '201':
+          description: Created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customEntityType'
+          headers:
+            Location:
+              schema:
+                type: string
+                format: url
+              description: The URL of the newly created custom entity type
+              example: /entity-types/custom/6087a09b-8b34-4e6c-8173-c0c5f0f45e7a
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /entity-types/custom/{entityTypeId}:
+    get:
+      operationId: getCustomEntityType
+      tags:
+      - entity-types
+      - custom
+      parameters:
+      - $ref: '#/components/parameters/entityTypeId'
+      responses:
+        '200':
+          description: Definition of the requested custom entity type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customEntityType'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+    put:
+      operationId: updateCustomEntityType
+      tags:
+      - entity-types
+      - custom
+      parameters:
+      - $ref: '#/components/parameters/entityTypeId'
+      requestBody:
+        description: Custom entity type definition
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/customEntityType'
+      responses:
+        '200':
+          description: Definition of the requested custom entity type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customEntityType'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+    delete:
+      operationId: deleteCustomEntityType
+      tags:
+      - entity-types
+      - custom
+      parameters:
+      - $ref: '#/components/parameters/entityTypeId'
+      responses:
+        '204':
+          description: Custom entity type has been deleted
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /entity-types/custom/available-joins:
+    post:
+      operationId: getAvailableJoins
+      tags:
+      - entity-types
+      - custom
+      description: Get available entity types and fields for joining with a custom entity type
+      requestBody:
+        description: Custom entity type definition
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvailableJoinsRequest'
+      responses:
+        '200':
+          description: Available entity types and fields for joining
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableJoinsResponse'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /query:
+    get:
+      operationId: runFqlQuery
+      description: Runs an FQL query
+      tags:
+      - fqlQuery
+      parameters:
+      - $ref: '#/components/parameters/fqlQuery'
+      - $ref: '#/components/parameters/entityTypeIdQueryParam'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Query result
+          content:
+            application/json:
+              example:
+                content:
+                - id:
+                    type: object
+                  item_status:
+                    type: object
+                totalRecords: 1
+              schema:
+                $ref: '#/components/schemas/ResultsetPage'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+    post:
+      operationId: runFqlQueryAsync
+      description: Runs an FQL query asynchronously
+      tags:
+      - fqlQuery
+      requestBody:
+        description: Query request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitQuery'
+      responses:
+        '200':
+          description: The identifier for the query run
+          content:
+            application/json:
+              example:
+                queryId: 37140576-be84-1a0e-7546-0912d8320019
+              schema:
+                $ref: '#/components/schemas/QueryIdentifier'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /query/{queryId}:
+    get:
+      operationId: getQuery
+      description: Get details of a submitted query, optionally including the results
+      tags:
+      - fqlQuery
+      parameters:
+      - $ref: '#/components/parameters/queryId'
+      - $ref: '#/components/parameters/includeResults'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Details of the submitted query
+          content:
+            application/json:
+              example:
+                entityTypeId: 0cb79a4c-f7eb-4941-a104-745224ae0292
+                fqlQuery: user_active == true
+                queryId: 37140576-be84-1a0e-7546-0912d8320019
+                startDate: '2023-04-04T21:56:08.673+00:00'
+                status: IN_PROGRESS
+              schema:
+                $ref: '#/components/schemas/QueryDetails'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+    delete:
+      operationId: deleteQuery
+      description: Delete a query and its results
+      tags:
+      - fqlQuery
+      parameters:
+      - $ref: '#/components/parameters/queryId'
+      responses:
+        '204':
+          description: Query has been deleted
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /query/{queryId}/sortedIds:
+    get:
+      operationId: getSortedIds
+      description: Get ids of query results in sorted order
+      tags:
+      - fqlQuery
+      parameters:
+      - $ref: '#/components/parameters/queryId'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Details of the submitted query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryResultIds'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /query/contents:
+    post:
+      tags:
+      - fqlQuery
+      operationId: getContents
+      description: get contents for list of ids
+      requestBody:
+        description: Contents request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentsRequest'
+      responses:
+        '200':
+          description: A page of list contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contents'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /query/contents/privileged:
+    post:
+      tags:
+      - fqlQuery
+      operationId: getContentsPrivileged
+      description: get contents for list of ids using a specified user proxy
+      requestBody:
+        description: Contents request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentsRequest'
+      responses:
+        '200':
+          description: A page of list contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contents'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+components:
+  parameters:
+    entityTypeId:
+      name: entityTypeId
+      in: path
+      required: true
+      description: UUID of the entity type
+      schema:
+        $ref: '#/components/schemas/UUID'
+    entityTypeIdQueryParam:
+      name: entityTypeId
+      in: query
+      required: true
+      description: UUID of the entity type
+      schema:
+        $ref: '#/components/schemas/UUID'
+    columnName:
+      name: columnName
+      in: path
+      required: true
+      description: Name of an entity type column
+      schema:
+        type: string
+    search:
+      name: search
+      in: query
+      required: false
+      description: A search text that can be used to filter column values. If provided, only the values that begins with the given text will be returned in API response.
+      schema:
+        type: string
+    queryId:
+      name: queryId
+      in: path
+      required: true
+      description: UUID of the query
+      schema:
+        $ref: '#/components/schemas/UUID'
+    includeResults:
+      name: includeResults
+      in: query
+      required: false
+      description: Indicates if query results should be included in the query details response
+      schema:
+        type: boolean
+    fqlQuery:
+      name: query
+      in: query
+      schema:
+        type: string
+      required: true
+      description: A complete query expressed as a FQL string. It should contain the from part that defines the entity type and the where/criteria part.
+    fields:
+      name: fields
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+      required: false
+      description: fields to include in the query results
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+      required: false
+      description: Skip over a number of elements by specifying an offset value for the query
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 2147483647
+      required: false
+      description: Limit the number of elements returned in the response
+    include-hidden:
+      name: includeHidden
+      in: query
+      required: false
+      description: Include the hidden column in the display
+      schema:
+        type: boolean
+        default: false
+    field:
+      name: field
+      in: query
+      required: true
+      description: Field name to retrieve values for. This may refer to top-level or nested fields.
+      schema:
+        type: string
+  schemas:
+    UUID:
+      description: The content row represented as a map.
+      type: string
+      format: uuid
+    entityTypeSource:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Entity Type Source
+      description: Definition for an entity type source, which provide a set of fields and can be joined with other sources
+      allOf:
+      - type: object
+        discriminator:
+          propertyName: type
+          mapping:
+            db: '#/components/schemas/entityTypeSourceDatabase'
+            entity-type: '#/components/schemas/entityTypeSourceEntityType'
+        properties:
+          type:
+            description: Type of source. Valid values are db, entity-type
+            type: string
+          alias:
+            description: Alias of this source to be used in query/later joins
+            type: string
+          name:
+            description: Name of this source. If set, this will override any source name translations
+            type: string
+          joinedViaEntityType:
+            description: '[Internal use only, should not be included in definitions] The owning entity''s alias, if this source''s joining is handled by a parent entity in a cross-entity join'
+            type: string
+          order:
+            description: Order of the inherited fields from this source, relative to the fields from other sources. Defaults to 1073741823 (INT_MAX/2)
+            type: integer
+        required:
+        - type
+        - alias
+    entityTypeSourceDatabase:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Entity Type Database Source
+      description: Definition for an entity type source based on a database
+      allOf:
+      - $ref: '#/components/schemas/entityTypeSource'
+      - type: object
+        properties:
+          target:
+            description: Target view/table from which values are extracted
+            type: string
+          join:
+            $ref: '#/components/schemas/entityTypeSourceDatabaseJoin'
+    entityTypeSourceEntityType:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Entity Type — Entity Type Source
+      description: Definition for an entity type source referring to another entity type
+      allOf:
+      - $ref: '#/components/schemas/entityTypeSource'
+      - type: object
+        properties:
+          sourceField:
+            description: If joining, fully qualified field of the source entity type that targetId/targetField will join to
+            type: string
+          targetId:
+            description: ID of the entity type newly included with this source
+            type: string
+            format: uuid
+          targetField:
+            description: If joining, field of the new entity type that will be joined to the source entity type
+            type: string
+          overrideJoinDirection:
+            $ref: '#/components/schemas/joinDirection'
+          cascadeJoinDirection:
+            description: When true and this source is itself an entity-type LEFT-joined upstream, the overrideJoinDirection of this source is propagated into the joins of its inner sub-sources during flattening. Use this on outer-composite -> inner-composite LEFT joins to preserve upstream rows that would otherwise be dropped by a RIGHT JOIN emitted for an inner table.
+            type: boolean
+            default: false
+          useIdColumns:
+            description: Whether to use the idColumns of this source as idColumns for the enclosing entity type
+            type: boolean
+          essentialOnly:
+            description: Indicates that only critical columns for core functionality should be inherited, excluding non-essential columns
+            type: boolean
+          inheritCustomFields:
+            description: Whether to inherit custom fields from this source. If false, only core fields will be inherited.
+            type: boolean
+            default: true
+          additionalJoinCondition:
+            description: Filter condition to be included in the ON clause of the JOIN for entity type as SQL. This will be ANDed with the generated JOIN condition.
+            type: string
+        required:
+        - targetId
+    entityType:
+      $ref: '#/components/schemas/EntityType'
+    customEntityType:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Custom Entity Type Schema
+      description: A definition of a custom entity types that can be used in the Query Tool
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/EntityType'
+        required: []
+      - properties:
+          id:
+            $ref: '#/components/schemas/id'
+          _version:
+            description: FQL query version, used for migrations
+            type: string
+          name:
+            $ref: '#/components/schemas/description'
+          private:
+            $ref: '#/components/schemas/private'
+          owner:
+            description: A UUID identifying entity type owner
+            type: string
+            format: uuid
+          shared:
+            description: Denotes if the entity type is shared (true) or private (false)
+            type: boolean
+            default: false
+          createdAt:
+            description: The creation timestamp of the entity type
+            type: string
+            format: date-time
+          updatedAt:
+            description: The update timestamp of the entity type
+            type: string
+            format: date-time
+          isCustom:
+            description: Discriminator field to distinguish custom entity types from system entity types
+            type: boolean
+            default: true
+            const: true
+    entityDataType:
+      $ref: '#/components/schemas/EntityDataType'
+    stringType:
+      $ref: '#/components/schemas/StringType'
+    rangedUUIDType:
+      $ref: '#/components/schemas/RangedUUIDType'
+    openUUIDType:
+      $ref: '#/components/schemas/OpenUUIDType'
+    stringUUIDType:
+      $ref: '#/components/schemas/StringUUIDType'
+    numberType:
+      $ref: '#/components/schemas/NumberType'
+    integerType:
+      $ref: '#/components/schemas/IntegerType'
+    booleanType:
+      $ref: '#/components/schemas/BooleanType'
+    dateType:
+      $ref: '#/components/schemas/DateType'
+    dateTimeType:
+      $ref: '#/components/schemas/DateTimeType'
+    enumType:
+      $ref: '#/components/schemas/EnumType'
+    objectType:
+      $ref: '#/components/schemas/ObjectType'
+    objectTypeContainer:
+      $ref: '#/components/schemas/ObjectTypeContainer'
+    nestedObjectProperty:
+      $ref: '#/components/schemas/NestedObjectProperty'
+    arrayType:
+      $ref: '#/components/schemas/ArrayType'
+    jsonbArrayType:
+      $ref: '#/components/schemas/JsonbArrayType'
+    customFieldMetadata:
+      $ref: '#/components/schemas/CustomFieldMetadata'
+    customFieldType:
+      $ref: '#/components/schemas/CustomFieldType'
+    marcType:
+      $ref: '#/components/schemas/MarcType'
+    entityTypeDefaultSort:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Default sort criteria for an entity type
+      description: A definition of default sort criteria for an entity type
+      type: object
+      properties:
+        columnName:
+          description: Name of the column using which entity type has to be sorted
+          type: string
+        direction:
+          description: Direction of the sort (Ascending or Descending)
+          type: string
+          enum:
+          - ASC
+          - DESC
+      required:
+      - columnName
+      - direction
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        code:
+          type: string
+          description: Error message code; see implementing module's API documentation for possible values
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+      - code
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    resultsetPage:
+      $ref: '#/components/schemas/ResultsetPage'
+    queryDetails:
+      $ref: '#/components/schemas/QueryDetails'
+    queryIdentifier:
+      $ref: '#/components/schemas/QueryIdentifier'
+    columnValues:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Label (if available) & values of an entity type column
+      description: Label (if available) & values of an entity type column
+      type: object
+      properties:
+        content:
+          description: Array of label and value pair
+          type: array
+          items:
+            $ref: '#/components/schemas/valueWithLabel'
+      required:
+      - content
+    submitQuery:
+      $ref: '#/components/schemas/SubmitQuery'
+    contentsRequest:
+      $ref: '#/components/schemas/ContentsRequest'
+    updateUsedByRequest:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: UpdateUsedByRequest
+      type: object
+      description: Request to add or remove a consumer from the usedBy list of a module.
+      properties:
+        name:
+          type: string
+          description: The name of the consumer to add/remove.
+          example: my-module
+        operation:
+          type: string
+          enum:
+          - add
+          - remove
+          description: The operation to perform.
+          example: add
+      required:
+      - module
+      - operation
+    fqmMigrateRequest:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Entity Upgrade Request
+      description: Schema for a request to upgrade an entity payload, including an entity type ID, FQL query, and list of fields.
+      type: object
+      properties:
+        entityTypeId:
+          description: ID of the entity type to be upgraded
+          type: string
+          format: UUID
+        fqlQuery:
+          description: FQL query string to be upgraded
+          type: string
+        fields:
+          description: List of fields to be upgraded
+          type: array
+          items:
+            type: string
+          default: []
+      additionalProperties: false
+      required:
+      - entityTypeId
+    fqmMigrateResponse:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Entity Upgrade Response
+      description: Schema for a migrated query, with associated entity type, fields, and potential warnings
+      type: object
+      properties:
+        entityTypeId:
+          description: ID of the post-upgrade entity type
+          type: string
+          format: uuid
+        fqlQuery:
+          description: Post-upgrade FQL query string
+          type: string
+        fields:
+          description: Post-upgrade list of fields
+          type: array
+          items:
+            type: string
+          default: []
+        warnings:
+          description: List of warnings issued during the upgrade
+          type: array
+          items:
+            $ref: '#/components/schemas/fqmMigrateWarning'
+          default: []
+      additionalProperties: false
+      required:
+      - entityTypeId
+    join:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Definition of a possible field join
+      description: A listing of a way for a field to join to another
+      allOf:
+      - type: object
+        discriminator:
+          propertyName: type
+          mapping:
+            custom: '#/components/schemas/joinCustom'
+            equality-simple: '#/components/schemas/joinEqualitySimple'
+            equality-cast-uuid: '#/components/schemas/joinEqualityCastUUID'
+        properties:
+          targetId:
+            description: The ID of the target entity type
+            type: string
+            format: uuid
+          targetField:
+            description: The field on the target entity type
+            type: string
+          type:
+            description: Type of join expression (e.g. custom, equality-simple, equality-cast-uuid)
+            type: string
+          direction:
+            $ref: '#/components/schemas/joinDirection'
+        required:
+        - targetId
+        - targetField
+        - type
+    joinCustom:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Custom SQL join
+      description: A join that connects one field to another using a custom SQL expression. Primarily for development purposes; a custom join should likely be created instead if this is used the same way in multiple locations (deprecation warning is to encourage this by developers)
+      deprecated: true
+      allOf:
+      - $ref: '#/components/schemas/join'
+      - type: object
+        properties:
+          sql:
+            description: Raw SQL to join the columns (use :this and :that to refer to this and target columns, respectively)
+            type: string
+        required:
+        - sql
+    joinEqualitySimple:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Simple equality join
+      description: '[:this = :that] A join that connects one field to another using a simple = expression'
+      allOf:
+      - $ref: '#/components/schemas/join'
+    joinEqualityCastUUID:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Casted UUID equality join
+      description: '[:this::uuid = :that::uuid] A join that connects one field to another using a simple = with explicit UUID casts'
+      allOf:
+      - $ref: '#/components/schemas/join'
+    queryResultIds:
+      type: array
+      items:
+        type: array
+        items:
+          type: string
+    fields:
+      type: array
+      items:
+        type: string
+    contents:
+      type: array
+      items:
+        type: object
+        additionalProperties:
+          type: object
+    availableJoinsRequest:
+      $ref: '#/components/schemas/AvailableJoinsRequest'
+    availableJoinsResponse:
+      $ref: '#/components/schemas/AvailableJoinsResponse'
+    idAndLabel:
+      $ref: '#/components/schemas/LabeledValue'
+    EntityDataType:
+      type: object
+      properties:
+        dataType:
+          type: string
+      required:
+      - dataType
+      discriminator:
+        propertyName: dataType
+    sourceColumn:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Source of an entity type column
+      description: Source of an entity type column, from where the values for the column can be derived
+      type: object
+      properties:
+        entityTypeId:
+          description: A UUID identifying the source entity type
+          type: string
+          format: uuid
+        type:
+          description: 'Name of the source type. Possible values: entity-type, fqm. Default: entity-type'
+          type: string
+          default: entity-type
+          enum:
+          - entity-type
+          - fqm
+        name:
+          description: Name of the source within the source type (e.g., 'currency')
+          type: string
+        columnName:
+          description: Name of the source column
+          type: string
+      required:
+      - entityTypeId
+      - columnName
+    valueSourceApi:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Value source API config
+      description: Configuration for a column's value source API, where the available values can be accessed
+      type: object
+      properties:
+        path:
+          description: 'Relative path to the FOLIO module API endpoint that can provide the available column values. Example: ''material-types'''
+          type: string
+        valueJsonPath:
+          description: JsonPath defining how to access the values provided by the API
+          type: string
+        labelJsonPath:
+          description: JsonPath defining how to access the labels for the values provided by the API
+          type: string
+        queryParams:
+          description: Map of query parameters to be passed to API endpoint
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - path
+      - valueJsonPath
+      - labelJsonPath
+    valueWithLabel:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Column value with label Schema
+      description: A value with a label
+      type: object
+      properties:
+        value:
+          description: The actual value that will be used in the query
+          type: string
+        label:
+          description: The user-friendly name used in dropdowns, etc. If the label is not provided the value will be used instead.
+          type: string
+      required:
+      - value
+    field:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Source/query column details
+      description: Properties for sourcing/querying a column or nested property
+      type: object
+      properties:
+        name:
+          description: The name of this field.
+          type: string
+        dataType:
+          description: The data type for this field.
+          $ref: '#/components/schemas/EntityDataType'
+        labelAlias:
+          description: A pre-localized identifier used to label/name this column.
+          type: string
+        queryable:
+          description: Indicates whether this column can be used in a query.
+          type: boolean
+        queryOnly:
+          description: Indicates whether this column can be used for querying only. If true, the column can be used in a query but cannot be included in results.
+          type: boolean
+        source:
+          description: Reference to the root entity type column, from where the values of this column are sourced.
+          $ref: '#/components/schemas/sourceColumn'
+        valueSourceApi:
+          description: Configuration defining where the available values for a column can be accessed
+          $ref: '#/components/schemas/valueSourceApi'
+        valueGetter:
+          description: Configuration defining how to fetch values of this column from the underlying datasource.
+          type: string
+        filterValueGetter:
+          description: Configuration defining how to filter values of this column from the underlying datasource when indexed values aren't very user-friendly.
+          type: string
+        idColumnName:
+          description: Name of the corresponding ID column, if this column contains the value of an ID.
+          type: string
+        valueFunction:
+          description: Configuration defining how to transform a static value for comparison with values produced by the filterValueGetter. This is useful when the filterValueGetter does extra processing that is not visible to the user. The static value can be referenced with ':value'
+          type: string
+        hidden:
+          description: Indicates if the field is hidden in UI
+          type: boolean
+          default: false
+        values:
+          type: array
+          description: Array of values for this column
+          items:
+            $ref: '#/components/schemas/valueWithLabel'
+        ecsOnly:
+          description: Indicates if the field is available only in ECS environments
+          type: boolean
+        validated:
+          description: Indicates if the field values are validated against a predefined format or set of values
+          type: boolean
+          default: false
+        localizeForExports:
+          description: Indicates if the field values should be localized when exported (e.g., translating enum values or formatted values for exports)
+          type: boolean
+          default: false
+        defaultValue:
+          description: Default value for this field if none is provided
+        availableOperators:
+          description: The operators available for this field when building queries. When set, this overrides the default operator set for the data type. When absent, the default operators for the data type are used.
+          type: array
+          items:
+            type: string
+      required:
+      - name
+      - dataType
+    joinDirection:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: Direction of the join, from the perspective of :this JOIN :target (e.g. inner, left, right)
+      type: string
+      enum:
+      - inner
+      - left
+      - right
+      - full
+    entityTypeColumn:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Entity Type Column Schema
+      description: A definition of the entity type column
+      allOf:
+      - $ref: '#/components/schemas/field'
+      - type: object
+        properties:
+          visibleByDefault:
+            description: Indicates if the column should be shown by default when the entity is viewed.
+            type: boolean
+          isCustomField:
+            description: Indicates if the column belongs to the custom field.
+            type: boolean
+          isIdColumn:
+            description: Indicates if the column is part of the unique identifier for this entity type
+            type: boolean
+          sourceAlias:
+            description: Source alias for this column
+            type: string
+          essential:
+            description: Indicates if a column is crucial to the definition of an entity type
+            type: boolean
+          joinsTo:
+            description: A set of columns which this column may be joined to
+            type: array
+            items:
+              $ref: '#/components/schemas/join'
+            default: []
+          originalEntityTypeId:
+            description: '[Internal only, not for definitions] The simplest entity type that this column is derived from'
+            type: string
+            format: uuid
+          maxColumnWidth:
+            description: The maximum width of the column when displayed in the UI
+            type: integer
+        required: []
+    EntityType:
+      type: object
+      properties:
+        id:
+          description: A UUID identifying entity type
+          type: string
+        name:
+          description: The unique name of entity type like User, Loan, Item, etc.
+          type: string
+        description:
+          description: A description of the entity type
+          type: string
+        labelAlias:
+          description: The identifier used for a localized label/name for this entity.
+          type: string
+        private:
+          description: This flag denotes whether the entity type is private or not. Private entity types cannot be accessed by users for querying.
+          type: boolean
+        columns:
+          type: array
+          items:
+            $ref: '#/components/schemas/entityTypeColumn'
+          default: []
+        crossTenantQueriesEnabled:
+          description: Indicates if this entity type supports cross-tenant queries
+          type: boolean
+          default: false
+        defaultSort:
+          type: array
+          items:
+            $ref: '#/components/schemas/entityTypeDefaultSort'
+        groupByFields:
+          description: Ordered list of fields used in the GROUP BY clause for this entity type
+          type: array
+          items:
+            type: string
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/entityTypeSource'
+          default: []
+        requiredPermissions:
+          description: List of permissions required to query this entity type
+          type: array
+          items:
+            type: string
+          default: []
+        filterConditions:
+          description: Filter conditions to be included in the WHERE clause of this entity type
+          type: array
+          items:
+            type: string
+          default: []
+        additionalEcsConditions:
+          description: Additional conditions to be included in the WHERE clause of this entity type in ECS environments
+          type: array
+          items:
+            type: string
+          default: []
+        deleted:
+          description: Indicates if this entity type is deleted
+          type: boolean
+          default: false
+        usedBy:
+          description: List of modules that use this entity type
+          type: array
+          items:
+            type: string
+          default: []
+      required:
+      - id
+      - name
+      - private
+      additionalProperties: true
+    id:
+      description: A UUID identifying entity type
+      type: string
+    description:
+      description: A description of the entity type
+      type: string
+    private:
+      description: This flag denotes whether the entity type is private or not. Private entity types cannot be accessed by users for querying.
+      type: boolean
+    AvailableJoinsRequest:
+      type: object
+      properties:
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/entityTypeSourceEntityType'
+        targetId:
+          description: UUID of the target entity type
+          $ref: '#/components/schemas/UUID'
+    LabeledValue:
+      properties:
+        label:
+          type: string
+          description: Human-readable label
+        value:
+          type: string
+      required:
+      - id
+      - label
+    LabeledValueWithDescription:
+      allOf:
+      - $ref: '#/components/schemas/LabeledValue'
+      - properties:
+          description:
+            type: string
+            description: Description of the value
+        required: []
+    JoinFieldPair:
+      properties:
+        sourceField:
+          $ref: '#/components/schemas/LabeledValue'
+        targetField:
+          $ref: '#/components/schemas/LabeledValue'
+      required:
+      - sourceField
+      - targetField
+    AvailableJoinsResponse:
+      properties:
+        availableTargetIds:
+          description: Available target entity types that can be joined with the custom entity type
+          type: array
+          items:
+            $ref: '#/components/schemas/LabeledValueWithDescription'
+        availableJoinConditions:
+          description: Available join conditions between the source and target entity types, as a pair of source and target field values
+          type: array
+          items:
+            $ref: '#/components/schemas/JoinFieldPair'
+    ResultsetContent:
+      description: The content row represented as a map.
+      type: object
+      additionalProperties:
+        type: object
+    ResultsetPage:
+      type: object
+      description: The page with content.
+      properties:
+        content:
+          description: The rows of the page.
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultsetContent'
+        totalRecords:
+          description: The total number of records in this resultset.
+          type: integer
+      required:
+      - content
+      additionalProperties: false
+    SubmitQuery:
+      description: Request to submit query
+      type: object
+      properties:
+        fqlQuery:
+          type: string
+        entityTypeId:
+          $ref: '#/components/schemas/UUID'
+        fields:
+          description: Fields to be included in query results
+          type: array
+          items:
+            type: string
+        sortResults:
+          description: Whether to sort results based on entity type's sort criteria
+          type: boolean
+        maxSize:
+          description: Maximum number of results to retrieve for the query
+          type: integer
+      required:
+      - entityTypeId
+      - fqlQuery
+      additionalProperties: false
+    QueryIdentifier:
+      description: The identifier of the query.
+      type: object
+      properties:
+        queryId:
+          $ref: '#/components/schemas/UUID'
+      additionalProperties: false
+    QueryDetails:
+      type: object
+      description: The page with content.
+      properties:
+        content:
+          description: The rows of the page.
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultsetContent'
+        totalRecords:
+          description: The total number of records in this resultset.
+          type: integer
+        queryId:
+          description: ID of the query
+          type: string
+          format: UUID
+        fqlQuery:
+          description: FQL query
+          type: string
+        entityTypeId:
+          description: ID of the entity type
+          type: string
+          format: UUID
+        fields:
+          description: Fields to be included in query results
+          type: array
+          items:
+            type: string
+        status:
+          description: Status of the resultset
+          type: string
+          enum:
+          - QUEUED
+          - IN_PROGRESS
+          - SUCCESS
+          - FAILED
+          - CANCELLED
+          - MAX_SIZE_EXCEEDED
+        failureReason:
+          description: Reason for query execution failure (if execution failed)
+          type: string
+        startDate:
+          description: Date and time when the query execution was started
+          type: string
+          format: date-time
+        endDate:
+          description: Date and time when the query execution was completed
+          type: string
+          format: date-time
+        crossTenant:
+          description: Indicates whether a query is cross-tenant
+          type: boolean
+          default: false
+      required:
+      - entityTypeId
+      - status
+      - startDate
+      - queryId
+      - fqlQuery
+      additionalProperties: false
+    ContentsRequest:
+      description: Request for a set of contents
+      type: object
+      properties:
+        entityTypeId:
+          $ref: '#/components/schemas/UUID'
+        fields:
+          description: Fields to be included in results
+          type: array
+          items:
+            type: string
+        ids:
+          description: Ids to retrieve results for
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        localize:
+          description: Whether to localize dates in content response
+          type: boolean
+          default: false
+        userId:
+          $ref: '#/components/schemas/UUID'
+      required:
+      - entityTypeId
+      - fields
+      - ids
+      additionalProperties: false
+    entityTypeSourceDatabaseJoin:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Entity Type DB Source Join
+      description: '[Deprecated for use in definitions; you should likely create simple wrapper entity types and join those] Object describing how this DB view/table should be joined to another'
+      type: object
+      properties:
+        type:
+          description: Type of join
+          type: string
+        joinTo:
+          description: Table/view to join to
+          type: string
+        condition:
+          description: Join condition
+          type: string
+      required:
+      - type
+    StringType:
+      description: Entity field type defined in https://issues.folio.org/browse/UIPQB-5
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    RangedUUIDType:
+      description: Entity field type defined in https://issues.folio.org/browse/UIPQB-2, https://issues.folio.org/browse/UIPQB-3
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    OpenUUIDType:
+      description: Entity field type defined in https://issues.folio.org/browse/UIPQB-4
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    StringUUIDType:
+      description: Entity field type for UUID fields that are coming from the database as strings
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    NumberType:
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    IntegerType:
+      description: Entity field type defined in https://issues.folio.org/browse/UIPQB-7
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    BooleanType:
+      description: Entity field type defined in https://issues.folio.org/browse/UIPQB-8
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    DateType:
+      description: Entity field type for dates without time information
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    DateTimeType:
+      description: Entity field type for dates that include time information
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    EnumType:
+      description: Entity field type defined in https://issues.folio.org/browse/UIPQB-11
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    NestedObjectProperty:
+      description: Properties within an object type field.
+      allOf:
+      - $ref: '#/components/schemas/field'
+      - $schema: https://json-schema.org/draft/2020-12/schema
+        type: object
+        properties:
+          labelAliasFullyQualified:
+            description: A localized and fully qualified alias for the label of the nested property, e.g. 'Parent - Nested Property'
+            type: string
+          property:
+            description: The name of the property in the JSON object
+            type: string
+        required: []
+    ObjectTypeContainer:
+      type: object
+      properties:
+        properties:
+          description: A list of this object's properties
+          type: array
+          items:
+            $ref: '#/components/schemas/NestedObjectProperty'
+          default: []
+      required:
+      - properties
+    ObjectType:
+      description: Entity field type defined in https://issues.folio.org/browse/UIPQB-10
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+      - $ref: '#/components/schemas/ObjectTypeContainer'
+    ArrayTypeContainer:
+      type: object
+      properties:
+        itemDataType:
+          description: The data type used for the array's items.
+          $ref: '#/components/schemas/EntityDataType'
+      required:
+      - itemDataType
+    ArrayType:
+      description: Entity field type defined in https://issues.folio.org/browse/UIPQB-6
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+      - $ref: '#/components/schemas/ArrayTypeContainer'
+    JsonbArrayType:
+      description: Entity field type defined in https://issues.folio.org/browse/UIPQB-6
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+      - $ref: '#/components/schemas/ArrayTypeContainer'
+    CustomFieldMetadata:
+      type: object
+      properties:
+        configurationView:
+          description: Name of the database view containing custom field configuration metadata (field names, possible values, etc.)
+          type: string
+        dataExtractionPath:
+          description: Extraction path for retrieving data for this set of custom fields
+          type: string
+      required:
+      - configurationView
+      - dataExtractionPath
+    CustomFieldType:
+      description: Special datatype for custom fields defined in https://folio-org.atlassian.net/browse/MODFQMMGR-653
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+      - type: object
+        properties:
+          customFieldMetadata:
+            $ref: '#/components/schemas/CustomFieldMetadata'
+        required:
+        - customFieldMetadata
+    MarcType:
+      description: Entity field type representing MARC data
+      allOf:
+      - $ref: '#/components/schemas/EntityDataType'
+    fqmMigrateWarning:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: Entity Upgrade Warning
+      description: Warnings resulting from a query upgrade
+      type: object
+      properties:
+        description:
+          description: Description of the warning
+          type: string
+        type:
+          description: Type of warning
+          type: string
+      additionalProperties: false
+      required:
+      - description
+      - type
+  responses:
+    badRequestResponse:
+      description: Invalid request
+      content:
+        application/json:
+          example:
+            message: Entity type ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
+            code: entity.type.not.found
+          schema:
+            $ref: '#/components/schemas/error'

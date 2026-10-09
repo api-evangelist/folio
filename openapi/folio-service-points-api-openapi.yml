@@ -1,0 +1,489 @@
+openapi: 3.2.0
+info:
+  title: Folio Service Points API
+  version: 1.0.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged service-points across 2 of this provider''s published API definitions: folio-mod-locations-openapi.json, folio-mod-locations-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://folio-{environment}.ci.folio.org
+  variables:
+    environment:
+      default: edev-spitfire-diku
+      enum:
+      - edev-spitfire-diku
+      - edev-spitfire-consortium
+tags:
+- description: Manage service points.
+  name: service-points
+paths:
+  /service-point-storage/service-points:
+    delete:
+      description: Delete all service point records.
+      operationId: deleteServicePoints
+      responses:
+        '204':
+          description: All service points deleted.
+      summary: Delete service points
+      tags:
+      - service-points
+    get:
+      description: Return a list of service points.
+      operationId: getServicePoints
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Should ECS request routing service points be included in the response.
+        in: query
+        name: includeRoutingServicePoints
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePointsCollection'
+          description: Collection of service points.
+      summary: Get service points
+      tags:
+      - service-points
+    post:
+      description: Create a new service point record.
+      operationId: createServicePoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/servicePoint'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePoint'
+          description: Created service point.
+      summary: Create service point
+      tags:
+      - service-points
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+  /service-point-storage/service-points/{id}:
+    delete:
+      description: Delete an existing service point by its unique identifier.
+      operationId: deleteServicePointById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Service point deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete service point by id
+      tags:
+      - service-points
+    get:
+      description: Retrieve a single service point by its unique identifier.
+      operationId: getServicePointById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePoint'
+          description: Service point record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get service point by id
+      tags:
+      - service-points
+    put:
+      description: Update an existing service point by its unique identifier.
+      operationId: updateServicePointById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/servicePoint'
+        required: true
+      responses:
+        '204':
+          description: Service point updated successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update service point by id
+      tags:
+      - service-points
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: invalid
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      title: Parameter
+      type: object
+    errorCollection:
+      description: Collection of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      title: Error Collection
+      type: object
+    metadata:
+      additionalProperties: false
+      description: Metadata about creation and changes to records
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      readOnly: true
+      title: Metadata
+      type: object
+    servicePoint:
+      additionalProperties: false
+      description: Service point
+      example:
+        holdShelfClosedLibraryDateManagement: Keep_the_current_due_date
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        discoveryDisplayName: discoveryDisplayName
+        description: description
+        pickupLocation: true
+        staffSlips:
+        - printByDefault: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - printByDefault: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        defaultCheckInActionForUseAtLocation: Keep_on_hold_shelf
+        ecsRequestRouting: false
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        shelvingLagTime: 0
+        holdShelfExpiryPeriod:
+          duration: 6
+          intervalId: Days
+      properties:
+        id:
+          description: ID of the service point
+          format: uuid
+          type: string
+        name:
+          description: Name of the service point
+          type: string
+        code:
+          description: Code of the service point
+          type: string
+        discoveryDisplayName:
+          description: Discovery display name of the service point
+          type: string
+        description:
+          description: Description of the service point
+          type: string
+        shelvingLagTime:
+          description: Shelving lag time
+          type: integer
+        pickupLocation:
+          description: Indicates whether or not the service point is a pickup location
+          type: boolean
+        holdShelfExpiryPeriod:
+          $ref: '#/components/schemas/holdShelfExpiryPeriod'
+        holdShelfClosedLibraryDateManagement:
+          default: Keep_the_current_due_date
+          description: Closed library date management associated with hold shelf
+          enum:
+          - Keep_the_current_due_date
+          - Move_to_the_end_of_the_previous_open_day
+          - Move_to_the_end_of_the_next_open_day
+          - Keep_the_current_due_date_time
+          - Move_to_end_of_current_service_point_hours
+          - Move_to_beginning_of_next_open_service_point_hours
+          type: string
+        defaultCheckInActionForUseAtLocation:
+          description: Default action when checking in an item that is for use in the library (i.e. in reading room)
+          enum:
+          - Keep_on_hold_shelf
+          - Close_loan_and_return_item
+          - Ask_for_action
+          type: string
+        staffSlips:
+          description: List of staff slips for this service point
+          items:
+            $ref: '#/components/schemas/servicePointStaffSlip'
+          type: array
+        ecsRequestRouting:
+          default: false
+          description: Indicates a service point used for the ECS functionality
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - code
+      - discoveryDisplayName
+      - name
+      title: Service Point
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      title: Error
+      type: object
+    holdShelfExpiryPeriod:
+      additionalProperties: false
+      description: Expiration period for items on the hold shelf at the service point
+      example:
+        duration: 6
+        intervalId: Days
+      properties:
+        duration:
+          description: Duration interval
+          type: integer
+        intervalId:
+          default: Days
+          description: Unit of time for the duration
+          enum:
+          - Minutes
+          - Hours
+          - Days
+          - Weeks
+          - Months
+          type: string
+      required:
+      - duration
+      - intervalId
+      title: Hold Shelf Expiry Period
+      type: object
+    servicePointStaffSlip:
+      additionalProperties: false
+      description: Service point staff slip
+      example:
+        printByDefault: true
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: The ID of the staff slip
+          format: uuid
+          type: string
+        printByDefault:
+          description: Whether or not to print the staff slip by default
+          type: boolean
+      required:
+      - id
+      - printByDefault
+      title: Service Point Staff Slip
+      type: object
+    servicePointsCollection:
+      description: Collection of service points
+      example:
+        totalRecords: 1
+        servicepoints:
+        - holdShelfClosedLibraryDateManagement: Keep_the_current_due_date
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          discoveryDisplayName: discoveryDisplayName
+          description: description
+          pickupLocation: true
+          staffSlips:
+          - printByDefault: true
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - printByDefault: true
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          defaultCheckInActionForUseAtLocation: Keep_on_hold_shelf
+          ecsRequestRouting: false
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          shelvingLagTime: 0
+          holdShelfExpiryPeriod:
+            duration: 6
+            intervalId: Days
+        - holdShelfClosedLibraryDateManagement: Keep_the_current_due_date
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          discoveryDisplayName: discoveryDisplayName
+          description: description
+          pickupLocation: true
+          staffSlips:
+          - printByDefault: true
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - printByDefault: true
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          defaultCheckInActionForUseAtLocation: Keep_on_hold_shelf
+          ecsRequestRouting: false
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          shelvingLagTime: 0
+          holdShelfExpiryPeriod:
+            duration: 6
+            intervalId: Days
+      properties:
+        servicepoints:
+          description: List of service points
+          items:
+            $ref: '#/components/schemas/servicePoint'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - servicepoints
+      - totalRecords
+      title: Service Points Collection
+      type: object
+x-refined-from:
+- folio-mod-locations-openapi.json
+- folio-mod-locations-openapi.yml

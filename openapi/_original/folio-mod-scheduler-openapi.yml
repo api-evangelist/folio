@@ -1,0 +1,354 @@
+# x-archived-from: folio-mod-scheduler-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Mod Scheduler API
+  version: v1
+  description: Mod Scheduler API
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+paths:
+  /scheduler/timers:
+    get:
+      operationId: getSchedulerTimers
+      description: Retrieve timer list
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-offset'
+      - $ref: '#/components/parameters/query-limit'
+      responses:
+        '200':
+          description: An scheduler timers list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/timerDescriptorList'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    post:
+      operationId: createSchedulerTimers
+      description: Create timer for a module
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/timerDescriptor'
+      responses:
+        '201':
+          description: An timer descriptor as response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/timerDescriptor'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /scheduler/timers/{id}:
+    get:
+      operationId: getSchedulerTimerById
+      description: Retrieve scheduler timer by id
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '200':
+          description: A scheduler timer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/timerDescriptor'
+        '404':
+          $ref: '#/components/responses/entityNotFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    put:
+      operationId: updateSchedulerTimerById
+      description: Update scheduler timer by id
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/timerDescriptor'
+      responses:
+        '200':
+          description: An timer descriptor as response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/timerDescriptor'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/entityNotFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    delete:
+      operationId: deleteSchedulerTimerById
+      description: Delete scheduler timer by id
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '204':
+          description: A scheduler timer
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+components:
+  schemas:
+    errorResponse:
+      $ref: '#/components/schemas/errors'
+    timerDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Timer Descriptor list
+      description: Timer Descriptor List
+      properties:
+        timerDescriptors:
+          description: List of timer descriptors
+          type: array
+          items:
+            $ref: '#/components/schemas/timerDescriptor'
+        totalRecords:
+          type: integer
+    timerDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: TimerDescriptor
+      description: Timer
+      type: object
+      properties:
+        id:
+          description: Timer identifier
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/timerType'
+          description: Timer type. Value `SYSTEM` is not allowed in POST and PUT API requests unless `SCHEDULER_API_ALLOW_SYSTEM_TIMER_MUTATION` variable is `true`.
+        modified:
+          description: Whether modified
+          type: boolean
+        routingEntry:
+          $ref: '#/components/schemas/routingEntry'
+          description: Proxy routing entry
+        enabled:
+          description: Whether enabled
+          type: boolean
+        moduleName:
+          description: Module name timer belongs to (module id should be used instead)
+          type: string
+        moduleId:
+          description: Module id timer belongs to (if present module name is not needed)
+          type: string
+        userId:
+          description: 'Identifier of the user a USER timer runs as. Populated by the module for USER timers and empty for SYSTEM timers. Read-only: any value supplied in a request is ignored.'
+          type: string
+          format: uuid
+          readOnly: true
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readOnly: true
+      required:
+      - routingEntry
+      - enabled
+    timerType:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: timerType.json
+      title: Timer Type Schema
+      description: Timer type
+      default: user
+      type: string
+      enum:
+      - user
+      - system
+      x-enum-varnames:
+      - USER
+      - SYSTEM
+    timerUnit:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: timerDelay.json
+      title: Timer Delay Schema
+      description: Timer Delay unit
+      type: string
+      enum:
+      - millisecond
+      - second
+      - minute
+      - hour
+      - day
+    routingEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: RoutingEntry
+      description: Okapi proxy routing entry
+      type: object
+      additionalProperties: false
+      properties:
+        methods:
+          description: List of methods GET, POST,.. * (for all)
+          type: array
+          items:
+            type: string
+          maxItems: 1
+        pathPattern:
+          description: Path pattern match. * matches any path. {x} matches one or more characters but not slash
+          type: string
+        path:
+          description: Path prefix match
+          type: string
+        unit:
+          $ref: '#/components/schemas/timerUnit'
+          description: Time unit for delay
+        delay:
+          description: Delay between calls; a value of zero disables timer
+          type: string
+        schedule:
+          description: Timer schedule using cron-utils
+          type: object
+          properties:
+            cron:
+              description: crontab specification
+              type: string
+            zone:
+              description: time zone (UTC is the default); See https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/ZoneId.html
+              type: string
+              default: UTC
+          required:
+          - cron
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata
+      description: Metadata about creation and changes, provided by the server (client should not provide)
+      type: object
+      additionalProperties: false
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: string
+      description: Error message code
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    error:
+      description: An error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          $ref: '#/components/schemas/errorCode'
+          description: Error code
+        parameters:
+          $ref: '#/components/schemas/parameters'
+          description: Error message parameters
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+  responses:
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    entityNotFoundResponse:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+  parameters:
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity/document id
+      schema:
+        type: string
+        format: uuid
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    cql-query:
+      in: query
+      required: false
+      name: query
+      description: 'A CQL query string with search conditions. Supported timer fields: moduleName, moduleId, type. The type field uses USER or SYSTEM values. Fields stored only in timerDescriptor JSON, such as enabled, are not supported.
+
+        '
+      schema:
+        type: string

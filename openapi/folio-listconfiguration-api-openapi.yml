@@ -1,0 +1,90 @@
+openapi: 3.2.0
+info:
+  title: Folio List Configuration API
+  version: 1.0.0
+  description: 'Operations tagged listConfiguration across 2 of this provider''s published API definitions: folio-mod-lists-list-openapi.json, folio-mod-lists-list-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-etesting-snapshot-kong.ci.folio.org/
+tags:
+- name: listConfiguration
+paths:
+  /lists/configuration:
+    get:
+      operationId: getListConfiguration
+      tags:
+      - listConfiguration
+      description: Get list app configuration.
+      responses:
+        '200':
+          description: Returns list app configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListConfiguration'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get list configuration
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    ListAppError:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+      - code
+    ListConfiguration:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List Configuration Data
+      type: object
+      properties:
+        maxListSize:
+          description: Maximum allowable size of a list
+          type: integer
+      additionalProperties: false
+      required:
+      - maxListSize
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+  responses:
+    badRequestResponse:
+      description: Invalid request
+      content:
+        application/json:
+          example:
+            message: List with ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
+            code: read-list.not.found
+          schema:
+            $ref: '#/components/schemas/ListAppError'
+x-refined-from:
+- folio-mod-lists-list-openapi.json
+- folio-mod-lists-list-openapi.yml

@@ -1,0 +1,1298 @@
+openapi: 3.2.0
+info:
+  title: Folio Ecs Request External API
+  version: v1
+  description: 'Operations tagged ecsRequestExternal across 4 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-tlr-ecs-request-external-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml, folio-mod-tlr-ecs-request-external-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: ecsRequestExternal
+paths:
+  /circulation-bff/create-ecs-request-external:
+    post:
+      description: Create ECS request external
+      operationId: postEcsRequestExternal
+      tags:
+      - ecsRequestExternal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ecsRequestExternal'
+        required: true
+      responses:
+        '201':
+          description: Ecs external request has been created
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/mediatedRequest'
+                - $ref: '#/components/schemas/request'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Post ecs request external
+      x-summary-source: derived
+  /tlr/create-ecs-request-external:
+    post:
+      description: Create ECS request external
+      operationId: postTlrCreateEcsRequestExternal
+      tags:
+      - ecsRequestExternal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EcsRequestExternal'
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/ecs-tlr'
+        '400':
+          $ref: '#/components/responses/badRequestResponse_2'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse_2'
+      summary: Post ecs request external
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: postEcsRequestExternal
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
+    patronGroup:
+      description: patron group
+      type: object
+      properties:
+        id:
+          description: ID of the patron group
+          type: string
+          $ref: '#/components/schemas/uuid'
+        group:
+          description: The unique name of the patron group
+          type: string
+        desc:
+          description: A description of the patron group
+          type: string
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    requestSearchIndex:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Request fields used for search
+      type: object
+      properties:
+        callNumberComponents:
+          type: object
+          description: Effective call number components
+          properties:
+            callNumber:
+              type: string
+              description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
+            prefix:
+              type: string
+              description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
+            suffix:
+              type: string
+              description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
+          additionalProperties: false
+        shelvingOrder:
+          type: string
+          description: A system generated normalization of the call number that allows for call number sorting in reports and search results
+        pickupServicePointName:
+          description: The name of the request pickup service point
+          type: string
+      additionalProperties: false
+    mediatedRequest:
+      description: Mediated request
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        requestLevel:
+          description: Level of the request - Item or Title
+          type: string
+          enum:
+          - Item
+          - Title
+        requestType:
+          description: Whether the item should be held upon return, recalled or paged for
+          type: string
+          enum:
+          - Hold
+          - Recall
+          - Page
+        requestDate:
+          description: Date when the request was placed
+          type: string
+          format: date-time
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        requesterId:
+          $ref: '#/components/schemas/uuid'
+        requester:
+          description: Copy of some requester data
+          type: object
+          properties:
+            firstName:
+              description: First name of the requester
+              type: string
+            lastName:
+              description: Last name of the requester
+              type: string
+            middleName:
+              description: Middle name of the requester
+              type: string
+            barcode:
+              description: Barcode of the requester
+              type: string
+            patronGroupId:
+              $ref: '#/components/schemas/uuid'
+            patronGroup:
+              description: Patron group of the requester
+              type: object
+              properties:
+                id:
+                  $ref: '#/components/schemas/uuid'
+                group:
+                  description: Patron group name
+                  type: string
+                desc:
+                  description: Patron group description
+                  type: string
+        proxyUserId:
+          $ref: '#/components/schemas/uuid'
+        proxy:
+          description: Copy of some proxy patron data
+          type: object
+          properties:
+            firstName:
+              description: First name of the proxy patron
+              type: string
+            lastName:
+              description: Last name of the proxy patron
+              type: string
+            middleName:
+              description: Middle name of the proxy patron
+              type: string
+            barcode:
+              description: Barcode of the proxy patron
+              type: string
+            patronGroupId:
+              $ref: '#/components/schemas/uuid'
+            patronGroup:
+              description: Patron group of the proxy patron
+              type: object
+              properties:
+                id:
+                  $ref: '#/components/schemas/uuid'
+                group:
+                  description: Patron group name
+                  type: string
+                desc:
+                  description: Patron group description
+                  type: string
+        instanceId:
+          $ref: '#/components/schemas/uuid'
+        instance:
+          description: Copy of some instance data
+          type: object
+          properties:
+            title:
+              description: Title of the instance",
+              type: string
+            identifiers:
+              description: An extensible set of name-value pairs of identifiers associated with the resource
+              type: array
+              items:
+                type: object
+                properties:
+                  identifierTypeId:
+                    $ref: '#/components/schemas/uuid'
+                  value:
+                    description: Resource identifier value
+                    type: string
+                required:
+                - identifierTypeId
+                - value
+            contributorNames:
+              description: A list of contributor names
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    description: Contributor name
+                    type: string
+            publication:
+              description: Publication information
+              type: array
+              items:
+                type: object
+                properties:
+                  publisher:
+                    description: Name of the publisher
+                    type: string
+                  place:
+                    description: Place of publication
+                    type: string
+                  dateOfPublication:
+                    description: Date of publication
+                    type: string
+                  role:
+                    description: Role of the publisher
+                    type: string
+            editions:
+              description: The edition statement, imprint and other publication source information
+              type: array
+              items:
+                type: string
+            hrid:
+              description: The human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID
+              type: string
+          required:
+          - title
+          - identifiers
+        holdingsRecordId:
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          $ref: '#/components/schemas/uuid'
+        item:
+          description: Copy of some item data
+          type: object
+          properties:
+            barcode:
+              description: Barcode of the item
+              type: string
+            location:
+              description: Effective location of the item
+              type: object
+              properties:
+                name:
+                  description: Name of the location
+                  type: string
+                libraryName:
+                  description: Library name of the location
+                  type: string
+                code:
+                  description: Code of the location
+                  type: string
+            enumeration:
+              description: Enumeration of the item
+              type: string
+            volume:
+              description: Volume of the item
+              type: string
+            chronology:
+              description: Chronology of the item
+              type: string
+            displaySummary:
+              description: Display summary of the item
+              type: string
+            status:
+              description: Status of the item
+              type: string
+            callNumber:
+              description: Call number of the item
+              type: string
+            callNumberComponents:
+              description: Components of the item's call number
+              type: object
+              properties:
+                callNumber:
+                  description: Call number of the item
+                  type: string
+                prefix:
+                  description: Prefix of the item's call number
+                  type: string
+                suffix:
+                  description: Suffix of the item's call number
+                  type: string
+            copyNumber:
+              description: Copy number of the item
+              type: string
+        mediatedWorkflow:
+          description: Mediated workflow that mediated request follows
+          type: string
+        mediatedRequestStatus:
+          description: Status of the mediated request
+          type: string
+          enum:
+          - New
+          - Open
+          - Closed
+        mediatedRequestStep:
+          description: Step of the mediated request in mediated workflow
+          type: string
+        status:
+          description: Status of the mediated request
+          type: string
+          enum:
+          - New - Awaiting confirmation
+          - Open - Not yet filled
+          - Open - In transit for approval
+          - Open - Item arrived
+          - Open - In transit to be checked out
+          - Open - Awaiting pickup
+          - Open - Awaiting delivery
+          - Closed - Cancelled
+          - Closed - Declined
+          - Closed - Filled
+        cancellationReasonId:
+          $ref: '#/components/schemas/uuid'
+        cancelledByUserId:
+          $ref: '#/components/schemas/uuid'
+        cancellationAdditionalInformation:
+          description: Additional information about mediated request cancellation
+          type: string
+        cancelledDate:
+          description: Date when the request was cancelled
+          type: string
+          format: date-time
+        position:
+          description: Position of the mediated request in the queue
+          type: integer
+        fulfillmentPreference:
+          description: How should the request be fulfilled (whether the item should be kept on the hold shelf for collection or delivered to the requester)
+          type: string
+          enum:
+          - Hold Shelf
+          - Delivery
+        deliveryAddressTypeId:
+          $ref: '#/components/schemas/uuid'
+        deliveryAddress:
+          description: Delivery address
+          type: object
+          properties:
+            addressTypeId:
+              description: ID of the delivery address type
+              type: string
+            addressLine1:
+              description: Address line 1
+              type: string
+            addressLine2:
+              description: Address line 2
+              type: string
+            city:
+              description: City
+              type: string
+            region:
+              description: Region
+              type: string
+            postalCode:
+              description: Postal code
+              type: string
+            countryId:
+              description: Country ID
+              type: string
+        pickupServicePointId:
+          $ref: '#/components/schemas/uuid'
+        pickupServicePoint:
+          description: Pickup service point
+          type: object
+          properties:
+            name:
+              description: Pickup service point name
+              type: string
+            code:
+              description: Pickup service point code
+              type: string
+            discoveryDisplayName:
+              description: Pickup service point discovery display name
+              type: string
+            description:
+              description: Pickup service point description
+              type: string
+            shelvingLagTime:
+              description: Pickup service point description
+              type: integer
+            pickupLocation:
+              description: Whether pickup service point is a pickup location
+              type: boolean
+        confirmedRequestId:
+          $ref: '#/components/schemas/uuid'
+        searchIndex:
+          description: Request fields used for search
+          type: object
+          properties:
+            callNumberComponents:
+              description: Effective call number components
+              type: object
+              properties:
+                callNumber:
+                  description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item
+                  type: string
+                prefix:
+                  description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item
+                  type: string
+                suffix:
+                  description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item
+                  type: string
+            shelvingOrder:
+              description: A system generated normalization of the call number that allows for call number sorting in reports and search results
+              type: string
+            pickupServicePointName:
+              description: The name of the request pickup service point
+              type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - requestLevel
+      - requestType
+      - requestDate
+      - requesterId
+      - instanceId
+      - fulfillmentPreference
+    ecsRequestExternal:
+      description: ECS Request External - title level requests in a multi-tenant environment with Сonsortia support enabled
+      type: object
+      properties:
+        id:
+          description: ID of the ECS TLR
+          $ref: '#/components/schemas/uuid'
+        instanceId:
+          description: ID of the instance being requested
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: ID of the requesting patron (user)
+          $ref: '#/components/schemas/uuid'
+        requestLevel:
+          description: Level of the request - Item or Title
+          type: string
+          enum:
+          - Item
+          - Title
+        requestExpirationDate:
+          description: Date when the request expires
+          type: string
+          format: date-time
+        requestDate:
+          description: Date when the request was placed
+          type: string
+          format: date-time
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        fulfillmentPreference:
+          description: How should the request be fulfilled (whether the item should be kept on the hold shelf for collection or delivered to the requester)
+          type: string
+          enum:
+          - Hold Shelf
+          - Delivery
+        pickupServicePointId:
+          description: The ID of the Service Point where this request can be picked up
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: ID of the item being requested
+          $ref: '#/components/schemas/uuid'
+        holdingsRecordId:
+          description: ID of the holdings record being requested
+          $ref: '#/components/schemas/uuid'
+        primaryRequestId:
+          description: Primary request ID
+          $ref: '#/components/schemas/uuid'
+        primaryRequestDcbTransactionId:
+          description: ID of DCB transaction created for primary request
+          $ref: '#/components/schemas/uuid'
+        primaryRequestTenantId:
+          description: ID of the tenant primary request was created in
+          type: string
+        secondaryRequestId:
+          description: Secondary request ID
+          $ref: '#/components/schemas/uuid'
+        secondaryRequestDcbTransactionId:
+          description: ID of DCB transaction created for secondary request
+          $ref: '#/components/schemas/uuid'
+        secondaryRequestTenantId:
+          description: ID of the tenant secondary request was created in
+          type: string
+      required:
+      - requesterId
+      - requestLevel
+      - fulfillmentPreference
+      - requestDate
+    overrideBlocks:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Blocks to override (e.g. during checkout or renewal)
+      properties:
+        itemNotLoanableBlock:
+          description: '''Item not loanable'' block'
+          type: object
+          properties:
+            dueDate:
+              description: Due date for a new loan
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - dueDate
+        patronBlock:
+          description: Automated patron block
+          type: object
+          additionalProperties: false
+        itemLimitBlock:
+          description: Item limit block
+          type: object
+          additionalProperties: false
+        renewalBlock:
+          description: Renewal block
+          type: object
+          additionalProperties: false
+        renewalDueDateRequiredBlock:
+          description: Override renewal block which requires due date field
+          type: object
+          properties:
+            dueDate:
+              description: Due date for a new loan
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - dueDate
+        comment:
+          description: Reason for override
+          type: string
+      additionalProperties: false
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    request:
+      description: Request for an item that might be at a different location or already checked out to another patron
+      type: object
+      properties:
+        id:
+          description: UUID of the request
+          type: string
+          $ref: '#/components/schemas/uuid'
+        requestType:
+          description: Whether the item should be held upon return, recalled or paged for
+          type: string
+          enum:
+          - Hold
+          - Recall
+          - Page
+        requestLevel:
+          description: Level of the request - Item or Title
+          type: string
+          enum:
+          - Item
+          - Title
+        ecsRequestPhase:
+          description: Stage in ECS request process, absence of this field means this is a single-tenant request
+          type: string
+          enum:
+          - Primary
+          - Secondary
+        requestDate:
+          description: Date the request was made
+          type: string
+          format: date-time
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        requesterId:
+          description: ID of the user who made the request
+          type: string
+          $ref: '#/components/schemas/uuid'
+        proxyUserId:
+          description: ID of the user representing a proxy for the patron
+          type: string
+          $ref: '#/components/schemas/uuid'
+        instanceId:
+          description: ID of the instance being requested
+          type: string
+          $ref: '#/components/schemas/uuid'
+        holdingsRecordId:
+          description: ID of the holdings record being requested
+          type: string
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: ID of the item being requested
+          type: string
+          $ref: '#/components/schemas/uuid'
+        status:
+          description: Status of the request
+          type: string
+          enum:
+          - Open - Not yet filled
+          - Open - Awaiting pickup
+          - Open - In transit
+          - Open - Awaiting delivery
+          - Closed - Filled
+          - Closed - Cancelled
+          - Closed - Unfilled
+          - Closed - Pickup expired
+        cancellationReasonId:
+          description: The id of the request reason
+          type: string
+          $ref: '#/components/schemas/uuid'
+        cancelledByUserId:
+          description: The id of the user that cancelled the request
+          type: string
+          $ref: '#/components/schemas/uuid'
+        cancellationAdditionalInformation:
+          description: Additional information about a cancellation
+          type: string
+        cancelledDate:
+          description: Date the request was cancelled
+          type: string
+          format: date-time
+        position:
+          description: position of the request in a per-item request queue
+          type: integer
+          minimum: 1
+        instance:
+          description: Copy of some instance metadata (used for searching and sorting)
+          type: object
+          properties:
+            title:
+              description: title of the item
+              type: string
+            identifiers:
+              type: array
+              description: An extensible set of name-value pairs of identifiers associated with the resource
+              minItems: 0
+              items:
+                type: object
+                properties:
+                  value:
+                    type: string
+                    description: Resource identifier value
+                  identifierTypeId:
+                    type: string
+                    description: UUID of resource identifier type (e.g. ISBN, ISSN, LCCN, CODEN, Locally defined identifiers)
+                    $ref: '#/components/schemas/uuid'
+                required:
+                - value
+                - identifierTypeId
+          additionalProperties: true
+        item:
+          description: Copy of some item metadata (used for searching and sorting)
+          type: object
+          properties:
+            barcode:
+              description: barcode of the item
+              type: string
+          additionalProperties: true
+        requester:
+          description: Copy of some requesting patron metadata (used for searching and sorting), will be taken from the user referred to by the requesterId
+          readonly: true
+          type: object
+          properties:
+            firstName:
+              description: first name of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            lastName:
+              description: last name of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            middleName:
+              description: middle name of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            barcode:
+              description: barcode of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            patronGroupId:
+              description: UUID for the patron group that this user belongs to
+              type: string
+              readonly: true
+              $ref: '#/components/schemas/uuid'
+            patronGroup:
+              type: object
+              description: record for the user's patrongroup
+              $ref: '#/components/schemas/patronGroup'
+          additionalProperties: true
+        proxy:
+          description: Copy of some proxy patron metadata (used for searching and sorting), will be taken from the user referred to by the proxyUserId
+          readonly: true
+          type: object
+          properties:
+            firstName:
+              description: first name of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            lastName:
+              description: last name of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            middleName:
+              description: middle name of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            barcode:
+              description: barcode of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            patronGroupId:
+              description: UUID for the patrongroup that this user belongs to
+              type: string
+              readonly: true
+              $ref: '#/components/schemas/uuid'
+            patronGroup:
+              description: record for the user's patrongroup
+              type: object
+              readonly: true
+              properties:
+                id:
+                  description: ID of the patrongroup
+                  type: string
+                  readonly: true
+                  $ref: '#/components/schemas/uuid'
+                group:
+                  description: The unique name of the patrongroup
+                  type: string
+                  readonly: true
+                desc:
+                  description: A description of the patrongroup
+                  type: string
+                  readonly: true
+        fulfillmentPreference:
+          description: How should the request be fulfilled (whether the item should be kept on the hold shelf for collection or delivered to the requester)
+          type: string
+          enum:
+          - Hold Shelf
+          - Delivery
+        deliveryAddressTypeId:
+          description: Deliver to the address of this type, for the requesting patron
+          type: string
+          $ref: '#/components/schemas/uuid'
+        deliveryAddress:
+          description: Address the item is to be delivered to (derived from requester information)
+          type: object
+          readonly: true
+          properties:
+            addressLine1:
+              description: Address line 1
+              type: string
+              readonly: true
+            addressLine2:
+              description: Address line 2
+              type: string
+              readonly: true
+            city:
+              description: City name
+              type: string
+              readonly: true
+            region:
+              description: Region
+              type: string
+              readonly: true
+            postalCode:
+              description: Postal code
+              type: string
+              readonly: true
+            countryId:
+              description: Country code
+              type: string
+              readonly: true
+            addressTypeId:
+              description: Type of address (refers to address types)
+              type: string
+              readonly: true
+              $ref: '#/components/schemas/uuid'
+        requestExpirationDate:
+          description: Date when the request expires
+          type: string
+          format: date-time
+        holdShelfExpirationDate:
+          description: Date when an item returned to the hold shelf expires
+          type: string
+          format: date-time
+        pickupServicePointId:
+          description: The ID of the Service Point where this request can be picked up
+          type: string
+          $ref: '#/components/schemas/uuid'
+        pickupServicePoint:
+          description: The full object of the Service Point record from pickupServicePointId
+          readonly: true
+          properties:
+            name:
+              description: Unique name for the service point
+              type: string
+              readonly: true
+            code:
+              description: Unique code for the service point
+              type: string
+              readonly: true
+            discoveryDisplayName:
+              description: Human-readable name for the service point
+              type: string
+              readonly: true
+            description:
+              description: Description of the service point
+              type: string
+              readonly: true
+            shelvingLagTime:
+              description: Shelving lag time
+              type: integer
+              readonly: true
+            pickupLocation:
+              description: Is this service point a pickup location?
+              type: boolean
+              readonly: true
+        tags:
+          type: object
+          description: Tags
+          $ref: '#/components/schemas/uuid'
+        metadata:
+          description: Metadata about creation and changes to requests, provided by the server (client should not provide)
+          type: object
+          $ref: '#/components/schemas/metadata'
+        requestProcessingParameters:
+          type: object
+          description: Additional parameters used for request processing and discarded afterwards. Not part of request record.
+          properties:
+            overrideBlocks:
+              type: object
+              description: Blocks to override if user has corresponding permissions
+              $ref: '#/components/schemas/overrideBlocks'
+        searchIndex:
+          description: Request fields used for search
+          type: object
+          $ref: '#/components/schemas/requestSearchIndex'
+        batchRequestInfo:
+          description: Information about the batch request this request is part of
+          type: object
+          properties:
+            batchRequestId:
+              description: ID of the batch request
+              type: string
+              $ref: '#/components/schemas/uuid'
+            batchRequestSubmittedAt:
+              description: Date and time when the batch request was submitted
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - batchRequestId
+          - batchRequestSubmittedAt
+      required:
+      - requesterId
+      - requestType
+      - requestDate
+      - fulfillmentPreference
+    metadata:
+      type: object
+      description: Record metadata
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+    parameter_2:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    EcsRequestExternal:
+      description: ECS Request External - title level requests in a multi-tenant environment with Сonsortia support enabled
+      type: object
+      properties:
+        id:
+          description: ID of the ECS TLR
+          $ref: '#/components/schemas/uuid'
+        instanceId:
+          description: ID of the instance being requested
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: ID of the requesting patron (user)
+          $ref: '#/components/schemas/uuid'
+        requestLevel:
+          description: Level of the request - Item or Title
+          type: string
+          enum:
+          - Item
+          - Title
+        requestExpirationDate:
+          description: Date when the request expires
+          type: string
+          format: date-time
+        requestDate:
+          description: Date when the request was placed
+          type: string
+          format: date-time
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        fulfillmentPreference:
+          description: How should the request be fulfilled (whether the item should be kept on the hold shelf for collection or delivered to the requester)
+          type: string
+          enum:
+          - Hold Shelf
+          - Delivery
+        pickupServicePointId:
+          description: The ID of the Service Point where this request can be picked up
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: ID of the item being requested
+          $ref: '#/components/schemas/uuid'
+        holdingsRecordId:
+          description: ID of the holdings record being requested
+          $ref: '#/components/schemas/uuid'
+        primaryRequestId:
+          description: Primary request ID
+          $ref: '#/components/schemas/uuid'
+        primaryRequestDcbTransactionId:
+          description: ID of DCB transaction created for primary request
+          $ref: '#/components/schemas/uuid'
+        primaryRequestTenantId:
+          description: ID of the tenant primary request was created in
+          type: string
+        secondaryRequestId:
+          description: Secondary request ID
+          $ref: '#/components/schemas/uuid'
+        secondaryRequestDcbTransactionId:
+          description: ID of DCB transaction created for secondary request
+          $ref: '#/components/schemas/uuid'
+        secondaryRequestTenantId:
+          description: ID of the tenant secondary request was created in
+          type: string
+      required:
+      - instanceId
+      - requesterId
+      - requestLevel
+      - fulfillmentPreference
+      - requestDate
+    EcsTlr:
+      description: ECS TLR - title level requests in a multi-tenant environment with Сonsortia support enabled
+      type: object
+      properties:
+        id:
+          description: ID of the ECS TLR
+          $ref: '#/components/schemas/uuid'
+        instanceId:
+          description: ID of the instance being requested
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: ID of the requesting patron (user)
+          $ref: '#/components/schemas/uuid'
+        requestType:
+          description: Whether the item should be held upon return, recalled or paged for
+          type: string
+          enum:
+          - Hold
+          - Recall
+          - Page
+        requestLevel:
+          description: Level of the request - Item or Title
+          type: string
+          enum:
+          - Item
+          - Title
+        requestExpirationDate:
+          description: Date when the request expires
+          type: string
+          format: date-time
+        requestDate:
+          description: Date when the request was placed
+          type: string
+          format: date-time
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        fulfillmentPreference:
+          description: How should the request be fulfilled (whether the item should be kept on the hold shelf for collection or delivered to the requester)
+          type: string
+          enum:
+          - Hold Shelf
+          - Delivery
+        pickupServicePointId:
+          description: The ID of the Service Point where this request can be picked up
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: ID of the item being requested
+          $ref: '#/components/schemas/uuid'
+        holdingsRecordId:
+          description: ID of the holdings record being requested
+          $ref: '#/components/schemas/uuid'
+        primaryRequestId:
+          description: Primary request ID
+          $ref: '#/components/schemas/uuid'
+        primaryRequestDcbTransactionId:
+          description: ID of DCB transaction created for primary request
+          $ref: '#/components/schemas/uuid'
+        primaryRequestTenantId:
+          description: ID of the tenant primary request was created in
+          type: string
+        secondaryRequestId:
+          description: Secondary request ID
+          $ref: '#/components/schemas/uuid'
+        secondaryRequestDcbTransactionId:
+          description: ID of DCB transaction created for secondary request
+          $ref: '#/components/schemas/uuid'
+        secondaryRequestTenantId:
+          description: ID of the tenant secondary request was created in
+          type: string
+        intermediateRequestId:
+          description: Intermediate request ID
+          $ref: '#/components/schemas/uuid'
+        intermediateRequestDcbTransactionId:
+          description: ID of DCB transaction created for intermediate request
+          $ref: '#/components/schemas/uuid'
+        intermediateRequestTenantId:
+          description: ID of the tenant intermediate request was created in
+          type: string
+      required:
+      - instanceId
+      - requesterId
+      - requestType
+      - requestLevel
+      - fulfillmentPreference
+      - requestDate
+    error_2:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error_2'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter_2'
+      additionalProperties: false
+    parameter_3:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    error_3:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters_2'
+      additionalProperties: false
+      required:
+      - message
+    errors_2:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error_3'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    parameters_2:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter_3'
+      additionalProperties: false
+  examples:
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            validationErrorResponse:
+              $ref: '#/components/examples/validationErrorResponse'
+    internalServerErrorResponse_2:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Unexpected error
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse_2:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request is invalid
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    ecs-tlr:
+      description: ECS TLR object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EcsTlr'
+    internalServerErrorResponse_3:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Unexpected error
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors_2'
+    badRequestResponse_3:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request is invalid
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors_2'
+x-refined-from:
+- folio-mod-circulation-bff-circulationbff-openapi.json
+- folio-mod-tlr-ecs-request-external-openapi.json
+- folio-mod-circulation-bff-circulationbff-openapi.yml
+- folio-mod-tlr-ecs-request-external-openapi.yml

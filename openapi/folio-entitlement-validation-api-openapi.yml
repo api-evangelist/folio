@@ -1,0 +1,121 @@
+openapi: 3.2.0
+info:
+  title: Folio Entitlement Validation API
+  version: v1
+  description: 'Operations tagged entitlement-validation across 2 of this provider''s published API definitions: folio-mgr-tenant-entitlements-openapi.json, folio-mgr-tenant-entitlements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: entitlement-validation
+paths:
+  /entitlements/validate:
+    post:
+      operationId: validate
+      description: 'Validates an entitlement request against a set of pre-configured validators
+
+        that are also applied during the entitlement process or a single validator specified as a parameter.'
+      tags:
+      - entitlement-validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entitlementRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/entitlementRequestType'
+      - $ref: '#/components/parameters/entitlementValidator'
+      - $ref: '#/components/parameters/x-okapi-token'
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Validate
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  parameters:
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: false
+      description: An OKAPI authentication token
+      schema:
+        type: string
+    entitlementRequestType:
+      name: entitlementRequestType
+      in: query
+      required: true
+      description: Entitlement request type
+      schema:
+        $ref: '#/components/schemas/entitlementRequestType'
+    entitlementValidator:
+      name: validator
+      in: query
+      required: false
+      description: 'Name of entitlement validator to be applied.
+
+        All existing validators will be applied if none specified
+
+        '
+      schema:
+        type: string
+  responses:
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+  schemas:
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    entitlementRequestBody:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: installationRequest.json
+      title: Tenant Entitlement Request Schema
+      description: A collection of application ids to install
+      properties:
+        tenantId:
+          description: Tenant id
+          type: string
+          format: uuid
+        applications:
+          description: List of application ids
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+      required:
+      - applications
+      - tenantId
+    entitlementRequestType:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: types/entitlementRequestType.json
+      title: Tenant Entitlement Request Type Schema
+      description: A tenant entitlement request type
+      type: string
+      enum:
+      - entitle
+      - revoke
+      - upgrade
+      - state
+x-refined-from:
+- folio-mgr-tenant-entitlements-openapi.json
+- folio-mgr-tenant-entitlements-openapi.yml

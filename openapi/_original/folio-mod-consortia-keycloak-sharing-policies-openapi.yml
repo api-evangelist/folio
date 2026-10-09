@@ -1,0 +1,237 @@
+# x-archived-from: folio-mod-consortia-keycloak-sharing-policies-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Sharing policy integration API
+  description: Sharing policy integration API
+  version: 0.0.1
+servers:
+- url: /consortia/{consortiumId}/sharing
+paths:
+  /policies:
+    post:
+      summary: start sharing policy
+      operationId: startSharingPolicy
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      requestBody:
+        $ref: '#/components/requestBodies/SharingPolicyBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/SharingPolicyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /policies/{policyId}:
+    delete:
+      summary: delete sharing policy
+      operationId: deleteSharingPolicy
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/policyId'
+      requestBody:
+        $ref: '#/components/requestBodies/SharingPolicyBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/SharingPolicyDeleteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  requestBodies:
+    SharingPolicyBody:
+      description: Sharing policies object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingPolicyRequest'
+          example:
+            policyId: 2844767a-8367-4926-9999-514c35840399
+            url: /policy
+            payload:
+              id: 2844767a-8367-4926-9999-514c35840399
+              name: 'Policy for role: 004d7a66-c51d-402a-9c9f-3bdcdbbcdbe7'
+              source: local
+  responses:
+    SharingPolicyResponse:
+      description: Returns a sharing policy object response for post operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingPolicyResponse'
+          example:
+            createPCId: c734a41e-16ba-4a02-beb0-2d45081e39b1
+            updatePCId: 53e0f091-ffee-448c-a0f8-562d9ad6bf3f
+    SharingPolicyDeleteResponse:
+      description: Returns a sharing policy response for delete operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingPolicyDeleteResponse'
+          example:
+            pcId: c734a41e-16ba-4a02-beb0-2d45081e39b1
+    NoContent:
+      description: No content
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Unauthorized:
+      description: Not authorized to perform requested action
+      content:
+        text/plain:
+          example: unable to perform action -- unauthorized
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+    policyId:
+      in: path
+      name: policyId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of policy
+  schemas:
+    uuid:
+      type: string
+      format: uuid
+    SharingPolicyRequest:
+      description: A JSON schema for the Sharing policies object
+      type: object
+      properties:
+        policyId:
+          description: id of sharing policy record
+          type: string
+          format: uuid
+        url:
+          description: URL for publishing requests for consortia tenants
+          type: string
+        payload:
+          description: Http request body
+          type: object
+      additionalProperties: false
+      required:
+      - policyId
+      - url
+    SharingPolicyResponse:
+      description: A JSON schema for the Sharing policies object response for post request
+      type: object
+      properties:
+        createPCId:
+          type: string
+          format: uuid
+        updatePCId:
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - createPCId
+      - updatePCId
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    SharingPolicyDeleteResponse:
+      description: A JSON schema for the Sharing policies object response for delete request
+      type: object
+      properties:
+        pcId:
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - pcId

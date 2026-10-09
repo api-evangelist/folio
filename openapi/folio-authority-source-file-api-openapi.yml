@@ -1,0 +1,580 @@
+openapi: 3.2.0
+info:
+  title: Folio Authority Source File API
+  version: v1.0
+  description: 'Operations tagged authority-source-file across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://localhost:8081
+tags:
+- name: authority-source-file
+paths:
+  /authority-source-files:
+    get:
+      operationId: retrieveAuthoritySourceFiles
+      parameters:
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 2000
+          minimum: 1
+          type: integer
+      - description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+        in: query
+        name: query
+        required: false
+        schema:
+          default: cql.allRecords=1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              example: examples/authorities.sample
+              schema:
+                $ref: '#/components/schemas/authoritySourceFileDtoCollection'
+          description: Returns a list of authority source files
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+      summary: Retrieve authority source files
+      x-summary-source: derived
+    post:
+      operationId: createAuthoritySourceFile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authoritySourceFilePostDto'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authoritySourceFileDto'
+          description: Record successfully created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+      summary: Create authority source file
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+  /authority-source-files/{id}:
+    delete:
+      operationId: deleteAuthoritySourceFile
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Record successfully deleted
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+      summary: Delete authority source file
+      x-summary-source: derived
+    get:
+      operationId: getAuthoritySourceFile
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authoritySourceFileDto'
+          description: Retrieved record
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+      summary: Get authority source file
+      x-summary-source: derived
+    patch:
+      operationId: patchAuthoritySourceFile
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authoritySourceFilePatchDto'
+      responses:
+        '204':
+          description: Record successfully updated
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+      summary: Patch authority source file
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+  /authority-source-files/{id}/hrid:
+    post:
+      operationId: newAuthoritySourceFileNextHrid
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '201':
+          content:
+            application/json:
+              example:
+                HridResponse:
+                  value:
+                    id: 13ddfa1a-e711-4608-ba33-565c787a5daa
+                    hrid: fst123
+              schema:
+                $ref: '#/components/schemas/authoritySourceFileHridDto'
+          description: Provide next HRID for the authority source file
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+      summary: New authority source file next hrid
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+components:
+  schemas:
+    authoritySourceFilePostDto:
+      description: An Authority source file
+      properties:
+        id:
+          description: Unique ID of the Authority source file; a UUID
+          format: uuid
+          type: string
+        name:
+          description: Authority source file name
+          type: string
+        code:
+          description: Label identifying prefix, i.e. 'n', 'D', 'fst'
+          maxLength: 25
+          minLength: 1
+          type: string
+        type:
+          description: Type of authority records stored in source file
+          type: string
+        baseUrl:
+          description: Base URL of the source file origin
+          format: url
+          type: string
+        selectable:
+          default: true
+          type: boolean
+        hridManagement:
+          $ref: '#/components/schemas/authoritySourceFilePostDto_hridManagement'
+      required:
+      - code
+      - name
+      type: object
+    authoritySourceFileDto:
+      description: An Authority source file
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        codes:
+        - codes
+        - codes
+        type: type
+        baseUrl: http://example.com/aeiou
+        source: folio
+        selectable: true
+        hridManagement:
+          startNumber: 0
+        _version: 6
+        metadata:
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: Unique ID of the Authority source file; a UUID
+          format: uuid
+          type: string
+          x-fqm-essential: true
+          x-fqm-visibility: hidden
+          x-fqm-value-getter: :sourceAlias.id
+        name:
+          description: Authority source file name
+          type: string
+          x-fqm-essential: true
+          x-fqm-id-column-name: id
+          x-fqm-visible-by-default: true
+          x-fqm-value-getter: :sourceAlias.name
+          x-fqm-value-source-api:
+            path: authority-source-files
+            valueJsonPath: $.authoritySourceFiles.*.id
+            labelJsonPath: $.authoritySourceFiles.*.name
+        codes:
+          description: List of identifying prefix
+          items:
+            description: identifying prefix, i.e. 'n', 'D', 'fst'
+            type: string
+          type: array
+          x-fqm-ignore: true
+        type:
+          description: Type of authority records stored in source file
+          type: string
+          x-fqm-ignore: true
+        baseUrl:
+          description: Base URL of the source file origin
+          format: url
+          type: string
+          x-fqm-ignore: true
+        source:
+          description: label indicating where the authority source file entry originates from, i.e. 'folio' or 'local'
+          enum:
+          - folio
+          - local
+          type: string
+          x-fqm-ignore: true
+        selectable:
+          type: boolean
+          x-fqm-ignore: true
+        hridManagement:
+          $ref: '#/components/schemas/authoritySourceFileDto_hridManagement'
+        _version:
+          description: Record version for optimistic locking
+          type: integer
+          x-fqm-ignore: true
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - codes
+      - name
+      - source
+      type: object
+    metadata:
+      description: Creater, updater, creation date, last updated date
+      example:
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+          x-fqm-value-getter: :sourceAlias.created_date
+          x-fqm-value-function: (:value)::timestamp
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.created_by_user_id
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+          x-fqm-value-getter: :sourceAlias.updated_date
+          x-fqm-value-function: (:value)::timestamp
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.updated_by_user_id
+      type: object
+    authoritySourceFileHridDto:
+      description: An Authority source file HRID response
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        hrid: hrid
+      properties:
+        id:
+          description: Unique ID of the Authority source file
+          format: uuid
+          type: string
+        hrid:
+          description: Next available Authority source file HRID
+          type: string
+      type: object
+    authoritySourceFileDto_hridManagement:
+      description: Identifies HRID management properties
+      example:
+        startNumber: 0
+      properties:
+        startNumber:
+          type: integer
+      type: object
+      x-fqm-ignore: true
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/error_parameters_inner'
+          type: array
+      type: object
+    authoritySourceFilePostDto_hridManagement:
+      description: Identifies HRID management properties
+      properties:
+        startNumber:
+          default: 1
+          minimum: 0
+          type: integer
+      type: object
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object
+    authoritySourceFileDtoCollection:
+      description: A collection of authority source files
+      example:
+        authoritySourceFiles:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          codes:
+          - codes
+          - codes
+          type: type
+          baseUrl: http://example.com/aeiou
+          source: folio
+          selectable: true
+          hridManagement:
+            startNumber: 0
+          _version: 6
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          codes:
+          - codes
+          - codes
+          type: type
+          baseUrl: http://example.com/aeiou
+          source: folio
+          selectable: true
+          hridManagement:
+            startNumber: 0
+          _version: 6
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        totalRecords: 1
+      properties:
+        authoritySourceFiles:
+          description: List of authority source files
+          items:
+            $ref: '#/components/schemas/authoritySourceFileDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - totalRecords
+      type: object
+    authoritySourceFilePatchDto:
+      description: An Authority source file DTO for partial update operation
+      properties:
+        name:
+          description: Authority source file name
+          type: string
+        code:
+          description: identifying prefix, i.e. 'n', 'D', 'fst'
+          maxLength: 25
+          minLength: 1
+          type: string
+        type:
+          description: Type of authority records stored in source file
+          type: string
+        baseUrl:
+          description: Base URL of the source file origin
+          format: url
+          type: string
+        selectable:
+          type: boolean
+        hridManagement:
+          $ref: '#/components/schemas/authoritySourceFilePatchDto_hridManagement'
+        _version:
+          description: Record version for optimistic locking
+          type: integer
+      required:
+      - _version
+      type: object
+    authoritySourceFilePatchDto_hridManagement:
+      description: Identifies HRID management properties
+      properties:
+        startNumber:
+          description: Start number for HRID generation
+          minimum: 0
+          type: integer
+      type: object
+x-refined-from:
+- folio-mod-entities-links-openapi.json
+- folio-mod-entities-links-openapi.yml

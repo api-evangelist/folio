@@ -1,0 +1,259 @@
+openapi: 3.2.0
+info:
+  title: Folio Internal Contacts API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Internal Contacts across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Internal Contacts
+paths:
+  /erm/contacts:
+    description: 'Supports search of Internal Contact records — a FOLIO user assigned a role (e.g. subject specialist) against a Subscription Agreement. GET only: contacts are created/updated/deleted through the owning agreement, not through this path directly.'
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Internal Contacts
+      summary: Get a set of Internal Contact records
+      operationId: getContacts
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/InternalContactResults'
+                - $ref: '#/components/schemas/InternalContactResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/contacts/{contactId}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/contactId'
+    get:
+      tags:
+      - Internal Contacts
+      summary: Get a specified Internal Contact record
+      operationId: getContact
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalContact'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  parameters:
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    contactId:
+      in: path
+      name: contactId
+      description: UUID for an Internal Contact
+      required: true
+      schema:
+        type: string
+        format: uuid
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+  schemas:
+    InternalContact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        role:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        user:
+          type: string
+          format: uuid
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    InternalContactResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/InternalContactResultsArray'
+    InternalContactResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/InternalContact'
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-agreements-openapi.yml

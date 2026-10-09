@@ -1,0 +1,116 @@
+openapi: 3.2.0
+info:
+  title: Folio Transformation Fields API
+  version: v1
+  description: 'Operations tagged Transformation Fields across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+tags:
+- name: Transformation Fields
+paths:
+  /transformation-fields:
+    get:
+      description: API for getting transformation fields
+      operationId: getTransformationFields
+      responses:
+        '200':
+          description: Transformation fields collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transformationFieldCollection'
+              example:
+                transformationFields:
+                - fieldId: instance.identifiers.invalid.issn
+                  displayNameKey: instance.identifiers
+                  referenceDataValue: Invalid ISSN
+                  path: $.instance[*].identifiers[?(@identifierTypeId==27fd35a6-b8f6-41f2-aa0e-9c663ceb250c)].value
+                  recordType: INSTANCE
+                totalRecords: 1
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '401':
+          description: Not authorized to perform requested action
+          content:
+            text/plain:
+              example: unauthorized
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Transformation Fields
+      summary: Get transformation fields
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+components:
+  schemas:
+    recordTypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Enum of entity (record) types
+      type: string
+      additionalProperties: false
+      enum:
+      - INSTANCE
+      - HOLDINGS
+      - ITEM
+      - AUTHORITY
+      - SRS
+      - LINKED_DATA
+    transformationField:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Transformation field
+      type: object
+      additionalProperties: false
+      properties:
+        fieldId:
+          description: Mapping rule id of this field
+          type: string
+        displayNameKey:
+          description: Display name key, that will used for localization on UI
+          type: string
+        referenceDataValue:
+          description: Reference data value of the field
+          type: string
+        path:
+          description: Json path of the field
+          type: string
+        recordType:
+          description: Record type of the field
+          $ref: '#/components/schemas/recordTypes'
+        metadataParameters:
+          description: Additional parameters used for mapping
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - fieldId
+      - displayNameKey
+      - path
+    transformationFieldCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of transformation fields
+      type: object
+      additionalProperties: false
+      properties:
+        transformationFields:
+          description: List of transformation fields
+          type: array
+          id: transformationFieldsList
+          items:
+            type: object
+            $ref: '#/components/schemas/transformationField'
+        totalRecords:
+          description: Total number of transformation fields
+          type: integer
+      required:
+      - transformationFields
+      - totalRecords
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-data-export-openapi.yml

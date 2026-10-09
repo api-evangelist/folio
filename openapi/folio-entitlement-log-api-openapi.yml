@@ -1,0 +1,333 @@
+openapi: 3.2.0
+info:
+  title: Folio Entitlement Log API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Entitlement Log across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Entitlement Log
+paths:
+  /erm/entitlementLogEntry:
+    description: Supports search of the entitlement log which is a feed of resources added or removed from a libraries collection based on their agreements and entitlements
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Entitlement Log
+      summary: Get a set of entitlement log entries
+      operationId: getEntitlementlogEntries
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/EntitlementLogEntryResults'
+                - $ref: '#/components/schemas/EntitlementLogEntryResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/entitlementLogEntry/{entitlementLogEntryId}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/entitlementLogEntryId'
+    get:
+      tags:
+      - Entitlement Log
+      summary: Get a specified entitlement log entry record
+      operationId: getEntitlementLogEntry
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementLogEntry'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  schemas:
+    EntitlementLogEntryResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/EntitlementLogEntry'
+    EntitlementLogEntry:
+      type: object
+      properties:
+        seqid:
+          type: string
+        entitlement_id:
+          type: string
+          format: uuid
+        resource_name:
+          type: string
+        resource_id:
+          type: string
+          format: uuid
+        activeEntitlementCountForResource:
+          type: string
+        title:
+          type: string
+        defaultCoverage:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoverageStatement'
+        coverage:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoverageStatement'
+        customCoverage:
+          type: boolean
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifierOccurrence'
+        suppress:
+          type: boolean
+        type:
+          type: string
+        license:
+          type:
+          - string
+          - 'null'
+        licenseId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        eventType:
+          type: string
+          enum:
+          - ADD
+          - UPDATE
+          - REMOVE
+        url:
+          type: string
+          format: uri
+        packageIds:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              value:
+                type: string
+        templatedUrls:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplatedUrl'
+    IdentifierOccurrence:
+      type: object
+      properties:
+        title:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        identifier:
+          $ref: '#/components/schemas/Identifier'
+        status:
+          $ref: '#/components/schemas/Refdata'
+    TemplatedUrl:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+    EntitlementLogEntryResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/EntitlementLogEntryResultsArray'
+    CoverageStatement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        summary:
+          type: string
+        startVolume:
+          type: string
+        startIssue:
+          type: string
+        endVolume:
+          type: string
+        endIssue:
+          type: string
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    Identifier:
+      type: object
+      properties:
+        ns:
+          type: object
+          properties:
+            value:
+              type: string
+        value:
+          type: string
+  parameters:
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    entitlementLogEntryId:
+      in: path
+      name: entitlementLogEntryId
+      description: UUID for an entitlement log entry
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-agreements-openapi.yml

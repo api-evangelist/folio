@@ -1,0 +1,754 @@
+{
+ "openapi": "3.0.3",
+ "info": {
+  "title": "Edge ILL FOLIO API",
+  "description": "Edge API that proxies external client requests to the FOLIO mod-ill module.\nEndpoints mirror the mod-ill `ill` interface as declared in its module descriptor.\n",
+  "version": "1.0.0"
+ },
+ "servers": [
+  {
+   "url": "/"
+  }
+ ],
+ "paths": {
+  "/illService/tenants/{tenantId}/externalApi/directoryEntry": {
+   "get": {
+    "tags": [
+     "External"
+    ],
+    "description": "External API access to directory entries",
+    "operationId": "directoryEntry",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     },
+     {
+      "in": "query",
+      "name": "slug",
+      "description": "The directory entry the information is requested for",
+      "schema": {
+       "type": "string"
+      },
+      "required": false
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/externalApi/iso18626": {
+   "post": {
+    "tags": [
+     "External"
+    ],
+    "description": "Receives an ISO18626 xml message",
+    "operationId": "iso18626",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     }
+    ],
+    "requestBody": {
+     "required": false,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful response",
+      "content": {
+       "application/xml": {
+        "schema": {
+         "type": "string",
+         "format": "binary"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/externalApi/statistics": {
+   "get": {
+    "tags": [
+     "External"
+    ],
+    "description": "Return the statistics",
+    "operationId": "statistics",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     },
+     {
+      "in": "query",
+      "name": "symbol",
+      "description": "The symbol in the form authority:symbol that the statistics are required for",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/externalApi/statusReport": {
+   "get": {
+    "tags": [
+     "External"
+    ],
+    "description": "Generates a brief status report about the service",
+    "operationId": "statusReport",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/patronrequests/openURL": {
+   "get": {
+    "tags": [
+     "PatronRequests"
+    ],
+    "description": "Get OpenURL for patron; Interprets an OpenUrl version 0.1 or 1.0",
+    "operationId": "openURL",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     },
+     {
+      "name": "queryParameters",
+      "in": "query",
+      "required": false,
+      "description": "Interprets an OpenURL version 0.1 or 1.0.\n\nAll parameters are accepted as query parameters and passed as a map containing:\n\n**Request Parameters (v1.0):**\n- req.emailAddress: Requester email address\n- req.id: Requester ID\n\n**Referent Metadata Parameters (v1.0):**\n- rft.artnum: Article number\n- rft.atitle: Article title\n- rft.au: Author\n- rft.aufirst: Author first name\n- rft.auinitl: Author initials (last)\n- rft.auinit: Author initials\n- rft.auinitm: Author initials (middle)\n- rft.aulast: Author last name\n- rft.bici: Book item and contribution identifier\n- rft.btitle: Book title\n- rft.coden: CODEN identifier\n- rft.creator: Creator\n- rft.edition: Edition\n- rft.eissn: Electronic ISSN\n- rft.genre: Genre/type of resource\n- rft.identifier.illiad: ILLiad identifier\n- rft.isbn: ISBN\n- rft.issn: ISSN\n- rft.issue: Issue number\n- rft.jtitle: Journal title\n- rft.epage: End page\n- rft.spage: Start page\n- rft.pages: Total pages\n- rft.part: Part\n- rft.date: Publication date\n- rft.place: Place of publication\n- rft.pub: Publisher\n- rft.quarter: Quarter\n- rft.sici: Serial Item and Contribution Identifier\n- rft.ssn: Serial Standard Number\n- rft.title: Title\n- rft.volume: Volume\n\n**Service Parameters (v1.0):**\n- svc.neededBy: Service needed by date\n- svc.note: Service note\n- svc.pickupLocation: Service pickup location\n- svc.id: Service ID\n\n**Legacy Parameters (v0.1):**\n- artnum: Article Number\n- aufirst: Author first name\n- auinitl: Author first initial\n- auinit: Author middle initial\n- aulast: Author last name\n- auinitm: Author middle initial\n- bici: BICI\n- bici: BICI\n- coden: Coden\n- genre: Genre\n- issn: ISSN\n- eissn: EISSN\n- isbn: ISBN\n- issue: Issue\n- epage: End Page\n- spage: Start Page\n- pages: Number Of Pages\n- part: Part\n- pickupLocation: Pickup location\n- date: Date\n- quarter: Quarter\n- ssn: SSN\n- sici: SICI\n- sharedIndexId: Shared index ID\n- title: Title\n- stitle: Abbreviated title\n- atitle: Article title\n- volume: Volume\n",
+      "explode": true,
+      "schema": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "string"
+       }
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/patronrequests/{patronRequestId}/agreeCopyright": {
+   "put": {
+    "tags": [
+     "PatronRequests"
+    ],
+    "description": "Agree to the copyright terms for the patron request",
+    "operationId": "agreeCopyright",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     },
+     {
+      "$ref": "#/components/parameters/patron-request-id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/patronrequests/{patronRequestId}/fetchCopyright": {
+   "get": {
+    "tags": [
+     "PatronRequests"
+    ],
+    "description": "Fetch the copyright details for the patron request",
+    "operationId": "fetchCopyright",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     },
+     {
+      "$ref": "#/components/parameters/patron-request-id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/patronrequests/{patronRequestId}/viewDocument": {
+   "get": {
+    "tags": [
+     "PatronRequests"
+    ],
+    "description": "View the document associated with the patron request",
+    "operationId": "viewDocument",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     },
+     {
+      "$ref": "#/components/parameters/patron-request-id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful response - the document is streamed as-is from the backend (mod-ill)",
+      "content": {
+       "*/*": {
+        "schema": {
+         "type": "string",
+         "format": "binary"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/testDocumentDelivery/offer": {
+   "post": {
+    "tags": [
+     "TestDocumentDelivery"
+    ],
+    "description": "Test document delivery offer",
+    "operationId": "offer",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     }
+    ],
+    "requestBody": {
+     "required": false,
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/TestDocumentDeliveryOffer"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/testDocumentDelivery/register": {
+   "post": {
+    "tags": [
+     "TestDocumentDelivery"
+    ],
+    "description": "Test document delivery registration",
+    "operationId": "register",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     }
+    ],
+    "requestBody": {
+     "required": false,
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/TestDocumentDeliveryRegister"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/illService/tenants/{tenantId}/remoteAction/{id}/perform": {
+   "get": {
+    "tags": [
+     "RemoteAction"
+    ],
+    "description": "Perform Remote Action",
+    "operationId": "perform",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/tenant-id"
+     },
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful response - the document is streamed as-is from the backend (mod-ill)",
+      "content": {
+       "*/*": {
+        "schema": {
+         "type": "string",
+         "format": "binary"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "parameters": {
+   "tenant-id": {
+    "name": "tenantId",
+    "in": "path",
+    "required": true,
+    "schema": {
+     "type": "string"
+    },
+    "example": "diku"
+   },
+   "patron-request-id": {
+    "name": "patronRequestId",
+    "in": "path",
+    "required": true,
+    "schema": {
+     "type": "string"
+    },
+    "example": "3c3f172c-6874-4c56-88e1-2350a3d90320"
+   },
+   "id": {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "schema": {
+     "type": "string"
+    }
+   }
+  },
+  "schemas": {
+   "parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "description": "Parameter key",
+      "type": "string"
+     },
+     "value": {
+      "description": "Parameter value",
+      "type": "string"
+     }
+    },
+    "example": {
+     "name": "field",
+     "value": "must not be empty"
+    }
+   },
+   "error": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/parameter"
+      }
+     }
+    },
+    "example": {
+     "message": "Entity already exists.",
+     "type": "EntityExistsException",
+     "code": "entity_exists",
+     "parameters": [
+      {
+       "name": "id",
+       "value": "5ac63bf6-20e4-4449-9efd-01dbca051acf"
+      }
+     ]
+    }
+   },
+   "errors": {
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "x-field-extra-annotation": "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "example": {
+     "errors": [
+      {
+       "message": "Error Message Text",
+       "type": "ServiceException",
+       "code": "error_code",
+       "parameters": [
+        {
+         "name": "cause",
+         "value": "Service exception cause"
+        }
+       ]
+      }
+     ],
+     "total_records": 1
+    }
+   },
+   "TestDocumentDeliveryOffer": {
+    "type": "object",
+    "properties": {
+     "systemId": {
+      "type": "string",
+      "description": "The id of the institution an order is to be placed for"
+     },
+     "url": {
+      "type": "string",
+      "description": "The url of the document delivery system"
+     },
+     "privateKey": {
+      "type": "string",
+      "description": "The private key to use"
+     },
+     "offerReference": {
+      "type": "string",
+      "description": "The reference for this document"
+     },
+     "documentTitle": {
+      "type": "string",
+      "description": "The title for this offer"
+     },
+     "pin": {
+      "type": "string",
+      "description": "The pin the user has to use to access the document"
+     },
+     "documentSecurityLevel": {
+      "type": "string",
+      "description": "The document security level",
+      "enum": [
+       "DRM",
+       "MARKED",
+       "NONE",
+       "SECURE"
+      ]
+     },
+     "offerType": {
+      "type": "string",
+      "description": "The type of offer being made",
+      "enum": [
+       "DOCUMENT_STREAM",
+       "URL"
+      ]
+     },
+     "attestationLevel": {
+      "type": "string",
+      "description": "The attestation level",
+      "enum": [
+       "SIMPLE"
+      ]
+     },
+     "patronEmail": {
+      "type": "string",
+      "description": "The patron's email"
+     },
+     "rawSourceMimeType": {
+      "type": "string",
+      "description": "The mime type for the document"
+     },
+     "workflow": {
+      "type": "string",
+      "description": "The workflow we want this offer to follow"
+     },
+     "file": {
+      "type": "string",
+      "description": "The file to be uploaded, either this property of the rawSourceUrl property must be specified",
+      "format": "binary"
+     }
+    },
+    "required": [
+     "systemId",
+     "url",
+     "privateKey",
+     "offerReference",
+     "pin",
+     "documentSecurityLevel",
+     "attestationLevel"
+    ]
+   },
+   "TestDocumentDeliveryRegister": {
+    "type": "object",
+    "properties": {
+     "systemCode": {
+      "type": "string",
+      "description": "The code of the institution we want to register"
+     },
+     "url": {
+      "type": "string",
+      "description": "The url of the document delivery system"
+     },
+     "name": {
+      "type": "string",
+      "description": "The name of the institution we are registering for"
+     },
+     "attestationLevel": {
+      "type": "string",
+      "description": "The attestation level",
+      "enum": [
+       "SIMPLE"
+      ]
+     }
+    },
+    "required": [
+     "systemCode",
+     "url",
+     "name",
+     "attestationLevel"
+    ]
+   }
+  },
+  "responses": {
+   "BadRequest": {
+    "description": "Bad Request",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      },
+      "example": {
+       "errors": [
+        {
+         "code": "validation",
+         "type": "BadRequest",
+         "message": "The input provided is invalid.",
+         "parameters": [
+          {
+           "name": "field",
+           "value": "must not be empty"
+          }
+         ]
+        }
+       ],
+       "total_records": 1
+      }
+     }
+    }
+   },
+   "InternalServerError": {
+    "description": "Internal Server Error",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      },
+      "example": {
+       "errors": [
+        {
+         "code": "service",
+         "type": "InternalServerErrorException",
+         "message": "Unknown Service Exception"
+        }
+       ],
+       "total_records": 1
+      }
+     }
+    }
+   },
+   "NotFound": {
+    "description": "Resource Not Found",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      },
+      "example": {
+       "errors": [
+        {
+         "code": "not_found",
+         "type": "EntityNotFoundException",
+         "message": "Entity is not found.",
+         "parameters": [
+          {
+           "name": "id",
+           "value": "5ac63bf6-20e4-4449-9efd-01dbca051acf"
+          }
+         ]
+        }
+       ],
+       "total_records": 1
+      }
+     }
+    }
+   }
+  }
+ }
+}

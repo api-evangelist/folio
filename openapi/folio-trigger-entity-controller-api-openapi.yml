@@ -1,0 +1,307 @@
+openapi: 3.2.0
+info:
+  title: Folio Trigger Entity Controller API
+  version: v0
+  description: 'Operations tagged trigger-entity-controller across 2 of this provider''s published API definitions: folio-mod-workflow-openapi-openapi.json, folio-mod-workflow-openapi-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:9000
+  description: Generated server url
+tags:
+- name: trigger-entity-controller
+paths:
+  /triggers:
+    get:
+      tags:
+      - trigger-entity-controller
+      description: get-trigger
+      operationId: getCollectionResource-trigger-get
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: 'Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PagedModelEntityModelTrigger'
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: '#/components/schemas/PagedModelEntityModelTrigger'
+            text/uri-list:
+              schema:
+                type: string
+      summary: Get collection resource trigger get
+      x-summary-source: derived
+    post:
+      tags:
+      - trigger-entity-controller
+      description: create-trigger
+      operationId: postCollectionResource-trigger-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggerRequestBody'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTrigger'
+      summary: Post collection resource trigger post
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:9000
+      description: Generated server url
+  /triggers/{id}:
+    get:
+      tags:
+      - trigger-entity-controller
+      description: get-trigger
+      operationId: getItemResource-trigger-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTrigger'
+        '404':
+          description: Not Found
+      summary: Get item resource trigger get
+      x-summary-source: derived
+    put:
+      tags:
+      - trigger-entity-controller
+      description: update-trigger
+      operationId: putItemResource-trigger-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggerRequestBody'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTrigger'
+        '201':
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTrigger'
+        '204':
+          description: No Content
+      summary: Put item resource trigger put
+      x-summary-source: derived
+    delete:
+      tags:
+      - trigger-entity-controller
+      description: delete-trigger
+      operationId: deleteItemResource-trigger-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+      summary: Delete item resource trigger delete
+      x-summary-source: derived
+    patch:
+      tags:
+      - trigger-entity-controller
+      description: patch-trigger
+      operationId: patchItemResource-trigger-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggerRequestBody'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelTrigger'
+        '204':
+          description: No Content
+      summary: Patch item resource trigger patch
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:9000
+      description: Generated server url
+components:
+  schemas:
+    PageMetadata:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+    EntityModelTrigger:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 4
+        description:
+          type: string
+          maxLength: 256
+          minLength: 0
+        pathPattern:
+          type: string
+          maxLength: 256
+          minLength: 2
+        method:
+          type: string
+          enum:
+          - GET
+          - HEAD
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+          - TRACE
+        _links:
+          $ref: '#/components/schemas/Links'
+      required:
+      - method
+      - name
+      - pathPattern
+    TriggerRequestBody:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          maxLength: 64
+          minLength: 4
+        description:
+          type: string
+          maxLength: 256
+          minLength: 0
+        pathPattern:
+          type: string
+          maxLength: 256
+          minLength: 2
+        method:
+          type: string
+          enum:
+          - GET
+          - HEAD
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+          - TRACE
+      required:
+      - method
+      - name
+      - pathPattern
+    PagedModelEntityModelTrigger:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            triggers:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelTrigger'
+        _links:
+          $ref: '#/components/schemas/Links'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+    Links:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Link'
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        hreflang:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        deprecation:
+          type: string
+        profile:
+          type: string
+        name:
+          type: string
+        templated:
+          type: boolean
+x-refined-from:
+- folio-mod-workflow-openapi-openapi.json
+- folio-mod-workflow-openapi-openapi.yml

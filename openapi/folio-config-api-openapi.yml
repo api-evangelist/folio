@@ -1,0 +1,729 @@
+openapi: 3.2.0
+info:
+  title: Folio Config API
+  version: v4.1.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged config across 2 of this provider''s published API definitions: folio-mod-search-openapi.json, folio-mod-search-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://{environment}-okapi.ci.folio.org
+  variables:
+    environment:
+      default: folio-dev-spitfire
+      enum:
+      - folio-dev-spitfire
+      - folio-perf-spitfire
+- description: Reference environments.
+  url: https://folio-{environment}-okapi.dev.folio.org
+  variables:
+    environment:
+      default: snapshot
+      enum:
+      - snapshot
+      - snapshot-2
+tags:
+- description: Provides endpoints to configure search and browse features, such as enabling/disabling specific features or managing language settings.
+  name: Config
+paths:
+  /search/config/languages:
+    get:
+      description: Get all supported languages
+      operationId: getAllLanguageConfigs
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                languageConfigsResponse:
+                  value:
+                    languageConfigs:
+                    - code: eng
+                      languageAnalyzer: eng-analyzer
+                    - code: ukr
+                      languageAnalyzer: ukr-analyzer
+                    totalRecords: 2
+              schema:
+                $ref: '#/components/schemas/languageConfigs'
+          description: All supported languages
+      summary: Get Language Configurations
+      tags:
+      - Config
+    post:
+      description: Save languages that will be used for analyzers
+      operationId: createLanguageConfig
+      requestBody:
+        content:
+          application/json:
+            examples:
+              createLanguageConfigRequest:
+                value:
+                  code: eng
+                  languageAnalyzer: eng-analyzer
+            schema:
+              $ref: '#/components/schemas/languageConfig'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                createLanguageConfigResponse:
+                  value:
+                    code: eng
+                    languageAnalyzer: eng-analyzer
+              schema:
+                $ref: '#/components/schemas/languageConfig'
+          description: Language support has been added.
+        '422':
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation error for the request.
+      summary: Create Language Configuration
+      tags:
+      - Config
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/config/languages/{code}:
+    delete:
+      description: Delete all supported languages
+      operationId: deleteLanguageConfig
+      parameters:
+      - description: Language code
+        in: path
+        name: code
+        required: true
+        schema:
+          pattern: '[a-zA-Z]{3}'
+          type: string
+      responses:
+        '204':
+          description: Language support has been removed
+        '404':
+          description: No language support is found
+      summary: Delete Language Configuration
+      tags:
+      - Config
+    put:
+      description: Update language config settings
+      operationId: updateLanguageConfig
+      parameters:
+      - description: Language code
+        in: path
+        name: code
+        required: true
+        schema:
+          pattern: '[a-zA-Z]{3}'
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              updateLanguageConfigRequest:
+                value:
+                  code: eng
+                  languageAnalyzer: eng-analyzer
+            schema:
+              $ref: '#/components/schemas/languageConfig'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                updateLanguageConfigResponse:
+                  value:
+                    code: eng
+                    languageAnalyzer: eng-analyzer
+              schema:
+                $ref: '#/components/schemas/languageConfig'
+          description: Language support has been added.
+        '422':
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation error for the request.
+      summary: Update Language Configuration
+      tags:
+      - Config
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/config/features:
+    get:
+      description: Get all feature configurations per tenant
+      operationId: getAllFeatures
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                allFeaturesResponse:
+                  value:
+                    features:
+                    - feature: search.all.fields
+                      enabled: false
+                    totalRecords: 1
+              schema:
+                $ref: '#/components/schemas/featureConfigs'
+          description: All feature configurations
+      summary: Get Feature Configurations
+      tags:
+      - Config
+    post:
+      description: Save feature configuration (enables or disables pre-defined optional search options)
+      operationId: saveFeatureConfiguration
+      requestBody:
+        content:
+          application/json:
+            examples:
+              createRequest:
+                $ref: '#/components/examples/updateCreateFeatureRequest'
+            schema:
+              $ref: '#/components/schemas/featureConfig'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                createResponse:
+                  $ref: '#/components/examples/updateFeatureResponse'
+              schema:
+                $ref: '#/components/schemas/featureConfig'
+          description: Language support has been added.
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '422':
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation error for the request.
+      summary: Save Feature Configuration
+      tags:
+      - Config
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/config/features/{featureId}:
+    delete:
+      description: Delete feature configuration by id
+      operationId: deleteFeatureConfigurationById
+      parameters:
+      - description: Feature id (name)
+        in: path
+        name: featureId
+        required: true
+        schema:
+          enum:
+          - search.all.fields
+          - browse.contributors
+          - browse.subjects
+          - browse.classifications
+          - browse.call-numbers
+          type: string
+      responses:
+        '204':
+          description: Feature configuration has been removed
+        '404':
+          description: No feature configuration is found by id
+      summary: Delete Feature Configuration
+      tags:
+      - Config
+    put:
+      description: Update feature configuration settings
+      operationId: updateFeatureConfiguration
+      parameters:
+      - description: Feature id (name)
+        in: path
+        name: featureId
+        required: true
+        schema:
+          enum:
+          - search.all.fields
+          - browse.contributors
+          - browse.subjects
+          - browse.classifications
+          - browse.call-numbers
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              updateRequest:
+                $ref: '#/components/examples/updateCreateFeatureRequest'
+            schema:
+              $ref: '#/components/schemas/featureConfig'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                updateResponse:
+                  $ref: '#/components/examples/updateFeatureResponse'
+              schema:
+                $ref: '#/components/schemas/featureConfig'
+          description: Feature configuration has been added.
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '422':
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation error for the request.
+      summary: Update Feature Configuration
+      tags:
+      - Config
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /browse/config/{browseType}:
+    get:
+      description: Get all configurations for browse type
+      operationId: getBrowseConfigs
+      parameters:
+      - description: Browse feature type
+        in: path
+        name: browseType
+        required: true
+        schema:
+          $ref: '#/components/schemas/browseType'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                configCollection:
+                  $ref: '#/components/examples/browseConfigCollectionResponse'
+              schema:
+                $ref: '#/components/schemas/browseConfigCollection'
+          description: All browse configurations for type
+      summary: Get Browse Configurations
+      tags:
+      - Config
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /browse/config/{browseType}/{browseOptionId}:
+    put:
+      description: Update configuration for browse type
+      operationId: putBrowseConfig
+      parameters:
+      - description: Browse feature type
+        in: path
+        name: browseType
+        required: true
+        schema:
+          $ref: '#/components/schemas/browseType'
+      - description: Browse option type
+        in: path
+        name: browseOptionId
+        required: true
+        schema:
+          $ref: '#/components/schemas/browseOptionType'
+      requestBody:
+        content:
+          application/json:
+            examples:
+              updateRequest:
+                $ref: '#/components/examples/browseConfigUpdateRequest'
+            schema:
+              $ref: '#/components/schemas/browseConfig'
+        required: true
+      responses:
+        '200':
+          description: Browse configuration has been updated.
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '422':
+          content:
+            application/json:
+              examples:
+                response:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation error for the request.
+      summary: Update Browse Configurations
+      tags:
+      - Config
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+components:
+  examples:
+    browseConfigUpdateRequest:
+      value:
+        id: all
+        shelvingAlgorithm: default
+        typeIds:
+        - 7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d
+        - 1faf5a71-01cc-4f14-82e8-38e26b6e3071
+    browseConfigCollectionResponse:
+      value:
+        configs:
+        - id: all
+          shelvingAlgorithm: default
+          typeIds: []
+        - id: dewey
+          shelvingAlgorithm: dewey
+          typeIds: []
+        - id: lc
+          shelvingAlgorithm: lc
+          typeIds: []
+        totalRecords: 3
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    updateCreateFeatureRequest:
+      summary: Disable Search all fields feature.
+      value:
+        feature: search.all.fields
+        enabled: false
+    updateFeatureResponse:
+      summary: Disable Search all fields feature.
+      value:
+        feature: search.all.fields
+        enabled: false
+  schemas:
+    tenantConfiguredFeature:
+      description: The feature name.
+      enum:
+      - search.all.fields
+      - browse.contributors
+      - browse.subjects
+      - browse.classifications
+      - browse.call-numbers
+      type: string
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: 'null'
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    browseConfig:
+      example:
+        id: all
+        shelvingAlgorithm: lc
+        typeIds:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          $ref: '#/components/schemas/browseOptionType'
+        shelvingAlgorithm:
+          $ref: '#/components/schemas/shelvingOrderAlgorithmType'
+        typeIds:
+          description: Type IDs that should be used by the option
+          items:
+            description: Type ID
+            format: uuid
+            type: string
+          type: array
+      required:
+      - id
+      - shelvingAlgorithm
+      type: object
+    browseOptionType:
+      description: Browse option type
+      enum:
+      - all
+      - lc
+      - dewey
+      - nlm
+      - sudoc
+      - other
+      type: string
+    errorResponse:
+      description: A set of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        total_records:
+          description: Total number of errors
+          type: integer
+      type: object
+    featureConfigs:
+      additionalProperties: false
+      description: Feature configs response per tenant
+      example:
+        features:
+        - feature: search.all.fields
+          enabled: true
+        - feature: search.all.fields
+          enabled: true
+        totalRecords: 0
+      properties:
+        features:
+          description: Configured features per tenant
+          items:
+            $ref: '#/components/schemas/featureConfig'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          description: Total records that matches the query.
+          minimum: 0
+          type: integer
+      required:
+      - features
+      - totalRecords
+      type: object
+    browseConfigCollection:
+      example:
+        configs:
+        - id: all
+          shelvingAlgorithm: lc
+          typeIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - id: all
+          shelvingAlgorithm: lc
+          typeIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        totalRecords: 0
+      properties:
+        configs:
+          items:
+            $ref: '#/components/schemas/browseConfig'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          type: integer
+      type: object
+    languageConfigs:
+      additionalProperties: false
+      description: Language config
+      example:
+        languageConfigs:
+        - code: code
+          languageAnalyzer: languageAnalyzer
+        - code: code
+          languageAnalyzer: languageAnalyzer
+        totalRecords: 0
+      properties:
+        languageConfigs:
+          description: Configured languages for a tenant
+          items:
+            $ref: '#/components/schemas/languageConfig'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          description: Total records that matches the query.
+          minimum: 0
+          type: integer
+      required:
+      - languageConfigs
+      - totalRecords
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      type: object
+    browseType:
+      enum:
+      - instance-classification
+      - instance-call-number
+      type: string
+    languageConfig:
+      additionalProperties: false
+      description: Language config
+      example:
+        code: code
+        languageAnalyzer: languageAnalyzer
+      properties:
+        code:
+          description: An ISO-639-2/B compatible language code.
+          pattern: '[a-zA-Z]{3}'
+          type: string
+        languageAnalyzer:
+          description: Custom elasticsearch analyzer for language.
+          type: string
+      required:
+      - code
+      type: object
+    shelvingOrderAlgorithmType:
+      description: Shelving order algorithm
+      enum:
+      - lc
+      - dewey
+      - nlm
+      - sudoc
+      - default
+      type: string
+    featureConfig:
+      additionalProperties: false
+      description: Feature config request value
+      example:
+        feature: search.all.fields
+        enabled: true
+      properties:
+        feature:
+          $ref: '#/components/schemas/tenantConfiguredFeature'
+        enabled:
+          description: Action - enable or disable option
+          type: boolean
+      required:
+      - enabled
+      - feature
+      type: object
+x-refined-from:
+- folio-mod-search-openapi.json
+- folio-mod-search-openapi.yml

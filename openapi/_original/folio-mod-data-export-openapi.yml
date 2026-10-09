@@ -1,0 +1,3403 @@
+# x-archived-from: folio-mod-data-export-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Data export API
+  version: v1
+  description: Data export API
+servers:
+- url: /data-export/
+paths:
+  /export:
+    post:
+      description: Starts the export process
+      operationId: postDataExport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/exportRequest'
+            example:
+              fileDefinitionId: e5f54eb6-6d11-11ea-bc55-0242ac130003
+              jobProfileId: 2fd2bf30-9d03-4f7e-9393-df55eaef2c2f
+              idType: instance
+              recordType: INSTANCE
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '204':
+          description: Data export started
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /configuration:
+    post:
+      description: Adds configuration value
+      operationId: postDataExportConfiguration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/config'
+            example:
+              key: slice_size
+              value: '100000'
+      responses:
+        '201':
+          description: Configuration added/updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/config'
+              example:
+                key: slice_size
+                value: '100000'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: invalid slice size
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /quick-export:
+    post:
+      description: Starts quick export process
+      operationId: postDataExportQuickExport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/quickExportRequest'
+            example:
+              jobProfileId: 2fd2bf30-9d03-4f7e-9393-df55eaef2c2f
+              criteria: (source=="MARC" and discoverySuppress=="true")
+              uuids: []
+              type: cql
+              recordType: INSTANCE
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '200':
+          description: Data export started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/quickExportResponse'
+              example:
+                jobExecutionId: 5696d7aa-3bae-11eb-adc1-0242ac120002
+                jobExecutionHrId: 1
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /job-executions:
+    get:
+      description: API for getting JobExecutions by query
+      operationId: getJobExecutionsByQuery
+      parameters:
+      - $ref: '#/components/parameters/trait_queryable'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      responses:
+        '200':
+          description: Collection of job executions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jobExecutionCollection'
+              example:
+                jobExecutions:
+                - id: 67dfac11-1caf-4470-9ad1-d533f6360bdd
+                  hrId: 199
+                  exportedFiles:
+                  - fileId: 448ae575-daec-49c1-8041-d64c8ed8e5b1
+                    fileName: catrepbarcodes-20200116114002.mrc
+                  - fileId: 295e28b4-aea2-4458-9073-385a31e1da05
+                    fileName: fullexportbibonly-20200116103001.mrc
+                  - fileId: bb689511-5365-4050-8084-a03d94728d88
+                    fileName: umadm-n-20200116100503.mrc
+                  jobProfileInfo:
+                    id: 88dfac11-1caf-4470-9ad1-d533f6360bad
+                    destination: fileSystem
+                    name: default
+                  progress:
+                    exported: 109000
+                    failed: 485
+                    total: 109485
+                  completedDate: 2019-10-30T12:40:01.000+0000
+                  startedDate: 2019-10-30T12:37:02.000+0000
+                  runBy:
+                    firstName: Jane
+                    lastName: Doe
+                  status: SUCCESS
+                  metadata:
+                    createdDate: 2019-07-22T11:22:07.000+0000
+                    createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                    createdByUsername: janedoeuser
+                    updatedDate: 2019-07-27T13:28:54.000+0000
+                    updatedByUserId: ''
+                    updatedByUsername: ''
+                totalRecords: 1
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '401':
+          description: Not authorized to perform requested action
+          content:
+            text/plain:
+              example: unauthorized
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /job-executions/{jobExecutionId}:
+    delete:
+      description: Delete a specific job execution
+      operationId: deleteJobExecutionById
+      parameters:
+      - name: jobExecutionId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '204':
+          description: Item deleted successfully
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: JobExecution not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /job-executions/{jobExecutionId}/download/{exportFileId}:
+    get:
+      description: API for getting the link to download files
+      operationId: getLinkToDownloadFiles
+      parameters:
+      - name: jobExecutionId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      - name: exportFileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: Job execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileDownload'
+              example:
+                fileId: 448ae575-daec-49c1-8041-d64c8ed8e5b1
+                link: https://test-aws-export-vk.s3.amazonaws.com/CatShip.mrc?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200220T185104Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3599&X-Amz-Credential=AKUAIZOH6UABI4QDF678%2F20200220%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=2d87fd96cd1b05ee74228ee9124bc0ad34196a08b03c62453e9588aa3e485a77
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /expire-jobs:
+    post:
+      description: Method to expire long running jobs
+      operationId: postExpireJobExecution
+      responses:
+        '204':
+          description: Executed
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /clean-up-files:
+    post:
+      description: API to start clean up mechanism of file definitions and related generated files
+      operationId: postCleanUpFiles
+      responses:
+        '204':
+          description: Executed
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /transformation-fields:
+    get:
+      description: API for getting transformation fields
+      operationId: getTransformationFields
+      responses:
+        '200':
+          description: Transformation fields collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transformationFieldCollection'
+              example:
+                transformationFields:
+                - fieldId: instance.identifiers.invalid.issn
+                  displayNameKey: instance.identifiers
+                  referenceDataValue: Invalid ISSN
+                  path: $.instance[*].identifiers[?(@identifierTypeId==27fd35a6-b8f6-41f2-aa0e-9c663ceb250c)].value
+                  recordType: INSTANCE
+                totalRecords: 1
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '401':
+          description: Not authorized to perform requested action
+          content:
+            text/plain:
+              example: unauthorized
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /mapping-profiles:
+    get:
+      description: API for getting mapping profiles
+      operationId: getMappingProfiles
+      parameters:
+      - $ref: '#/components/parameters/trait_queryable'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      responses:
+        '200':
+          description: Mapping profiles collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mappingProfileCollection'
+              example:
+                mappingProfiles:
+                - id: 3798f546-7afb-11ea-bc55-0242ac130003
+                  name: Example mapping profile
+                  description: Example mapping profile description
+                  recordTypes:
+                  - INSTANCE
+                  outputFormat: MARC
+                  transformations:
+                  - fieldId: electronicAccess.linkText
+                    path: Json path for electronicAccess[*].linkText
+                    transformation: '001'
+                    enabled: true
+                    recordType: INSTANCE
+                  userInfo:
+                    firstName: User
+                    lastName: User
+                    userName: '@username'
+                  metadata:
+                    createdDate: '2020-04-10T12:41:22.000'
+                    createdByUserId: ''
+                    createdByUsername: '@username'
+                    updatedDate: '2020-04-10T12:41:22.000'
+                    updatedByUserId: ''
+                    updatedByUsername: '@username'
+                totalRecords: 1
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '401':
+          description: Not authorized to perform requested action
+          content:
+            text/plain:
+              example: unauthorized
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+    post:
+      description: API for uploading mapping profiles
+      operationId: postMappingProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mappingProfile'
+            example:
+              id: 3798f546-7afb-11ea-bc55-0242ac130003
+              name: Mapping profile
+              description: Mapping profile description
+              recordTypes:
+              - INSTANCE
+              outputFormat: MARC
+              transformations:
+              - fieldId: electronicAccess.linkText
+                path: Json path for electronicAccess[*].linkText
+                transformation: '001'
+                enabled: true
+                recordType: INSTANCE
+              userInfo:
+                firstName: User
+                lastName: User
+                userName: '@username'
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '201':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mappingProfile'
+              example:
+                id: 3798f546-7afb-11ea-bc55-0242ac130003
+                name: Mapping profile
+                description: Mapping profile description
+                recordTypes:
+                - INSTANCE
+                outputFormat: MARC
+                transformations:
+                - fieldId: electronicAccess.linkText
+                  path: Json path for electronicAccess[*].linkText
+                  transformation: '001'
+                  enabled: true
+                  recordType: INSTANCE
+                userInfo:
+                  firstName: User
+                  lastName: User
+                  userName: '@username'
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+            text/plain:
+              example: Invalid request
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /mapping-profiles/{mappingProfileId}:
+    get:
+      description: Get specific mapping profile
+      operationId: getMappingProfileById
+      parameters:
+      - name: mappingProfileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: Mapping profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mappingProfile'
+              example:
+                id: 3798f546-7afb-11ea-bc55-0242ac130003
+                name: Mapping profile
+                description: Mapping profile description
+                recordTypes:
+                - INSTANCE
+                outputFormat: MARC
+                transformations:
+                - fieldId: electronicAccess.linkText
+                  path: Json path for electronicAccess[*].linkText
+                  transformation: '001'
+                  enabled: true
+                  recordType: INSTANCE
+                userInfo:
+                  firstName: User
+                  lastName: User
+                  userName: '@username'
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+    put:
+      description: Update specific mapping profile
+      operationId: putMappingProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mappingProfile'
+            example:
+              id: 3798f546-7afb-11ea-bc55-0242ac130003
+              name: Mapping profile
+              description: Mapping profile description
+              recordTypes:
+              - INSTANCE
+              outputFormat: MARC
+              transformations:
+              - fieldId: electronicAccess.linkText
+                path: Json path for electronicAccess[*].linkText
+                transformation: '001'
+                enabled: true
+                recordType: INSTANCE
+              userInfo:
+                firstName: User
+                lastName: User
+                userName: '@username'
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      parameters:
+      - name: mappingProfileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '204':
+          description: Updated
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+    delete:
+      description: Delete specific mapping profile
+      operationId: deleteMappingProfileById
+      parameters:
+      - name: mappingProfileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /logs:
+    get:
+      description: APIs supporting Error logs
+      operationId: getErrorLogsByQuery
+      parameters:
+      - $ref: '#/components/parameters/trait_queryable'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      responses:
+        '200':
+          description: Collection error logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorLogCollection'
+              example:
+                errorLogs:
+                - id: de55d20e-4daf-49bf-8bf0-ae7eada8b80c
+                  jobExecutionId: 67dfac11-1caf-4470-9ad1-d533f6360bdd
+                  createdDate: '2019-07-22T11:22:07Z'
+                  logLevel: ERROR
+                  reason: 200
+                  affectedRecords:
+                  - id: 57c79d87-6510-4354-b212-96832fbf3fa1
+                    hrid: '200'
+                    title: Record title
+                    recordType: INSTANCE
+                  metadata:
+                    createdDate: '2019-09-15T11:22:07Z'
+                    createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                    createdByUsername: janedoeuser
+                    updatedDate: '2019-09-15T13:28:54Z'
+                    updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                    updatedByUsername: ''
+                totalRecords: '1'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '401':
+          description: Not authorized to perform requested action
+          content:
+            text/plain:
+              example: unauthorized
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /job-profiles:
+    get:
+      description: API for getting job profiles
+      operationId: getJobProfiles
+      parameters:
+      - $ref: '#/components/parameters/trait_used_in_completed_jobs'
+      - $ref: '#/components/parameters/trait_queryable'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      responses:
+        '200':
+          description: Job profiles collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jobProfileCollection'
+              example:
+                jobProfiles:
+                - id: 448ae575-daec-49c1-8041-d64c8ed8e5b1
+                  name: Job profile name
+                  destination: fileSystem
+                  description: Job profile description
+                  userInfo:
+                    firstName: DIKU
+                    lastName: ADMINISTRATOR
+                    userName: diku_admin
+                  mappingProfileId: 3798f546-7afb-11ea-bc55-0242ac130003
+                  metadata:
+                    createdDate: '2020-04-10T12:41:22.000'
+                    createdByUserId: ''
+                    createdByUsername: '@username'
+                    updatedDate: '2020-04-10T12:41:22.000'
+                    updatedByUserId: ''
+                    updatedByUsername: '@username'
+                totalRecords: 1
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '401':
+          description: Not authorized to perform requested action
+          content:
+            text/plain:
+              example: unauthorized
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+    post:
+      description: API for uploading job profiles
+      operationId: postJobProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/jobProfile'
+            example:
+              id: 448ae575-daec-49c1-8041-d64c8ed8e5b1
+              name: job profile name
+              destination: fileSystem
+              description: Job profile description
+              userInfo:
+                firstName: DIKU
+                lastName: ADMINISTRATOR
+                userName: diku_admin
+              mappingProfileId: 3798f546-7afb-11ea-bc55-0242ac130003
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '201':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jobProfile'
+              example:
+                id: 448ae575-daec-49c1-8041-d64c8ed8e5b1
+                name: job profile name
+                destination: fileSystem
+                description: Job profile description
+                userInfo:
+                  firstName: DIKU
+                  lastName: ADMINISTRATOR
+                  userName: diku_admin
+                mappingProfileId: 3798f546-7afb-11ea-bc55-0242ac130003
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /job-profiles/{jobProfileId}:
+    get:
+      description: Get specific job profile
+      operationId: getJobProfileById
+      parameters:
+      - name: jobProfileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: Job profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jobProfile'
+              example:
+                id: 448ae575-daec-49c1-8041-d64c8ed8e5b1
+                name: job profile name
+                destination: fileSystem
+                description: Job profile description
+                userInfo:
+                  firstName: DIKU
+                  lastName: ADMINISTRATOR
+                  userName: diku_admin
+                mappingProfileId: 3798f546-7afb-11ea-bc55-0242ac130003
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+    put:
+      description: Update specific job profile
+      operationId: putJobProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/jobProfile'
+            example:
+              id: 448ae575-daec-49c1-8041-d64c8ed8e5b1
+              name: job profile name
+              destination: fileSystem
+              description: Job profile description
+              userInfo:
+                firstName: DIKU
+                lastName: ADMINISTRATOR
+                userName: diku_admin
+              mappingProfileId: 3798f546-7afb-11ea-bc55-0242ac130003
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      parameters:
+      - name: jobProfileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '204':
+          description: Updated
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+    delete:
+      description: Delete specific job profile
+      operationId: deleteJobProfileById
+      parameters:
+      - name: jobProfileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /file-definitions:
+    post:
+      description: API for uploading files
+      operationId: postFileDefinition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fileDefinition'
+            example:
+              id: 88dfac11-1caf-4470-9ad1-d533f6360bdd
+              fileName: marc.csv
+              status: COMPLETED
+              size: 200
+              uploadFormat: csv
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '201':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileDefinition'
+              example:
+                id: 88dfac11-1caf-4470-9ad1-d533f6360bdd
+                fileName: marc.csv
+                status: COMPLETED
+                size: 200
+                uploadFormat: csv
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '413':
+          description: Request entity too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /file-definitions/{fileDefinitionId}:
+    get:
+      description: Get specific file definition
+      operationId: getFileDefinitionById
+      parameters:
+      - name: fileDefinitionId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: File definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileDefinition'
+              example:
+                id: 88dfac11-1caf-4470-9ad1-d533f6360bdd
+                fileName: marc.csv
+                status: COMPLETED
+                size: 200
+                uploadFormat: csv
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /file-definitions/{fileDefinitionId}/upload:
+    post:
+      description: Upload file definition
+      operationId: uploadFile
+      parameters:
+      - name: fileDefinitionId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      requestBody:
+        required: false
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileDefinition'
+              example:
+                id: 88dfac11-1caf-4470-9ad1-d533f6360bdd
+                fileName: marc.csv
+                status: COMPLETED
+                size: 200
+                uploadFormat: csv
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /export-all:
+    post:
+      description: Export all records of the specific type
+      operationId: postExportAll
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/exportAllRequest'
+            example:
+              jobProfileId: 2fd2bf30-9d03-4f7e-9393-df55eaef2c2f
+              idType: instance
+              deletedRecords: true
+              suppressedFromDiscovery: false
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '204':
+          description: Data export all started
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: invalid request parameters
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /related-users:
+    get:
+      description: Get only users who have ever started export
+      operationId: getRelatedUsers
+      responses:
+        '200':
+          description: Related user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/relatedUserCollection'
+              example:
+                relatedUsers:
+                - firstName: John
+                  lastName: Doe
+                  userId: 6b380aa8-4070-4497-a466-22345fde64c0
+                totalRecords: 1
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Related users not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /export-deleted:
+    post:
+      description: Export of deleted MARC IDs
+      operationId: postExportDeletedMarcIds
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/exportDeletedMarcIdsRequest'
+            example:
+              from: '2024-04-26'
+              to: '2024-04-26'
+      responses:
+        '200':
+          description: Data export of deleted MARC IDs completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exportDeletedMarcIdsResponse'
+              example:
+                jobExecutionId: 5696d7aa-3bae-11eb-adc1-0242ac120002
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: invalid request parameters
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /export-authority-deleted:
+    post:
+      description: Export of deleted authority records
+      operationId: postExportDeletedAuthority
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/exportAuthorityDeletedRequest'
+            example:
+              offset: '0'
+              limit: 10
+              query: headingType=personalName&createdDate>2021-10-25T12:00:00.0
+      responses:
+        '200':
+          description: Data export of deleted authority completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/exportAuthorityDeletedResponse'
+              example:
+                jobExecutionId: 5696d7aa-3bae-11eb-adc1-0242ac120002
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: invalid request parameters
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+  /download-record/{recordId}:
+    get:
+      description: Download single authority or instance record by id
+      operationId: downloadRecordById
+      parameters:
+      - name: recordId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      - name: idType
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/idType'
+      - name: utf
+        in: query
+        description: Specify whether to encode the file in UTF-8.
+        required: false
+        schema:
+          type: boolean
+          default: true
+      - name: suppress999ff
+        in: query
+        description: Specify whether to suppress 999ff field.
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: A file download in binary format
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '500':
+          description: Internal server errors
+          content:
+            text/plain:
+              example: Internal server error
+components:
+  schemas:
+    uuid:
+      type: string
+      format: uuid
+    idType:
+      description: Specifies the type of record to download.
+      type: string
+      enum:
+      - AUTHORITY
+      - INSTANCE
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    fileDefinition:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: File definition
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: UUID of this File Definition
+          type: string
+          format: uuid
+        fileName:
+          description: File name
+          type: string
+        jobExecutionId:
+          description: Job execution id
+          type: string
+          format: uuid
+        sourcePath:
+          description: Path to the file
+          type: string
+        status:
+          description: Status of file upload
+          type: string
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - COMPLETED
+          - ERROR
+        size:
+          description: Size of the file in Kbyte
+          type: integer
+        uploadFormat:
+          description: Format of upload file
+          type: string
+          enum:
+          - csv
+          - cql
+          default: csv
+        metadata:
+          description: 'Meta information '
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - fileName
+    exportRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data to start export process
+      type: object
+      additionalProperties: false
+      properties:
+        fileDefinitionId:
+          description: File definition id
+          type: string
+          format: uuid
+        jobProfileId:
+          description: Related Job profile id
+          type: string
+          format: uuid
+        recordType:
+          description: Defines a type of records to search by criteria or UUIDs
+          type: string
+          enum:
+          - INSTANCE
+          - HOLDINGS
+          - ITEM
+          - AUTHORITY
+          - LINKED_DATA
+        idType:
+          description: Type of provided uuids
+          type: string
+          enum:
+          - instance
+          - holding
+          - authority
+          default: instance
+        all:
+          description: True if all IDs of idType need to be exported, otherwise false
+          type: boolean
+          default: false
+        quick:
+          description: True if quick export, otherwise false
+          type: boolean
+          default: false
+        deletedRecords:
+          description: True if need to include deleted records, otherwise false
+          type: boolean
+          default: true
+        suppressedFromDiscovery:
+          description: True if need to include suppressed from discovery records, otherwise false
+          type: boolean
+          default: false
+        lastSlice:
+          description: True if within the current export the current slice from ID to ID is the last one
+          type: boolean
+          default: false
+        lastExport:
+          description: True the current export is the last one
+          type: boolean
+          default: false
+        metadata:
+          description: 'Meta information '
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - fileDefinitionId
+      - jobProfileId
+      - idType
+    quickExportRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data to start export process from inventory
+      type: object
+      additionalProperties: false
+      properties:
+        jobProfileId:
+          description: Job profile id to be used for export
+          type: string
+          format: uuid
+        criteria:
+          description: CQL query for records search
+          type: string
+        uuids:
+          description: List of UUIDs of records to export
+          type: array
+          items:
+            type: string
+            format: uuid
+        type:
+          description: 'Defines a type of searching the records: by UUIDs or CQL query'
+          type: string
+          enum:
+          - cql
+          - uuid
+        recordType:
+          description: Defines a type of records to search by criteria or UUIDs
+          type: string
+          enum:
+          - INSTANCE
+          - HOLDINGS
+          - ITEM
+          - AUTHORITY
+        fileName:
+          description: Name of the generated marc file
+          type: string
+        metadata:
+          description: 'Meta information '
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - type
+      - recordType
+    quickExportResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Quick export response
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutionId:
+          description: UUID of the job execution, that is used for quick export
+          type: string
+          format: uuid
+        jobExecutionHrId:
+          description: HrId of the job execution, that is used for quick export
+          type: integer
+      required:
+      - jobExecutionId
+      - jobExecutionHrId
+    jobExecutionCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of execution jobs
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutions:
+          description: List of execution jobs
+          type: array
+          id: jobExecutionList
+          items:
+            type: object
+            $ref: '#/components/schemas/jobExecution'
+        totalRecords:
+          type: integer
+      required:
+      - jobExecutions
+      - totalRecords
+    jobExecution:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Job Execution Schema
+      type: object
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          format: uuid
+        hrId:
+          description: Human readable id
+          type: integer
+        exportedFiles:
+          description: List of exported files
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              fileId:
+                description: File unique identifier
+                type: string
+                format: uuid
+              fileName:
+                description: File name
+                type: string
+        jobProfileId:
+          description: Related JobProfile id
+          type: string
+          format: uuid
+        jobProfileName:
+          description: Related JobProfile name
+          type: string
+          readonly: true
+        progress:
+          description: Execution progress of the job
+          type: object
+          properties:
+            exported:
+              description: Number of successfully exported records
+              type: integer
+              default: 0
+            failed:
+              description: Number of records that are failed on export
+              type: integer
+              default: 0
+            duplicatedSrs:
+              description: Number of srs records that are duplicated
+              type: integer
+              default: 0
+            total:
+              description: Total number of records
+              type: integer
+              default: 0
+            readIds:
+              description: Number of readed ids for temp table for slicing
+              type: integer
+              default: 0
+        completedDate:
+          description: Date and time when the job execution completed
+          type: string
+          format: date-time
+        lastUpdatedDate:
+          description: Date and time when the job execution was last updated
+          type: string
+          format: date-time
+        startedDate:
+          description: Date and time when the job execution started
+          type: string
+          format: date-time
+        runBy:
+          description: First and last name of the user who triggered the job execution
+          type: object
+          properties:
+            firstName:
+              description: First name
+              type: string
+            lastName:
+              description: Last name
+              type: string
+            userId:
+              description: User id
+              type: string
+        status:
+          description: Status of files export
+          type: string
+          default: NEW
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - COMPLETED
+          - COMPLETED_WITH_ERRORS
+          - FAIL
+        metadata:
+          description: Metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - status
+    fileDownload:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: File that should be exported
+      type: object
+      properties:
+        fileId:
+          description: File unique identifier
+          type: string
+          format: uuid
+        link:
+          description: Download link to the file
+          type: string
+      required:
+      - fileId
+      - link
+    transformationFieldCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of transformation fields
+      type: object
+      additionalProperties: false
+      properties:
+        transformationFields:
+          description: List of transformation fields
+          type: array
+          id: transformationFieldsList
+          items:
+            type: object
+            $ref: '#/components/schemas/transformationField'
+        totalRecords:
+          description: Total number of transformation fields
+          type: integer
+      required:
+      - transformationFields
+      - totalRecords
+    mappingProfile:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Mapping Profile schema
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          format: uuid
+        name:
+          description: Mapping Profile name
+          type: string
+        default:
+          description: Is default mapping profile
+          type: boolean
+          default: false
+          readonly: true
+        description:
+          description: Mapping Profile description
+          type: string
+        recordTypes:
+          description: Mapping Profile records type
+          type: array
+          items:
+            type: string
+            $ref: '#/components/schemas/recordTypes'
+        transformations:
+          description: List of mapping profile transformations
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/transformations'
+        userInfo:
+          description: First name, last name and username of the user, who updated the Mapping Profile
+          type: object
+          $ref: '#/components/schemas/userInfo'
+        outputFormat:
+          description: Mapping Profile output format
+          type: string
+          enum:
+          - MARC
+          - LINKED_DATA
+        fieldsSuppression:
+          description: Fields to suppress
+          type: string
+        suppress999ff:
+          description: Supress 999 field rule
+          type: boolean
+          default: false
+        locked:
+          description: True if locked, false if unlocked
+          type: boolean
+          default: false
+        lockedBy:
+          description: UUID of the user who locked the mapping profile
+          type: string
+          format: uuid
+        lockedAt:
+          description: Date and time when mapping profile was locked
+          type: string
+          format: date-time
+        metadata:
+          description: Metadata provided by the server
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      required:
+      - name
+      - recordTypes
+    mappingProfileCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of Mapping Profiles
+      type: object
+      additionalProperties: false
+      properties:
+        mappingProfiles:
+          description: List of Mapping Profiles
+          type: array
+          id: mappingProfileList
+          items:
+            type: object
+            $ref: '#/components/schemas/mappingProfile'
+        totalRecords:
+          description: Total number of Mapping Profiles
+          type: integer
+      required:
+      - mappingProfiles
+      - totalRecords
+    affectedRecord:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: File that should be exported
+      type: object
+      properties:
+        id:
+          description: Record UUID
+          type: string
+        hrid:
+          description: Record HRID
+          type: string
+        title:
+          description: Record title
+          type: string
+        recordType:
+          description: Record type
+          type: object
+          $ref: '#/components/schemas/recordTypes'
+        inventoryRecordLink:
+          description: Link to the affected inventory record
+          type: string
+        affectedRecords:
+          description: Affected record
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/affectedRecord'
+      required:
+      - hrid
+      - recordType
+    errorLog:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Error log with all details
+      type: object
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          format: uuid
+        jobExecutionId:
+          description: UUID of the related job execution
+          type: string
+          format: uuid
+        createdDate:
+          description: Creation datetime
+          type: string
+          format: date-time
+        logLevel:
+          description: Log level
+          type: string
+          enum:
+          - DEBUG
+          - INFO
+          - WARNING
+          - ERROR
+          default: ERROR
+        errorMessageCode:
+          description: Code of error message
+          type: string
+        errorMessageValues:
+          description: Values should be used to replace placeholders in error messages
+          type: array
+          items:
+            type: string
+        affectedRecord:
+          type: object
+          description: Affected record log
+          $ref: '#/components/schemas/affectedRecord'
+        metadata:
+          description: Metadata provided by the server
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      required:
+      - createdDate
+      - logLevel
+      - affectedRecord
+    errorLogCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of Error Logs
+      type: object
+      additionalProperties: false
+      properties:
+        errorLogs:
+          description: List of Error Logs
+          type: array
+          id: errorLogList
+          items:
+            type: object
+            $ref: '#/components/schemas/errorLog'
+        totalRecords:
+          description: Total number of Error Logs
+          type: integer
+      required:
+      - errorLogs
+      - totalRecords
+    jobProfile:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Job profile
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          format: uuid
+        name:
+          description: Job Profile name
+          type: string
+        default:
+          description: Is default job profile
+          type: boolean
+          default: false
+          readonly: true
+        destination:
+          description: Final destination place where to send file
+          type: string
+        description:
+          description: Job Profile description
+          type: string
+        userInfo:
+          description: First name, last name and username of the user, who updated the Job Profile
+          type: object
+          $ref: '#/components/schemas/userInfo'
+        mappingProfileId:
+          description: Associated mapping profile id
+          type: string
+          format: uuid
+        protocol:
+          description: TCP/IP settings
+          type: object
+          $ref: '#/components/schemas/protocol'
+        locked:
+          description: True if locked, false if unlocked
+          type: boolean
+          default: false
+        lockedBy:
+          description: UUID of the user who locked the job profile
+          type: string
+          format: uuid
+        lockedAt:
+          description: Date and time when job profile was locked
+          type: string
+          format: date-time
+        metadata:
+          description: Metadata provided by the server
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      required:
+      - name
+      - mappingProfileId
+    jobProfileCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of Job Profiles
+      type: object
+      additionalProperties: false
+      properties:
+        jobProfiles:
+          description: List of Job Profiles
+          type: array
+          id: jobProfileList
+          items:
+            type: object
+            $ref: '#/components/schemas/jobProfile'
+        totalRecords:
+          description: Total number of Job Profiles
+          type: integer
+      required:
+      - jobProfiles
+      - totalRecords
+    alternativeDataType:
+      $ref: '#/components/schemas/alternativetitletype'
+    alternativeDataTypes:
+      $ref: '#/components/schemas/alternativetitletypes'
+    callNumberType:
+      $ref: '#/components/schemas/callnumbertype'
+    callNumberTypes:
+      $ref: '#/components/schemas/callnumbertypes'
+    contributorNameType:
+      $ref: '#/components/schemas/contributornametype'
+    contributorNameTypes:
+      $ref: '#/components/schemas/contributornametypes'
+    electronicAccessRelationship:
+      $ref: '#/components/schemas/electronicaccessrelationship'
+    electronicAccessRelationships:
+      $ref: '#/components/schemas/electronicaccessrelationships'
+    holdingsNoteType:
+      $ref: '#/components/schemas/holdingsnotetype'
+    holdingsNoteTypes:
+      $ref: '#/components/schemas/holdingsnotetypes'
+    identifierType:
+      $ref: '#/components/schemas/identifiertype'
+    identifierTypes:
+      $ref: '#/components/schemas/identifiertypes'
+    instanceFormat:
+      $ref: '#/components/schemas/instanceformat'
+    instanceFormats:
+      $ref: '#/components/schemas/instanceformats'
+    instanceNoteType:
+      $ref: '#/components/schemas/instancenotetype'
+    instanceNoteTypes:
+      $ref: '#/components/schemas/instancenotetypes'
+    instanceType:
+      $ref: '#/components/schemas/instancetype'
+    instanceTypes:
+      $ref: '#/components/schemas/instancetypes'
+    modeOfIssuance:
+      $ref: '#/components/schemas/modeofissuance'
+    issuanceModes:
+      $ref: '#/components/schemas/issuancemodes'
+    itemNoteType:
+      $ref: '#/components/schemas/itemnotetype'
+    itemNoteTypes:
+      $ref: '#/components/schemas/itemnotetypes'
+    loanType:
+      $ref: '#/components/schemas/loantype'
+    loanTypes:
+      $ref: '#/components/schemas/loantypes'
+    location:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A (shelf) location, the forth-level location unit below institution, campus, and library.
+      type: object
+      properties:
+        id:
+          description: id of this (shelf) location record as UUID.
+          type: string
+        name:
+          description: Name of the (shelf) location
+          type: string
+        code:
+          description: Code of the (shelf) location, usually an abbreviation of the name.
+          type: string
+        description:
+          description: Description of the (shelf) location.
+          type: string
+        discoveryDisplayName:
+          description: Name of the (shelf) location to be shown in the discovery.
+          type: string
+        isActive:
+          description: Whether this (shelf) location is active. Inactive (shelf) locations can no longer been used.
+          type: boolean
+        institutionId:
+          description: The UUID of the institution, the first-level location unit, this (shelf) location belongs to.
+          type: string
+        institution:
+          description: The institution, the first-level location unit, this (shelf) location belongs to.
+          type: object
+          $ref: '#/components/schemas/institution'
+        campusId:
+          description: The UUID of the campus, the second-level location unit, this (shelf) location belongs to.
+          type: string
+        campus:
+          description: The campus, the second-level location unit, this (shelf) location belongs to
+          type: object
+          $ref: '#/components/schemas/campus'
+        libraryId:
+          description: The UUID of the library, the third-level location unit, this (shelf) location belongs to.
+          type: string
+        library:
+          description: The library, the third-level location unit, this (shelf) location belongs to.
+          type: object
+          $ref: '#/components/schemas/institution'
+        details:
+          description: Details about this (shelf) location.
+          type: object
+        primaryServicePoint:
+          description: The UUID of the primary service point of this (shelf) location.
+          type: string
+          format: uuid
+        primaryServicePointObject:
+          type: object
+          description: Dereferenced object for primary service point. This should really just be called 'primaryServicePoint', but the field containing the ID of this object has that name -- it should really be called 'primaryServicePointId' -- so we need something different for this one.
+          $ref: '#/components/schemas/servicepoint'
+        servicePointIds:
+          description: All service points that this (shelf) location has.
+          type: array
+          items:
+            description: The UUID of a service point that belongs to this (shelf) location.
+            type: string
+            format: uuid
+        servicePoints:
+          type: array
+          description: List of dereferenced service points
+          items:
+            type: object
+            $ref: '#/components/schemas/servicepoint'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - code
+      - institutionId
+      - campusId
+      - libraryId
+      - primaryServicePoint
+    locations:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of (shelf) locations.
+      type: object
+      properties:
+        locations:
+          id: locations
+          description: List of (shelf) locations.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/location'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - locations
+      - totalRecords
+    campus:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: second-level location unit
+      properties:
+        id:
+          type: string
+        name:
+          description: name of the location
+          type: string
+        code:
+          description: distinct code for the location
+          type: string
+        institutionId:
+          description: ID of the first-level location unit that the second-level unit belongs to
+          type: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - institutionId
+      - code
+    campuses:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of second-level location units
+      type: object
+      properties:
+        loccamps:
+          description: List of second-level location units
+          id: campuses
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/campus'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - loccamps
+      - totalRecords
+    institution:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: highest-level location unit
+      properties:
+        id:
+          type: string
+        name:
+          description: name of location
+          type: string
+        code:
+          description: distinct code for location
+          type: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - code
+    institutions:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of top-level location units
+      type: object
+      properties:
+        locinsts:
+          description: List of first-level location units
+          id: institutions
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/institution'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - locinsts
+      - totalRecords
+    library:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: third-level location unit
+      properties:
+        id:
+          type: string
+        name:
+          description: name of the location
+          type: string
+        code:
+          description: distinct code for the location
+          type: string
+        campusId:
+          description: ID of the second-level location unit that the third-level unit belongs to
+          type: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - campusId
+      - code
+    libraries:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of third-level location units
+      type: object
+      properties:
+        loclibs:
+          description: List of third-level location units
+          id: libraries
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/library'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - loclibs
+      - totalRecords
+    materialType:
+      $ref: '#/components/schemas/materialtype'
+    materialTypes:
+      $ref: '#/components/schemas/materialtypes'
+    natureOfContentTerm:
+      $ref: '#/components/schemas/natureofcontentterm'
+    natureOfContentTerms:
+      $ref: '#/components/schemas/natureofcontentterms'
+    servicePoint:
+      $ref: '#/components/schemas/servicepoint'
+    servicePoints:
+      $ref: '#/components/schemas/servicepoints'
+    config:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Configuration key/value pairs
+      type: object
+      properties:
+        key:
+          description: Unique name of config data
+          type: string
+        value:
+          description: Value of config data
+          type: string
+    exportAllRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data to start export all process
+      type: object
+      additionalProperties: false
+      properties:
+        jobProfileId:
+          description: Related Job profile id
+          type: string
+          format: uuid
+        idType:
+          description: Type of provided uuids
+          type: string
+          enum:
+          - instance
+          - holding
+          - authority
+          default: instance
+        deletedRecords:
+          description: True if need to include deleted records, otherwise false
+          type: boolean
+          default: true
+        suppressedFromDiscovery:
+          description: True if need to include suppressed from discovery records, otherwise false
+          type: boolean
+          default: false
+        metadata:
+          description: 'Meta information '
+          type: object
+          $ref: '#/components/schemas/metadata'
+    diagnostic:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Diagnostic information
+      Diagnostic:
+        type: object
+        properties:
+          source:
+            type: string
+            description: Source reporting the diagnostic information
+          code:
+            type: string
+            description: Diagnostic Code
+          message:
+            type: string
+            description: Diagnostic Message
+          module:
+            type: string
+            description: Module reporting diagnostic information
+          recordCount:
+            type: integer
+            description: Record Count for diagnostics
+          query:
+            type: string
+            description: CQL Query associated with results
+    facet:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A facet
+      Facet:
+        type: object
+        properties:
+          facetValues:
+            type: array
+            description: Array of facet values
+            items:
+              $ref: '#/components/schemas/FacetValue'
+            additionalProperties: false
+          type:
+            type: string
+            description: Type of facet
+        additionalProperties: false
+    facetValue:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A facet value
+      FacetValue:
+        type: object
+        properties:
+          count:
+            type: integer
+            description: Count of facet values
+          value:
+            type: object
+            description: Value Object
+    resultInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Faceting of result sets
+      ResultInfo:
+        type: object
+        properties:
+          totalRecords:
+            type: integer
+            description: Total number of records
+          responseTime:
+            type: number
+            description: Response time
+          facets:
+            type: array
+            description: Array of facets
+            items:
+              $ref: '#/components/schemas/Facet'
+          diagnostics:
+            type: array
+            description: Array of diagnostic information
+            items:
+              $ref: '#/components/schemas/Diagnostic'
+        additionalProperties: false
+    configurationEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A holdings record
+      type: object
+      properties:
+        id:
+          type: string
+          description: the unique ID of the configuration entry; UUID
+        module:
+          type: string
+          description: the module
+        configName:
+          type: string
+          description: the configuration entry item name.
+        code:
+          type: string
+          description: the configuration entry item code.
+        description:
+          type: string
+          description: the configuration entry item description.
+        default:
+          type: boolean
+          description: Whether or not configuration entry item default
+        enabled:
+          type: boolean
+          description: Whether or not configuration entry item enabled
+        value:
+          type: string
+          description: the configuration entry item value.
+        userId:
+          type: string
+          description: the configuration entry item userId.
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      additionalProperties: false
+      required:
+      - module
+      - configName
+    configurationEntryCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of configuration entries
+      type: object
+      properties:
+        configs:
+          description: List of configuration entries
+          type: array
+          items:
+            $ref: '#/components/schemas/configurationEntry'
+        totalRecords:
+          type: integer
+        resultInfo:
+          $ref: '#/components/schemas/ResultInfo'
+    relatedUserCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of related users
+      type: object
+      additionalProperties: false
+      properties:
+        relatedUsers:
+          description: List of related users
+          type: array
+          id: relatedUsersList
+          items:
+            type: object
+            $ref: '#/components/schemas/relatedUser'
+        totalRecords:
+          type: integer
+    timerDescriptor:
+      $ref: '#/components/schemas/TimerDescriptor'
+    exportDeletedMarcIdsRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data to start export deleted MARC IDs process
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          description: Starting date to search deleted
+          type: string
+          format: date
+        to:
+          description: Ending date to search deleted
+          type: string
+          format: date
+    exportDeletedMarcIdsResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data after executed export deleted MARC IDs process
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutionId:
+          description: UUID of the job execution, that had been used for export deleted process
+          type: string
+          format: uuid
+      required:
+      - jobExecutionId
+    exportAuthorityDeletedRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data to start export deleted authority records process
+      type: object
+      additionalProperties: false
+      properties:
+        offset:
+          description: Skip over a number of elements by specifying an offset value for the query.
+          type: integer
+          default: 0
+          minimum: 0
+          maximum: 2147483647
+        limit:
+          description: Limit the number of elements returned in the response.
+          type: integer
+          default: 100
+          minimum: 0
+          maximum: 2000
+        query:
+          description: A query expressed as a CQL string
+          type: string
+    exportAuthorityDeletedResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data after executed export deleted authority process
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutionId:
+          description: UUID of the job execution, that had been used for export deleted process
+          type: string
+          format: uuid
+      required:
+      - jobExecutionId
+    baseUrl:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Base URL response
+      properties:
+        baseUrl:
+          type: string
+          description: FOLIO front-end URL
+      additionalProperties: false
+      required:
+      - baseUrl
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    recordTypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Enum of entity (record) types
+      type: string
+      additionalProperties: false
+      enum:
+      - INSTANCE
+      - HOLDINGS
+      - ITEM
+      - AUTHORITY
+      - SRS
+      - LINKED_DATA
+    transformationField:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Transformation field
+      type: object
+      additionalProperties: false
+      properties:
+        fieldId:
+          description: Mapping rule id of this field
+          type: string
+        displayNameKey:
+          description: Display name key, that will used for localization on UI
+          type: string
+        referenceDataValue:
+          description: Reference data value of the field
+          type: string
+        path:
+          description: Json path of the field
+          type: string
+        recordType:
+          description: Record type of the field
+          $ref: '#/components/schemas/recordTypes'
+        metadataParameters:
+          description: Additional parameters used for mapping
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - fieldId
+      - displayNameKey
+      - path
+    transformations:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Mapping transformations detail
+      type: object
+      javaType: org.folio.rest.jaxrs.model.Transformations
+      additionalProperties: false
+      properties:
+        fieldId:
+          description: Field identifier
+          type: string
+        path:
+          description: JSON path to set mapped value
+          type: string
+        enabled:
+          description: Indicates whether field should be mapped
+          type: boolean
+          default: false
+        transformation:
+          description: Mapping expression
+          type: string
+        recordType:
+          description: Mapping Profile type
+          type: string
+          $ref: '#/components/schemas/recordTypes'
+        metadataParameters:
+          description: Additional parameters used for mapping
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - fieldId
+      - recordType
+    userInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: User information
+      type: object
+      additionalProperties: false
+      properties:
+        firstName:
+          description: User first name
+          type: string
+        lastName:
+          description: User last name
+          type: string
+        userName:
+          description: User name (nickname)
+          type: string
+    protocol:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: TCP/IP
+      type: object
+      properties:
+        name:
+          description: TCP/IP name
+          type: string
+        host:
+          description: The host
+          type: string
+        port:
+          description: The port
+          type: string
+        authentication:
+          description: The authentication
+          type: string
+        description:
+          description: The description
+          type: string
+    relatedUser:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Related user who have ever started export
+      properties:
+        firstName:
+          description: First name
+          type: string
+        lastName:
+          description: Last name
+          type: string
+        userId:
+          description: User id
+          type: string
+    alternativetitletype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A call number type
+      type: object
+      properties:
+        id:
+          type: string
+          description: unique ID of the alternative title type; a UUID
+        name:
+          type: string
+          description: name of the alternative title type
+        source:
+          type: string
+          description: label indicating where the alternative title type entry originates from, i.e. 'folio' or 'local'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - source
+    alternativetitletypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of alternative title types
+      type: object
+      properties:
+        alternativeTitleTypes:
+          description: List of alternative title types
+          id: alternativeTitleType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/alternativetitletype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - alternativeTitleTypes
+      - totalRecords
+    callnumbertype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A call number type
+      type: object
+      properties:
+        id:
+          type: string
+          description: unique ID of the call number type; a UUID
+        name:
+          type: string
+          description: name of the call number type
+        source:
+          type: string
+          description: label indicating where the call number type entry originates from, i.e. 'folio' or 'local'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - source
+    callnumbertypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of call number types
+      type: object
+      properties:
+        callNumberTypes:
+          description: List of call number types
+          id: callNumberType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/callnumbertype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - callNumberTypes
+      - totalRecords
+    contributornametype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A contributor name type
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the type of contributor name
+          type: string
+        ordering:
+          description: used for ordering of contributor name types in displays, i.e. in select lists
+          type: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+    contributornametypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of contributor name types (controlled vocabulary)
+      type: object
+      properties:
+        contributorNameTypes:
+          description: List of contributor name types
+          id: contributorNameType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/contributornametype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - contributorNameTypes
+      - totalRecords
+    electronicaccessrelationship:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A qualifier indicating the type of relationship that an electronic resource at a given URL has to an Instance
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the type of relationship between a URL and an Instance
+          type: string
+        source:
+          description: Origin of the electronic access relationship record, e.g. 'System', 'User', 'Consortium', 'folio', 'local' etc.
+          type: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+    electronicaccessrelationships:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of URL/Instance relationship type records (controlled vocabulary)
+      type: object
+      properties:
+        electronicAccessRelationships:
+          description: List of URL relationship types
+          id: electronicAccessRelationship
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/electronicaccessrelationship'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - electronicAccessRelationships
+      - totalRecords
+    holdingsnotetype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A holdings note type
+      type: object
+      properties:
+        id:
+          type: string
+          description: unique ID of the holdings note type; a UUID
+        name:
+          type: string
+          description: name of the holdings note type
+        source:
+          type: string
+          description: label indicating where the holdings note type entry originates from, i.e. 'folio' or 'local'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - source
+    holdingsnotetypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of holdings note types
+      type: object
+      properties:
+        holdingsNoteTypes:
+          description: List of holdings note types
+          id: holdingsNoteType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/holdingsnotetype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - holdingsNoteTypes
+      - totalRecords
+    identifiertype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An identifier type
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the identifier type
+          type: string
+        source:
+          type: string
+          description: label indicating where the identifier type entry originates from, i.e. 'folio' or 'local'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+    identifiertypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of identifier types
+      type: object
+      properties:
+        identifierTypes:
+          description: List of identifier types
+          id: identifierType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/identifiertype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - identifierTypes
+      - totalRecords
+    instanceformat:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The format of an Instance
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the Instance format
+          type: string
+        code:
+          description: distinct code for the Instance format
+          type: string
+        source:
+          description: origin of the Instance format record
+          type: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+      - code
+      - source
+    instanceformats:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of Instance format records (controlled vocabulary)
+      type: object
+      properties:
+        instanceFormats:
+          description: List of instance formats
+          id: instanceFormat
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/instanceformat'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - instanceFormats
+      - totalRecords
+    instancenotetype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An Instance note type
+      type: object
+      properties:
+        id:
+          description: unique ID of the Instance note type; a UUID
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: name of the Instance note type
+        source:
+          type: string
+          description: label indicating where the Instance note type entry originates from, i.e. 'folio' or 'local'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - source
+    instancenotetypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of Instance note types
+      type: object
+      properties:
+        instanceNoteTypes:
+          description: List of Instance note types
+          id: instanceNoteType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/instancenotetype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - instanceNoteTypes
+      - totalRecords
+    instancetype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The resource type of an Instance
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the resource type
+          type: string
+        code:
+          description: distinct code for the resource type
+          type: string
+        source:
+          description: origin of a resource type record
+          source: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+      - code
+      - source
+    instancetypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of Instance resource types (controlled vocabulary)
+      type: object
+      properties:
+        instanceTypes:
+          description: List of instance types
+          id: instanceType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/instancetype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - instanceTypes
+      - totalRecords
+    modeofissuance:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A mode of issuance to be assigned to an Instance
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the mode of issuance
+          type: string
+        source:
+          type: string
+          description: label indicating where the mode of issuance entry originates from, i.e. 'rdamodeissue' or 'local'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+    issuancemodes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of modes of issuance (controlled vocabulary)
+      type: object
+      properties:
+        issuanceModes:
+          description: List of modes of issuance
+          id: modeOfIssuance
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/modeofissuance'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - issuanceModes
+      - totalRecords
+    itemnotetype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An item note type
+      type: object
+      properties:
+        id:
+          type: string
+          description: unique ID of the item note type; a UUID
+        name:
+          type: string
+          description: name of the item note type
+        source:
+          type: string
+          description: label indicating where the item note type entry originates from, i.e. 'folio' or 'local'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - source
+    itemnotetypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of item note types
+      type: object
+      properties:
+        itemNoteTypes:
+          description: List of item note types
+          id: itemNoteType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/itemnotetype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - itemNoteTypes
+      - totalRecords
+    loantype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A loan type
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the loan type
+          type: string
+        source:
+          description: Origin of the loan type record, e.g. 'System', 'User', 'Consortium' etc.
+          type: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+    loantypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of loan types
+      type: object
+      properties:
+        loantypes:
+          description: List of loan types
+          id: loantype
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/loantype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - loantypes
+      - totalRecords
+    time-period:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: schema for time-period, which contains time interval 'duration' and the time unit
+      properties:
+        duration:
+          type: integer
+          description: Duration interval
+        intervalId:
+          type: string
+          description: Unit of time for the duration
+          enum:
+          - Minutes
+          - Hours
+          - Days
+          - Weeks
+          - Months
+          default: Days
+      required:
+      - duration
+      - intervalId
+      additionalProperties: false
+    servicepoint:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A service point
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id of service-point object
+        name:
+          type: string
+          description: service-point name, a required field
+        code:
+          type: string
+          description: service-point code, a required field
+        discoveryDisplayName:
+          type: string
+          description: display name, a required field
+        description:
+          type: string
+          description: description of the service-point
+        shelvingLagTime:
+          type: integer
+          description: shelving lag time
+        pickupLocation:
+          type: boolean
+          description: indicates whether or not the service point is a pickup location
+        holdShelfExpiryPeriod:
+          type: object
+          $ref: '#/components/schemas/time-period'
+          description: expiration period for items on the hold shelf at the service point
+        holdShelfClosedLibraryDateManagement:
+          type: string
+          description: enum for closedLibraryDateManagement associated with hold shelf
+          enum:
+          - Keep_the_current_due_date
+          - Move_to_the_end_of_the_previous_open_day
+          - Move_to_the_end_of_the_next_open_day
+          - Keep_the_current_due_date_time
+          - Move_to_end_of_current_service_point_hours
+          - Move_to_beginning_of_next_open_service_point_hours
+          default: Keep_the_current_due_date
+        staffSlips:
+          type: array
+          description: List of staff slips for this service point
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The ID of the staff slip
+              printByDefault:
+                type: boolean
+                description: Whether or not to print the staff slip by default
+            additionalProperties: false
+            required:
+            - id
+            - printByDefault
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - code
+      - discoveryDisplayName
+    materialtype:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A material type
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the material type
+          type: string
+        source:
+          description: origin of the material type record
+          type: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+    materialtypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of material types
+      type: object
+      properties:
+        mtypes:
+          description: List of material types
+          id: mtype
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/materialtype'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - mtypes
+      - totalRecords
+    natureofcontentterm:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A term describing the nature of content for an instance
+      type: object
+      properties:
+        id:
+          description: unique ID of the nature-of-content term
+          type: string
+        name:
+          type: string
+          description: term for the nature of content
+        source:
+          type: string
+          description: label indicating where the term originates from, i.e. 'folio' or 'local'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - source
+    natureofcontentterms:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of nature-of-content terms (controlled vocabulary)
+      type: object
+      properties:
+        natureOfContentTerms:
+          description: List of nature-of-content terms
+          id: natureOfContentTerm
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/natureofcontentterm'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - natureOfContentTerms
+      - totalRecords
+    servicepoints:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of service points
+      type: object
+      properties:
+        servicepoints:
+          description: List of service points
+          id: servicepoint
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/servicepoint'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - servicepoints
+      - totalRecords
+    FacetValue:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Count of facet values
+        value:
+          type: object
+          description: Value Object
+    Facet:
+      type: object
+      properties:
+        facetValues:
+          type: array
+          description: Array of facet values
+          items:
+            $ref: '#/components/schemas/FacetValue'
+          additionalProperties: false
+        type:
+          type: string
+          description: Type of facet
+      additionalProperties: false
+    Diagnostic:
+      type: object
+      properties:
+        source:
+          type: string
+          description: Source reporting the diagnostic information
+        code:
+          type: string
+          description: Diagnostic Code
+        message:
+          type: string
+          description: Diagnostic Message
+        module:
+          type: string
+          description: Module reporting diagnostic information
+        recordCount:
+          type: integer
+          description: Record Count for diagnostics
+        query:
+          type: string
+          description: CQL Query associated with results
+    ResultInfo:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Total number of records
+        responseTime:
+          type: number
+          description: Response time
+        facets:
+          type: array
+          description: Array of facets
+          items:
+            $ref: '#/components/schemas/Facet'
+        diagnostics:
+          type: array
+          description: Array of diagnostic information
+          items:
+            $ref: '#/components/schemas/Diagnostic'
+      additionalProperties: false
+    RoutingEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: RoutingEntry.json
+      title: RoutingEntry
+      description: Okapi proxy routing entry
+      type: object
+      additionalProperties: false
+      properties:
+        methods:
+          description: List of methods GET, POST,.. * (for all)
+          type: array
+          items:
+            type: string
+        pathPattern:
+          description: Path pattern match. * matches any path. {x} matches one or more characters but not slash
+          type: string
+        path:
+          description: Path prefix match
+          type: string
+        rewritePath:
+          description: Rewrite path. e.g. have filter rewrite '/*' to '/events/*'
+          type: string
+        phase:
+          description: If given, may be auth, pre or post
+          type: string
+        level:
+          description: Processing level. Default is 50 (handlers)
+          type: string
+        type:
+          description: 'Proxy handling. One of: request-response, request-only, headers, redirect, system, internal, request-response-1.0. The default is request-response'
+          type: string
+        redirectPath:
+          description: If given, path that we internally redirect to
+          type: string
+        unit:
+          description: Delay unit
+          type: string
+        delay:
+          description: Delay between calls; a value of zero disables timer
+          type: string
+        schedule:
+          description: Timer schedule using cron-utils
+          type: object
+          additionalProperties: false
+          properties:
+            cron:
+              description: crontab specification
+              type: string
+            zone:
+              description: time zone (UTC is the default); See https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/ZoneId.html
+              type: string
+        permissionsRequired:
+          description: Required permissions for this entry
+          type: array
+          items:
+            type: string
+        permissionsDesired:
+          description: Desired permissions for this entry
+          type: array
+          items:
+            type: string
+        modulePermissions:
+          description: Module permissions for this entry
+          type: array
+          items:
+            type: string
+        permissionsRequiredTenant:
+          description: Required permissions that replace permissionsRequired when the user is authenticated and either the tenant matches each {tenantId} in pathPattern or pathPattern doesn't contain {tenantId}
+          type: array
+          items:
+            type: string
+        delegateCORS:
+          description: Okapi handles CORS by default. Set to true to delegate CORS handling to the module. This only applies to calls made via /_/invoke/tenant/<tid>/<path>. No OPTIONS entry in the methods array is needed for this.
+          type: boolean
+    TimerDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: TimerDescriptor.json
+      title: TimerDescriptor
+      description: Timer
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Timer identifier
+          type: string
+        modified:
+          description: Whether modified
+          type: boolean
+        routingEntry:
+          description: Routing entry
+          type: object
+          $ref: '#/components/schemas/RoutingEntry'
+      required:
+      - id
+  parameters:
+    trait_queryable:
+      name: query
+      in: query
+      description: A query string to filter rules based on matching criteria in fields.
+      schema:
+        type: string
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_used_in_completed_jobs:
+      name: used
+      in: query
+      required: false
+      description: true if need already used profiles
+      schema:
+        default: false
+        type: boolean

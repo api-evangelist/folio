@@ -1,0 +1,245 @@
+openapi: 3.2.0
+info:
+  title: Folio Proxy Tenant Timer API
+  version: v2.0
+  description: 'Operations tagged proxy-tenant-timer across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: proxy-tenant-timer
+paths:
+  /_/proxy/tenants/{tenant_id}/timers:
+    parameters:
+    - name: tenant_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimerDescriptorList'
+        '400':
+          description: Client Error
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Get timers for tenant.
+      operationId: getAllTimers
+      tags:
+      - proxy-tenant-timer
+      summary: Get all timers
+      x-summary-source: derived
+    patch:
+      responses:
+        '204':
+          description: Patch OK
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+        '400':
+          description: Client Error
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: patch timer. Both routingEntry and id must be given. The routingEntry.unit, routingEntry.delay and routingEntry.schedule determines the new schedule for the timer. Using delay=0 disables a timer. Omitting delay, unit and schedule reverts timer back to initial values from module.
+      operationId: updateTimers
+      tags:
+      - proxy-tenant-timer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimerDescriptor'
+        required: true
+      summary: Update timers
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/proxy/tenants/{tenant_id}/timers/{timer_id}:
+    parameters:
+    - name: timer_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: tenant_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimerDescriptor'
+        '400':
+          description: Client Error
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: get timer with id given.
+      operationId: getTimer
+      tags:
+      - proxy-tenant-timer
+      summary: Get timer
+      x-summary-source: derived
+    patch:
+      responses:
+        '204':
+          description: Patch OK
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+        '400':
+          description: Client Error
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: patch timer with routing entry as body. The unit, delay and schedule determines the new schedule for the timer. Using delay=0 disables a timer. Omitting delay, unit and schedule reverts timer back to initial values from module.
+      operationId: updateTimer
+      tags:
+      - proxy-tenant-timer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutingEntry'
+        required: true
+      summary: Update timer
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
+  schemas:
+    TimerDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: TimerDescriptorList.json
+      title: Timer Descriptor list
+      description: Timer Descriptor List
+      type: array
+      items:
+        $ref: '#/components/schemas/TimerDescriptor'
+    TimerDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: TimerDescriptor.json
+      title: TimerDescriptor
+      description: Timer
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Timer identifier
+          type: string
+        modified:
+          description: Whether modified
+          type: boolean
+        routingEntry:
+          description: Routing entry
+          $ref: '#/components/schemas/RoutingEntry'
+      required:
+      - id
+    RoutingEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: RoutingEntry.json
+      title: RoutingEntry
+      description: Okapi proxy routing entry
+      type: object
+      additionalProperties: false
+      properties:
+        methods:
+          description: List of methods GET, POST,.. * (for all)
+          type: array
+          items:
+            type: string
+        pathPattern:
+          description: Path pattern match. * matches any path. {x} matches one or more characters but not slash
+          type: string
+        path:
+          description: Path prefix match
+          type: string
+        rewritePath:
+          description: Rewrite path. e.g. have filter rewrite '/*' to '/events/*'
+          type: string
+        phase:
+          description: If given, may be auth, pre or post
+          type: string
+        level:
+          description: Processing level. Default is 50 (handlers)
+          type: string
+        type:
+          description: 'Proxy handling. One of: request-response, request-only, headers, redirect, system, internal, request-response-1.0. The default is request-response'
+          type: string
+        redirectPath:
+          description: If given, path that we internally redirect to
+          type: string
+        unit:
+          description: Delay unit
+          type: string
+        delay:
+          description: Delay between calls; a value of zero disables timer
+          type: string
+        schedule:
+          title: RoutingEntrySchedule
+          description: Timer schedule using cron-utils
+          type: object
+          additionalProperties: false
+          properties:
+            cron:
+              description: crontab specification
+              type: string
+            zone:
+              description: time zone (UTC is the default); See https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/ZoneId.html
+              type: string
+        permissionsRequired:
+          description: Required permissions for this entry
+          type: array
+          items:
+            type: string
+        permissionsDesired:
+          description: Desired permissions for this entry
+          type: array
+          items:
+            type: string
+        modulePermissions:
+          description: Module permissions for this entry
+          type: array
+          items:
+            type: string
+        permissionsRequiredTenant:
+          description: Required permissions that replace permissionsRequired when the user is authenticated and either the tenant matches each {tenantId} in pathPattern or pathPattern doesn't contain {tenantId}
+          type: array
+          items:
+            type: string
+        delegateCORS:
+          description: Okapi handles CORS by default. Set to true to delegate CORS handling to the module. This only applies to calls made via /_/invoke/tenant/<tid>/<path>. No OPTIONS entry in the methods array is needed for this.
+          type: boolean
+x-refined-from:
+- folio-mod-okapi-facade-openapi.json
+- folio-mod-okapi-facade-openapi.yml

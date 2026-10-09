@@ -1,0 +1,1052 @@
+openapi: 3.2.0
+info:
+  title: Folio Inn Reach Circulation API
+  version: v1
+  description: 'Operations tagged inn-reach-circulation across 2 of this provider''s published API definitions: folio-mod-inn-reach-circulation-openapi.json, folio-mod-inn-reach-circulation-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: inn-reach-circulation
+paths:
+  /d2ir/circ/itemhold/{trackingId}/{centralCode}:
+    post:
+      operationId: createInnReachTransactionItemHold
+      description: Originates an item hold at the owning site
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/transactionHoldDTO'
+      responses:
+        '200':
+          description: Transaction record is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during creation of transaction record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Create inn reach transaction item hold
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/patronhold/{trackingId}/{centralCode}:
+    post:
+      operationId: patronHold
+      description: Originate a patron hold
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patronHoldDTO'
+      responses:
+        '200':
+          description: Patron hold request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Patron hold
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/itemshipped/{trackingId}/{centralCode}:
+    put:
+      operationId: itemShipped
+      description: Process shipped item
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/itemShippedDTO'
+      responses:
+        '200':
+          description: Item shipped request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Item shipped
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/cancelrequest/{trackingId}/{centralCode}:
+    put:
+      operationId: cancelPatronHold
+      description: Cancel Patron Hold transaction
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cancelRequestDTO'
+      responses:
+        '200':
+          description: Cancellation request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Cancel patron hold
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/transferrequest/{trackingId}/{centralCode}:
+    put:
+      operationId: transferRequest
+      description: Put transfer request
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/transferRequestDTO'
+      responses:
+        '200':
+          description: Transfer request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Transfer request
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/cancelitemhold/{trackingId}/{centralCode}:
+    put:
+      operationId: cancelItemHold
+      description: Cancel an item request
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/baseCircRequestDTO'
+      responses:
+        '200':
+          description: Cancel request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Cancel item hold
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/receiveunshipped/{trackingId}/{centralCode}:
+    put:
+      operationId: receiveUnshipped
+      description: Report unshipped item received to owning site for item hold
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/baseCircRequestDTO'
+      responses:
+        '200':
+          description: report unshipped item complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Receive unshipped
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/intransit/{trackingId}/{centralCode}:
+    put:
+      operationId: itemInTransit
+      description: Receives message from central server to owning site indicating that a loaned item is being returned after being loaned to the borrowing patron.
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/baseCircRequestDTO'
+      responses:
+        '200':
+          description: Item in transit message processing complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Item in transit
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/returnuncirculated/{trackingId}/{centralCode}:
+    put:
+      operationId: returnUncirculated
+      description: Return uncirculated message for item hold
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/returnUncirculatedDTO'
+      responses:
+        '200':
+          description: Return uncirculated message for item hold request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Return uncirculated
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/localhold/{trackingId}/{centralCode}:
+    put:
+      operationId: createLocalHold
+      description: Create Local Hold - Central server to owning site when a local patron of that site requests an item through central.
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/localHoldDTO'
+      responses:
+        '200':
+          description: Local hold request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Create local hold
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/itemreceived/{trackingId}/{centralCode}:
+    put:
+      operationId: itemReceived
+      description: Shipped item has been received
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/itemReceivedDTO'
+      responses:
+        '200':
+          description: Item received request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Item received
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/recall/{trackingId}/{centralCode}:
+    put:
+      operationId: recall
+      description: Item has been recalled
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/recallDTO'
+      responses:
+        '200':
+          description: Recall request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Recall
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/borrowerrenew/{trackingId}/{centralCode}:
+    put:
+      operationId: borrowerRenew
+      description: Borrower Renew Message for Item Hold
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/renewLoanDTO'
+      responses:
+        '200':
+          description: Set transaction state BORROWER_RENEW
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Borrower renew
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/finalcheckin/{trackingId}/{centralCode}:
+    put:
+      operationId: finalCheckIn
+      description: Indicating that a returned item has been received by its owning site. This is a terminating transaction.
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/baseCircRequestDTO'
+      responses:
+        '200':
+          description: Set transaction state to FINAL_CHECKIN
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Final check in
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/ownerrenew/{trackingId}/{centralCode}:
+    put:
+      operationId: ownerRenew
+      description: Owner Renew loan
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/renewLoanDTO'
+      responses:
+        '200':
+          description: Loan renew request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Owner renew
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /d2ir/circ/claimsreturned/{trackingId}/{centralCode}:
+    put:
+      operationId: claimsReturned
+      description: Borrower claims item returned
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/claimsItemReturnedDTO'
+      responses:
+        '200':
+          description: Loan renew request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Claims returned
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    baseCircRequestDTO:
+      description: INN-Reach Circulation Common Put Request Data
+      type: object
+      properties:
+        transactionTime:
+          description: Transaction time
+          type: integer
+        patronId:
+          description: Base32-encoded FOLIO user UUID (lowercase, no padding). The caller obtains this value from the patron verification response. Decoded server-side to resolve the FOLIO patron.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+        patronAgencyCode:
+          description: Patron agency code
+          type: string
+          pattern: '[a-z,0-9]{5}'
+        itemAgencyCode:
+          description: Item agency code
+          type: string
+          pattern: '[a-z,0-9]{5}'
+        itemId:
+          description: FOLIO inventory item HRID (Human-Readable ID). Used to look up the item in FOLIO inventory.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+      additionalProperties: false
+      required:
+      - transactionTime
+      - patronId
+      - patronAgencyCode
+      - itemAgencyCode
+      - itemId
+    recallDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Item recalled
+      type: object
+      properties:
+        dueDateTime:
+          description: Due date time
+          type: integer
+      additionalProperties: false
+      required:
+      - dueDateTime
+    itemReceivedDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Item received
+      type: object
+      properties:
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        title:
+          description: Bibliographic title of the requested item. Informational only; not used in item-received processing logic.
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+          maxLength: 256
+        itemBarcode:
+          description: Item barcode
+          type: string
+        callNumber:
+          description: Call number
+          type: string
+          maxLength: 256
+        centralPatronType:
+          description: Central patron type
+          type: integer
+          minimum: 0
+          maximum: 255
+      additionalProperties: false
+      required:
+      - centralItemType
+      - centralPatronType
+    transactionHoldDTO:
+      description: INN-Reach Transaction hold record
+      type: object
+      properties:
+        id:
+          description: Transaction Hold id
+          type: string
+          format: UUID
+        transactionTime:
+          description: Transaction time
+          type: integer
+        pickupLocation:
+          description: Pickup location
+          type: string
+        patronId:
+          description: Base32-encoded FOLIO user UUID (lowercase, no padding). The caller obtains this value from the patron verification response. Decoded server-side to resolve the FOLIO patron.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+        patronAgencyCode:
+          description: Patron agency code
+          type: string
+          minLength: 5
+          maxLength: 5
+        itemAgencyCode:
+          description: Item agency code
+          type: string
+          minLength: 5
+          maxLength: 5
+        itemId:
+          description: FOLIO inventory item HRID (Human-Readable ID). Used to look up the item in FOLIO inventory.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+        needBefore:
+          description: Need before time
+          type: integer
+        dueDateTime:
+          description: Due date time
+          type: integer
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        centralPatronType:
+          description: Central patron type
+          type: integer
+          minimum: 0
+          maximum: 255
+        patronName:
+          description: Patron name
+          type: string
+        patronHomeLibrary:
+          description: Patron home library
+          type: string
+        patronPhone:
+          description: Patron phone
+          type: string
+        title:
+          description: Bibliographic title of the requested item. For item holds, this value is overwritten from inventory; the caller-supplied value is not used.
+          type: string
+        author:
+          description: Patron hold author
+          type: string
+        callNumber:
+          description: Patron hold call number
+          type: string
+        shippedItemBarcode:
+          description: Shipped item barcode
+          type: string
+        folioInstanceId:
+          description: Folio instance id
+          type: string
+          format: UUID
+          readOnly: true
+        folioHoldingId:
+          description: Folio holding id
+          type: string
+          format: UUID
+          readOnly: true
+        folioPatronId:
+          description: Folio patron id
+          type: string
+          format: UUID
+          readOnly: true
+        folioItemId:
+          description: Folio item id
+          type: string
+          format: UUID
+          readOnly: true
+        folioRequestId:
+          description: Folio request id
+          type: string
+          format: UUID
+          readOnly: true
+        folioLoanId:
+          description: Folio loan id
+          type: string
+          format: UUID
+          readOnly: true
+        folioPatronBarcode:
+          description: Folio patron barcode
+          type: string
+          readOnly: true
+        folioItemBarcode:
+          description: Folio item barcode
+          type: string
+          readOnly: true
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - transactionTime
+      - pickupLocation
+      - patronId
+      - patronAgencyCode
+      - itemAgencyCode
+      - itemId
+    returnUncirculatedDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: INN-Reach Return Circulation Message Put Request Data
+      type: object
+      properties:
+        title:
+          description: Bibliographic title of the requested item. Informational only; not used in return-uncirculated processing logic.
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+      additionalProperties: false
+    itemShippedDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Item shipped
+      type: object
+      properties:
+        pickupLocation:
+          description: Pickup location
+          type: string
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        itemBarcode:
+          description: Item barcode
+          type: string
+        title:
+          description: Bibliographic title of the requested item. Informational only; not used in item-shipped processing logic.
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+          maxLength: 256
+        callNumber:
+          description: Call number
+          type: string
+          maxLength: 256
+        itemLocation:
+          description: Item location
+          type: string
+        needBefore:
+          description: Need before time
+          type: integer
+      additionalProperties: false
+      required:
+      - pickupLocation
+      - centralItemType
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    claimsItemReturnedDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Borrower claims item returned
+      type: object
+      properties:
+        claimsReturnedDate:
+          description: Claims returned date (date of -1 indicates date unknown)
+          type: integer
+      additionalProperties: false
+      required:
+      - claimsReturnedDate
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    localHoldDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Patron hold
+      type: object
+      properties:
+        pickupLocation:
+          description: Pickup location
+          type: string
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        centralPatronType:
+          description: Central patron type
+          type: integer
+          minimum: 0
+          maximum: 255
+        patronName:
+          description: Patron name
+          type: string
+        patronHomeLibrary:
+          description: Patron home library
+          type: string
+        patronPhone:
+          description: Patron phone
+          type: string
+        title:
+          description: Bibliographic title of the requested item. Stored for informational purposes; not used for instance creation in local hold flow.
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+          maxLength: 256
+        callNumber:
+          description: Call number
+          type: string
+          maxLength: 256
+        needBefore:
+          description: Need before time
+          type: integer
+      additionalProperties: false
+      required:
+      - pickupLocation
+      - centralItemType
+      - centralPatronType
+      - patronName
+    code:
+      type: string
+      pattern: '[a-z,0-9]{3,5}'
+    patronHoldDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Patron hold
+      type: object
+      properties:
+        pickupLocation:
+          description: Pickup location
+          type: string
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        title:
+          description: 'Bibliographic title of the requested item. Required for patron hold: used as the title of the virtual Instance created in FOLIO inventory.'
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+          maxLength: 256
+        callNumber:
+          description: Call number
+          type: string
+          maxLength: 256
+        needBefore:
+          description: Need before time
+          type: integer
+      additionalProperties: false
+      required:
+      - pickupLocation
+      - centralItemType
+      - title
+    renewLoanDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Renew loan request
+      type: object
+      properties:
+        dueDateTime:
+          description: Due date time
+          type: integer
+      additionalProperties: false
+      required:
+      - dueDateTime
+    innReachError:
+      description: D2IR error
+      type: object
+      properties:
+        messages:
+          type: array
+          description: Error messages
+          items:
+            type: string
+        central:
+          type: string
+          description: Central code
+        reason:
+          type: string
+          description: Reason
+        type:
+          type: string
+          description: Error type
+        rejectedValue:
+          description: Rejected value
+        name:
+          type: string
+          description: Name of the rejected field
+      additionalProperties: false
+      required:
+      - reason
+    transferRequestDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Transfer request
+      type: object
+      properties:
+        newItemId:
+          description: FOLIO inventory item HRID of the replacement item. The current itemId is validated against the stored value, then replaced with this newItemId.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+      additionalProperties: false
+      required:
+      - newItemId
+    innReachResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: D2IR response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        status:
+          description: Status
+          type: string
+        reason:
+          description: Reason
+          type: string
+        errors:
+          description: Errors
+          type: array
+          items:
+            $ref: '#/components/schemas/innReachError'
+      additionalProperties: false
+      required:
+      - status
+      - reason
+      - errors
+    cancelRequestDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Cancel request
+      type: object
+      properties:
+        reason:
+          description: Cancellation reason
+          type: string
+        reasonCode:
+          description: Cancellation reason code (always 7)
+          type: integer
+      additionalProperties: false
+      required:
+      - reasonCode
+  parameters:
+    trackingId:
+      name: trackingId
+      in: path
+      required: true
+      schema:
+        type: string
+    centralCode:
+      name: centralCode
+      description: Unique code that identifies the central server (match against value stored in Central Server settings, used to determine contribution status)
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/code'
+  responses:
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+x-refined-from:
+- folio-mod-inn-reach-circulation-openapi.json
+- folio-mod-inn-reach-circulation-openapi.yml

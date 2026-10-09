@@ -1,0 +1,421 @@
+openapi: 3.2.0
+info:
+  title: Folio Remote Knowledge Bases API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Remote Knowledge Bases across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Remote Knowledge Bases
+paths:
+  /erm/kbs:
+    description: Supports search and creation of remote Knowledge Base records. A remote KB is a repository (e.g. a package/title resolver) that this module can harvest coverage, package, and title data from.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Remote Knowledge Bases
+      summary: Get a set of remote Knowledge Base records
+      operationId: getKbs
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/KbResults'
+                - $ref: '#/components/schemas/KbResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    post:
+      tags:
+      - Remote Knowledge Bases
+      summary: Create a remote Knowledge Base record
+      operationId: postKb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Kb'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kb'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/kbs/{kbId}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/kbId'
+    get:
+      tags:
+      - Remote Knowledge Bases
+      summary: Get a specified remote Knowledge Base record
+      operationId: getKb
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kb'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    put:
+      tags:
+      - Remote Knowledge Bases
+      summary: Update a remote Knowledge Base record
+      description: Some fields cannot be changed once a KB is marked `readonly` (e.g. the local KB) — `trustedSourceTI` remains editable, but other property changes are rejected.
+      operationId: putKb
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Kb'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kb'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    delete:
+      tags:
+      - Remote Knowledge Bases
+      summary: Delete a specified remote Knowledge Base record
+      description: Rejected if the KB is marked `readonly`, e.g. the local KB.
+      operationId: deleteKb
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  parameters:
+    kbId:
+      in: path
+      name: kbId
+      description: UUID for a remote Knowledge Base
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+  schemas:
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    KbResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/KbResultsArray'
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    Kb:
+      type: object
+      required:
+      - name
+      - trustedSourceTI
+      properties:
+        activationEnabled:
+          description: If activation is supported, is recording activation in this remote KB enabled. Not currently used
+          type: boolean
+        activationSupported:
+          description: Does this remote KB support content activation. Not currently used
+          type: boolean
+        active:
+          description: If harvesting is supported, is harvesting from this remote KB activated
+          type: boolean
+        credentials:
+          description: Credentials used to authenticate with the remote KB. Not currently used
+          type: string
+        cursor:
+          description: Marks progress through a harvest. May be a timestamp, a transaction id, or another service-specific value depending on `type`
+          type: string
+        fullPrefix:
+          type: string
+        id:
+          type: string
+          format: uuid
+        lastCheck:
+          type: integer
+        listPrefix:
+          type: string
+        name:
+          type: string
+        principal:
+          description: Identity/username used to authenticate with the remote KB. Not currently used
+          type: string
+        readonly:
+          description: Marks the KB as protected/read-only, Used to prevent deletion the "LOCAL" source representing the local KB.
+          type: boolean
+        rectype:
+          description: The kind of record this KB primarily deals in
+          type: integer
+          enum:
+          - 1
+          - 2
+          x-enum-varnames:
+          - PACKAGE
+          - TITLE
+        supportsHarvesting:
+          description: Does this remote KB support harvesting
+          type: boolean
+        syncStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        trustedSourceTI:
+          description: Marks the KB as a trusted source of title instance metadata
+          type: boolean
+        type:
+          description: Name of the Spring bean that implements this KB's adapter
+          type: string
+        uri:
+          type: string
+          format: uri
+    KbResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Kb'
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-agreements-openapi.yml

@@ -1,0 +1,359 @@
+# x-archived-from: folio-mod-fqm-manager-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: mod-fqm-manager API
+  version: v1
+  description: mod-fqm-manager API
+servers:
+- url: https://folio-etesting-snapshot-kong.ci.folio.org/
+paths:
+  /entity-types:
+    get:
+      operationId: getEntityTypeSummary
+      tags:
+      - entityTypes
+      description: Get names for a list of entity type ids.
+      parameters:
+      - $ref: '#/components/parameters/entity-type-ids'
+      - $ref: '#/components/parameters/include-inaccessible'
+      - $ref: '#/components/parameters/include-all'
+      responses:
+        '200':
+          description: Entity type summaries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityTypeSummaries'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /query/purge:
+    post:
+      operationId: deleteOldQueries
+      tags:
+      - purgeQuery
+      description: Deletes all queries that are older than the configured duration.
+      responses:
+        '200':
+          description: IDs of deleted queries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurgedQueries'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /entity-types/materialized-views/refresh:
+    post:
+      operationId: refreshData
+      tags:
+      - materializedViews
+      description: Refresh all materialized views and similar data for a tenant.
+      responses:
+        '200':
+          description: Data refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/dataRefreshResponse'
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /entity-types/install:
+    post:
+      operationId: installEntityTypes
+      tags:
+      - entityTypes
+      description: Create database views and install entity types for a tenant.
+      parameters:
+      - $ref: '#/components/parameters/force-recreate-views'
+      responses:
+        '204':
+          description: Entity types installed
+  /fqm/version:
+    get:
+      operationId: getFqmVersion
+      tags:
+      - fqmVersion
+      description: Get version of the fqm.
+      responses:
+        '200':
+          description: Version of the fqm
+          content:
+            text/plain:
+              schema:
+                type: string
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /fqm/migrate:
+    post:
+      summary: fqm migrate request
+      operationId: fqmMigrate
+      tags:
+      - fqmVersion
+      requestBody:
+        description: Request for FQM version submitted successfully
+        required: true
+        content:
+          application/json:
+            schema:
+              description: Mapped to schema in folio-query-tool-metadata
+              type: object
+              format: FqmMigrateRequest
+      responses:
+        '200':
+          description: FQM version updated successfully
+          content:
+            application/json:
+              schema:
+                description: Mapped to schemas in folio-query-tool-metadata
+                type: object
+                format: FqmMigrateResponse
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+  /fqm/status:
+    get:
+      operationId: getQueryStatusSummaries
+      tags:
+      - fqlQuery
+      description: Get the status and statistics for all running queries
+      responses:
+        '200':
+          description: Status and statistics for all running queries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryStatusSummaries'
+components:
+  parameters:
+    entity-type-id:
+      name: entity-type-id
+      in: path
+      required: true
+      description: Name of the derived table
+      schema:
+        type: string
+        format: UUID
+    entity-type-ids:
+      name: ids
+      in: query
+      required: false
+      description: List of entity type ids
+      schema:
+        type: array
+        items:
+          type: string
+          format: UUID
+    include-inaccessible:
+      name: includeInaccessible
+      in: query
+      required: false
+      description: Include inaccessible entity types in the result
+      schema:
+        type: boolean
+    include-all:
+      name: includeAll
+      in: query
+      required: false
+      description: Include all the entity types regardless of being private
+      schema:
+        type: boolean
+    force-recreate-views:
+      name: forceRecreateViews
+      in: query
+      required: false
+      description: Force recreation of views even if they already exist
+      schema:
+        type: boolean
+  schemas:
+    errorResponse:
+      $ref: '#/components/schemas/error'
+    contents:
+      type: array
+      items:
+        $ref: '#/components/schemas/contentItem'
+    contentItem:
+      type: object
+      additionalProperties:
+        type: object
+    entityTypeSummaries:
+      $ref: '#/components/schemas/EntityTypeSummaries'
+    purgedQueries:
+      $ref: '#/components/schemas/PurgedQueries'
+    dataRefreshResponse:
+      type: object
+      properties:
+        successfulRefresh:
+          type: array
+          items:
+            type: string
+        failedRefresh:
+          type: array
+          items:
+            type: string
+    queryStatusSummaries:
+      type: array
+      items:
+        $ref: '#/components/schemas/QueryStatusSummary'
+    queryStatusSummary:
+      $ref: '#/components/schemas/QueryStatusSummary'
+    EntityTypeSummary:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Entity Type Summary
+      type: object
+      properties:
+        id:
+          description: Entity type id
+          type: string
+          format: UUID
+        label:
+          description: Entity type label
+          type: string
+        isCustom:
+          description: If this entity type is a custom entity type
+          type: boolean
+        crossTenantQueriesEnabled:
+          description: Indicates if this entity type supports cross-tenant queries
+          type: boolean
+          default: false
+        missingPermissions:
+          description: List of missing permissions
+          type: array
+          items:
+            type: string
+        createdAt:
+          description: '[custom only] The creation timestamp of the entity type'
+          type: string
+          format: date-time
+        updatedAt:
+          description: '[custom only] The last update timestamp of the entity type'
+          type: string
+          format: date-time
+      additionalProperties: false
+      required:
+      - id
+      - label
+      - isCustom
+    EntityTypeSummaries:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Entity Type Summary List
+      type: object
+      properties:
+        entityTypes:
+          description: Entity type list
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityTypeSummary'
+        _version:
+          description: Current FQL version (same as /fqm/version returns)
+          type: string
+      additionalProperties: false
+      required:
+      - entityTypes
+      - _version
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        code:
+          type: string
+          description: Error message code
+          enum:
+          - entity.type.access.denied
+          - entity.type.in.use
+          - entity.type.invalid
+          - entity.type.not.found
+          - entity.type.source.missing
+          - field.not.found
+          - migration.query.changed
+          - permissions.missing
+          - query.invalid
+          - query.not.found
+          - query.too.large
+          - unknown.error
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+      - code
+    PurgedQueries:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      title: IDs of deleted queries
+      description: IDs of deleted queries
+      type: object
+      properties:
+        deletedQueryIds:
+          description: Ids of the deleted queries
+          type: array
+          items:
+            type: string
+            format: UUID
+      required:
+      - deletedQueryIds
+    QueryStatusSummary:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Query status summary
+      type: object
+      properties:
+        queryId:
+          description: Query ID
+          type: string
+          format: uuid
+        entityTypeId:
+          description: The entity type ID used for the query (if it is available to your user, otherwise <inaccessible>)
+          type: string
+        status:
+          description: Status of the query (should match folio-query-tool-metadata enum values)
+          type: string
+        startedAt:
+          description: The timestamp when the query started
+          type: string
+          format: date-time
+        endedAt:
+          description: The timestamp when the query ended
+          type: string
+          format: date-time
+        numFields:
+          description: Number of fields in the query
+          type: integer
+        totalRecords:
+          description: Number of records retrieved for the query
+          type: integer
+      additionalProperties: false
+      required:
+      - queryId
+      - entityTypeId
+      - status
+      - startedAt
+      - numFields
+  responses:
+    badRequestResponse:
+      description: Invalid request
+      content:
+        application/json:
+          example:
+            message: Entity type ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
+            code: entity.type.not.found
+          schema:
+            $ref: '#/components/schemas/error'

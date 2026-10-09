@@ -1,0 +1,199 @@
+openapi: 3.2.0
+info:
+  title: Folio Retrieve API
+  version: v1
+  description: 'Operations tagged Retrieve across 2 of this provider''s published API definitions: folio-mod-remote-storage-openapi.json, folio-mod-remote-storage-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /remote-storage/
+tags:
+- name: Retrieve
+paths:
+  /retrieve/{remoteStorageConfigurationId}/checkInItem:
+    post:
+      responses:
+        '200':
+          description: Checked-in the item
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad request
+        '422':
+          $ref: '#/components/responses/trait_validate_422'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Check-in the item in the primary service by barcode value
+      operationId: checkInItemByBarcodeWithRemoteStorageConfigurationId
+      parameters:
+      - name: remoteStorageConfigurationId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/checkInItem'
+        required: true
+      tags:
+      - Retrieve
+      summary: Check in item by barcode with remote storage configuration id
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+  /retrieve/{remoteStorageConfigurationId}/checkInItemByHoldId:
+    post:
+      responses:
+        '200':
+          description: Checked-in the item by holdId
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad request
+        '422':
+          $ref: '#/components/responses/trait_validate_422'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Check-in the item in the primary service by barcode value
+      operationId: checkInItemByHoldIdWithRemoteStorageConfigurationId
+      parameters:
+      - name: remoteStorageConfigurationId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/checkInItemByHoldId'
+        required: true
+      tags:
+      - Retrieve
+      summary: Check in item by hold id with remote storage configuration id
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+components:
+  schemas:
+    parameter:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          description: Key of the parameter
+        value:
+          type: string
+          description: Value of the parameter
+      additionalProperties: false
+      required:
+      - key
+    checkInItem:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Value of item's barcode to check in an item at service points
+      properties:
+        itemBarcode:
+          description: Barcode of the item to be checked in
+          type: string
+      additionalProperties: false
+      required:
+      - itemBarcode
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Regexp pattern for UUID validation
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    checkInItemByHoldId:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Value of request's id for which item should be checked in at service points
+      properties:
+        holdId:
+          description: Id of request (hold) for which item should be checked in
+          $ref: '#/components/schemas/uuid'
+      additionalProperties: false
+      required:
+      - holdId
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+  responses:
+    trait_validate_422:
+      description: Validation errors
+      content:
+        application/json:
+          example: examples/errors.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mod-remote-storage-openapi.json
+- folio-mod-remote-storage-openapi.yml

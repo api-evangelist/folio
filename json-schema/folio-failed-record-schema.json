@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-failed-record-schema.json",
+  "title": "failedRecord",
+  "description": "A report of one or more data failures during import.",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-mod-inventory-update-inventory-import-1-0-openapi.yml#/components/schemas/failedRecord",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique ID for the error report."
+    },
+    "importJobId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID referencing the import job generation the report."
+    },
+    "channelId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID referencing the configuration that defined the import job.",
+      "readOnly": true
+    },
+    "channelName": {
+      "type": "string",
+      "description": "The name of the channel at the time the job was run.",
+      "readOnly": true
+    },
+    "recordNumber": {
+      "type": "string",
+      "description": "The identifier assigned to this error report by Inventory Import."
+    },
+    "timeStamp": {
+      "type": "string",
+      "description": "The date and time the error occurred."
+    },
+    "sourceFileName": {
+      "type": "string",
+      "description": "The name of the uploaded source file containing the error, if filename provider by the uploader."
+    },
+    "recordErrors": {
+      "type": "array",
+      "description": "List of errors encountered during upsert or delete.",
+      "items": {
+        "type": "object",
+        "description": "Report of an error encountered during upsert or delete.",
+        "properties": {
+          "error": {
+            "type": "object",
+            "description": "Details about the error.",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Short description."
+              },
+              "typeOfError": {
+                "type": "object",
+                "description": "Error category."
+              },
+              "typeOfRecord": {
+                "type": "string",
+                "description": "Type of entity affected by the error, i.e. HOLDINGS_RECORD."
+              },
+              "transaction": {
+                "type": "string",
+                "description": "Type of transaction triggering the error."
+              },
+              "message": {
+                "type": "object",
+                "description": "Error message produced by the backend component reporting the error."
+              },
+              "entity": {
+                "type": "object",
+                "description": "The record that was affected by the error."
+              }
+            }
+          }
+        }
+      }
+    },
+    "originalRecord": {
+      "type": "string",
+      "description": "The original source record as plain text."
+    },
+    "transformedRecord": {
+      "type": "object",
+      "description": "The JSON outcome of the transformation of the original record."
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "description": "For tagging records with current time and user ID on create or update.",
+      "properties": {
+        "createdDate": {
+          "type": "string",
+          "description": "Time stamp for the records creation.",
+          "readOnly": true
+        },
+        "createdByUserId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the user creating the record.",
+          "readOnly": true
+        },
+        "updatedDate": {
+          "type": "string",
+          "description": "Time stamp for the most recent update of the record.",
+          "readOnly": true
+        },
+        "updatedByUserId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The ID of the user who most recently updated the record.",
+          "readOnly": true
+        }
+      }
+    }
+  }
+}

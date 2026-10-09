@@ -1,0 +1,512 @@
+openapi: 3.2.0
+info:
+  title: Folio Profile API
+  version: v1
+  description: 'Operations tagged profile across 2 of this provider''s published API definitions: folio-mod-linked-data-openapi.json, folio-mod-linked-data-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Profile
+paths:
+  /linked-data/profile/{profileId}:
+    get:
+      operationId: getProfileById
+      tags:
+      - Profile
+      description: Get a profile by profileId
+      parameters:
+      - $ref: '#/components/parameters/profileId'
+      responses:
+        '200':
+          description: Profile with a given profileId
+          content:
+            text/plain;charset=utf-8:
+              schema:
+                type: string
+                example: example/profile.sample
+        '404':
+          description: No profile is found with a given profileId
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get profile by id
+      x-summary-source: derived
+  /linked-data/profile/metadata:
+    get:
+      operationId: getProfileMetadataByResourceType
+      tags:
+      - Profile
+      description: Get profiles metadata for a resource type
+      parameters:
+      - name: resourceType
+        in: query
+        required: true
+        description: The type of resource for which metadata are requested
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Array of profile metadata for the specified resource type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/profileMetadataArray'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get profile metadata by resource type
+      x-summary-source: derived
+  /linked-data/profile/preferred:
+    get:
+      operationId: getPreferredProfileByResourceType
+      tags:
+      - Profile
+      description: Get the preferred profile for a resource type for the current user
+      parameters:
+      - name: resourceType
+        in: query
+        required: false
+        description: The type of resource for which preferred profile is requested. If not specified, profiles for all resource types will be returned
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Preferred profile(s) for the current user and specified resource type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/profileMetadataArray'
+      summary: Get preferred profile by resource type
+      x-summary-source: derived
+    post:
+      operationId: setPreferredProfile
+      tags:
+      - Profile
+      description: Create or update the preferred profile for a resource type for the current user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/preferredProfileRequest'
+      responses:
+        '204':
+          description: Preferred profile created or updated successfully
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Set preferred profile
+      x-summary-source: derived
+    delete:
+      operationId: deletePreferredProfile
+      tags:
+      - Profile
+      description: Delete preferred profile for current user
+      parameters:
+      - name: resourceType
+        in: query
+        required: true
+        description: The type of resource for which preferred profile has to be deleted.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Preferred profile deleted successfully
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Delete preferred profile
+      x-summary-source: derived
+  /linked-data/profile/{profileId}/settings:
+    get:
+      operationId: getAllProfileSettings
+      tags:
+      - Profile
+      description: Get the workspace profile settings metadata list for a profile for the current user
+      parameters:
+      - $ref: '#/components/parameters/profileId'
+      responses:
+        '200':
+          description: Workspace profile settings metadata list for the current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customProfileSettingsMetadataArray'
+        '404':
+          description: No profile found with a given profileId
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get all profile settings
+      x-summary-source: derived
+    post:
+      operationId: createProfileSettings
+      tags:
+      - Profile
+      description: Create the workspace profile settings for a profile for the current user
+      parameters:
+      - $ref: '#/components/parameters/profileId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/customProfileSettingsRequestDto'
+      responses:
+        '201':
+          description: Workspace profile settings created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customProfileSettingsMetadata'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          description: No profile found with a given profileId
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Create profile settings
+      x-summary-source: derived
+  /linked-data/profile/{profileId}/settings/{profileSettingsId}:
+    get:
+      operationId: getProfileSettings
+      tags:
+      - Profile
+      description: Get the workspace profile settings for a profile for the current user
+      parameters:
+      - $ref: '#/components/parameters/profileId'
+      - $ref: '#/components/parameters/profileSettingsId'
+      responses:
+        '200':
+          description: Workspace profile settings for the current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customProfileSettingsResponseDto'
+        '404':
+          description: No profile found with a given profileId
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get profile settings
+      x-summary-source: derived
+    put:
+      operationId: setProfileSettings
+      tags:
+      - Profile
+      description: Update the workspace profile settings for a profile for the current user
+      parameters:
+      - $ref: '#/components/parameters/profileId'
+      - $ref: '#/components/parameters/profileSettingsId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/customProfileSettingsRequestDto'
+      responses:
+        '204':
+          description: Workspace profile settings created or updated successfully
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          description: No profile found with a given profileId
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Set profile settings
+      x-summary-source: derived
+    delete:
+      operationId: deleteProfileSettings
+      tags:
+      - Profile
+      description: Delete a saved workspace profile settings for a profile for the current user
+      parameters:
+      - $ref: '#/components/parameters/profileId'
+      - $ref: '#/components/parameters/profileSettingsId'
+      responses:
+        '204':
+          description: Saved workspace profile settings deleted successfully
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Delete profile settings
+      x-summary-source: derived
+  /linked-data/profile/{profileId}/preferred:
+    get:
+      operationId: getPreferredProfileSettings
+      tags:
+      - Profile
+      description: Get the preferred profile settings for the profile
+      parameters:
+      - $ref: '#/components/parameters/profileId'
+      responses:
+        '200':
+          description: Preferred profile settings for the profile and current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/customProfileSettingsMetadataArray'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get preferred profile settings
+      x-summary-source: derived
+    post:
+      operationId: setPreferredProfileSettings
+      tags:
+      - Profile
+      description: Set the preferred profile settings for the profile
+      parameters:
+      - $ref: '#/components/parameters/profileId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/preferredProfileSettingsRequest'
+      responses:
+        '204':
+          description: Preferred profile settings created or updated successfully
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Set preferred profile settings
+      x-summary-source: derived
+    delete:
+      operationId: deletePreferredProfileSettings
+      tags:
+      - Profile
+      description: Delete the preferred profile settings for the profile
+      parameters:
+      - $ref: '#/components/parameters/profileId'
+      responses:
+        '204':
+          description: Preferred profile settings deleted successfully
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Delete preferred profile settings
+      x-summary-source: derived
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    preferredProfileRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Preferred profile request schema
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int16
+          description: ID of the profile
+        resourceType:
+          type: string
+          description: Type of the resource to which the profile applies
+      required:
+      - id
+      - resourceType
+    customProfileSettingsLabel:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Custom profile settings label
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the workspace custom profile settings
+          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
+      required:
+      - name
+    customProfileSettingsRequestDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Workspace custom profile settings request DTO
+      allOf:
+      - $ref: '#/components/schemas/customProfileSettings'
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+    customProfileSettings:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Workspace custom profile settings
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/customProfileSettingsLabel'
+      - $ref: '#/components/schemas/customProfileSettingsValues'
+    customProfileSettingsMetadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Custom profile settings metadata
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/customProfileSettingsLabel'
+      - properties:
+          id:
+            type: integer
+            format: int16
+            description: ID of the custom profile settings
+          profileId:
+            type: integer
+            format: int16
+            description: ID of the profile
+        required:
+        - id
+        - profileId
+    profileMetadataArray:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Array of profile metadata
+      type: array
+      items:
+        $ref: '#/components/schemas/profileMetadata'
+    customProfileSettingsResponseDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Workspace custom profile settings response DTO
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/customProfileSettingsValues'
+      - $ref: '#/components/schemas/customProfileSettingsMetadata'
+    customProfileSettingsValues:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Workspace custom profile settings
+      type: object
+      properties:
+        active:
+          type: boolean
+          description: True if settings are intended to be applied, false if intended to be ignored
+        children:
+          type: array
+          description: Profile block children
+          items:
+            $ref: '#/components/schemas/customProfileSettingsChild'
+      required:
+      - active
+      - children
+    profileMetadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Profile metadata
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int16
+          description: ID of the profile
+        name:
+          type: string
+          description: Name of the profile
+        resourceType:
+          type: string
+          description: Type of the resource to which the profile applies
+      required:
+      - id
+      - name
+      - resourceType
+    customProfileSettingsMetadataArray:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Array of custom profile settings metadata
+      type: array
+      items:
+        $ref: '#/components/schemas/customProfileSettingsMetadata'
+    customProfileSettingsChild:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Workspace custom profile settings
+      type: object
+      properties:
+        id:
+          type: string
+          description: The child profile component's ID, from its id attribute
+        visible:
+          type: boolean
+          description: True if this profile component should be visible to the user
+        order:
+          type: integer
+          description: The rank order of the component, starting from 1 at the top
+      required:
+      - id
+      - visible
+      - order
+    preferredProfileSettingsRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Preferred profile settings request schema
+      type: object
+      properties:
+        profileSettingsId:
+          type: integer
+          format: int16
+          description: ID of the profile settings
+      required:
+      - profileSettingsId
+    error:
+      description: An error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+  parameters:
+    profileSettingsId:
+      name: profileSettingsId
+      in: path
+      required: true
+      description: ID of the profile settings
+      schema:
+        type: integer
+        format: int16
+    profileId:
+      name: profileId
+      in: path
+      required: true
+      description: ID of the profile
+      schema:
+        type: integer
+        format: int16
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example: example/unknownError.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example: examples/validationErrorResponse.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mod-linked-data-openapi.json
+- folio-mod-linked-data-openapi.yml

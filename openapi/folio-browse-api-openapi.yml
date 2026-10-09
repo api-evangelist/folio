@@ -1,0 +1,2067 @@
+openapi: 3.2.0
+info:
+  title: Folio Browse API
+  version: v4.1.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged browse across 2 of this provider''s published API definitions: folio-mod-search-openapi.json, folio-mod-search-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://{environment}-okapi.ci.folio.org
+  variables:
+    environment:
+      default: folio-dev-spitfire
+      enum:
+      - folio-dev-spitfire
+      - folio-perf-spitfire
+- description: Reference environments.
+  url: https://folio-{environment}-okapi.dev.folio.org
+  variables:
+    environment:
+      default: snapshot
+      enum:
+      - snapshot
+      - snapshot-2
+tags:
+- description: Provides endpoints to browse records (e.g., instances, authorities) in alphabetical order by a specific field, such as call number, classification number, subject, or contributor.
+  name: Browse
+paths:
+  /browse/call-numbers/{browseOptionId}/instances:
+    get:
+      description: Provides list of call numbers
+      operationId: browseInstancesByCallNumber
+      parameters:
+      - description: Browse option type
+        in: path
+        name: browseOptionId
+        required: true
+        schema:
+          $ref: '#/components/schemas/browseOptionType'
+      - description: "A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `fullCallNumber`. \nFilters support logic operators `AND` and `OR`. All filters should be combined in parentheses.\nAnchor will be included only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.\n<table>\n  <caption>\n      Supported filter options\n  </caption>\n  <thead>\n  <tr>\n      <th>Option</th>\n      <th>Data type</th>\n      <th>Supported operators</th>\n      <th>Description</th>\n  </tr>\n  </thead>\n  <tbody>\n  <tr>\n      <td>instances.tenantId</td>\n      <td>string</td>\n      <td>==</td>\n      <td>Filter by tenant ID in consortium</td>\n  </tr>\n  <tr>\n      <td>instances.shared</td>\n      <td>boolean</td>\n      <td>==</td>\n      <td>Filter by shared/non-shared in consortium</td>\n  </tr>\n  <tr>\n      <td>instances.locationId</td>\n      <td>string</td>\n      <td>==</td>\n      <td>Filter by location ID</td>\n  </tr>\n  <tr>\n      <td>callNumberTypeId</td>\n      <td>string</td>\n      <td>==</td>\n      <td>Filter by call-number type ID</td>\n  </tr>\n  </tbody>\n</table>\n"
+        examples:
+          browseAround:
+            summary: Search for all classification numbers before and after "DT571.F84"
+            value: number >= "DT571.F84" or number < "DT571.F84"
+          browseForward:
+            summary: Search for all classification numbers after "DT571.F84"
+            value: number >= "DT571.F84"
+          browseBackward:
+            summary: Search for all classification numbers before "DT571.F84"
+            value: number >= "DT571.F84"
+          browseAroundWithFilters:
+            summary: Search for local classification numbers before and after "DT571.F84"
+            value: (number >= "DT571.F84" or number < "DT571.F84") and instances.shared==false and instances.locationId=="2b94c631-fca9-4892-a730-03ee529ff6c3"
+        in: query
+        name: query
+        required: true
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the browse response.
+        in: query
+        name: limit
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 0
+          type: integer
+      - description: Whether to highlight matched resource by query input or not.
+        in: query
+        name: highlightMatch
+        required: false
+        schema:
+          default: true
+          type: boolean
+      - description: Number of preceding records for browsing around and around-including queries
+        in: query
+        name: precedingRecordsCount
+        required: false
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                browseResult:
+                  $ref: '#/components/examples/browseCallNumberResult'
+              schema:
+                $ref: '#/components/schemas/callNumberBrowseResult'
+          description: Search result for browsing by call number
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Browse Instance Call Numbers
+      tags:
+      - Browse
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /browse/classification-numbers/{browseOptionId}/instances:
+    get:
+      description: Provides list of classification numbers
+      operationId: browseInstancesByClassificationNumber
+      parameters:
+      - description: Browse option type
+        in: path
+        name: browseOptionId
+        required: true
+        schema:
+          $ref: '#/components/schemas/browseOptionType'
+      - description: "A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `number`. \nFilters support logic operators `AND` and `OR`. All filters should be combined in parentheses.\nAnchor will be included only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.\n<table>\n  <caption>\n      Supported filter options\n  </caption>\n  <thead>\n  <tr>\n      <th>Option</th>\n      <th>Data type</th>\n      <th>Supported operators</th>\n      <th>Description</th>\n  </tr>\n  </thead>\n  <tbody>\n  <tr>\n      <td>instances.tenantId</td>\n      <td>string</td>\n      <td>==</td>\n      <td>Filter by tenant ID in consortium</td>\n  </tr>\n  <tr>\n      <td>instances.shared</td>\n      <td>boolean</td>\n      <td>==</td>\n      <td>Filter by shared/non-shared in consortium</td>\n  </tr>\n  </tbody>\n</table>\n"
+        examples:
+          browseAround:
+            summary: Search for all classification numbers before and after "DT571.F84"
+            value: number >= "DT571.F84" or number < "DT571.F84"
+          browseForward:
+            summary: Search for all classification numbers after "DT571.F84"
+            value: number >= "DT571.F84"
+          browseBackward:
+            summary: Search for all classification numbers before "DT571.F84"
+            value: number >= "DT571.F84"
+          browseAroundWithFilters:
+            summary: Search for local classification numbers before and after "DT571.F84"
+            value: (number >= "DT571.F84" or number < "DT571.F84") and instances.shared==false
+        in: query
+        name: query
+        required: true
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the browse response.
+        in: query
+        name: limit
+        schema:
+          default: 100
+          maximum: 100
+          minimum: 0
+          type: integer
+      - description: Whether to highlight matched resource by query input or not.
+        in: query
+        name: highlightMatch
+        required: false
+        schema:
+          default: true
+          type: boolean
+      - description: Number of preceding records for browsing around and around-including queries
+        in: query
+        name: precedingRecordsCount
+        required: false
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                browseResult:
+                  $ref: '#/components/examples/browseClassificationNumberResult'
+              schema:
+                $ref: '#/components/schemas/classificationNumberBrowseResult'
+          description: Search result for browsing by classification number
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Browse Instance Classifications
+      tags:
+      - Browse
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /browse/subjects/instances:
+    get:
+      description: Provides list of instances for browsing by subject
+      operationId: browseInstancesBySubject
+      parameters:
+      - description: "A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `value`. \nFilters support logic operators `AND` and `OR`. All filters should be combined in parentheses.\nAnchor will be included only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.\n<table>\n  <caption>\n      Supported filter options\n  </caption>\n  <thead>\n  <tr>\n      <th>Option</th>\n      <th>Data type</th>\n      <th>Supported operators</th>\n      <th>Description</th>\n  </tr>\n  </thead>\n  <tbody>\n  <tr>\n      <td>typeId</td>\n      <td>uuid</td>\n      <td>==</td>\n      <td>Filter by subject type</td>\n  </tr>\n  <tr>\n      <td>sourceId</td>\n      <td>uuid</td>\n      <td>==</td>\n      <td>Filter by subject source</td>\n  </tr>\n  <tr>\n      <td>instances.tenantId</td>\n      <td>string</td>\n      <td>==</td>\n      <td>Filter by tenant ID in consortium</td>\n  </tr>\n  <tr>\n      <td>instances.shared</td>\n      <td>boolean</td>\n      <td>==</td>\n      <td>Filter by shared/non-shared in consortium</td>\n  </tr>\n  </tbody>\n</table>\n"
+        examples:
+          browseAround:
+            summary: Search for all subject values before and after "Fantasy"
+            value: value >= "Fantasy" or value < "Fantasy"
+          browseForward:
+            summary: Search for all subject values after "Fantasy"
+            value: value >= "Fantasy"
+          browseBackward:
+            summary: Search for all subject values before "Fantasy"
+            value: value >= "Fantasy"
+          browseAroundWithFilters:
+            summary: Search for local subject values before and after "Fantasy"
+            value: (value >= "Fantasy" or value < "Fantasy") and instances.shared==false
+        in: query
+        name: query
+        required: true
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 0
+          type: integer
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      - description: Whether to highlight matched resource by query input or not.
+        in: query
+        name: highlightMatch
+        required: false
+        schema:
+          default: true
+          type: boolean
+      - description: Number of preceding records for browsing around and around-including queries
+        in: query
+        name: precedingRecordsCount
+        required: false
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                browseResult:
+                  $ref: '#/components/examples/browseSubjectResult'
+              schema:
+                $ref: '#/components/schemas/subjectBrowseResult'
+          description: Search result for browsing by call number
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Browse Instance Subjects
+      tags:
+      - Browse
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /browse/contributors/instances:
+    get:
+      description: Provides list of instances for browsing by contributor
+      operationId: browseInstancesByContributor
+      parameters:
+      - description: "A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `name`. \nFilters support logic operators `AND` and `OR`. All filters should be combined in parentheses.\nAnchor will be included only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.\n<table>\n  <caption>\n      Supported filter options\n  </caption>\n  <thead>\n  <tr>\n      <th>Option</th>\n      <th>Data type</th>\n      <th>Supported operators</th>\n      <th>Description</th>\n  </tr>\n  </thead>\n  <tbody>\n  <tr>\n      <td>contributorNameTypeId</td>\n      <td>uuid</td>\n      <td>==</td>\n      <td>Filter by contributor name type</td>\n  </tr>\n  <tr>\n      <td>instances.tenantId</td>\n      <td>string</td>\n      <td>==</td>\n      <td>Filter by tenant ID in consortium</td>\n  </tr>\n  <tr>\n      <td>instances.shared</td>\n      <td>boolean</td>\n      <td>==</td>\n      <td>Filter by shared/non-shared in consortium</td>\n  </tr>\n  </tbody>\n</table>\n"
+        examples:
+          browseAround:
+            summary: Search for all contributor values before and after "Abedi, Ali"
+            value: name >= "Abedi, Ali" or name < "Abedi, Ali"
+          browseForward:
+            summary: Search for all contributor values after "Abedi, Ali"
+            value: name >= "Abedi, Ali"
+          browseBackward:
+            summary: Search for all contributor values before "Abedi, Ali"
+            value: name >= "Abedi, Ali"
+          browseAroundWithFilters:
+            summary: Search for local contributor values with name type id = "b6993450-25c1-4c23-a1d1-98abb67fb506" before and after "Abedi, Ali"
+            value: (name >= "Abedi, Ali" or name < "Abedi, Ali") and instances.shared==false and contributorNameTypeId="b6993450-25c1-4c23-a1d1-98abb67fb506"
+        in: query
+        name: query
+        required: true
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 0
+          type: integer
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      - description: Whether to highlight matched resource by query input or not.
+        in: query
+        name: highlightMatch
+        required: false
+        schema:
+          default: true
+          type: boolean
+      - description: Number of preceding records for browsing around and around-including queries
+        in: query
+        name: precedingRecordsCount
+        required: false
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                browseResult:
+                  $ref: '#/components/examples/browseContributorsResult'
+              schema:
+                $ref: '#/components/schemas/contributorBrowseResult'
+          description: Search result for browsing by contributor
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Browse Instance Contributors
+      tags:
+      - Browse
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /browse/authorities:
+    get:
+      description: Provides list of authorities by headingRef
+      operationId: browseAuthorities
+      parameters:
+      - description: "A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `headingRef`.\nFilters support logic operators `AND` and `OR`. All filters should be combined in parentheses.\nAnchor will be included only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.\n<table>\n  <caption>\n      Supported filter options\n  </caption>\n  <thead>\n  <tr>\n      <th>Option</th>\n      <th>Data type</th>\n      <th>Supported operators</th>\n      <th>Description</th>\n  </tr>\n  </thead>\n  <tbody>\n  <tr>\n      <td>tenantId</td>\n      <td>string</td>\n      <td>==</td>\n      <td>Filter by tenant ID in consortium</td>\n  </tr>\n  <tr>\n      <td>shared</td>\n      <td>boolean</td>\n      <td>==</td>\n      <td>Filter by shared/non-shared in consortium</td>\n  </tr>\n  <tr>\n      <td>sourceFileId</td>\n      <td>uuid</td>\n      <td>==</td>\n      <td>Filter by authority source file ID. `NULL` value to filter by non-specified.</td>\n  </tr>\n  <tr>\n      <td>headingType</td>\n      <td>string</td>\n      <td>==</td>\n      <td>Filter by heading type: `Personal Name`, `Corporate Name`, `Conference Name`, `Geographic Name`, `Uniform\n          Title`, `Topical`, `Genre`\n      </td>\n  </tr>\n  <tr>\n      <td>isTitleHeadingRef</td>\n      <td>boolean</td>\n      <td>==</td>\n      <td>Filter title/non-title heading</td>\n  </tr>\n  <tr>\n      <td>authRefType</td>\n      <td>boolean</td>\n      <td>==</td>\n      <td>Filter by reference type: `Authorized`, `Reference`, `Auth/Ref`</td>\n  </tr>\n  <tr>\n      <td>subjectHeadings</td>\n      <td>char</td>\n      <td>==</td>\n      <td>Filter by subject heading code</td>\n  </tr>\n  <tr>\n      <td>metadata.createdDate</td>\n      <td>date</td>\n      <td>==, >, <, <=, >=</td>\n      <td>Filter by authority create date</td>\n  </tr>\n  <tr>\n      <td>metadata.updatedDate</td>\n      <td>date</td>\n      <td>==, >, <, <=, >=</td>\n      <td>Filter by authority update date</td>\n  </tr>\n  </tbody>\n</table>\n"
+        examples:
+          browseAround:
+            summary: Search for all authority headings before and after "Comic-Con"
+            value: headingRef >= "Comic-Con" or headingRef < "Comic-Con"
+          browseForward:
+            summary: Search for all authority headings after "Comic-Con"
+            value: headingRef >= "Comic-Con"
+          browseBackward:
+            summary: Search for all authority headings before "Comic-Con"
+            value: headingRef >= "Comic-Con"
+          browseAroundWithFilters:
+            summary: Search for "Authorized" or "Auth/Ref" personal name authority headings before and after "Comic-Con"
+            value: (headingRef >= "Comic-Con" or headingRef < "Comic-Con") and authRefType==("Authorized" or "Auth/Ref") and headingType=="Personal Name"
+        in: query
+        name: query
+        required: true
+        schema:
+          type: string
+      - description: "Whether to return only basic properties or entire authority record.<br>\nBasic fields are:\n  - id\n  - tenantId\n  - shared\n  - headingType\n  - authRefType\n  - headingRef\n  - sourceFileId\n  - naturalId\n  - numberOfTitles\n"
+        in: query
+        name: expandAll
+        schema:
+          default: false
+          type: boolean
+      - description: Whether to highlight matched resource by query input or not.
+        in: query
+        name: highlightMatch
+        required: false
+        schema:
+          default: true
+          type: boolean
+      - description: Number of preceding records for browsing around and around-including queries
+        in: query
+        name: precedingRecordsCount
+        required: false
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 0
+          type: integer
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      - description: Retrieves the fields listed in the specified parameter.
+        in: query
+        name: include
+        required: false
+        schema:
+          example: notes,subjects
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                browseResult:
+                  $ref: '#/components/examples/browseAuthorityResponse'
+                browseEmptyResult:
+                  $ref: '#/components/examples/browseAuthorityEmptyResponse'
+                browseExpandedResult:
+                  $ref: '#/components/examples/browseAuthorityExpandedResponse'
+              schema:
+                $ref: '#/components/schemas/authorityBrowseResult'
+          description: Search result for browsing by authorities
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Browse Authorities
+      tags:
+      - Browse
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: 'null'
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    identifier:
+      additionalProperties: false
+      description: Resource identifier
+      example:
+        value: value
+        identifierTypeId: identifierTypeId
+      properties:
+        value:
+          description: Resource identifier value
+          type: string
+        identifierTypeId:
+          description: Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)
+          type: string
+      type: object
+    browseOptionType:
+      description: Browse option type
+      enum:
+      - all
+      - lc
+      - dewey
+      - nlm
+      - sudoc
+      - other
+      type: string
+    classificationNumberBrowseItem:
+      description: Classification number browse search result item
+      example:
+        id: id
+        classificationNumber: classificationNumber
+        classificationTypeId: classificationTypeId
+        isAnchor: true
+        instanceTitle: instanceTitle
+        instanceContributors:
+        - instanceContributors
+        - instanceContributors
+        totalRecords: 6
+      properties:
+        id:
+          description: Classification number ID
+          type: string
+        classificationNumber:
+          description: Classification number value to display
+          type: string
+        classificationTypeId:
+          description: Classification type ID value
+          type: string
+        isAnchor:
+          description: Marks if current value is anchor or not
+          type: boolean
+        instanceTitle:
+          description: Instance title
+          type: string
+        instanceContributors:
+          description: List of contributor names.
+          items:
+            description: Contributor name
+            type: string
+          type: array
+        totalRecords:
+          description: Amount of records for the classification number value
+          type: integer
+      required:
+      - classificationNumber
+      - id
+      - totalRecords
+      type: object
+    metadata:
+      additionalProperties: false
+      description: Record metadata
+      example:
+        createdDate: createdDate
+        createdByUserId: createdByUserId
+        updatedDate: updatedDate
+        updatedByUserId: updatedByUserId
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+      type: object
+    contributorBrowseResult:
+      description: Instance contributor browse search response
+      example:
+        totalRecords: 0
+        prev: prev
+        next: next
+        items:
+        - name: name
+          contributorTypeId:
+          - contributorTypeId
+          - contributorTypeId
+          contributorNameTypeId: contributorNameTypeId
+          authorityId: authorityId
+          isAnchor: true
+          totalRecords: 6
+        - name: name
+          contributorTypeId:
+          - contributorTypeId
+          - contributorTypeId
+          contributorNameTypeId: contributorNameTypeId
+          authorityId: authorityId
+          isAnchor: true
+          totalRecords: 6
+      properties:
+        totalRecords:
+          description: Amount of items to display
+          type: integer
+        prev:
+          description: Previous value for browsing backward
+          type: string
+        next:
+          description: Next value for browsing forward
+          type: string
+        items:
+          description: List of instance contributor browse items
+          items:
+            $ref: '#/components/schemas/instanceContributorBrowseItem'
+          type: array
+      type: object
+    subjectBrowseResult:
+      description: Subject browse search response
+      example:
+        totalRecords: 0
+        prev: prev
+        next: next
+        items:
+        - value: value
+          isAnchor: true
+          totalRecords: 6
+          authorityId: authorityId
+          sourceId: sourceId
+          typeId: typeId
+        - value: value
+          isAnchor: true
+          totalRecords: 6
+          authorityId: authorityId
+          sourceId: sourceId
+          typeId: typeId
+      properties:
+        totalRecords:
+          description: Amount of items to display
+          type: integer
+        prev:
+          description: Previous value for browsing backward
+          type: string
+        next:
+          description: Next value for browsing forward
+          type: string
+        items:
+          description: List of subject browse items
+          items:
+            $ref: '#/components/schemas/subjectBrowseItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+      type: object
+    errorResponse:
+      description: A set of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        total_records:
+          description: Total number of errors
+          type: integer
+      type: object
+    classificationNumberBrowseResult:
+      description: Classification number browse search response
+      example:
+        totalRecords: 0
+        prev: prev
+        next: next
+        items:
+        - id: id
+          classificationNumber: classificationNumber
+          classificationTypeId: classificationTypeId
+          isAnchor: true
+          instanceTitle: instanceTitle
+          instanceContributors:
+          - instanceContributors
+          - instanceContributors
+          totalRecords: 6
+        - id: id
+          classificationNumber: classificationNumber
+          classificationTypeId: classificationTypeId
+          isAnchor: true
+          instanceTitle: instanceTitle
+          instanceContributors:
+          - instanceContributors
+          - instanceContributors
+          totalRecords: 6
+      properties:
+        totalRecords:
+          description: Amount of items to display
+          type: integer
+        prev:
+          description: Previous value for browsing backward
+          type: string
+        next:
+          description: Next value for browsing forward
+          type: string
+        items:
+          description: List of classification number browse items
+          items:
+            $ref: '#/components/schemas/classificationNumberBrowseItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+      type: object
+    subjectBrowseItem:
+      description: Subject browse search result item
+      example:
+        value: value
+        isAnchor: true
+        totalRecords: 6
+        authorityId: authorityId
+        sourceId: sourceId
+        typeId: typeId
+      properties:
+        value:
+          description: Subject value to be used for browsing
+          type: string
+        isAnchor:
+          description: Marks if current value is anchor or not
+          type: boolean
+        totalRecords:
+          description: Amount of records for the subject browse item
+          type: integer
+        authorityId:
+          description: ID of authority record that controls the subject
+          type: string
+        sourceId:
+          description: ID of subject source
+          type: string
+        typeId:
+          description: ID of subject type
+          type: string
+      type: object
+    authority:
+      description: An authority description
+      example:
+        id: id
+        tenantId: tenantId
+        shared: true
+        source: source
+        sourceFileId: sourceFileId
+        naturalId: naturalId
+        personalName: personalName
+        sftPersonalName:
+        - sftPersonalName
+        - sftPersonalName
+        saftPersonalName:
+        - saftPersonalName
+        - saftPersonalName
+        personalNameTitle: personalNameTitle
+        sftPersonalNameTitle:
+        - sftPersonalNameTitle
+        - sftPersonalNameTitle
+        saftPersonalNameTitle:
+        - saftPersonalNameTitle
+        - saftPersonalNameTitle
+        corporateName: corporateName
+        sftCorporateName:
+        - sftCorporateName
+        - sftCorporateName
+        saftCorporateName:
+        - saftCorporateName
+        - saftCorporateName
+        corporateNameTitle: corporateNameTitle
+        sftCorporateNameTitle:
+        - sftCorporateNameTitle
+        - sftCorporateNameTitle
+        saftCorporateNameTitle:
+        - saftCorporateNameTitle
+        - saftCorporateNameTitle
+        meetingName: meetingName
+        sftMeetingName:
+        - sftMeetingName
+        - sftMeetingName
+        saftMeetingName:
+        - saftMeetingName
+        - saftMeetingName
+        meetingNameTitle: meetingNameTitle
+        sftMeetingNameTitle:
+        - sftMeetingNameTitle
+        - sftMeetingNameTitle
+        saftMeetingNameTitle:
+        - saftMeetingNameTitle
+        - saftMeetingNameTitle
+        uniformTitle: uniformTitle
+        sftUniformTitle:
+        - sftUniformTitle
+        - sftUniformTitle
+        saftUniformTitle:
+        - saftUniformTitle
+        - saftUniformTitle
+        namedEvent: namedEvent
+        sftNamedEvent:
+        - sftNamedEvent
+        - sftNamedEvent
+        saftNamedEvent:
+        - saftNamedEvent
+        - saftNamedEvent
+        generalSubdivision: generalSubdivision
+        sftGeneralSubdivision:
+        - sftGeneralSubdivision
+        - sftGeneralSubdivision
+        saftGeneralSubdivision:
+        - saftGeneralSubdivision
+        - saftGeneralSubdivision
+        topicalTerm: topicalTerm
+        sftTopicalTerm:
+        - sftTopicalTerm
+        - sftTopicalTerm
+        saftTopicalTerm:
+        - saftTopicalTerm
+        - saftTopicalTerm
+        subjectHeadings: subjectHeadings
+        geographicName: geographicName
+        sftGeographicName:
+        - sftGeographicName
+        - sftGeographicName
+        saftGeographicName:
+        - saftGeographicName
+        - saftGeographicName
+        genreTerm: genreTerm
+        sftGenreTerm:
+        - sftGenreTerm
+        - sftGenreTerm
+        saftGenreTerm:
+        - saftGenreTerm
+        - saftGenreTerm
+        chronTerm: chronTerm
+        sftChronTerm:
+        - sftChronTerm
+        - sftChronTerm
+        saftChronTerm:
+        - saftChronTerm
+        - saftChronTerm
+        mediumPerfTerm: mediumPerfTerm
+        sftMediumPerfTerm:
+        - sftMediumPerfTerm
+        - sftMediumPerfTerm
+        saftMediumPerfTerm:
+        - saftMediumPerfTerm
+        - saftMediumPerfTerm
+        geographicSubdivision: geographicSubdivision
+        sftGeographicSubdivision:
+        - sftGeographicSubdivision
+        - sftGeographicSubdivision
+        saftGeographicSubdivision:
+        - saftGeographicSubdivision
+        - saftGeographicSubdivision
+        chronSubdivision: chronSubdivision
+        sftChronSubdivision:
+        - sftChronSubdivision
+        - sftChronSubdivision
+        saftChronSubdivision:
+        - saftChronSubdivision
+        - saftChronSubdivision
+        formSubdivision: formSubdivision
+        sftFormSubdivision:
+        - sftFormSubdivision
+        - sftFormSubdivision
+        saftFormSubdivision:
+        - saftFormSubdivision
+        - saftFormSubdivision
+        identifiers:
+        - value: value
+          identifierTypeId: identifierTypeId
+        - value: value
+          identifierTypeId: identifierTypeId
+        notes:
+        - noteTypeId: '{}'
+          note: note
+        - noteTypeId: '{}'
+          note: note
+        metadata:
+          createdDate: createdDate
+          createdByUserId: createdByUserId
+          updatedDate: updatedDate
+          updatedByUserId: updatedByUserId
+        headingType: headingType
+        authRefType: authRefType
+        headingRef: headingRef
+        numberOfTitles: 6
+      properties:
+        id:
+          description: Authority UUID
+          type: string
+        tenantId:
+          description: Tenant ID
+          type: string
+        shared:
+          description: Indicate if it shared record
+          type: boolean
+        source:
+          description: The metadata source and its format of the underlying record to the authority record
+          type: string
+        sourceFileId:
+          description: Authority source file id; UUID
+          type: string
+        naturalId:
+          description: Authority Natural ID
+          type: string
+        personalName:
+          description: Heading personal name
+          type: string
+        sftPersonalName:
+          description: See from tracing personal names
+          items:
+            description: See from tracing personal name
+            type: string
+          type: array
+        saftPersonalName:
+          description: See also from tracing personal names
+          items:
+            description: See also from tracing personal name
+            type: string
+          type: array
+        personalNameTitle:
+          description: Heading personal name title
+          type: string
+        sftPersonalNameTitle:
+          description: See from tracing personal name title
+          items:
+            type: string
+          type: array
+        saftPersonalNameTitle:
+          description: See also from tracing personal name title
+          items:
+            type: string
+          type: array
+        corporateName:
+          description: Heading corporate name
+          type: string
+        sftCorporateName:
+          description: See from tracing corporate names
+          items:
+            description: See from tracing corporate name
+            type: string
+          type: array
+        saftCorporateName:
+          description: See also from tracing corporate names
+          items:
+            description: See also from tracing corporate name
+            type: string
+          type: array
+        corporateNameTitle:
+          description: Heading corporate name title
+          type: string
+        sftCorporateNameTitle:
+          description: See from tracing corporate name title
+          items:
+            type: string
+          type: array
+        saftCorporateNameTitle:
+          description: See also from tracing corporate name title
+          items:
+            type: string
+          type: array
+        meetingName:
+          description: Heading meeting name
+          type: string
+        sftMeetingName:
+          description: See from tracing meeting names
+          items:
+            description: See from tracing meeting name
+            type: string
+          type: array
+        saftMeetingName:
+          description: See also from tracing meeting names
+          items:
+            description: See also from tracing meeting name
+            type: string
+          type: array
+        meetingNameTitle:
+          description: Heading meeting name title
+          type: string
+        sftMeetingNameTitle:
+          description: See from tracing meeting name title
+          items:
+            type: string
+          type: array
+        saftMeetingNameTitle:
+          description: See also from tracing meeting name title
+          items:
+            type: string
+          type: array
+        uniformTitle:
+          description: Heading uniform title
+          type: string
+        sftUniformTitle:
+          description: See from tracing uniform titles
+          items:
+            description: See from tracing uniform title
+            type: string
+          type: array
+        saftUniformTitle:
+          description: See also from tracing uniform titles
+          items:
+            description: See also from tracing uniform title
+            type: string
+          type: array
+        namedEvent:
+          description: Heading named event
+          type: string
+        sftNamedEvent:
+          description: See from tracing named event
+          items:
+            type: string
+          type: array
+        saftNamedEvent:
+          description: See also from tracing named event
+          items:
+            type: string
+          type: array
+        generalSubdivision:
+          description: Heading general subdivision
+          type: string
+        sftGeneralSubdivision:
+          description: See from tracing general subdivision
+          items:
+            type: string
+          type: array
+        saftGeneralSubdivision:
+          description: See also from tracing general subdivision
+          items:
+            type: string
+          type: array
+        topicalTerm:
+          description: Heading topical term
+          type: string
+        sftTopicalTerm:
+          description: See from tracing topical terms
+          items:
+            description: See from tracing topical term
+            type: string
+          type: array
+        saftTopicalTerm:
+          description: See also from tracing topical terms
+          items:
+            description: See also from tracing topical term
+            type: string
+          type: array
+        subjectHeadings:
+          description: Children's subject headings
+          type: string
+        geographicName:
+          description: Heading geographic name
+          type: string
+        sftGeographicName:
+          description: See from tracing geographic names
+          items:
+            description: See from tracing geographic name
+            type: string
+          type: array
+        saftGeographicName:
+          description: See also from tracing geographic names
+          items:
+            description: See also from tracing geographic name
+            type: string
+          type: array
+        genreTerm:
+          description: Heading genre/form term
+          type: string
+        sftGenreTerm:
+          description: See from tracing genre/form terms
+          items:
+            description: See from tracing genre/form term
+            type: string
+          type: array
+        saftGenreTerm:
+          description: See also from tracing genre/form terms
+          items:
+            description: See also from tracing genre/form term
+            type: string
+          type: array
+        chronTerm:
+          description: Heading chronological term
+          type: string
+        sftChronTerm:
+          description: See from tracing chronological terms
+          items:
+            description: See from tracing chronological term
+            type: string
+          type: array
+        saftChronTerm:
+          description: See also from tracing chronological terms
+          items:
+            description: See also from tracing chronological term
+            type: string
+          type: array
+        mediumPerfTerm:
+          description: Heading medium of performance term
+          type: string
+        sftMediumPerfTerm:
+          description: See from tracing medium of performance terms
+          items:
+            description: See from tracing medium of performance term
+            type: string
+          type: array
+        saftMediumPerfTerm:
+          description: See also from tracing medium of performance terms
+          items:
+            description: See also from tracing medium of performance term
+            type: string
+          type: array
+        geographicSubdivision:
+          description: Heading geographic subdivision
+          type: string
+        sftGeographicSubdivision:
+          description: See from tracing geographic subdivisions
+          items:
+            description: See from tracing geographic subdivision
+            type: string
+          type: array
+        saftGeographicSubdivision:
+          description: See also from tracing geographic subdivisions
+          items:
+            description: See also from tracing geographic subdivision
+            type: string
+          type: array
+        chronSubdivision:
+          description: Heading chronological subdivision
+          type: string
+        sftChronSubdivision:
+          description: See from tracing chronological subdivisions
+          items:
+            description: See from tracing chronological subdivision
+            type: string
+          type: array
+        saftChronSubdivision:
+          description: See also from tracing chronological subdivisions
+          items:
+            description: See also from tracing chronological subdivision
+            type: string
+          type: array
+        formSubdivision:
+          description: Heading form subdivision
+          type: string
+        sftFormSubdivision:
+          description: See from tracing form subdivisions
+          items:
+            description: See from tracing form subdivision
+            type: string
+          type: array
+        saftFormSubdivision:
+          description: See also from tracing form subdivisions
+          items:
+            description: See also from tracing form subdivision
+            type: string
+          type: array
+        identifiers:
+          description: An extensible set of name-value pairs of identifiers associated with the resource
+          items:
+            $ref: '#/components/schemas/identifier'
+          type: array
+        notes:
+          description: Notes (e.g. nonpublic general note)
+          items:
+            $ref: '#/components/schemas/authorityNote'
+          type: array
+        metadata:
+          $ref: '#/components/schemas/metadata'
+        headingType:
+          description: Generated field by mod-search, used to easily identity the heading type of the record that provides authority information
+          type: string
+        authRefType:
+          description: Generated field by mod-search, used to easily identity the authorized/reference type of the record that provides authority information
+          type: string
+        headingRef:
+          description: Generated field by mod-search, used to easily identity the heading/reference of the record that provides authority information
+          type: string
+        numberOfTitles:
+          description: Generated field by mod-search, used to count the total number of bib records linked to this authority record
+          type: integer
+      type: object
+    authorityBrowseItem:
+      description: Authority browse result item
+      example:
+        authority:
+          id: id
+          tenantId: tenantId
+          shared: true
+          source: source
+          sourceFileId: sourceFileId
+          naturalId: naturalId
+          personalName: personalName
+          sftPersonalName:
+          - sftPersonalName
+          - sftPersonalName
+          saftPersonalName:
+          - saftPersonalName
+          - saftPersonalName
+          personalNameTitle: personalNameTitle
+          sftPersonalNameTitle:
+          - sftPersonalNameTitle
+          - sftPersonalNameTitle
+          saftPersonalNameTitle:
+          - saftPersonalNameTitle
+          - saftPersonalNameTitle
+          corporateName: corporateName
+          sftCorporateName:
+          - sftCorporateName
+          - sftCorporateName
+          saftCorporateName:
+          - saftCorporateName
+          - saftCorporateName
+          corporateNameTitle: corporateNameTitle
+          sftCorporateNameTitle:
+          - sftCorporateNameTitle
+          - sftCorporateNameTitle
+          saftCorporateNameTitle:
+          - saftCorporateNameTitle
+          - saftCorporateNameTitle
+          meetingName: meetingName
+          sftMeetingName:
+          - sftMeetingName
+          - sftMeetingName
+          saftMeetingName:
+          - saftMeetingName
+          - saftMeetingName
+          meetingNameTitle: meetingNameTitle
+          sftMeetingNameTitle:
+          - sftMeetingNameTitle
+          - sftMeetingNameTitle
+          saftMeetingNameTitle:
+          - saftMeetingNameTitle
+          - saftMeetingNameTitle
+          uniformTitle: uniformTitle
+          sftUniformTitle:
+          - sftUniformTitle
+          - sftUniformTitle
+          saftUniformTitle:
+          - saftUniformTitle
+          - saftUniformTitle
+          namedEvent: namedEvent
+          sftNamedEvent:
+          - sftNamedEvent
+          - sftNamedEvent
+          saftNamedEvent:
+          - saftNamedEvent
+          - saftNamedEvent
+          generalSubdivision: generalSubdivision
+          sftGeneralSubdivision:
+          - sftGeneralSubdivision
+          - sftGeneralSubdivision
+          saftGeneralSubdivision:
+          - saftGeneralSubdivision
+          - saftGeneralSubdivision
+          topicalTerm: topicalTerm
+          sftTopicalTerm:
+          - sftTopicalTerm
+          - sftTopicalTerm
+          saftTopicalTerm:
+          - saftTopicalTerm
+          - saftTopicalTerm
+          subjectHeadings: subjectHeadings
+          geographicName: geographicName
+          sftGeographicName:
+          - sftGeographicName
+          - sftGeographicName
+          saftGeographicName:
+          - saftGeographicName
+          - saftGeographicName
+          genreTerm: genreTerm
+          sftGenreTerm:
+          - sftGenreTerm
+          - sftGenreTerm
+          saftGenreTerm:
+          - saftGenreTerm
+          - saftGenreTerm
+          chronTerm: chronTerm
+          sftChronTerm:
+          - sftChronTerm
+          - sftChronTerm
+          saftChronTerm:
+          - saftChronTerm
+          - saftChronTerm
+          mediumPerfTerm: mediumPerfTerm
+          sftMediumPerfTerm:
+          - sftMediumPerfTerm
+          - sftMediumPerfTerm
+          saftMediumPerfTerm:
+          - saftMediumPerfTerm
+          - saftMediumPerfTerm
+          geographicSubdivision: geographicSubdivision
+          sftGeographicSubdivision:
+          - sftGeographicSubdivision
+          - sftGeographicSubdivision
+          saftGeographicSubdivision:
+          - saftGeographicSubdivision
+          - saftGeographicSubdivision
+          chronSubdivision: chronSubdivision
+          sftChronSubdivision:
+          - sftChronSubdivision
+          - sftChronSubdivision
+          saftChronSubdivision:
+          - saftChronSubdivision
+          - saftChronSubdivision
+          formSubdivision: formSubdivision
+          sftFormSubdivision:
+          - sftFormSubdivision
+          - sftFormSubdivision
+          saftFormSubdivision:
+          - saftFormSubdivision
+          - saftFormSubdivision
+          identifiers:
+          - value: value
+            identifierTypeId: identifierTypeId
+          - value: value
+            identifierTypeId: identifierTypeId
+          notes:
+          - noteTypeId: '{}'
+            note: note
+          - noteTypeId: '{}'
+            note: note
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+          headingType: headingType
+          authRefType: authRefType
+          headingRef: headingRef
+          numberOfTitles: 6
+        headingRef: headingRef
+        isAnchor: true
+      properties:
+        authority:
+          $ref: '#/components/schemas/authority'
+        headingRef:
+          description: The heading/reference of the record that provides authority information for authority browse item
+          type: string
+        isAnchor:
+          description: Marks if current value is anchor or not
+          type: boolean
+      type: object
+    callNumberBrowseItem:
+      description: Call number browse search result item
+      example:
+        fullCallNumber: fullCallNumber
+        callNumber: callNumber
+        callNumberPrefix: callNumberPrefix
+        callNumberSuffix: callNumberSuffix
+        callNumberTypeId: callNumberTypeId
+        instanceTitle: instanceTitle
+        isAnchor: true
+        totalRecords: 6
+      properties:
+        fullCallNumber:
+          description: Full call number (includes callNumber, callNumberSuffix)
+          type: string
+        callNumber:
+          description: Call number
+          type: string
+        callNumberPrefix:
+          description: Call number prefix
+          type: string
+        callNumberSuffix:
+          description: Call number suffix
+          type: string
+        callNumberTypeId:
+          description: Call number type ID
+          type: string
+        instanceTitle:
+          description: Instance title
+          type: string
+        isAnchor:
+          description: Marks if current value is anchor or not
+          type: boolean
+        totalRecords:
+          description: Amount of records for the call number value
+          type: integer
+      type: object
+    instanceContributorBrowseItem:
+      description: Instance contributor browse search result item
+      example:
+        name: name
+        contributorTypeId:
+        - contributorTypeId
+        - contributorTypeId
+        contributorNameTypeId: contributorNameTypeId
+        authorityId: authorityId
+        isAnchor: true
+        totalRecords: 6
+      properties:
+        name:
+          description: Personal name, corporate name, meeting name
+          type: string
+        contributorTypeId:
+          description: IDs for the contributor type term
+          items:
+            description: ID for the contributor type term
+            type: string
+          type: array
+        contributorNameTypeId:
+          description: Contributor type terms defined by the MARC code list for relators
+          type: string
+        authorityId:
+          description: ID of authority record that controls the contributor
+          type: string
+        isAnchor:
+          description: Marks if current value is anchor or not
+          type: boolean
+        totalRecords:
+          description: Amount of records for the subject browse item
+          type: integer
+      type: object
+    authorityNote:
+      example:
+        noteTypeId: '{}'
+        note: note
+      properties:
+        noteTypeId:
+          description: ID of the type of note
+          type: object
+        note:
+          description: Text content of the note
+          type: string
+      type: object
+    authorityBrowseResult:
+      description: Authority browse search response
+      example:
+        totalRecords: 0
+        prev: prev
+        next: next
+        items:
+        - authority:
+            id: id
+            tenantId: tenantId
+            shared: true
+            source: source
+            sourceFileId: sourceFileId
+            naturalId: naturalId
+            personalName: personalName
+            sftPersonalName:
+            - sftPersonalName
+            - sftPersonalName
+            saftPersonalName:
+            - saftPersonalName
+            - saftPersonalName
+            personalNameTitle: personalNameTitle
+            sftPersonalNameTitle:
+            - sftPersonalNameTitle
+            - sftPersonalNameTitle
+            saftPersonalNameTitle:
+            - saftPersonalNameTitle
+            - saftPersonalNameTitle
+            corporateName: corporateName
+            sftCorporateName:
+            - sftCorporateName
+            - sftCorporateName
+            saftCorporateName:
+            - saftCorporateName
+            - saftCorporateName
+            corporateNameTitle: corporateNameTitle
+            sftCorporateNameTitle:
+            - sftCorporateNameTitle
+            - sftCorporateNameTitle
+            saftCorporateNameTitle:
+            - saftCorporateNameTitle
+            - saftCorporateNameTitle
+            meetingName: meetingName
+            sftMeetingName:
+            - sftMeetingName
+            - sftMeetingName
+            saftMeetingName:
+            - saftMeetingName
+            - saftMeetingName
+            meetingNameTitle: meetingNameTitle
+            sftMeetingNameTitle:
+            - sftMeetingNameTitle
+            - sftMeetingNameTitle
+            saftMeetingNameTitle:
+            - saftMeetingNameTitle
+            - saftMeetingNameTitle
+            uniformTitle: uniformTitle
+            sftUniformTitle:
+            - sftUniformTitle
+            - sftUniformTitle
+            saftUniformTitle:
+            - saftUniformTitle
+            - saftUniformTitle
+            namedEvent: namedEvent
+            sftNamedEvent:
+            - sftNamedEvent
+            - sftNamedEvent
+            saftNamedEvent:
+            - saftNamedEvent
+            - saftNamedEvent
+            generalSubdivision: generalSubdivision
+            sftGeneralSubdivision:
+            - sftGeneralSubdivision
+            - sftGeneralSubdivision
+            saftGeneralSubdivision:
+            - saftGeneralSubdivision
+            - saftGeneralSubdivision
+            topicalTerm: topicalTerm
+            sftTopicalTerm:
+            - sftTopicalTerm
+            - sftTopicalTerm
+            saftTopicalTerm:
+            - saftTopicalTerm
+            - saftTopicalTerm
+            subjectHeadings: subjectHeadings
+            geographicName: geographicName
+            sftGeographicName:
+            - sftGeographicName
+            - sftGeographicName
+            saftGeographicName:
+            - saftGeographicName
+            - saftGeographicName
+            genreTerm: genreTerm
+            sftGenreTerm:
+            - sftGenreTerm
+            - sftGenreTerm
+            saftGenreTerm:
+            - saftGenreTerm
+            - saftGenreTerm
+            chronTerm: chronTerm
+            sftChronTerm:
+            - sftChronTerm
+            - sftChronTerm
+            saftChronTerm:
+            - saftChronTerm
+            - saftChronTerm
+            mediumPerfTerm: mediumPerfTerm
+            sftMediumPerfTerm:
+            - sftMediumPerfTerm
+            - sftMediumPerfTerm
+            saftMediumPerfTerm:
+            - saftMediumPerfTerm
+            - saftMediumPerfTerm
+            geographicSubdivision: geographicSubdivision
+            sftGeographicSubdivision:
+            - sftGeographicSubdivision
+            - sftGeographicSubdivision
+            saftGeographicSubdivision:
+            - saftGeographicSubdivision
+            - saftGeographicSubdivision
+            chronSubdivision: chronSubdivision
+            sftChronSubdivision:
+            - sftChronSubdivision
+            - sftChronSubdivision
+            saftChronSubdivision:
+            - saftChronSubdivision
+            - saftChronSubdivision
+            formSubdivision: formSubdivision
+            sftFormSubdivision:
+            - sftFormSubdivision
+            - sftFormSubdivision
+            saftFormSubdivision:
+            - saftFormSubdivision
+            - saftFormSubdivision
+            identifiers:
+            - value: value
+              identifierTypeId: identifierTypeId
+            - value: value
+              identifierTypeId: identifierTypeId
+            notes:
+            - noteTypeId: '{}'
+              note: note
+            - noteTypeId: '{}'
+              note: note
+            metadata:
+              createdDate: createdDate
+              createdByUserId: createdByUserId
+              updatedDate: updatedDate
+              updatedByUserId: updatedByUserId
+            headingType: headingType
+            authRefType: authRefType
+            headingRef: headingRef
+            numberOfTitles: 6
+          headingRef: headingRef
+          isAnchor: true
+        - authority:
+            id: id
+            tenantId: tenantId
+            shared: true
+            source: source
+            sourceFileId: sourceFileId
+            naturalId: naturalId
+            personalName: personalName
+            sftPersonalName:
+            - sftPersonalName
+            - sftPersonalName
+            saftPersonalName:
+            - saftPersonalName
+            - saftPersonalName
+            personalNameTitle: personalNameTitle
+            sftPersonalNameTitle:
+            - sftPersonalNameTitle
+            - sftPersonalNameTitle
+            saftPersonalNameTitle:
+            - saftPersonalNameTitle
+            - saftPersonalNameTitle
+            corporateName: corporateName
+            sftCorporateName:
+            - sftCorporateName
+            - sftCorporateName
+            saftCorporateName:
+            - saftCorporateName
+            - saftCorporateName
+            corporateNameTitle: corporateNameTitle
+            sftCorporateNameTitle:
+            - sftCorporateNameTitle
+            - sftCorporateNameTitle
+            saftCorporateNameTitle:
+            - saftCorporateNameTitle
+            - saftCorporateNameTitle
+            meetingName: meetingName
+            sftMeetingName:
+            - sftMeetingName
+            - sftMeetingName
+            saftMeetingName:
+            - saftMeetingName
+            - saftMeetingName
+            meetingNameTitle: meetingNameTitle
+            sftMeetingNameTitle:
+            - sftMeetingNameTitle
+            - sftMeetingNameTitle
+            saftMeetingNameTitle:
+            - saftMeetingNameTitle
+            - saftMeetingNameTitle
+            uniformTitle: uniformTitle
+            sftUniformTitle:
+            - sftUniformTitle
+            - sftUniformTitle
+            saftUniformTitle:
+            - saftUniformTitle
+            - saftUniformTitle
+            namedEvent: namedEvent
+            sftNamedEvent:
+            - sftNamedEvent
+            - sftNamedEvent
+            saftNamedEvent:
+            - saftNamedEvent
+            - saftNamedEvent
+            generalSubdivision: generalSubdivision
+            sftGeneralSubdivision:
+            - sftGeneralSubdivision
+            - sftGeneralSubdivision
+            saftGeneralSubdivision:
+            - saftGeneralSubdivision
+            - saftGeneralSubdivision
+            topicalTerm: topicalTerm
+            sftTopicalTerm:
+            - sftTopicalTerm
+            - sftTopicalTerm
+            saftTopicalTerm:
+            - saftTopicalTerm
+            - saftTopicalTerm
+            subjectHeadings: subjectHeadings
+            geographicName: geographicName
+            sftGeographicName:
+            - sftGeographicName
+            - sftGeographicName
+            saftGeographicName:
+            - saftGeographicName
+            - saftGeographicName
+            genreTerm: genreTerm
+            sftGenreTerm:
+            - sftGenreTerm
+            - sftGenreTerm
+            saftGenreTerm:
+            - saftGenreTerm
+            - saftGenreTerm
+            chronTerm: chronTerm
+            sftChronTerm:
+            - sftChronTerm
+            - sftChronTerm
+            saftChronTerm:
+            - saftChronTerm
+            - saftChronTerm
+            mediumPerfTerm: mediumPerfTerm
+            sftMediumPerfTerm:
+            - sftMediumPerfTerm
+            - sftMediumPerfTerm
+            saftMediumPerfTerm:
+            - saftMediumPerfTerm
+            - saftMediumPerfTerm
+            geographicSubdivision: geographicSubdivision
+            sftGeographicSubdivision:
+            - sftGeographicSubdivision
+            - sftGeographicSubdivision
+            saftGeographicSubdivision:
+            - saftGeographicSubdivision
+            - saftGeographicSubdivision
+            chronSubdivision: chronSubdivision
+            sftChronSubdivision:
+            - sftChronSubdivision
+            - sftChronSubdivision
+            saftChronSubdivision:
+            - saftChronSubdivision
+            - saftChronSubdivision
+            formSubdivision: formSubdivision
+            sftFormSubdivision:
+            - sftFormSubdivision
+            - sftFormSubdivision
+            saftFormSubdivision:
+            - saftFormSubdivision
+            - saftFormSubdivision
+            identifiers:
+            - value: value
+              identifierTypeId: identifierTypeId
+            - value: value
+              identifierTypeId: identifierTypeId
+            notes:
+            - noteTypeId: '{}'
+              note: note
+            - noteTypeId: '{}'
+              note: note
+            metadata:
+              createdDate: createdDate
+              createdByUserId: createdByUserId
+              updatedDate: updatedDate
+              updatedByUserId: updatedByUserId
+            headingType: headingType
+            authRefType: authRefType
+            headingRef: headingRef
+            numberOfTitles: 6
+          headingRef: headingRef
+          isAnchor: true
+      properties:
+        totalRecords:
+          description: Amount of items to display
+          type: integer
+        prev:
+          description: Previous value for browsing backward
+          type: string
+        next:
+          description: Next value for browsing forward
+          type: string
+        items:
+          description: List of authority browse items
+          items:
+            $ref: '#/components/schemas/authorityBrowseItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+      type: object
+    callNumberBrowseResult:
+      description: Call number browse search response
+      example:
+        totalRecords: 0
+        prev: prev
+        next: next
+        items:
+        - fullCallNumber: fullCallNumber
+          callNumber: callNumber
+          callNumberPrefix: callNumberPrefix
+          callNumberSuffix: callNumberSuffix
+          callNumberTypeId: callNumberTypeId
+          instanceTitle: instanceTitle
+          isAnchor: true
+          totalRecords: 6
+        - fullCallNumber: fullCallNumber
+          callNumber: callNumber
+          callNumberPrefix: callNumberPrefix
+          callNumberSuffix: callNumberSuffix
+          callNumberTypeId: callNumberTypeId
+          instanceTitle: instanceTitle
+          isAnchor: true
+          totalRecords: 6
+      properties:
+        totalRecords:
+          description: Amount of items to display
+          type: integer
+        prev:
+          description: Previous value for browsing backward
+          type: string
+        next:
+          description: Next value for browsing forward
+          type: string
+        items:
+          description: List of call number browse items
+          items:
+            $ref: '#/components/schemas/callNumberBrowseItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      type: object
+  examples:
+    browseSubjectResult:
+      value:
+        totalRecords: 10
+        prev: Biology
+        next: Physics
+        items:
+        - value: Biology
+          isAnchor: true
+          totalRecords: 5
+          authorityId: d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f
+        - value: Chemistry
+          isAnchor: false
+          totalRecords: 5
+          authorityId: 11110000-fcf6-45cc-b6da-4420a61ef72c
+        - value: Physics
+          isAnchor: false
+          totalRecords: 5
+          authorityId: 5fab345a-30a4-4aee-8667-1e33d4627ce9
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    browseCallNumberResult:
+      value:
+        items:
+        - fullCallNumber: NS 1 .B5
+          callNumber: NS 1 .B4
+          callNumberTypeId: 2b94c631-fca9-4892-a730-03ee529ff6c3
+          prefix: pref1
+          isAnchor: true
+          totalRecords: 1
+        - fullCallNumber: NS 1 .B5 suf-1801
+          callNumber: NS 1 .B5
+          suffix: suf-1801
+          isAnchor: true
+          totalRecords: 1
+        prev: NS 1 .B4
+        next: NS 1 .B5 suf-1801
+        totalRecords: 2
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    browseAuthorityEmptyResponse:
+      summary: Empty browse response
+      value:
+        totalRecords: 0
+        items:
+        - headingRef: Allen, Barbara
+          isAnchor: true
+    browseAuthorityExpandedResponse:
+      summary: Browse expanded response
+      value:
+        totalRecords: 3
+        prev: Adair, Thomas Montgomery, 1913-1988
+        next: Leven, Mel
+        items:
+        - headingRef: Allen, Barbara
+          isAnchor: true
+        - authority:
+            id: c277c198-dee9-418e-a1ea-05d64a586c48
+            tenantId: fs09000000
+            shared: false
+            personalName: Allen, Bruce Ware
+            subjectHeadings: a
+            identifiers:
+            - value: n 2015023577
+              identifierTypeId: 5d164f4b-0b15-4e42-ae75-cfcf85318ad9
+            - value: n 2015023577
+              identifierTypeId: ddaf3d51-de81-4768-b1aa-a1e985d4e999
+            - value: (DLC)n 2015023577
+              identifierTypeId: 2baf4cec-6abf-438b-abd0-a6c512c3c173
+            notes: []
+            metadata:
+              createdDate: '2024-04-01T01:37:34.15755006Z'
+              createdByUserId: 7816fe0c-3389-4df5-85fb-d38c5c7bd9ed
+              updatedDate: '2024-04-01T01:37:34.15755006Z'
+              updatedByUserId: 7816fe0c-3389-4df5-85fb-d38c5c7bd9ed
+            headingType: Personal Name
+            authRefType: Authorized
+            headingRef: Allen, Bruce Ware
+            numberOfTitles: 0
+            sourceFileId: af045f2f-e851-4613-984c-4bc13430454a
+            naturalId: n2015023577
+          headingRef: Allen, Bruce Ware
+    browseAuthorityResponse:
+      summary: Browse response
+      value:
+        totalRecords: 3
+        prev: Adair, Thomas Montgomery, 1913-1988
+        next: Leven, Mel
+        items:
+        - headingRef: Allen, Barbara
+          isAnchor: true
+        - authority:
+            id: 7c1fff0d-6c83-4ee9-b64b-2beb0d3b9bfd
+            tenantId: diku
+            shared: false
+            headingType: Personal Name
+            authRefType: Reference
+            headingRef: Allen, Barbara, 1906-1974
+            sourceFileId: af045f2f-e851-4613-984c-4bc13430454a
+            naturalId: n94088693
+            numberOfTitles: 2
+          headingRef: Allen, Barbara, 1906-1974
+    browseClassificationNumberResult:
+      value:
+        totalRecords: 2
+        prev: QA76.73.C15
+        items:
+        - id: b4e6c6b760366d36f4c36d084cb863a3244a8dba
+          classificationNumber: QA76.73.C15
+          classificationTypeId: 5af5cb9d-063f-48ea-8148-7da3ecaafd7d
+          instanceTitle: Introduction to the Theory of Computation
+          instanceContributors:
+          - Michael Sipser
+          - John Doe
+          isAnchor: true
+          totalRecords: 1
+        - id: f9d3a5edb22aee2e197551a4df4a25cadafc2e0e
+          classificationNumber: TK5105.88815
+          classificationTypeId: 7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d
+          totalRecords: 5
+    browseContributorsResult:
+      value:
+        totalRecords: 5
+        next: Paul McCartney
+        items:
+        - name: Anthony Kiedis
+          contributorTypeId:
+          - 2a165833-1673-493f-934b-f3d3c8fcb299
+          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
+          authorityId: 7ff32633-cc49-4332-870a-b05e329d2a2d
+          isAnchor: false
+          totalRecords: 1
+        - name: Bon Jovi
+          contributorTypeId:
+          - 2a165833-1673-493f-934b-f3d3c8fcb299
+          - 3ae36e29-e38f-457c-8fcf-1974a6cb63d3
+          - 653ffe66-aa3f-4f1c-a090-c42c4011ef40
+          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
+          authorityId: 0a4c6d10-2161-4f64-aace-9e919489b6c9
+          isAnchor: false
+          totalRecords: 2
+        - name: John Lennon
+          isAnchor: true
+          totalRecords: 0
+        - name: Klaus Meine
+          contributorTypeId:
+          - 2a165833-1673-493f-934b-f3d3c8fcb299
+          - 3ae36e29-e38f-457c-8fcf-1974a6cb63d3
+          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
+          authorityId: 7ff32633-cc49-4332-870a-b05e329d2a2d
+          isAnchor: false
+          totalRecords: 2
+        - name: Paul McCartney
+          contributorTypeId:
+          - 2a165833-1673-493f-934b-f3d3c8fcb299
+          - 3ae36e29-e38f-457c-8fcf-1974a6cb63d3
+          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
+          authorityId: 0a4c6d10-2161-4f64-aace-9e919489b6c9
+          isAnchor: false
+          totalRecords: 2
+x-refined-from:
+- folio-mod-search-openapi.json
+- folio-mod-search-openapi.yml

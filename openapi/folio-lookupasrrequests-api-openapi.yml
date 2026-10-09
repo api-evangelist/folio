@@ -1,0 +1,99 @@
+openapi: 3.2.0
+info:
+  title: Folio Lookup Asr Requests API
+  version: v1
+  description: 'Operations tagged LookupAsrRequests across 2 of this provider''s published API definitions: folio-edge-dematic-openapi.json, folio-edge-dematic-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /asrService/asr/
+tags:
+- name: LookupAsrRequests
+paths:
+  /lookupAsrRequests/{remoteStorageConfigurationId}:
+    get:
+      responses:
+        '200':
+          description: The polling API for retrievals
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/asrRequests'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Get a list of requests
+      operationId: getAsrRequests
+      parameters:
+      - $ref: '#/components/parameters/storage_id'
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      tags:
+      - LookupAsrRequests
+      summary: Get asr requests
+      x-summary-source: derived
+    servers:
+    - url: /asrService/asr/
+components:
+  schemas:
+    asrRequest:
+      type: object
+      properties:
+        holdId:
+          type: string
+        itemBarcode:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        callNumber:
+          type: string
+        patronBarcode:
+          type: string
+        patronName:
+          type: string
+        requestDate:
+          type: string
+        pickupLocation:
+          type: string
+        requestStatus:
+          type: string
+        requestNote:
+          type: string
+    asrRequests:
+      type: object
+      properties:
+        asrRequests:
+          type: array
+          items:
+            $ref: '#/components/schemas/asrRequest'
+          xml:
+            name: asrRequest
+            wrapped: true
+      xml:
+        name: asrRequests
+  parameters:
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: true
+      schema:
+        type: string
+    storage_id:
+      name: remoteStorageConfigurationId
+      in: path
+      required: true
+      schema:
+        type: string
+    x-okapi-tenant:
+      name: x-okapi-tenant
+      in: header
+      required: true
+      schema:
+        type: string
+x-refined-from:
+- folio-edge-dematic-openapi.json
+- folio-edge-dematic-openapi.yml

@@ -1,0 +1,221 @@
+openapi: 3.2.0
+info:
+  title: Folio Authentication API
+  version: v1
+  description: 'Operations tagged authentication across 4 of this provider''s published API definitions: folio-edge-inn-reach-openapi.json, folio-mod-inn-reach-settings-openapi.json, folio-edge-inn-reach-openapi.yml, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /innreach/
+- url: /inn-reach/
+tags:
+- name: Authentication
+paths:
+  /v2/oauth2/token:
+    post:
+      description: Authenticate credentials and get a new JWT token
+      operationId: getToken
+      tags:
+      - Authentication
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/accessTokenResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      parameters:
+      - $ref: '#/components/parameters/grant_type'
+      - $ref: '#/components/parameters/scope'
+      - $ref: '#/components/parameters/authorization'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      - $ref: '#/components/parameters/x-okapi-token'
+      summary: Get token
+      x-summary-source: derived
+    servers:
+    - url: /innreach/
+  /authentication:
+    post:
+      description: Authenticate InnReach local server key/secret pair
+      operationId: authenticateLocalServerKeySecret
+      tags:
+      - Authentication
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationErrorsDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authenticationRequest'
+        required: true
+      summary: Authenticate local server key secret
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  parameters:
+    scope:
+      name: scope
+      in: query
+      description: Access token scope
+      schema:
+        type: string
+        pattern: innreach_tp
+      required: true
+      allowEmptyValue: false
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: true
+      schema:
+        type: string
+    x-okapi-tenant:
+      name: x-okapi-tenant
+      in: header
+      required: true
+      schema:
+        type: string
+    grant_type:
+      name: grant_type
+      in: query
+      description: The authorization grant type
+      schema:
+        type: string
+        pattern: client_credentials
+      required: true
+      allowEmptyValue: false
+    authorization:
+      name: authorization
+      in: header
+      description: Authorization in form <token_type> <access_token> as returned by the authorization request
+      schema:
+        type: string
+  schemas:
+    accessTokenResponse:
+      description: Access token response
+      type: object
+      properties:
+        access_token:
+          description: Access token
+          type: string
+        token_type:
+          description: Access token type
+          type: string
+        expires_in:
+          description: Access token expiration time
+          type: integer
+    error:
+      description: An error
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        error_description:
+          type: string
+          description: Error description
+      additionalProperties: false
+      required:
+      - error
+      - error_description
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    authenticationRequest:
+      description: Authentication request
+      type: object
+      properties:
+        key:
+          description: key
+          type: string
+          format: UUID
+        secret:
+          description: secret
+          type: string
+          format: UUID
+      additionalProperties: false
+      required:
+      - key
+      - secret
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+  responses:
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+x-refined-from:
+- folio-edge-inn-reach-openapi.json
+- folio-mod-inn-reach-settings-openapi.json
+- folio-edge-inn-reach-openapi.yml
+- folio-mod-inn-reach-settings-openapi.yml

@@ -1,0 +1,361 @@
+openapi: 3.2.0
+info:
+  title: Folio Rules API
+  version: v1
+  description: 'Operations tagged Rules across 2 of this provider''s published API definitions: folio-mod-password-validator-validator-registry-openapi.json, folio-mod-password-validator-validator-registry-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /tenant/
+tags:
+- name: Rules
+paths:
+  /rules:
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationRules'
+        '422':
+          $ref: '#/components/responses/trait_validate_422'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Get a list of existing validation rules for a tenant
+      operationId: getTenantRules
+      parameters:
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      - $ref: '#/components/parameters/trait_queryable_query'
+      tags:
+      - Rules
+      summary: Get tenant rules
+      x-summary-source: derived
+    post:
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationRule'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad request
+        '422':
+          $ref: '#/components/responses/trait_validate_422'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Add a rule to a tenant
+      operationId: postTenantRules
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/validationRule'
+        required: true
+      tags:
+      - Rules
+      summary: Post tenant rules
+      x-summary-source: derived
+    put:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationRule'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad request
+        '404':
+          description: Rule not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Rule not found
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Enable/disable/change the rule
+      operationId: putTenantRule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/validationRule'
+        required: true
+      tags:
+      - Rules
+      summary: Put tenant rule
+      x-summary-source: derived
+    servers:
+    - url: /tenant/
+  /rules/{ruleId}:
+    parameters:
+    - name: ruleId
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationRule'
+        '404':
+          description: Rule not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Rule not found
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      operationId: getTenantRuleById
+      tags:
+      - Rules
+      summary: Get tenant rule by id
+      x-summary-source: derived
+    servers:
+    - url: /tenant/
+components:
+  schemas:
+    parameter:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    validationRules:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Rules Collection
+      type: object
+      properties:
+        rules:
+          description: List of rules
+          type: array
+          id: ruleList
+          items:
+            type: object
+            $ref: '#/components/schemas/validationRule'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - rules
+      - totalRecords
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+    validationRule:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Rule Schema
+      type: object
+      properties:
+        id:
+          description: Rule id
+          type: string
+        ruleId:
+          description: Rule id
+          type: string
+        name:
+          description: Rule name
+          type: string
+        type:
+          description: 'Rule type: RegExp or Programmatic or PwnedPassword'
+          type: string
+          enum:
+          - RegExp
+          - Programmatic
+          - PwnedPassword
+        validationType:
+          description: 'Validation type: Strong or Soft. In case of soft rule validation failure the password processing can be continued'
+          type: string
+          enum:
+          - Soft
+          - Strong
+        state:
+          description: 'Rule state: Enabled or Disabled'
+          type: string
+          enum:
+          - Enabled
+          - Disabled
+        moduleName:
+          description: Name of the module
+          type: string
+        implementationReference:
+          description: For Programmatic rules ImplementationReference reflects the approach to call particular validation implementation whether it REST endpoint or local service
+          type: string
+        expression:
+          description: For RegExp type contains the actual expression
+          type: string
+        description:
+          description: Validation rule description
+          type: string
+        orderNo:
+          description: Defines the order of rule processing
+          type: integer
+        errMessageId:
+          description: message identifier which should be returned to UI in case the rule validation fails
+          type: string
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - type
+      - validationType
+      - state
+      - moduleName
+      - orderNo
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  parameters:
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_queryable_query:
+      name: query
+      in: query
+      description: A query string to filter rules based on matching criteria in fields.
+      schema:
+        type: string
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+  responses:
+    trait_validate_422:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mod-password-validator-validator-registry-openapi.json
+- folio-mod-password-validator-validator-registry-openapi.yml

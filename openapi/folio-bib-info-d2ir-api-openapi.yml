@@ -1,0 +1,173 @@
+openapi: 3.2.0
+info:
+  title: Folio Bib Info D2ir API
+  version: v1
+  description: 'Operations tagged bib-info-d2ir across 2 of this provider''s published API definitions: folio-mod-inn-reach-circulation-openapi.json, folio-mod-inn-reach-circulation-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: bib-info-d2ir
+paths:
+  /d2ir/getbibrecord/{bibId}/{centralCode}:
+    post:
+      operationId: getBibRecord
+      description: Handles D2IR request from central server for an already-contributed Bib record.
+      tags:
+      - bib-info-d2ir
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bibInfoResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/bibId'
+      - $ref: '#/components/parameters/centralCode'
+      summary: Get bib record
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    bibInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: D2IR Bib info
+      type: object
+      properties:
+        bibId:
+          type: string
+          description: 32-character, alphanumeric id corresponding to a FOLIO instance record HRID
+          maxLength: 32
+          minLength: 32
+        marc21BibFormat:
+          type: string
+          description: Currently supports ISO2709
+          default: ISO2709
+        marc21BibData:
+          type: string
+          description: Base 64 encoded MARC data
+        titleHoldCount:
+          type: integer
+          description: Number of title level holds - 0 (title level holds not currently supported in FOLIO)
+          default: 0
+        itemCount:
+          type: integer
+          description: Number of items linked to this bib (max 99, count of items associated with the FOLIO instance record that are contributed)
+          default: 0
+        suppress:
+          type: string
+          description: ASCII y, n, or g; g means display the resource in the discovery layer as having been provided by the consortium, not by the individual site.
+          default: n
+      additionalProperties: false
+      required:
+      - bibId
+      - marc21BibFormat
+      - marc21BibData
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    innReachError:
+      description: D2IR error
+      type: object
+      properties:
+        messages:
+          type: array
+          description: Error messages
+          items:
+            type: string
+        central:
+          type: string
+          description: Central code
+        reason:
+          type: string
+          description: Reason
+        type:
+          type: string
+          description: Error type
+        rejectedValue:
+          description: Rejected value
+        name:
+          type: string
+          description: Name of the rejected field
+      additionalProperties: false
+      required:
+      - reason
+    bibInfoResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/innReachResponseDTO'
+      description: D2IR Bib info response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        bibInfo:
+          description: D2IR Bib info
+          $ref: '#/components/schemas/bibInfo'
+      additionalProperties: false
+      required:
+      - bibInfo
+    code:
+      type: string
+      pattern: '[a-z,0-9]{3,5}'
+    innReachResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: D2IR response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        status:
+          description: Status
+          type: string
+        reason:
+          description: Reason
+          type: string
+        errors:
+          description: Errors
+          type: array
+          items:
+            $ref: '#/components/schemas/innReachError'
+      additionalProperties: false
+      required:
+      - status
+      - reason
+      - errors
+  parameters:
+    bibId:
+      name: bibId
+      description: 32-character, alphanumeric id corresponding to a FOLIO instance record HRID
+      in: path
+      required: true
+      schema:
+        type: string
+    centralCode:
+      name: centralCode
+      description: Unique code that identifies the central server (match against value stored in Central Server settings, used to determine contribution status)
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/code'
+  responses:
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+x-refined-from:
+- folio-mod-inn-reach-circulation-openapi.json
+- folio-mod-inn-reach-circulation-openapi.yml

@@ -1,0 +1,441 @@
+openapi: 3.2.0
+info:
+  title: Folio Flow API
+  version: v1
+  description: 'Operations tagged flow across 2 of this provider''s published API definitions: folio-mgr-tenant-entitlements-openapi.json, folio-mgr-tenant-entitlements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: Flow
+paths:
+  /entitlement-flows:
+    get:
+      operationId: findFlows
+      description: Retrieves flows by CQL query
+      tags:
+      - Flow
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      responses:
+        '200':
+          description: A list with created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flows'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find flows
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /entitlement-flows/{flowId}:
+    get:
+      operationId: getFlowById
+      description: Retrieves a flow by id
+      tags:
+      - Flow
+      parameters:
+      - $ref: '#/components/parameters/path-flow-id'
+      - $ref: '#/components/parameters/include-stages'
+      responses:
+        '200':
+          description: A list with created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flow'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get flow by id
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /application-flows:
+    get:
+      operationId: findApplicationFlows
+      description: Retrieves an application entitlement flows by CQL query
+      tags:
+      - Flow
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      responses:
+        '200':
+          description: A list with found application entitlement flows
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applicationFlows'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find application flows
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /application-flows/{applicationFlowId}:
+    get:
+      operationId: getApplicationFlowById
+      description: Retrieves an entitlement flow per applicationId
+      tags:
+      - Flow
+      parameters:
+      - $ref: '#/components/parameters/path-application-flow-id'
+      - $ref: '#/components/parameters/include-stages'
+      responses:
+        '200':
+          description: An application entitlement flow by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applicationFlow'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get application flow by id
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /application-flows/{applicationFlowId}/stages:
+    get:
+      operationId: getApplicationFlowStages
+      description: Retrieves entitlement stages by application id
+      tags:
+      - Flow
+      parameters:
+      - $ref: '#/components/parameters/path-application-flow-id'
+      responses:
+        '200':
+          description: A list of entitlement stages for application flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flowStages'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get application flow stages
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /application-flows/{applicationFlowId}/stages/{stageName}:
+    get:
+      operationId: getApplicationFlowStageByName
+      description: Retrieves entitlement stages by application id
+      tags:
+      - Flow
+      parameters:
+      - $ref: '#/components/parameters/path-application-flow-id'
+      - $ref: '#/components/parameters/path-stage-name'
+      responses:
+        '200':
+          description: A specific result of stage for application flow by name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flowStage'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get application flow stage by name
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    executionStatus:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: types/entitlementFlowStatus.json
+      title: Application/Stage Execution Status Schema
+      description: An application/stage execution status
+      type: string
+      enum:
+      - queued
+      - in_progress
+      - cancelled
+      - cancellation_failed
+      - failed
+      - finished
+    flowStages:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: entitlementStage.json
+      title: Tenant Entitlement Stage Schema
+      description: Tenant entitlement stage descriptor
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        stages:
+          type: array
+          description: Found flow stages
+          items:
+            $ref: '#/components/schemas/flowStage'
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    entitlementType:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: types/entitlementType.json
+      title: Tenant Entitlement Type Schema
+      description: A tenant entitlement type
+      type: string
+      enum:
+      - entitle
+      - revoke
+      - upgrade
+    flow:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: entitlementFlow.json
+      title: Control Flow Schema
+      description: Control flow that unifies one or more application flow for enable/disable/upgrade operations
+      type: object
+      properties:
+        id:
+          description: A control flow identifier
+          type: string
+          format: uuid
+        status:
+          description: Flow execution status
+          $ref: '#/components/schemas/executionStatus'
+        type:
+          description: Flow entitlement type
+          $ref: '#/components/schemas/entitlementRequestType'
+        tenantId:
+          description: A tenant identifier
+          type: string
+          format: uuid
+        startedAt:
+          description: A control flow start timestamp
+          type: string
+          format: date-time
+        finishedAt:
+          description: A control flow end timestamp
+          type: string
+          format: date-time
+        stages:
+          type: array
+          description: Executed stages for flow
+          items:
+            $ref: '#/components/schemas/flowStage'
+        applicationFlows:
+          type: array
+          description: List with executed application flows
+          items:
+            $ref: '#/components/schemas/applicationFlow'
+    applicationFlow:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: applicationEntitlement.json
+      title: Application Entitlement Flow Schema
+      description: An entitlement flow result for a single application
+      type: object
+      properties:
+        id:
+          description: An application entitlement flow identifier
+          type: string
+          format: uuid
+        applicationId:
+          description: An application descriptor identifier
+          type: string
+        tenantId:
+          description: A tenant identifier
+          type: string
+          format: uuid
+        flowId:
+          description: An entitlement flow identifier
+          type: string
+          format: uuid
+        type:
+          description: Application flow entitlement type
+          $ref: '#/components/schemas/entitlementType'
+        status:
+          description: Application flow execution status
+          $ref: '#/components/schemas/executionStatus'
+        startedAt:
+          description: An application flow start timestamp
+          type: string
+          format: date-time
+        finishedAt:
+          description: An application flow end timestamp
+          type: string
+          format: date-time
+        stages:
+          description: A list with executed stage results
+          type: array
+          items:
+            $ref: '#/components/schemas/flowStage'
+    flows:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: entitlementFlows.json
+      title: Control Flows Schema
+      description: List of control flows containing application flows
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        flows:
+          type: array
+          description: Found entitlement flows
+          items:
+            $ref: '#/components/schemas/flow'
+    applicationFlows:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: entitlementFlows.json
+      title: Application Entitlement Flows Schema
+      description: List of application entitlement flows (installations)
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        applicationFlows:
+          type: array
+          description: List with child application flows
+          items:
+            $ref: '#/components/schemas/applicationFlow'
+    flowStage:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: flowStage.json
+      title: Flow Stage Schema
+      description: Flow stage descriptor. A stage can be part of global flow or specific application flow.
+      type: object
+      properties:
+        id:
+          description: A unique stage identifier
+          type: string
+          format: uuid
+        flowId:
+          description: A parent flow identifier (global or application flow)
+          type: string
+          format: uuid
+        name:
+          description: A stage name
+          type: string
+        status:
+          description: Stage execution status
+          $ref: '#/components/schemas/executionStatus'
+        errorType:
+          description: A relevant error type caused stage failure or cancellation, nullable if stage is finished
+          type: string
+        errorMessage:
+          description: A relevant error message caused stage failure or cancellation, nullable if stage is finished
+          type: string
+        startedAt:
+          description: Stage execution start timestamp
+          type: string
+          format: date-time
+        finishedAt:
+          description: Stage execution end timestamp
+          type: string
+          format: date-time
+        retriesCount:
+          description: Number of retries performed during flow stage operations
+          type: integer
+        retriesInfo:
+          description: Error information on operations failures that caused retries
+          type: string
+    entitlementRequestType:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: types/entitlementRequestType.json
+      title: Tenant Entitlement Request Type Schema
+      description: A tenant entitlement request type
+      type: string
+      enum:
+      - entitle
+      - revoke
+      - upgrade
+      - state
+  parameters:
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    path-flow-id:
+      in: path
+      required: true
+      name: flowId
+      description: A flow identifier
+      schema:
+        type: string
+        format: uuid
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    path-application-flow-id:
+      in: path
+      required: true
+      name: applicationFlowId
+      description: An application flow identifier
+      schema:
+        type: string
+        format: uuid
+    path-stage-name:
+      in: path
+      required: true
+      name: stageName
+      description: An application stage name
+      schema:
+        type: string
+    include-stages:
+      name: includeStages
+      in: query
+      required: false
+      description: Defines if stages must be included in the response for entitlement/application flows
+      schema:
+        type: boolean
+        default: false
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+  responses:
+    badRequestResponse:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mgr-tenant-entitlements-openapi.json
+- folio-mgr-tenant-entitlements-openapi.yml

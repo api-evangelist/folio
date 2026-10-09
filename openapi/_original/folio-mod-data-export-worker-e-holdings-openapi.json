@@ -1,0 +1,982 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "E-holdings export schemas",
+  "version": "v1"
+ },
+ "servers": [
+  {
+   "url": "https://stub.com/"
+  }
+ ],
+ "paths": {
+  "/stub": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "stub"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "note": {
+    "$ref": "#/components/schemas/Note"
+   },
+   "eProvider": {
+    "$ref": "#/components/schemas/EProvider"
+   },
+   "ePackage": {
+    "$ref": "#/components/schemas/EPackage"
+   },
+   "eResource": {
+    "$ref": "#/components/schemas/EResource"
+   },
+   "eResources": {
+    "$ref": "#/components/schemas/EResources"
+   },
+   "accessTypeData": {
+    "$ref": "#/components/schemas/AccessTypeData"
+   },
+   "Metadata": {
+    "type": "object",
+    "title": "Metadata Schema",
+    "properties": {
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdByUserId": {
+      "description": "ID of the user who created the record (when available)",
+      "type": "string",
+      "format": "uuid"
+     },
+     "createdByUsername": {
+      "description": "Username of the user who created the record (when available)",
+      "type": "string",
+      "maxLength": 50
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedByUserId": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "format": "uuid"
+     },
+     "updatedByUsername": {
+      "description": "Username of the user who last updated the record (when available)",
+      "type": "string",
+      "maxLength": 50
+     }
+    },
+    "additionalProperties": false
+   },
+   "Note": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Unique generated identifier for the note"
+     },
+     "typeId": {
+      "type": "string",
+      "description": "Type id of note"
+     },
+     "type": {
+      "type": "string",
+      "description": "Type of note"
+     },
+     "title": {
+      "type": "string",
+      "description": "Note title"
+     },
+     "domain": {
+      "type": "string",
+      "description": "Domain associated with this note"
+     },
+     "content": {
+      "type": "string",
+      "description": "Content of the note"
+     },
+     "popUpOnCheckOut": {
+      "type": "boolean",
+      "description": "Flag that specify need of pop-up on check-out app"
+     },
+     "popUpOnUser": {
+      "type": "boolean",
+      "description": "Flag that specify need of pop-up on users app"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/Metadata"
+     }
+    }
+   },
+   "Token": {
+    "type": "object",
+    "properties": {
+     "factName": {
+      "type": "string",
+      "description": "Fact Name",
+      "example": "[[galesiteid]]"
+     },
+     "prompt": {
+      "type": "string",
+      "description": "Prompt",
+      "example": "/itweb/"
+     },
+     "helpText": {
+      "type": "string",
+      "description": "Help text",
+      "example": "What is token and how to use it"
+     },
+     "value": {
+      "type": "string",
+      "description": "Value",
+      "example": "hellotoken"
+     }
+    }
+   },
+   "Proxy": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Proxy Id",
+      "example": "EZProxy"
+     },
+     "inherited": {
+      "type": "boolean",
+      "description": "Whether this proxy is inherited",
+      "example": true
+     },
+     "proxiedUrl": {
+      "type": "string",
+      "description": "URL with proxy applied"
+     }
+    }
+   },
+   "Tags": {
+    "type": "object",
+    "properties": {
+     "tagList": {
+      "description": "List of tags",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    }
+   },
+   "ProviderAttributes": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "Provider name",
+      "example": "Gale | Cengage"
+     },
+     "packagesTotal": {
+      "type": "integer",
+      "description": "total number of packages",
+      "example": 243
+     },
+     "packagesSelected": {
+      "type": "integer",
+      "description": "packages selected",
+      "example": 18
+     },
+     "providerToken": {
+      "type": "object",
+      "description": "Package Token",
+      "$ref": "#/components/schemas/Token"
+     },
+     "supportsCustomPackages": {
+      "type": "boolean",
+      "description": "Whether this provider supports custom packages",
+      "example": false
+     },
+     "proxy": {
+      "type": "object",
+      "description": "Proxy",
+      "$ref": "#/components/schemas/Proxy"
+     },
+     "tags": {
+      "type": "object",
+      "description": "Package tags",
+      "$ref": "#/components/schemas/Tags"
+     }
+    }
+   },
+   "ProviderData": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Unique identifier of provider",
+      "example": "19"
+     },
+     "type": {
+      "type": "string",
+      "description": "Type of resource",
+      "example": "providers"
+     },
+     "attributes": {
+      "type": "object",
+      "description": "Provider object data attributes",
+      "$ref": "#/components/schemas/ProviderAttributes"
+     }
+    },
+    "required": [
+     "id",
+     "attributes"
+    ]
+   },
+   "EProvider": {
+    "type": "object",
+    "properties": {
+     "data": {
+      "type": "object",
+      "description": "Provider Data",
+      "$ref": "#/components/schemas/ProviderData"
+     },
+     "included": {
+      "type": "array",
+      "description": "List of packages for a given provider",
+      "items": {
+       "type": "object"
+      }
+     }
+    },
+    "required": [
+     "data"
+    ]
+   },
+   "ContentTypeEnum": {
+    "type": "string",
+    "enum": [
+     "Aggregated Full Text",
+     "Abstract and Index",
+     "E-Book",
+     "E-Journal",
+     "Print",
+     "Unknown",
+     "Online Reference",
+     "Streaming Media",
+     "Mixed Content"
+    ]
+   },
+   "Coverage": {
+    "type": "object",
+    "properties": {
+     "beginCoverage": {
+      "type": "string",
+      "description": "Begin Coverage Date",
+      "example": "2003-01-01"
+     },
+     "endCoverage": {
+      "type": "string",
+      "description": "End Coverage Date",
+      "example": "2003-12-01"
+     }
+    }
+   },
+   "PackageAltName": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "integer",
+      "description": "The id of the alternate name of the package"
+     },
+     "altName": {
+      "type": "string",
+      "description": "The alternate name of the package"
+     }
+    }
+   },
+   "PackageVisibility": {
+    "type": "object",
+    "properties": {
+     "category": {
+      "type": "string",
+      "description": "Visibility category",
+      "enum": [
+       "PF",
+       "FTF",
+       "MARC"
+      ]
+     },
+     "hidden": {
+      "type": "boolean",
+      "description": "Hidden status"
+     },
+     "reason": {
+      "type": "string",
+      "description": "Reason the resource was hidden"
+     }
+    }
+   },
+   "PackageAttributes": {
+    "type": "object",
+    "properties": {
+     "contentType": {
+      "type": "string",
+      "description": "Content Type of Package",
+      "$ref": "#/components/schemas/ContentTypeEnum",
+      "example": "Online Reference"
+     },
+     "customCoverage": {
+      "type": "object",
+      "description": "Custom Coverage",
+      "$ref": "#/components/schemas/Coverage"
+     },
+     "isCustom": {
+      "type": "boolean",
+      "description": "Whether this package is custom or not",
+      "example": false
+     },
+     "isSelected": {
+      "type": "boolean",
+      "description": "Whether this package is selected or not",
+      "example": false
+     },
+     "name": {
+      "type": "string",
+      "description": "Package name",
+      "example": "Shenbao"
+     },
+     "customDisplayName": {
+      "type": "string",
+      "description": "Custom display name of the package"
+     },
+     "managedAltNames": {
+      "type": "array",
+      "description": "The list of managed alternate names for the package",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/PackageAltName"
+      }
+     },
+     "customAltNames": {
+      "type": "array",
+      "description": "The list of custom alternate names for the package",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/PackageAltName"
+      }
+     },
+     "managedDescription": {
+      "type": "string",
+      "description": "The managed description of the package"
+     },
+     "customDescription": {
+      "type": "string",
+      "description": "The custom description of the package"
+     },
+     "isFreeAccess": {
+      "type": "boolean",
+      "description": "Whether this package has free access designation or not",
+      "example": false
+     },
+     "packageId": {
+      "type": "string",
+      "description": "Package Id",
+      "example": 1152699
+     },
+     "packageType": {
+      "type": "string",
+      "description": "Package type",
+      "example": "Complete"
+     },
+     "providerId": {
+      "type": "string",
+      "description": "Provider Id",
+      "example": 91525
+     },
+     "providerName": {
+      "type": "string",
+      "description": "Provider name",
+      "example": "Green Apple - Qingpingguo"
+     },
+     "selectedCount": {
+      "type": "integer",
+      "description": "Selected count",
+      "example": 0
+     },
+     "titleCount": {
+      "type": "integer",
+      "description": "Title count",
+      "example": 1
+     },
+     "visibility": {
+      "type": "array",
+      "description": "Visibility details per category",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/PackageVisibility"
+      }
+     },
+     "allowKbToAddTitles": {
+      "type": "boolean",
+      "description": "Allow KB to add titles",
+      "example": true
+     },
+     "packageToken": {
+      "type": "object",
+      "description": "Package Token",
+      "$ref": "#/components/schemas/Token"
+     },
+     "proxy": {
+      "type": "object",
+      "description": "Proxy",
+      "$ref": "#/components/schemas/Proxy"
+     },
+     "tags": {
+      "type": "object",
+      "description": "Package tags",
+      "$ref": "#/components/schemas/Tags"
+     },
+     "url": {
+      "type": "string",
+      "description": "Package URL"
+     }
+    }
+   },
+   "PackageData": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Unique identifier of package - combination of providerId-packageId",
+      "example": "91525-1152699"
+     },
+     "type": {
+      "type": "string",
+      "description": "Type of resource",
+      "example": "packages"
+     },
+     "attributes": {
+      "type": "object",
+      "description": "Package object data attributes",
+      "$ref": "#/components/schemas/PackageAttributes"
+     }
+    },
+    "required": [
+     "id",
+     "attributes"
+    ]
+   },
+   "EPackage": {
+    "type": "object",
+    "properties": {
+     "data": {
+      "type": "object",
+      "description": "The Data Schema",
+      "$ref": "#/components/schemas/PackageData"
+     },
+     "included": {
+      "type": "array",
+      "description": "List of included items",
+      "items": {
+       "type": "object"
+      }
+     }
+    },
+    "required": [
+     "data"
+    ]
+   },
+   "AlternateTitle": {
+    "type": "object",
+    "properties": {
+     "alternateTitle": {
+      "type": "string",
+      "description": "alternate title name",
+      "example": "Boston Coll Law Rev"
+     },
+     "titleType": {
+      "type": "string",
+      "description": "alternate title type",
+      "example": "Abbreviated"
+     }
+    }
+   },
+   "Contributor": {
+    "type": "object",
+    "properties": {
+     "type": {
+      "type": "string",
+      "description": "Type of contributor. Valid values are Author, Illustrator, and Editor.",
+      "example": "Author"
+     },
+     "contributor": {
+      "type": "string",
+      "description": "Contributor Name",
+      "example": "Havard, Margaret"
+     }
+    }
+   },
+   "Identifier": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Identifier Value",
+      "example": "100130"
+     },
+     "subtype": {
+      "type": "string",
+      "description": "Subtype for the identifier. Valid values are  Print, Online.",
+      "enum": [
+       "Print",
+       "Online"
+      ],
+      "example": "Print"
+     },
+     "type": {
+      "type": "string",
+      "description": "Type of identifier. Valid values are ISSN, ISBN.",
+      "enum": [
+       "ISSN",
+       "ISBN"
+      ],
+      "example": "ISSN"
+     }
+    }
+   },
+   "PublicationType": {
+    "type": "string",
+    "enum": [
+     "All",
+     "Audiobook",
+     "Audio book",
+     "Book",
+     "Book Series",
+     "Database",
+     "Journal",
+     "Newsletter",
+     "Newspaper",
+     "Proceedings",
+     "Report",
+     "Streaming Audio",
+     "Streaming Video",
+     "Thesis & Dissertation",
+     "Thesis/Dissertation",
+     "Website",
+     "Web site",
+     "Unspecified"
+    ],
+    "x-enum-varnames": [
+     "ALL",
+     "AUDIOBOOK",
+     "AUDIO_BOOK",
+     "BOOK",
+     "BOOK_SERIES",
+     "DATABASE",
+     "JOURNAL",
+     "NEWSLETTER",
+     "NEWSPAPER",
+     "PROCEEDINGS",
+     "REPORT",
+     "STREAMING_AUDIO",
+     "STREAMING_VIDEO",
+     "THESIS_DISSERTATION",
+     "THESIS_DISSERTATION_",
+     "WEBSITE",
+     "WEB_SITE",
+     "UNSPECIFIED"
+    ],
+    "example": "Journal"
+   },
+   "Subject": {
+    "type": "object",
+    "properties": {
+     "subject": {
+      "type": "string",
+      "description": "Subject subtype",
+      "example": "Social Services"
+     },
+     "type": {
+      "type": "string",
+      "description": "Subject type",
+      "example": "TLI"
+     }
+    }
+   },
+   "EmbargoPeriod": {
+    "type": "object",
+    "properties": {
+     "embargoUnit": {
+      "type": "string",
+      "description": "The unit of time to use for the embargo. Possible values are 'Days', 'Weeks', 'Months', 'Years'",
+      "enum": [
+       "Days",
+       "Weeks",
+       "Months",
+       "Years"
+      ],
+      "example": "Days"
+     },
+     "embargoValue": {
+      "type": "integer",
+      "description": "The embargo value (number of embargoUnits). A Null value means there is no embargo.",
+      "example": 7
+     }
+    }
+   },
+   "VisibilityData": {
+    "type": "object",
+    "properties": {
+     "isHidden": {
+      "type": "boolean",
+      "description": "Whether resource is hidden or not",
+      "example": false
+     },
+     "reason": {
+      "type": "string",
+      "description": "Reason why resource is hidden",
+      "example": "Set by System"
+     }
+    }
+   },
+   "ResourcesAttributes": {
+    "type": "object",
+    "properties": {
+     "alternateTitles": {
+      "type": "array",
+      "description": "List of alternate titles",
+      "items": {
+       "type": "object",
+       "description": "Alternate Title Schema",
+       "$ref": "#/components/schemas/AlternateTitle"
+      }
+     },
+     "description": {
+      "type": "string",
+      "description": "Description of Resource. Note that this attribute can be updated ONLY FOR A CUSTOM RESOURCE.",
+      "example": "Online Reference"
+     },
+     "edition": {
+      "type": "string",
+      "description": "Edition. Note that this attribute can be updated ONLY FOR A CUSTOM RESOURCE."
+     },
+     "isPeerReviewed": {
+      "type": "boolean",
+      "description": "Defines if peer is reviewed. Note that this attribute can be updated ONLY FOR A CUSTOM RESOURCE.",
+      "example": false
+     },
+     "isTitleCustom": {
+      "type": "boolean",
+      "description": "Defines if title is custom",
+      "example": false
+     },
+     "publisherName": {
+      "type": "string",
+      "description": "Publisher. Note that this attribute can be updated ONLY FOR A CUSTOM RESOURCE.",
+      "example": "Indiana University-Purdue Fort Wayne"
+     },
+     "titleId": {
+      "type": "integer",
+      "description": "Title Id",
+      "example": 2985519
+     },
+     "contributors": {
+      "type": "array",
+      "description": "List of contributors. Note that this attribute can be updated ONLY FOR A CUSTOM RESOURCE.",
+      "items": {
+       "type": "object",
+       "description": "The Contributors Schema",
+       "$ref": "#/components/schemas/Contributor"
+      }
+     },
+     "identifiers": {
+      "type": "array",
+      "description": "List of identifiers. Note that this attribute can be updated ONLY FOR A CUSTOM RESOURCE.",
+      "items": {
+       "type": "object",
+       "description": "The Identifiers Schema",
+       "$ref": "#/components/schemas/Identifier"
+      }
+     },
+     "name": {
+      "type": "string",
+      "description": "Resource name. Note that this attribute can be updated ONLY FOR A CUSTOM RESOURCE.",
+      "example": "American Journal of Undergraduate Research"
+     },
+     "publicationType": {
+      "type": "string",
+      "description": "Publication type. Note that this attribute can be updated ONLY FOR A CUSTOM RESOURCE.",
+      "$ref": "#/components/schemas/PublicationType"
+     },
+     "subjects": {
+      "type": "array",
+      "description": "List of subjects for a given resource",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/Subject"
+      }
+     },
+     "coverageStatement": {
+      "type": "string",
+      "description": "Coverage statement. Note that this attribute can be updated both for CUSTOM AND MANAGED RESOURCES.",
+      "example": "Only 2000s issues available."
+     },
+     "customEmbargoPeriod": {
+      "type": "object",
+      "description": "Custom Embargo Period information. Note that this attribute can be updated both for CUSTOM AND MANAGED RESOURCES.",
+      "$ref": "#/components/schemas/EmbargoPeriod"
+     },
+     "isPackageCustom": {
+      "type": "boolean",
+      "description": "Defines if package is custom",
+      "example": false
+     },
+     "isSelected": {
+      "type": "boolean",
+      "description": "Defines if this item is selected. Note that this attribute can be updated both for CUSTOM AND MANAGED RESOURCES.",
+      "example": false
+     },
+     "titleHasSelectedResources": {
+      "type": "boolean",
+      "description": "Indicates if the title that contains this resource has selected resources",
+      "example": true
+     },
+     "isTokenNeeded": {
+      "type": "boolean",
+      "description": "Defines if token is needed",
+      "example": false
+     },
+     "locationId": {
+      "type": "integer",
+      "description": "Unique location id",
+      "example": 9091063
+     },
+     "managedEmbargoPeriod": {
+      "type": "object",
+      "description": "Managed Embargo Period information",
+      "$ref": "#/components/schemas/EmbargoPeriod"
+     },
+     "packageId": {
+      "type": "string",
+      "description": "Unique package id",
+      "example": "19-2333046"
+     },
+     "packageName": {
+      "type": "string",
+      "description": "Package name",
+      "example": "Applied Science & Technology Source Ultimate"
+     },
+     "url": {
+      "type": "string",
+      "description": "URL. Note that this attribute can be updated ONLY FOR A CUSTOM RESOURCE.",
+      "example": "http://search.ebscohost.com/direct.asp?db=aps&jid=BDGR&scope=site"
+     },
+     "providerId": {
+      "type": "integer",
+      "description": "Provider Id",
+      "example": 19
+     },
+     "providerName": {
+      "type": "string",
+      "description": "Provider name",
+      "example": "EBSCO"
+     },
+     "visibilityData": {
+      "type": "object",
+      "description": "Visibility data. Note that this attribute can be updated both for CUSTOM AND MANAGED RESOURCES.",
+      "$ref": "#/components/schemas/VisibilityData"
+     },
+     "managedCoverages": {
+      "type": "array",
+      "description": "List of Managed Coverages information",
+      "items": {
+       "type": "object",
+       "description": "Managed Coverages information",
+       "$ref": "#/components/schemas/Coverage"
+      }
+     },
+     "customCoverages": {
+      "type": "array",
+      "description": "List of Custom Coverages information. Note that this attribute can be updated both for CUSTOM AND MANAGED RESOURCES.",
+      "items": {
+       "type": "object",
+       "description": "Custom Coverages information",
+       "$ref": "#/components/schemas/Coverage"
+      }
+     },
+     "proxy": {
+      "type": "object",
+      "description": "Proxy.  Note that this attribute can be updated both for CUSTOM AND MANAGED RESOURCES.",
+      "$ref": "#/components/schemas/Proxy"
+     },
+     "tags": {
+      "type": "object",
+      "description": "Resource tags",
+      "$ref": "#/components/schemas/Tags"
+     },
+     "userDefinedField1": {
+      "type": "string",
+      "description": "User defined field 1",
+      "maxLength": 100
+     },
+     "userDefinedField2": {
+      "type": "string",
+      "description": "User defined field 2",
+      "maxLength": 100
+     },
+     "userDefinedField3": {
+      "type": "string",
+      "description": "User defined field 3",
+      "maxLength": 100
+     },
+     "userDefinedField4": {
+      "type": "string",
+      "description": "User defined field 4",
+      "maxLength": 100
+     },
+     "userDefinedField5": {
+      "type": "string",
+      "description": "User defined field 5",
+      "maxLength": 100
+     }
+    }
+   },
+   "ResourcesData": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Unique identifier of resource - combination of providerId-packageId-titleId",
+      "example": "583-4345-760027"
+     },
+     "type": {
+      "type": "string",
+      "description": "Type of resource",
+      "enum": [
+       "resources"
+      ],
+      "example": "resources"
+     },
+     "attributes": {
+      "type": "object",
+      "description": "Resource object data attributes",
+      "$ref": "#/components/schemas/ResourcesAttributes"
+     },
+     "included": {
+      "type": "array",
+      "description": "List of included items",
+      "items": {
+       "type": "object"
+      }
+     }
+    }
+   },
+   "EResource": {
+    "type": "object",
+    "properties": {
+     "data": {
+      "type": "object",
+      "description": "List of resources",
+      "$ref": "#/components/schemas/ResourcesData"
+     },
+     "included": {
+      "type": "array",
+      "description": "List of included items",
+      "items": {
+       "type": "object"
+      }
+     }
+    },
+    "required": [
+     "data"
+    ]
+   },
+   "MetaTotalResults": {
+    "type": "object",
+    "properties": {
+     "totalResults": {
+      "type": "integer",
+      "description": "Total number of results",
+      "example": 2
+     }
+    },
+    "required": [
+     "totalResults"
+    ]
+   },
+   "EResources": {
+    "type": "object",
+    "properties": {
+     "data": {
+      "type": "array",
+      "description": "List of resources",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/ResourcesData"
+      }
+     },
+     "meta": {
+      "type": "object",
+      "$ref": "#/components/schemas/MetaTotalResults"
+     }
+    },
+    "required": [
+     "data"
+    ]
+   },
+   "AccessTypeAttributes": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "Access Type Name",
+      "example": "Subscribed"
+     },
+     "description": {
+      "type": "string",
+      "description": "Access Type Description",
+      "example": "Indicates subscription of the entity"
+     },
+     "credentialsId": {
+      "type": "string",
+      "description": "The UUID of credentials",
+      "example": "2ffa1940-2cf6-48b1-8cc9-5e539c61d93f",
+      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "AccessTypeData": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "UUID of access type",
+      "example": "f973c3b6-85fc-4d35-bda8-f31b568957bf"
+     },
+     "type": {
+      "type": "string",
+      "description": "Type of resource",
+      "example": "accessTypes"
+     },
+     "attributes": {
+      "type": "object",
+      "description": "Access type data attributes",
+      "$ref": "#/components/schemas/AccessTypeAttributes"
+     }
+    },
+    "required": [
+     "id",
+     "attributes"
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,282 @@
+openapi: 3.2.0
+info:
+  title: Folio Authority Storage Reindex API
+  version: v1.0
+  description: 'Operations tagged authority-storage-reindex across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://localhost:8081
+tags:
+- name: authority-storage-reindex
+paths:
+  /authority-storage/reindex:
+    description: Reindex authorities
+    get:
+      operationId: getReindexJobs
+      parameters:
+      - description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+        in: query
+        name: query
+        required: false
+        schema:
+          default: cql.allRecords=1
+          type: string
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 2000
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              example: examples/authorities.sample
+              schema:
+                $ref: '#/components/schemas/reindexJobDtoCollection'
+          description: Returns a list of authorities
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage-reindex
+      summary: Get reindex jobs
+      x-summary-source: derived
+    post:
+      operationId: submitReindexJob
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reindexJobDto'
+          description: Reindex job has been submitted
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage-reindex
+      summary: Submit reindex job
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+  /authority-storage/reindex/{id}:
+    delete:
+      operationId: deleteReindexJob
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Record successfully deleted
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage-reindex
+      summary: Delete reindex job
+      x-summary-source: derived
+    get:
+      operationId: getReindexJob
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reindexJobDto'
+          description: Retrieved record
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage-reindex
+      summary: Get reindex job
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+components:
+  schemas:
+    reindexJobDtoCollection:
+      description: A collection of reindex jobs
+      example:
+        reindexJobs:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          published: 0
+          jobStatus: In progress
+          resourceName: Authority
+          submittedDate: '2000-01-23T04:56:07.000+00:00'
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          published: 0
+          jobStatus: In progress
+          resourceName: Authority
+          submittedDate: '2000-01-23T04:56:07.000+00:00'
+        totalRecords: 6
+      properties:
+        reindexJobs:
+          description: List of reindex jobs
+          items:
+            $ref: '#/components/schemas/reindexJobDto'
+          type: array
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - reindexJobs
+      - totalRecords
+      type: object
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/error_parameters_inner'
+          type: array
+      type: object
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object
+    reindexJobDto:
+      description: Get job by id response
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        published: 0
+        jobStatus: In progress
+        resourceName: Authority
+        submittedDate: '2000-01-23T04:56:07.000+00:00'
+      properties:
+        id:
+          description: Job id
+          format: uuid
+          type: string
+        published:
+          description: Number of records that was published so far
+          type: integer
+        jobStatus:
+          description: Overall job status
+          enum:
+          - In progress
+          - Id publishing failed
+          - Ids published
+          - Pending cancel
+          - Id publishing cancelled
+          type: string
+        resourceName:
+          description: Reindex resource name
+          enum:
+          - Authority
+          type: string
+        submittedDate:
+          description: Timestamp when the job has been submitted
+          format: date-time
+          type: string
+      type: object
+x-refined-from:
+- folio-mod-entities-links-openapi.json
+- folio-mod-entities-links-openapi.yml

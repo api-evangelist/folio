@@ -1,0 +1,372 @@
+openapi: 3.2.0
+info:
+  title: Folio Organisations API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Organisations across 4 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-licenses-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Organisations
+paths:
+  /erm/org:
+    description: 'Supports search of Org records — a local reference to an organisation held in the FOLIO Organizations app. GET only: creation happens implicitly when an org is linked elsewhere (e.g. on a Subscription Agreement), not through this path directly.'
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Organisations
+      summary: Get a set of Org records
+      operationId: getOrgs
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/OrgResults'
+                - $ref: '#/components/schemas/OrgResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/org/{orgId}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/orgId'
+    get:
+      tags:
+      - Organisations
+      summary: Get a specified Org record
+      operationId: getOrg
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Org'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/org:
+    description: Supports search of organisations
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Organisations
+      summary: Get a set of organisation records
+      operationId: getLicensesOrg
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/OrganisationResults'
+                - $ref: '#/components/schemas/OrganisationResultsArray'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: getOrgs
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/org/{orgId}:
+    get:
+      tags:
+      - Organisations
+      summary: Get a specified organisation record
+      operationId: getLicensesOrgByOrgId
+      parameters:
+      - $ref: '#/components/parameters/orgId_2'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organisation'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+      x-operation-id-source: normalized
+      x-operation-id-original: getOrg
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  parameters:
+    orgId:
+      in: path
+      name: orgId
+      description: UUID for an Org
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    orgId_2:
+      in: path
+      name: orgId
+      description: ID for an organisation
+      required: true
+      schema:
+        type: string
+    orgId_3:
+      in: path
+      name: orgId
+      description: ID for an organisation
+      required: true
+      schema:
+        type: string
+  schemas:
+    OrgResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Org'
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    OrgResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/OrgResultsArray'
+    Org:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          description: UUID of the corresponding record in the FOLIO Organizations app (mod-organizations-storage), if this org has been linked to one
+          type: string
+          format: uuid
+        orgsUuid_object:
+          description: The linked Organizations app record, fetched live from mod-organizations-storage at request time. Only present when fetching a single org (not in list results). If the lookup fails, this holds `error`/`message` fields describing the failure instead
+          type: object
+          readOnly: true
+          additionalProperties: true
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    OrganisationResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/OrganisationResultsArray'
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
+    OrganisationResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Organisation'
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-licenses-openapi.json
+- folio-mod-agreements-openapi.yml
+- folio-mod-licenses-openapi.yml

@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-channel-schema.json",
+  "title": "channel",
+  "description": "Configuration of import jobs.",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-mod-inventory-update-inventory-import-1-0-openapi.yml#/components/schemas/channel",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the configuration."
+    },
+    "name": {
+      "type": "string",
+      "description": "A name for the configuration."
+    },
+    "tag": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-_]{1,31}$",
+      "description": "Optional, unique identifier that can be used instead of the UUID in channel operations"
+    },
+    "type": {
+      "type": "string",
+      "description": "Type of import channel, only bulk XML, 'XML', supported.",
+      "enum": [
+        "XML"
+      ]
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Set to true to indicate that the channel should be deployed for use."
+    },
+    "commissioned": {
+      "type": "boolean",
+      "description": "Indicates if the channel is actually deployed.",
+      "readOnly": true
+    },
+    "listening": {
+      "type": "boolean",
+      "description": "Set to true to make an enabled channel actively listen for source files to process."
+    },
+    "transformationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID referencing the transformation pipeline to use."
+    },
+    "harvestUrl": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional URL used to identify the channel's harvest source."
+    },
+    "lastHarvested": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional timestamp of the channel's most recent harvest."
+    },
+    "queuedFiles": {
+      "type": "integer",
+      "description": "Count of source files in the queue. A count of -1 means there is currently no queue in the file system.",
+      "readOnly": true
+    },
+    "fileInProcess": {
+      "type": "string",
+      "description": "Name of most recent file to be put in process and yet to be completed.",
+      "readOnly": true
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    }
+  },
+  "required": [
+    "name",
+    "transformationId"
+  ],
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "description": "For tagging records with current time and user ID on create or update.",
+      "properties": {
+        "createdDate": {
+          "type": "string",
+          "description": "Time stamp for the records creation.",
+          "readOnly": true
+        },
+        "createdByUserId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the user creating the record.",
+          "readOnly": true
+        },
+        "updatedDate": {
+          "type": "string",
+          "description": "Time stamp for the most recent update of the record.",
+          "readOnly": true
+        },
+        "updatedByUserId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The ID of the user who most recently updated the record.",
+          "readOnly": true
+        }
+      }
+    }
+  }
+}

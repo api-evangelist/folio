@@ -1,0 +1,1588 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Ebsconet integration API",
+  "description": "Ebsconet integration API",
+  "version": "0.0.1"
+ },
+ "servers": [
+  {
+   "url": "/ebsconet/"
+  }
+ ],
+ "paths": {
+  "/validate": {
+   "description": "Validation API",
+   "get": {
+    "summary": "Validate",
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/validation_response"
+        }
+       }
+      }
+     }
+    },
+    "operationId": "getValidation"
+   }
+  },
+  "/orders/order-lines/{poLineNumber}": {
+   "description": "Orders API",
+   "get": {
+    "summary": "Get single Ebsconet product order line",
+    "responses": {
+     "200": {
+      "description": "OK",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ebsconet_order_line"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the parameter or line/character number with malformed data) provided in the response.",
+      "content": {
+       "application/json": {
+        "example": {
+         "value": {
+          "$ref": "examples/error.sample"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Purchase order line with a given number not found",
+      "content": {
+       "application/json": {
+        "example": {
+         "value": {
+          "$ref": "examples/error.sample"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal server error, e.g. due to misconfiguration",
+      "content": {
+       "application/json": {
+        "example": {
+         "value": {
+          "$ref": "examples/error.sample"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      }
+     }
+    },
+    "operationId": "getEbsconetOrderLine",
+    "parameters": [
+     {
+      "name": "poLineNumber",
+      "in": "path",
+      "description": "product order line number",
+      "required": true,
+      "schema": {
+       "$ref": "#/components/schemas/order_line_number"
+      }
+     }
+    ]
+   },
+   "put": {
+    "summary": "Save single Ebsconet product order line",
+    "responses": {
+     "200": {
+      "description": "OK"
+     },
+     "400": {
+      "description": "Bad request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the parameter or line/character number with malformed data) provided in the response.",
+      "content": {
+       "application/json": {
+        "example": {
+         "value": {
+          "$ref": "examples/error.sample"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Internal server error, e.g. due to misconfiguration",
+      "content": {
+       "application/json": {
+        "example": {
+         "value": {
+          "$ref": "examples/error.sample"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      }
+     }
+    },
+    "operationId": "putEbsconetOrderLine",
+    "parameters": [
+     {
+      "name": "poLineNumber",
+      "in": "path",
+      "description": "product order line number",
+      "required": true,
+      "schema": {
+       "$ref": "#/components/schemas/order_line_number"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ebsconet_order_line"
+       }
+      }
+     },
+     "required": true
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "ebsconetOrderLine": {
+    "$ref": "#/components/schemas/ebsconet_order_line"
+   },
+   "poLineNumber": {
+    "$ref": "#/components/schemas/order_line_number"
+   },
+   "organization": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The record of an organization",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "The unique UUID for this organization",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "code": {
+      "description": "The code for this organization",
+      "type": "string",
+      "pattern": "[\\S ]+"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "code"
+    ]
+   },
+   "poLine": {
+    "$ref": "#/components/schemas/po_line"
+   },
+   "poLineCollection": {
+    "$ref": "#/components/schemas/po_line_collection"
+   },
+   "expenseClassCollection": {
+    "$ref": "#/components/schemas/expense_class_collection"
+   },
+   "fundCollection": {
+    "$ref": "#/components/schemas/fund_collection"
+   },
+   "purchaseOrder": {
+    "$ref": "#/components/schemas/purchase_order"
+   },
+   "validationResponse": {
+    "$ref": "#/components/schemas/validation_response"
+   },
+   "note": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A fund to track financial transactions",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "UUID of this fund",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "typeId": {
+      "description": "UUID of this fund",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "type": {
+      "description": "A unique code associated with the fund",
+      "type": "string"
+     },
+     "title": {
+      "description": "A unique code associated with the fund",
+      "type": "string"
+     },
+     "domain": {
+      "description": "A unique code associated with the fund",
+      "type": "string"
+     },
+     "content": {
+      "description": "A unique code associated with the fund",
+      "type": "string"
+     },
+     "popUpOnCheckOut": {
+      "description": "A unique code associated with the fund",
+      "type": "string"
+     },
+     "popUpOnUser": {
+      "description": "A unique code associated with the fund",
+      "type": "string"
+     },
+     "links": {
+      "description": "All the funds that this fund is allowed to receive money from. This would be 1 fund or none. If this field is blank their is no restriction on allocating to this fund",
+      "type": "array",
+      "items": {
+       "description": "UUID of the fund this fund is allowed to receive money from",
+       "$ref": "#/components/schemas/link"
+      }
+     },
+     "metadata": {
+      "description": "Metadata about creation and changes to record, provided by the server (client should not provide)",
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "code",
+     "fundStatus",
+     "ledgerId",
+     "name"
+    ]
+   },
+   "noteCollection": {
+    "$ref": "#/components/schemas/note_collection"
+   },
+   "error": {
+    "$ref": "#/components/schemas/Error"
+   },
+   "errors": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "id": "errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/error-2"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   },
+   "uuid": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The UUID format string",
+    "type": "string",
+    "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+   },
+   "validation_response": {
+    "id": "validation_response",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Validation response",
+    "type": "object",
+    "properties": {
+     "status": {
+      "type": "string",
+      "description": "Validation status",
+      "enum": [
+       "Success",
+       "Failed"
+      ],
+      "default": "Success"
+     }
+    }
+   },
+   "order_line_number": {
+    "id": "po_line_number",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A human readable number, assigned to this product order line",
+    "type": "string",
+    "pattern": "^[a-zA-Z0-9]{1,22}-[0-9]{1,3}$"
+   },
+   "reference_number_item": {
+    "id": "reference_number_item",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Reference number item",
+    "type": "object",
+    "properties": {
+     "refNumber": {
+      "description": "a reference number for this purchase order line",
+      "type": "string"
+     },
+     "refNumberType": {
+      "description": "the reference number type",
+      "type": "string",
+      "enum": [
+       "Vendor continuation reference number",
+       "Vendor order reference number",
+       "Vendor subscription reference number",
+       "Vendor internal number",
+       "Vendor title number"
+      ]
+     }
+    },
+    "additionalProperties": false
+   },
+   "workflow_status": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Composite workflow status",
+    "type": "string",
+    "enum": [
+     "Pending",
+     "Open",
+     "Closed"
+    ],
+    "default": "Pending"
+   },
+   "ebsconet_order_line": {
+    "id": "ebsconet_order_line",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Ebsconet order line integration schema",
+    "type": "object",
+    "properties": {
+     "cancellationRestriction": {
+      "type": "boolean",
+      "description": "Whether or not there are cancellation restrictions for this purchase order line",
+      "readOnly": false
+     },
+     "cancellationRestrictionNote": {
+      "type": "string",
+      "description": "Free-form notes related to cancellation restrictions",
+      "readOnly": false
+     },
+     "currency": {
+      "type": "string",
+      "description": "An ISO currency code",
+      "readOnly": false
+     },
+     "fundCode": {
+      "type": "string",
+      "description": "Fund distribution code",
+      "readOnly": false
+     },
+     "poLineNumber": {
+      "$ref": "#/components/schemas/order_line_number",
+      "description": "A human readable number assigned to this PO line",
+      "readOnly": true
+     },
+     "publisherName": {
+      "type": "string",
+      "description": "Publisher of the material",
+      "readOnly": false
+     },
+     "internalNote": {
+      "type": "string",
+      "description": "Renewal note for this purchase order line"
+     },
+     "quantity": {
+      "type": "integer",
+      "description": "Quantity of physical items or resources of 'Other' order format in this purchase order line",
+      "readOnly": false
+     },
+     "subscriptionFromDate": {
+      "type": "string",
+      "description": "the start date of the subscription",
+      "format": "date-time",
+      "nullable": true,
+      "readOnly": false
+     },
+     "subscriptionToDate": {
+      "type": "string",
+      "description": "the end date of the subscription",
+      "format": "date-time",
+      "nullable": true,
+      "readOnly": false
+     },
+     "unitPrice": {
+      "type": "number",
+      "description": "The per-item list price for physical or resources of 'Other' order format",
+      "readOnly": false
+     },
+     "vendor": {
+      "type": "string",
+      "description": "Vendor code",
+      "maxLength": 55,
+      "pattern": "[\\S ]+",
+      "readOnly": true
+     },
+     "vendorAccountNumber": {
+      "type": "string",
+      "description": "Account number on the vendor's end associated with this purchase order line",
+      "readOnly": false
+     },
+     "vendorReferenceNumbers": {
+      "type": "array",
+      "description": "Reference number items array",
+      "items": {
+       "$ref": "#/components/schemas/reference_number_item"
+      }
+     },
+     "workflowStatus": {
+      "$ref": "#/components/schemas/workflow_status",
+      "description": "the workflow status for the purchase order",
+      "readOnly": true
+     },
+     "type": {
+      "type": "string",
+      "description": "Set to non-renewal to cancel the purchase order line",
+      "readOnly": true,
+      "pattern": "^([Rr][Ee][Nn][Ee][Ww][Aa][Ll]|[Nn][Oo][Nn][-][Rr][Ee][Nn][Ee][Ww][Aa][Ll])$"
+     },
+     "customerNote": {
+      "type": "string",
+      "description": "customerNote on the ebsconet's end can be associated with this purchase order line",
+      "readOnly": false
+     }
+    },
+    "required": [
+     "currency",
+     "poLineNumber"
+    ]
+   },
+   "Parameter": {
+    "type": "object",
+    "properties": {
+     "key": {
+      "type": "string"
+     },
+     "value": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "Parameters": {
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/Parameter"
+    },
+    "additionalProperties": false
+   },
+   "Error": {
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/Parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message"
+    ]
+   },
+   "uuid-2": {
+    "id": "uuid",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Regexp pattern for UUID validation",
+    "type": "string",
+    "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
+   },
+   "claim": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "details about an order claim",
+    "type": "object",
+    "properties": {
+     "claimed": {
+      "description": "whether or not this purchase order line has been claimed",
+      "type": "boolean",
+      "default": false
+     },
+     "sent": {
+      "description": "date a claim was sent",
+      "type": "string",
+      "format": "date-time"
+     },
+     "grace": {
+      "description": "the number of days after the expected receipt date during which claims should not be processed",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   },
+   "contributor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "contributor to the material",
+    "type": "object",
+    "properties": {
+     "contributor": {
+      "description": "the name of a contributor to the material",
+      "type": "string"
+     },
+     "contributorNameTypeId": {
+      "description": "UUID of the contributor type",
+      "type": "string",
+      "pattern": "^[a-f0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "contributorNameTypeId"
+    ]
+   },
+   "cost": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "purchase order line cost record",
+    "type": "object",
+    "properties": {
+     "listUnitPrice": {
+      "description": "The per-item list price for physical or resources of 'Other' order format",
+      "type": "number"
+     },
+     "listUnitPriceElectronic": {
+      "description": "The per-item list price for electronic order format",
+      "type": "number"
+     },
+     "currency": {
+      "description": "An ISO currency code",
+      "type": "string"
+     },
+     "quantityPhysical": {
+      "description": "Quantity of physical items or resources of 'Other' order format in this purchase order line",
+      "type": "integer"
+     },
+     "quantityElectronic": {
+      "description": "Quantity of electronic items or resources of 'Other' order format in this purchase order line",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "currency"
+    ]
+   },
+   "product_id_type": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The UUID corresponding to the type of product id",
+    "type": "string",
+    "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+   },
+   "product_identifier": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Product identifier",
+    "type": "object",
+    "properties": {
+     "productId": {
+      "description": "The actual product identifier",
+      "type": "string"
+     },
+     "productIdType": {
+      "description": "The type of product identifier",
+      "$ref": "#/components/schemas/product_id_type"
+     },
+     "qualifier": {
+      "description": "Information about the binding, format, volume numbers, part of a set, publisher, distributor, etc. which might be enclosed in parenthesis",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   },
+   "details": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "purchase order line details",
+    "type": "object",
+    "properties": {
+     "subscriptionFrom": {
+      "description": "the start date of the subscription",
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "subscriptionTo": {
+      "description": "the end date of the subscription",
+      "type": "string",
+      "format": "date-time",
+      "nullable": true
+     },
+     "receivingNote": {
+      "description": "notes regarding receiving instructions",
+      "type": "string"
+     },
+     "productIds": {
+      "description": "a list of product identifiers",
+      "id": "productIds",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/product_identifier"
+      }
+     },
+     "subscriptionInterval": {
+      "description": "the subscription interval in days",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   },
+   "license": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "purchase order line license record",
+    "type": "object",
+    "properties": {
+     "code": {
+      "description": "license code",
+      "type": "string"
+     },
+     "description": {
+      "description": "license description",
+      "type": "string"
+     },
+     "reference": {
+      "description": "license reference",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   },
+   "eresource": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "purchase order line e-resource details",
+    "type": "object",
+    "properties": {
+     "activated": {
+      "description": "whether or not this resource is activated",
+      "type": "boolean",
+      "default": false
+     },
+     "activationDue": {
+      "description": "number of days until activation, from date of order placement",
+      "type": "integer"
+     },
+     "createInventory": {
+      "description": "Shows what inventory objects need to be created for electronic resource",
+      "type": "string",
+      "enum": [
+       "Instance, Holding, Item",
+       "Instance, Holding",
+       "Instance",
+       "None"
+      ]
+     },
+     "trial": {
+      "description": "whether or not this is a trial",
+      "type": "boolean",
+      "default": false
+     },
+     "expectedActivation": {
+      "description": "expected date the resource will be activated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "userLimit": {
+      "description": "the concurrent user-limit",
+      "type": "string"
+     },
+     "accessProvider": {
+      "description": "UUID of the access provider",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+     },
+     "license": {
+      "description": "License record",
+      "type": "object",
+      "$ref": "#/components/schemas/license"
+     },
+     "materialType": {
+      "description": "UUID of the material Type",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+     },
+     "resourceUrl": {
+      "description": "Electronic resource can be access via this URL",
+      "type": "string",
+      "pattern": "\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?]))"
+     }
+    },
+    "additionalProperties": false
+   },
+   "fund_distribution": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "purchase order fund distribution",
+    "type": "object",
+    "properties": {
+     "code": {
+      "description": "the fund code",
+      "type": "string"
+     },
+     "encumbrance": {
+      "description": "UUID of encumbrance record associated with this fund distribution",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "fundId": {
+      "description": "UUID of the fund associated with this fund distribution",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "expenseClassId": {
+      "description": "UUID of the expense class associated with this fund distribution",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "distributionType": {
+      "description": "Percentage or amount type of the value property",
+      "type": "string",
+      "enum": [
+       "amount",
+       "percentage"
+      ],
+      "default": "percentage"
+     },
+     "value": {
+      "description": "The value of the cost to be applied to this fund",
+      "type": "number"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "fundId",
+     "distributionType",
+     "value"
+    ]
+   },
+   "location": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "purchase order line location record",
+    "type": "object",
+    "properties": {
+     "locationId": {
+      "description": "UUID of the (inventory) location record",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+     },
+     "holdingId": {
+      "description": "Holding UUID associated with order line",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+     },
+     "quantity": {
+      "description": "combined/total quanitity of physical and electronic items",
+      "type": "integer"
+     },
+     "quantityElectronic": {
+      "description": "quantity of electronic items",
+      "type": "integer"
+     },
+     "quantityPhysical": {
+      "description": "quantity of physical items",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   },
+   "order_format": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The purchase order line format",
+    "type": "string",
+    "enum": [
+     "Electronic Resource",
+     "P/E Mix",
+     "Physical Resource",
+     "Other"
+    ]
+   },
+   "payment_status": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Payment/Receipt status",
+    "type": "string",
+    "enum": [
+     "Awaiting Payment",
+     "Cancelled",
+     "Fully Paid",
+     "Partially Paid",
+     "Payment Not Required",
+     "Pending",
+     "Ongoing"
+    ],
+    "default": "Pending"
+   },
+   "physical": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "purchase order line physical material details",
+    "type": "object",
+    "properties": {
+     "createInventory": {
+      "description": "Shows what inventory objects need to be created for physical resource",
+      "type": "string",
+      "enum": [
+       "Instance, Holding, Item",
+       "Instance, Holding",
+       "Instance",
+       "None"
+      ]
+     },
+     "materialType": {
+      "description": "UUID of the material Type",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+     },
+     "materialSupplier": {
+      "description": "UUID of the material supplier record",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+     },
+     "expectedReceiptDate": {
+      "description": "vendor agreed date prior to the Receipt Due date item is expected to be received by",
+      "type": "string",
+      "format": "date-time"
+     },
+     "receiptDue": {
+      "description": "date item should be received by",
+      "type": "string",
+      "format": "date-time"
+     },
+     "volumes": {
+      "description": "list of volumes included to the physical material",
+      "type": "array",
+      "items": {
+       "description": "the identifier of volume",
+       "type": "string"
+      }
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "volumes"
+    ]
+   },
+   "receipt_status": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The purchase order line receipt status",
+    "type": "string",
+    "enum": [
+     "Awaiting Receipt",
+     "Cancelled",
+     "Fully Received",
+     "Partially Received",
+     "Pending",
+     "Receipt Not Required",
+     "Ongoing"
+    ],
+    "default": "Pending"
+   },
+   "source": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The source of the Order",
+    "type": "string",
+    "enum": [
+     "User",
+     "API",
+     "EDI",
+     "MARC",
+     "EBSCONET"
+    ]
+   },
+   "tags": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "tags.schema",
+    "title": "tags",
+    "description": "List of simple tags that can be added to an object",
+    "type": "object",
+    "properties": {
+     "tagList": {
+      "description": "List of tags",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "additionalProperties": false
+   },
+   "reference_numbers": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Reference number items array",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/reference_number_item"
+    },
+    "additionalProperties": false
+   },
+   "vendor_detail": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "purchase order line vendor details",
+    "type": "object",
+    "properties": {
+     "instructions": {
+      "description": "special instructions for the vendor",
+      "type": "string"
+     },
+     "noteFromVendor": {
+      "description": "free-form notes from the vendor",
+      "type": "string"
+     },
+     "vendorAccount": {
+      "description": "the accound number on the vendor's end associated with this purchase order line",
+      "type": "string"
+     },
+     "referenceNumbers": {
+      "description": "Collection of reference number items",
+      "$ref": "#/components/schemas/reference_numbers"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "instructions"
+    ]
+   },
+   "custom_fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Object that contains custom field",
+    "type": "object",
+    "javaName": "CustomFields",
+    "additionalProperties": true
+   },
+   "metadata": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Metadata about creation and changes to records, provided by the server (client should not provide)",
+    "Metadata": {
+     "title": "Metadata Schema",
+     "type": "object",
+     "properties": {
+      "createdDate": {
+       "description": "Date and time when the record was created",
+       "type": "string",
+       "format": "date-time"
+      },
+      "createdByUserId": {
+       "description": "ID of the user who created the record (when available)",
+       "type": "string",
+       "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      },
+      "createdByUsername": {
+       "description": "Username of the user who created the record (when available)",
+       "type": "string"
+      },
+      "updatedDate": {
+       "description": "Date and time when the record was last updated",
+       "type": "string",
+       "format": "date-time"
+      },
+      "updatedByUserId": {
+       "description": "ID of the user who last updated the record (when available)",
+       "type": "string",
+       "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      },
+      "updatedByUsername": {
+       "description": "Username of the user who last updated the record (when available)",
+       "type": "string"
+      }
+     },
+     "additionalProperties": false,
+     "required": [
+      "createdDate"
+     ]
+    }
+   },
+   "po_line": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "purchase order line",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "UUID identifying this purchase order line",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "edition": {
+      "description": "edition of the material",
+      "type": "string"
+     },
+     "checkinItems": {
+      "description": "if true this will toggle the Check-in workflow for details associated with this PO line",
+      "type": "boolean",
+      "default": false
+     },
+     "agreementId": {
+      "description": "UUID of the agreement this purchase order line is related to",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "acquisitionMethod": {
+      "description": "UUID of the acquisition method for this purchase order line",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "automaticExport": {
+      "description": "if true then line will be marked as available to export in the EDIFACT format or other format",
+      "type": "boolean",
+      "default": false
+     },
+     "cancellationRestriction": {
+      "description": "whether or not there are cancellation restrictions for this purchase order line",
+      "type": "boolean"
+     },
+     "cancellationRestrictionNote": {
+      "description": "free-form notes related to cancellation restrictions",
+      "type": "string"
+     },
+     "claims": {
+      "description": "claims associated with this purchase order line",
+      "id": "claims",
+      "type": "array",
+      "items": {
+       "description": "a claim record",
+       "type": "object",
+       "$ref": "#/components/schemas/claim"
+      }
+     },
+     "claimingActive": {
+      "description": "Indicates if there is an active claim or dispute",
+      "type": "boolean",
+      "default": false
+     },
+     "claimingInterval": {
+      "description": "Specifies the time interval, in days, within which claims or disputes must be initiated",
+      "type": "integer"
+     },
+     "collection": {
+      "description": "whether or not this purchase order line is for a collection",
+      "type": "boolean",
+      "default": false
+     },
+     "contributors": {
+      "description": "list of contributors to the material",
+      "id": "contributors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/contributor"
+      }
+     },
+     "cost": {
+      "description": "cost details associated with this purchase order line",
+      "type": "object",
+      "$ref": "#/components/schemas/cost"
+     },
+     "description": {
+      "description": "description of the material",
+      "type": "string"
+     },
+     "details": {
+      "description": "details about this purchase order line",
+      "type": "object",
+      "$ref": "#/components/schemas/details"
+     },
+     "donor": {
+      "description": "the donor contributing to this purchase order line",
+      "type": "string"
+     },
+     "donorOrganizationIds": {
+      "description": "donor organization ids associated with this fund",
+      "type": "array",
+      "items": {
+       "description": "UUID of an donor organization record",
+       "$ref": "#/components/schemas/uuid-2"
+      }
+     },
+     "eresource": {
+      "description": "eresource-related details of this purchase order line",
+      "type": "object",
+      "$ref": "#/components/schemas/eresource"
+     },
+     "fundDistribution": {
+      "description": "Fund distribution records for this purchase order line",
+      "id": "fundDistribution",
+      "type": "array",
+      "items": {
+       "description": "a fund distribution record",
+       "type": "object",
+       "$ref": "#/components/schemas/fund_distribution"
+      }
+     },
+     "instanceId": {
+      "description": "UUID of the instance record this purchase order line is related to",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "isPackage": {
+      "description": "Indicates that this POL is for a package",
+      "type": "boolean",
+      "default": false
+     },
+     "locations": {
+      "description": "Location records for this purchase order line",
+      "id": "locations",
+      "type": "array",
+      "items": {
+       "description": "The location details",
+       "type": "object",
+       "$ref": "#/components/schemas/location"
+      }
+     },
+     "searchLocationIds": {
+      "description": "location ids used for search",
+      "type": "array",
+      "items": {
+       "description": "UUID of location record",
+       "$ref": "#/components/schemas/uuid-2"
+      }
+     },
+     "lastEDIExportDate": {
+      "description": "The last date when line was exported in the EDIFACT file",
+      "type": "string",
+      "format": "date-time"
+     },
+     "orderFormat": {
+      "description": "The purchase order line format",
+      "type": "string",
+      "$ref": "#/components/schemas/order_format"
+     },
+     "packagePoLineId": {
+      "description": "UUID referencing the poLine that represents the package that this POLs title belongs to",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "paymentStatus": {
+      "description": "The purchase order line payment status",
+      "type": "string",
+      "$ref": "#/components/schemas/payment_status"
+     },
+     "physical": {
+      "description": "details of this purchase order line relating to physical materials",
+      "type": "object",
+      "$ref": "#/components/schemas/physical"
+     },
+     "poLineDescription": {
+      "description": "purchase order line description",
+      "type": "string"
+     },
+     "poLineNumber": {
+      "description": "A human readable number assigned to this PO line (assigned automatically)",
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9]{1,22}-[0-9]{1,3}$"
+     },
+     "publicationDate": {
+      "description": "date (year) of the material's publication",
+      "type": "string"
+     },
+     "publisher": {
+      "description": "publisher of the material",
+      "type": "string"
+     },
+     "purchaseOrderId": {
+      "description": "UUID of the purchase order",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "receiptDate": {
+      "description": "date the purchase order line was received",
+      "type": "string",
+      "format": "date-time"
+     },
+     "receiptStatus": {
+      "description": "The purchase order line receipt status",
+      "type": "string",
+      "$ref": "#/components/schemas/receipt_status"
+     },
+     "renewalNote": {
+      "description": "Renewal note for this purchase order line",
+      "type": "string"
+     },
+     "requester": {
+      "description": "who requested this purchase order line",
+      "type": "string"
+     },
+     "rush": {
+      "description": "whether or not this is a rush order",
+      "type": "boolean",
+      "default": false
+     },
+     "selector": {
+      "description": "who selected this material",
+      "type": "string"
+     },
+     "source": {
+      "description": "the source of this purchase order line",
+      "type": "string",
+      "$ref": "#/components/schemas/source"
+     },
+     "tags": {
+      "description": "arbitrary tags associated with this purchase order line",
+      "id": "tags",
+      "type": "object",
+      "$ref": "#/components/schemas/tags"
+     },
+     "titleOrPackage": {
+      "description": "title of the material",
+      "type": "string"
+     },
+     "vendorDetail": {
+      "description": "Details related to the vendor of this purchase order line",
+      "type": "object",
+      "$ref": "#/components/schemas/vendor_detail"
+     },
+     "customFields": {
+      "description": "Object that contains custom field",
+      "type": "object",
+      "$ref": "#/components/schemas/custom_fields"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "acquisitionMethod",
+     "cost",
+     "orderFormat",
+     "source",
+     "titleOrPackage"
+    ]
+   },
+   "po_line_collection": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "collection of purchase order line records",
+    "type": "object",
+    "properties": {
+     "poLines": {
+      "description": "collection of purchase order line records",
+      "type": "array",
+      "id": "poLines",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/po_line"
+      }
+     },
+     "totalRecords": {
+      "description": "The number of objects contained in this collection",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "poLines",
+     "totalRecords"
+    ]
+   },
+   "expense_class": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "An expense class",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "UUID of the expense class record",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "_version": {
+      "type": "integer",
+      "description": "Record version for optimistic locking"
+     },
+     "code": {
+      "description": "The code of the expense class",
+      "type": "string",
+      "pattern": "^[^:]+$"
+     },
+     "externalAccountNumberExt": {
+      "description": "An external account number extension",
+      "type": "string"
+     },
+     "name": {
+      "description": "The name of the expense class",
+      "type": "string"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "code"
+    ]
+   },
+   "expense_class_collection": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of expense classes",
+    "type": "object",
+    "properties": {
+     "expenseClasses": {
+      "description": "The list of  expense classes objects in this collection",
+      "type": "array",
+      "id": "expense_classes",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/expense_class"
+      }
+     },
+     "totalRecords": {
+      "description": "The number of objects in this collection",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "expenseClasses",
+     "totalRecords"
+    ]
+   },
+   "fund": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A fund to track financial transactions",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "UUID of this fund",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "_version": {
+      "type": "integer",
+      "description": "Record version for optimistic locking"
+     },
+     "allocatedFromIds": {
+      "description": "All the funds that this fund is allowed to receive money from. This would be 1 fund or none. If this field is blank their is no restriction on allocating to this fund",
+      "type": "array",
+      "items": {
+       "description": "UUID of the fund this fund is allowed to receive money from",
+       "$ref": "#/components/schemas/uuid"
+      }
+     },
+     "allocatedToIds": {
+      "description": "All the funds that this fund is allowed to send money to. This could be one or many.",
+      "type": "array",
+      "items": {
+       "description": "UUID of the fund this fund is allowed to send money to",
+       "$ref": "#/components/schemas/uuid"
+      }
+     },
+     "code": {
+      "description": "A unique code associated with the fund",
+      "type": "string"
+     },
+     "description": {
+      "description": "The description of this fund",
+      "type": "string"
+     },
+     "externalAccountNo": {
+      "description": "Corresponding account in the financial system. Will be recorded in payment generated as well.",
+      "type": "string"
+     },
+     "fundStatus": {
+      "description": "The current status of this fund",
+      "type": "string",
+      "enum": [
+       "Active",
+       "Frozen",
+       "Inactive"
+      ]
+     },
+     "fundTypeId": {
+      "description": "UUID of the fund type associated with this fund",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "ledgerId": {
+      "description": "UUID of the financial ledger associated with this fund",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "name": {
+      "description": "The name of this fund",
+      "type": "string"
+     },
+     "acqUnitIds": {
+      "description": "acquisition unit ids associated with this fund",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/uuid"
+      }
+     },
+     "tags": {
+      "type": "object",
+      "description": "arbitrary tags associated with this fund",
+      "$ref": "#/components/schemas/tags"
+     },
+     "metadata": {
+      "description": "Metadata about creation and changes to record, provided by the server (client should not provide)",
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "code",
+     "fundStatus",
+     "ledgerId",
+     "name"
+    ]
+   },
+   "fund_collection": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of funds",
+    "type": "object",
+    "properties": {
+     "funds": {
+      "description": "The list of funds contained in this collection",
+      "type": "array",
+      "id": "funds",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/fund"
+      }
+     },
+     "totalRecords": {
+      "description": "The number of objects contained in this collection",
+      "type": "integer",
+      "minimum": 0
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "funds",
+     "totalRecords"
+    ]
+   },
+   "purchase_order": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "composite purchase order with dereferenced/expanded orders fields",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "UUID of this purchase order",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "notes": {
+      "description": "free-form notes associated with this purchase order",
+      "id": "notes",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "vendor": {
+      "description": "UUID of the vendorDetails record",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "workflowStatus": {
+      "description": "the workflow status for this purchase order",
+      "type": "string",
+      "$ref": "#/components/schemas/workflow_status"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "vendor"
+    ]
+   },
+   "link": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Link",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "UUID of this fund",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "type": {
+      "description": "UUID of this fund",
+      "$ref": "#/components/schemas/uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "type"
+    ]
+   },
+   "note_collection": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of notes",
+    "type": "object",
+    "properties": {
+     "notes": {
+      "description": "The list of notes contained in this collection",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/note"
+      }
+     },
+     "totalRecords": {
+      "description": "The number of objects contained in this collection",
+      "type": "integer",
+      "minimum": 0
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "notes",
+     "totalRecords"
+    ]
+   },
+   "error-2": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "An error",
+    "Error": {
+     "type": "object",
+     "properties": {
+      "message": {
+       "type": "string",
+       "description": "Error message text"
+      },
+      "type": {
+       "type": "string",
+       "description": "Error message type"
+      },
+      "code": {
+       "type": "string",
+       "description": "Error message code"
+      },
+      "parameters": {
+       "description": "Error message parameters",
+       "$ref": "#/components/schemas/Parameters"
+      }
+     },
+     "additionalProperties": false,
+     "required": [
+      "message"
+     ]
+    }
+   }
+  },
+  "examples": {
+   "error": {
+    "value": "{\n  \"message\": \"may not be null\",\n  \"type\": \"1\",\n  \"code\": \"-1\",\n  \"parameters\": [\n    {\n      \"key\": \"moduleTo\",\n      \"value\": \"null\"\n    }\n  ]\n}\n"
+   }
+  }
+ }
+}

@@ -1,0 +1,647 @@
+openapi: 3.2.0
+info:
+  title: Folio Specification Storage Indicators API
+  version: 1.0.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged specification-storage-indicators across 2 of this provider''s published API definitions: folio-mod-record-specifications-openapi.json, folio-mod-record-specifications-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://{environment}-okapi.ci.folio.org
+  variables:
+    environment:
+      default: folio-dev-spitfire
+      enum:
+      - folio-dev-spitfire
+      - folio-perf-spitfire
+- description: Reference environments.
+  url: https://folio-{environment}-okapi.dev.folio.org
+  variables:
+    environment:
+      default: snapshot
+      enum:
+      - snapshot
+      - snapshot-2
+tags:
+- description: Provides API for managing specification field indicators.
+  name: specification-storage-indicators
+paths:
+  /specification-storage/indicators/{indicatorId}:
+    put:
+      description: Update an indicator definition.
+      operationId: updateIndicator
+      parameters:
+      - description: Field Indicator ID
+        in: path
+        name: indicatorId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              RequestExample:
+                $ref: '#/components/examples/fieldIndicatorChangeDto'
+            schema:
+              $ref: '#/components/schemas/fieldIndicatorChangeDto'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                RequestExample:
+                  $ref: '#/components/examples/fieldIndicatorChangeDto'
+              schema:
+                $ref: '#/components/schemas/fieldIndicatorDto'
+          description: Indicator definition was updated
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Update Field Indicators
+      tags:
+      - specification-storage-indicators
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /specification-storage/indicators/{indicatorId}/indicator-codes:
+    get:
+      description: Get a collection of codes definitions that are defined in the indicator.
+      operationId: getIndicatorCodes
+      parameters:
+      - description: Field Indicator ID
+        in: path
+        name: indicatorId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                Collection:
+                  $ref: '#/components/examples/indicatorCodeDtoCollection'
+              schema:
+                $ref: '#/components/schemas/indicatorCodeDtoCollection'
+          description: Collection of codes definitions
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Indicator Code Definitions
+      tags:
+      - specification-storage-indicators
+    post:
+      description: Create new local code definition for the indicator
+      operationId: createIndicatorLocalCode
+      parameters:
+      - description: Field Indicator ID
+        in: path
+        name: indicatorId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              RequestExample:
+                $ref: '#/components/examples/indicatorCodeChangeDto'
+            schema:
+              $ref: '#/components/schemas/indicatorCodeChangeDto'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                Created:
+                  $ref: '#/components/examples/indicatorCodeDto'
+              schema:
+                $ref: '#/components/schemas/indicatorCodeDto'
+          description: Local code definition was created
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Create Local Code Definition
+      tags:
+      - specification-storage-indicators
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /specification-storage/indicator-codes/{indicatorCodeId}:
+    delete:
+      description: Delete indicator code definition
+      operationId: deleteIndicatorCode
+      parameters:
+      - description: Indicator code ID
+        in: path
+        name: indicatorCodeId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Indicator code definition was deleted
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Delete Indicator Code Definition
+      tags:
+      - specification-storage-indicators
+    put:
+      description: Update an indicator code definition.
+      operationId: updateIndicatorCode
+      parameters:
+      - description: Indicator code ID
+        in: path
+        name: indicatorCodeId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              RequestExample:
+                $ref: '#/components/examples/indicatorCodeChangeDto'
+            schema:
+              $ref: '#/components/schemas/indicatorCodeChangeDto'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                ResponseExample:
+                  $ref: '#/components/examples/indicatorCodeDto'
+              schema:
+                $ref: '#/components/schemas/indicatorCodeDto'
+          description: Indicator code definition was updated
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Update Indicator Codes
+      tags:
+      - specification-storage-indicators
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+components:
+  examples:
+    indicatorCodeDtoCollection:
+      value:
+        codes:
+        - id: ff0780f9-573d-46ba-8bf1-73181052f4c2
+          indicatorId: ff0780f9-573d-46ba-8bf1-73181052f4b5
+          code: '0'
+          label: Code 0
+          scope: local
+          metadata:
+            createdDate: '2024-05-22 14:55:06'
+            createdByUserId: 00000000-0000-0000-0000-000000000000
+            updatedDate: '2024-05-22 15:30:42'
+            updatedByUserId: 00000000-0000-0000-0000-000000000000
+        - id: ff0780f9-573d-46ba-8bf1-73181052f4c3
+          indicatorId: ff0780f9-573d-46ba-8bf1-73181052f4b5
+          code: '1'
+          label: Code 1
+          scope: standard
+          metadata:
+            createdDate: '2024-05-22 14:55:06'
+            createdByUserId: 00000000-0000-0000-0000-000000000000
+            updatedDate: '2024-05-22 15:30:42'
+            updatedByUserId: 00000000-0000-0000-0000-000000000000
+        - id: ff0780f9-573d-46ba-8bf1-73181052f4c4
+          indicatorId: ff0780f9-573d-46ba-8bf1-73181052f4b5
+          code: '#'
+          label: 'Code #'
+          scope: system
+          metadata:
+            createdDate: '2024-05-22 14:55:06'
+            createdByUserId: 00000000-0000-0000-0000-000000000000
+            updatedDate: '2024-05-22 15:30:42'
+            updatedByUserId: 00000000-0000-0000-0000-000000000000
+        totalRecords: 2
+    unknownErrorResponse:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    indicatorCodeChangeDto:
+      value:
+        code: a
+        label: Code a
+    indicatorCodeDto:
+      value:
+        id: ff0780f9-573d-46ba-8bf1-73181052f4c1
+        indicatorId: ff0780f9-573d-46ba-8bf1-73181052f4b5
+        code: '0'
+        label: Code 0
+        scope: local
+        metadata:
+          createdDate: '2024-05-22 14:55:06'
+          createdByUserId: 00000000-0000-0000-0000-000000000000
+          updatedDate: '2024-05-22 15:30:42'
+          updatedByUserId: 00000000-0000-0000-0000-000000000000
+    fieldIndicatorChangeDto:
+      value:
+        order: 1
+        label: Ind 1
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: invalid
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      title: Error parameter
+      type: object
+    fieldIndicatorDto:
+      description: Describe field indicator definition that will be used for record validation
+      example:
+        codes:
+        - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+        - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: createdDate
+          updatedDate: updatedDate
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        label: label
+        fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        order: 0
+      properties:
+        id:
+          description: Indicator ID
+          format: uuid
+          type: string
+        fieldId:
+          description: Field ID
+          format: uuid
+          type: string
+        order:
+          description: Indicator order
+          type: integer
+        label:
+          description: Indicator description
+          type: string
+        codes:
+          description: Indicator codes definitions
+          items:
+            $ref: '#/components/schemas/indicatorCodeDto'
+          type: array
+        metadata:
+          $ref: '#/components/schemas/metadataDto'
+      title: Field indicator definition DTO
+      type: object
+    errorCollection:
+      description: Collection of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+        totalRecords:
+          description: Total number of errors
+          type: integer
+      title: Error Collection
+      type: object
+    metadataDto:
+      description: Creator, updater, creation date, last updated date
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: createdDate
+        updatedDate: updatedDate
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      title: Metadata
+      type: object
+    indicatorCodeDto:
+      description: Describe indicator code definition that will be used for record validation
+      example:
+        indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: createdDate
+          updatedDate: updatedDate
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        deprecated: false
+        scope: null
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        label: label
+      properties:
+        id:
+          description: Code ID
+          format: uuid
+          type: string
+        indicatorId:
+          description: Indicator ID
+          format: uuid
+          type: string
+        code:
+          description: Indicator Code
+          type: string
+        label:
+          description: Code description
+          type: string
+        deprecated:
+          default: false
+          description: Define if code is deprecated
+          type: boolean
+        scope:
+          $ref: '#/components/schemas/scope'
+        metadata:
+          $ref: '#/components/schemas/metadataDto'
+      title: Indicator code definition DTO
+      type: object
+    scope:
+      description: Scope of the specification definition
+      enum:
+      - system
+      - standard
+      - local
+      type: string
+    indicatorCodeDtoCollection:
+      description: Collection of indicator code DTOs
+      example:
+        codes:
+        - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+        - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+        totalRecords: 0
+      properties:
+        codes:
+          description: Collection of indicator codes
+          items:
+            $ref: '#/components/schemas/indicatorCodeDto'
+          type: array
+        totalRecords:
+          description: Total number of indicator codes in collection
+          type: integer
+      title: Indicator codes DTO Collection
+      type: object
+    fieldIndicatorChangeDto:
+      additionalProperties: false
+      description: Describe indicator definition that should be created or change to existed indicator definition
+      properties:
+        order:
+          description: Indicator order
+          maximum: 2
+          minimum: 1
+          type: integer
+        label:
+          description: Indicator description
+          maxLength: 350
+          type: string
+      required:
+      - label
+      - order
+      title: Field indicator definition change DTO
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      title: Error
+      type: object
+    indicatorCodeChangeDto:
+      additionalProperties: false
+      description: Describe code definition that should be created or change to existed code definition
+      properties:
+        code:
+          description: Indicator code
+          pattern: '[0-9a-z#]'
+          type: string
+        label:
+          description: Code description
+          maxLength: 350
+          type: string
+        deprecated:
+          default: false
+          description: Define if indicator code is deprecated
+          type: boolean
+      required:
+      - code
+      - label
+      title: Indicator code definition change DTO
+      type: object
+x-refined-from:
+- folio-mod-record-specifications-openapi.json
+- folio-mod-record-specifications-openapi.yml

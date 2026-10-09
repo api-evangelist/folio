@@ -1,0 +1,170 @@
+openapi: 3.2.0
+info:
+  title: Folio Proxy Tenant Interface API
+  version: v2.0
+  description: 'Operations tagged proxy-tenant-interface across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: proxy-tenant-interface
+paths:
+  /_/proxy/tenants/{tenant_id}/interfaces:
+    parameters:
+    - name: tenant_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterfaceList'
+        '400':
+          description: Client Error
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Get all interfaces for tenant
+      operationId: getAllInterfaces
+      tags:
+      - proxy-tenant-interface
+      parameters:
+      - name: full
+        in: query
+        description: Whether brief or full interface list
+        schema:
+          default: false
+          type: boolean
+      - name: type
+        in: query
+        description: Limit by interfaceType
+        schema:
+          type: string
+      summary: Get all interfaces
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/proxy/tenants/{tenant_id}/interfaces/{interface_id}:
+    parameters:
+    - name: interface_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: tenant_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantModuleDescriptorList'
+        '400':
+          description: Client Error
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Get all modules that provide the specified interface ID. DEPRECATED Use /_/proxy/tenants/{tenant_id}/modules?provide={interface_id} instead.
+      operationId: getInterface
+      tags:
+      - proxy-tenant-interface
+      parameters:
+      - name: type
+        in: query
+        description: Limit by interfaceType
+        schema:
+          type: string
+      summary: Get interface
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
+  schemas:
+    InterfaceList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: InterfaceList.json
+      title: InterfaceList
+      description: Interface List
+      type: array
+      items:
+        $ref: '#/components/schemas/InterfaceDescriptor'
+    TenantModuleDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: TenantModuleDescriptorList.json
+      title: TenantModuleDescriptorList
+      description: List of module transitions
+      type: array
+      items:
+        $ref: '#/components/schemas/TenantModuleDescriptor'
+    TenantModuleDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: TenantModuleDescriptor.json
+      title: TenantModuleDescriptor
+      description: Module transitions
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Module ID (or just product part)
+          type: string
+        from:
+          description: Original Module ID when transitioning from one module to another
+          type: string
+        action:
+          description: Module action
+          type: string
+          enum:
+          - enable
+          - disable
+          - uptodate
+          - suggest
+          - conflict
+        stage:
+          description: Stage for the module
+          type: string
+          enum:
+          - pending
+          - deploy
+          - invoke
+          - undeploy
+          - done
+        message:
+          description: Diagnostic Message
+          type: string
+      required:
+      - id
+    InterfaceDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: InterfaceDescriptor.json
+      title: InterfaceDescriptor
+      description: An interface that a module can provide
+      type: object
+x-refined-from:
+- folio-mod-okapi-facade-openapi.json
+- folio-mod-okapi-facade-openapi.yml

@@ -1,0 +1,566 @@
+# x-archived-from: folio-mod-inn-reach-contribution-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: INN-Reach Contribution API
+  version: v1
+servers:
+- url: /inn-reach/
+paths:
+  /central-servers/{centralServerId}/contributions/current:
+    get:
+      description: Get current INN-Reach contribution for the given central server
+      operationId: getCurrentContributionByServerId
+      tags:
+      - contributions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contributionDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_malformed_query_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+    delete:
+      description: Cancel current INN-Reach contribution for the given central server
+      operationId: cancelCurrentContributionByServerId
+      tags:
+      - contributions
+      responses:
+        '204':
+          description: Initial contribution process canceled
+        '400':
+          $ref: '#/components/responses/trait_response_malformed_query_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+  /central-servers/{centralServerId}/contributions/history:
+    get:
+      description: Get a list of Inn-Reach contributions for the given central server
+      operationId: getContributionHistoryByServerId
+      tags:
+      - contributions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contributionsDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_malformed_query_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+  /central-servers/{centralServerId}/contributions:
+    post:
+      description: Start initial contribution process
+      operationId: startInitialContribution
+      tags:
+      - contributions
+      responses:
+        '201':
+          description: Initial contribution process started
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+components:
+  schemas:
+    contributionDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: INN-Reach contribution job execution status tracking and basic statistics
+      type: object
+      properties:
+        id:
+          description: Contribution id
+          type: string
+          format: uuid
+        jobId:
+          description: Instance iteration job id
+          type: string
+          format: uuid
+        itemTypeMappingStatus:
+          description: Material type mapping validation status
+          $ref: '#/components/schemas/mappingValidationStatusDTO'
+          default: Invalid
+        locationsMappingStatus:
+          description: Location mapping validation status
+          $ref: '#/components/schemas/mappingValidationStatusDTO'
+          default: Invalid
+        status:
+          description: Status
+          type: string
+          enum:
+          - In Progress
+          - Complete
+          - Not started
+          - Cancelled
+          default: Not started
+        contributionStarted:
+          description: Date and time when the contribution has started
+          type: string
+          format: date-time
+        contributionStartedBy:
+          description: Username of the user who started the contribution
+          type: string
+        contributionComplete:
+          description: Date and time when the contribution has completed
+          type: string
+          format: date-time
+        recordsTotal:
+          description: Total number of FOLIO instance records
+          type: integer
+          format: int64
+        recordsProcessed:
+          description: Total number of Processed records
+          type: integer
+          format: int64
+        recordsContributed:
+          description: Total number of Contributed records
+          type: integer
+          format: int64
+        recordsUpdated:
+          description: Total number of Updated records
+          type: integer
+          format: int64
+        recordsDecontributed:
+          description: Total number of De-contributed records
+          type: integer
+          format: int64
+          readOnly: true
+        errors:
+          description: List of errors occurred
+          type: array
+          items:
+            $ref: '#/components/schemas/contributionErrorDTO'
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - status
+      - itemTypeMappingStatus
+      - locationsMappingStatus
+    contributionsDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: INN-Reach contribution history of job execution status tracking and basic statistics
+      type: object
+      properties:
+        totalRecords:
+          description: Total records
+          type: integer
+        contributionHistory:
+          description: List of INN-Reach contribution job execution status tracking and basic statistics
+          type: array
+          items:
+            $ref: '#/components/schemas/contributionDTO'
+      additionalProperties: false
+      required:
+      - contributions
+    instance:
+      type: object
+      $schema: http://json-schema.org/draft-04/schema#
+      description: instance description
+      properties:
+        id:
+          description: The unique ID of the instance record; a UUID
+          type: string
+          format: UUID
+        _version:
+          type: integer
+          description: Record version for optimistic locking
+        title:
+          type: string
+          description: The primary title (or label) associated with the resource
+        hrid:
+          type: string
+          description: The human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID
+        source:
+          type: string
+          description: The metadata source and its format of the underlying record to the instance record. (e.g. FOLIO if it's a record created in Inventory;  MARC if it's a MARC record created in MARCcat or EPKB if it's a record coming from eHoldings)
+        statisticalCodeIds:
+          type: array
+          description: List of statistical code IDs
+          items:
+            type: string
+            format: UUID
+          uniqueItems: true
+        identifiers:
+          type: array
+          description: An extensible set of name-value pairs of identifiers associated with the resource
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/instanceIdentifiers'
+        contributors:
+          type: array
+          description: List of contributors
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/contributors'
+        instanceTypeId:
+          type: string
+          format: UUID
+          description: UUID of the unique term for the resource type whether it's from the RDA content term list of locally defined
+        staffSuppress:
+          type: boolean
+          description: Records the fact that the record should not be displayed for others than catalogers
+        discoverySuppress:
+          type: boolean
+          description: Records the fact that the record should not be displayed in a discovery system
+        items:
+          type: array
+          description: List of instance items
+          items:
+            $ref: '#/components/schemas/item'
+        holdingsRecords:
+          type: array
+          description: List of holding items
+          items:
+            $ref: '#/components/schemas/holding'
+    item:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Item description
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+          description: Unique ID of the item record
+        _version:
+          type: integer
+          description: Record version for optimistic locking
+        hrid:
+          type: string
+          description: The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID
+        volume:
+          description: Volume is intended for monographs when a multipart monograph (e.g. a biography of Gerorge Bernard Shaw in three volumes)
+          type: string
+        materialTypeId:
+          type: string
+          format: UUID
+          description: Material type, term. Define what type of thing the item is.
+        copyNumber:
+          type: string
+          description: Item/Piece ID (usually barcode) for systems that do not use item records. Ability to designate the copy number if institution chooses to use copy numbers.
+        discoverySuppress:
+          type: boolean
+          description: Records the fact that the record should not be displayed in a discovery system
+        holdingsRecordId:
+          type: string
+          format: UUID
+          description: ID of the holdings record the item is a member of.
+        statisticalCodeIds:
+          type: array
+          description: List of statistical code IDs
+          items:
+            type: string
+            format: UUID
+          uniqueItems: true
+        effectiveLocationId:
+          type: string
+          format: UUID
+          description: Read only current home location for the item.
+        effectiveCallNumberComponents:
+          type: object
+          description: Elements of a full call number generated from the item or holding
+          properties:
+            callNumber:
+              type: string
+              description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
+            prefix:
+              type: string
+              description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
+            suffix:
+              type: string
+              description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
+        status:
+          description: The status of the item
+          type: object
+          properties:
+            name:
+              description: Name of the status e.g. Available, Checked out, In transit
+              type: string
+              enum:
+              - Aged to lost
+              - Available
+              - Awaiting pickup
+              - Awaiting delivery
+              - Checked out
+              - Claimed returned
+              - Declared lost
+              - In process
+              - In process (non-requestable)
+              - In transit
+              - Intellectual item
+              - Long missing
+              - Lost and paid
+              - Missing
+              - On order
+              - Paged
+              - Restricted
+              - Order closed
+              - Unavailable
+              - Unknown
+              - Withdrawn
+            date:
+              description: Date and time when the status was last changed
+              type: string
+              format: date-time
+              readonly: true
+          required:
+          - name
+          additionalProperties: false
+        permanentLoanTypeId:
+          type: string
+          format: UUID
+          description: The permanent loan type, is the default loan type for a given item. Loan types are tenant-defined.
+        temporaryLoanTypeId:
+          type: string
+          format: UUID
+          description: Temporary loan type, is the temporary loan type for a given item.
+        barcode:
+          type: string
+          description: Unique inventory control number for physical resources, used largely for circulation purposes
+    holding:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Holding description
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID of the holding record
+          format: UUID
+        _version:
+          type: integer
+          description: Record version for optimistic locking
+        hrid:
+          type: string
+          description: the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID
+        holdingsTypeId:
+          type: string
+          format: UUID
+          description: unique ID for the type of this holdings record
+        instanceId:
+          type: string
+          description: Inventory instances identifier
+          format: UUID
+        callNumber:
+          type: string
+          description: Call Number is an identifier assigned to an item, usually printed on a label attached to the item.
+        permanentLocationId:
+          type: string
+          format: UUID
+          description: The permanent shelving location in which an item resides.
+        statisticalCodeIds:
+          type: array
+          description: List of statistical code IDs
+          items:
+            type: string
+            format: UUID
+          uniqueItems: true
+        discoverySuppress:
+          type: boolean
+          description: records the fact that the record should not be displayed in a discovery system
+        sourceId:
+          description: (A reference to) the source of a holdings record
+          type: string
+          format: UUID
+    mappingValidationStatusDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Mapping validation status
+      type: string
+      enum:
+      - Valid
+      - Invalid
+      additionalProperties: false
+    contributionErrorDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: INN-Reach contribution job execution status tracking and basic statistics
+      type: object
+      properties:
+        id:
+          description: Contribution id
+          type: string
+          format: uuid
+        message:
+          description: Error message (cause)
+          type: string
+        recordId:
+          description: Id of instance record which has not been processed due to error
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - message
+      - recordId
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    instanceIdentifiers:
+      description: An extensible set of name-value pairs of identifiers associated with the resource
+      type: object
+      properties:
+        value:
+          type: string
+          description: Resource identifier value
+        identifierTypeId:
+          description: UUID of resource identifier type (e.g. ISBN, ISSN, LCCN, CODEN, Locally defined identifiers)
+          type: string
+          format: UUID
+      additionalProperties: false
+      required:
+      - value
+      - identifierTypeId
+    contributors:
+      description: contributors
+      type: object
+      properties:
+        name:
+          type: string
+          description: Personal name, corporate name, meeting name
+        contributorTypeId:
+          type: string
+          format: UUID
+          description: ID for the contributor type term defined as a referencetable in settings
+        contributorTypeText:
+          type: string
+          description: Free text element for adding contributor type terms other that defined by the MARC code list for relators
+        contributorNameTypeId:
+          type: string
+          format: UUID
+          description: Contributor type terms defined by the MARC code list for relators
+        primary:
+          type: boolean
+          description: Whether this is the primary contributor
+      additionalProperties: false
+      required:
+      - name
+      - contributorNameTypeId
+  parameters:
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+  responses:
+    trait_response_malformed_query_400:
+      description: Bad request, e.g. malformed query parameter.
+      content:
+        application/json:
+          example:
+            value:
+              $ref: examples/error.sample
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'

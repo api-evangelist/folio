@@ -1,0 +1,599 @@
+# x-archived-from: folio-edge-rtac-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: RTAC API
+  version: v1
+  description: Edge RTAC API to interface with FOLIO for 3rd party discovery services to determine holdings availability
+paths:
+  /rtac/{instanceId}:
+    get:
+      tags:
+      - RTAC
+      operationId: getInstanceRtac
+      summary: Get RTAC info for a single instance
+      parameters:
+      - $ref: '#/components/parameters/instance-id-path'
+      - $ref: '#/components/parameters/fullPeriodicals'
+      - $ref: '#/components/parameters/lang'
+      - $ref: '#/components/parameters/authorization'
+      - $ref: '#/components/parameters/apiKey'
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-url-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceHoldings'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/InstanceHoldings'
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/InstanceHoldings'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /rtac:
+    get:
+      tags:
+      - RTAC
+      operationId: getBatchRtac
+      summary: Get RTAC info for multiple instances
+      parameters:
+      - $ref: '#/components/parameters/instanceIds'
+      - $ref: '#/components/parameters/fullPeriodicals'
+      - $ref: '#/components/parameters/lang'
+      - $ref: '#/components/parameters/authorization'
+      - $ref: '#/components/parameters/apiKey'
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-url-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchHoldingsResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BatchHoldingsResponse'
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/BatchHoldingsResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /rtac-cache/search/{instanceId}:
+    get:
+      tags:
+      - rtac
+      summary: Search RTAC holdings
+      operationId: searchRtacCacheHoldings
+      parameters:
+      - $ref: '#/components/parameters/instance-id-path'
+      - $ref: '#/components/parameters/search-query-parameter'
+      - $ref: '#/components/parameters/available-parameter'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/authorization'
+      - $ref: '#/components/parameters/apiKey'
+      responses:
+        '200':
+          description: RTAC holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /rtac-cache/{instanceId}:
+    get:
+      tags:
+      - rtac
+      summary: Retrieve RTAC holdings for a single instance
+      operationId: getRtacCacheHoldingsById
+      parameters:
+      - $ref: '#/components/parameters/instance-id-path'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/authorization'
+      - $ref: '#/components/parameters/apiKey'
+      responses:
+        '200':
+          description: RTAC holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /rtac-cache/batch:
+    post:
+      tags:
+      - rtac
+      summary: Retrieve RTAC holdings in batch
+      operationId: postRtacCacheBatchHoldings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rtacRequest'
+      responses:
+        '200':
+          description: RTAC batch holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityErrorResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+components:
+  schemas:
+    errorResponse:
+      $ref: '#/components/schemas/Error'
+    BatchHoldingsResponse:
+      type: object
+      required:
+      - holdings
+      properties:
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstanceHoldings'
+          xml:
+            wrapped: false
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsError'
+          xml:
+            name: error
+            wrapped: true
+      xml:
+        name: instances
+    RtacBatchRequest:
+      type: object
+      properties:
+        instanceIds:
+          description: Inventory instances identifiers
+          type: array
+          items:
+            $ref: '#/components/schemas/uuid'
+        fullPeriodicals:
+          description: Whether or not to return full periodical records
+          type: boolean
+      additionalProperties: false
+      required:
+      - instanceIds
+    InstanceHoldings:
+      type: object
+      properties:
+        instanceId:
+          type: string
+          description: The instance identifier
+          xml:
+            name: instanceId
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Holding'
+          xml:
+            name: holding
+      xml:
+        name: holdings
+    Holding:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the holding
+        callNumber:
+          type: string
+          description: Call number for the item
+        location:
+          type: string
+          description: Location name
+        locationCode:
+          type: string
+          description: Location code
+        locationId:
+          type: string
+          description: Location identifier
+        status:
+          type: string
+          description: Item status
+        dueDate:
+          type: string
+          description: Due date if item is checked out
+        tempLocation:
+          type: string
+          description: Temporary location
+        volume:
+          type: string
+          description: Volume information
+        temporaryLoanType:
+          type: string
+          description: Temporary loan type
+        permanentLoanType:
+          type: string
+          description: Permanent loan type
+        holdingsCopyNumber:
+          type: string
+          description: Holdings copy number
+        itemCopyNumber:
+          type: string
+          description: Item copy number
+        itemDisplayOrder:
+          type: integer
+          format: int32
+          description: Display order for the item
+        barcode:
+          type: string
+          description: Item barcode
+        suppressFromDiscovery:
+          type: boolean
+          description: Whether item is suppressed from discovery
+        totalHoldRequests:
+          type: integer
+          format: int32
+          description: Total number of hold requests
+        materialType:
+          $ref: '#/components/schemas/MaterialType'
+        library:
+          $ref: '#/components/schemas/Library'
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsNote'
+          xml:
+            name: notes
+            wrapped: false
+        holdingsStatements:
+          default: []
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsStatement'
+          xml:
+            name: holdingsStatements
+            wrapped: false
+        holdingsStatementsForIndexes:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsStatement'
+          xml:
+            name: holdingsStatementsForIndexes
+            wrapped: false
+        holdingsStatementsForSupplements:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsStatement'
+          xml:
+            name: holdingsStatementsForSupplements
+            wrapped: false
+      xml:
+        name: holding
+    MaterialType:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Material type identifier
+        name:
+          type: string
+          description: Material type name
+      xml:
+        name: materialType
+    Library:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Library name
+        code:
+          type: string
+          description: Library code
+      xml:
+        name: library
+    HoldingsNote:
+      type: object
+      properties:
+        note:
+          type: string
+          description: Text content of the note
+        holdingsNoteTypeName:
+          type: string
+          description: Name of the holdings note type
+      xml:
+        name: notes
+    HoldingsStatement:
+      type: object
+      properties:
+        statement:
+          type: string
+          description: Statement text
+        note:
+          type: string
+          description: Note for the statement
+    HoldingsError:
+      type: object
+      properties:
+        message:
+          description: Error message text
+          type: string
+        code:
+          description: Error code
+          type: string
+      xml:
+        name: error
+    Error:
+      type: object
+      properties:
+        code:
+          description: Error status code
+          type: integer
+        errorMessage:
+          description: Error message text
+          type: string
+    uuid:
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+    rtacRequest:
+      description: Define format of request data with instances ids
+      type: object
+      properties:
+        instanceIds:
+          description: Inventory instances identifiers
+          type: array
+          items:
+            $ref: '#/components/schemas/uuid'
+      additionalProperties: false
+      required:
+      - instanceIds
+  parameters:
+    search-query-parameter:
+      name: query
+      in: query
+      description: The keyword query in CQL format
+      required: true
+      schema:
+        type: string
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 100
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100000
+        default: 0
+    available-parameter:
+      name: available
+      in: query
+      description: Filter by holdings that are available
+      required: false
+      schema:
+        type: boolean
+    lang:
+      name: lang
+      in: query
+      description: Requested language
+      required: false
+      example: en
+      schema:
+        pattern: '[a-zA-Z]{2}'
+        default: en
+        type: string
+    type:
+      name: type
+      in: query
+      description: Indicates how to route the request
+      required: true
+      schema:
+        type: string
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    x-okapi-url-header:
+      name: x-okapi-url
+      in: header
+      description: x-okapi-url header value
+      required: false
+      schema:
+        type: string
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    authorization:
+      name: authorization
+      in: header
+      description: apikey for authorization
+      required: false
+      schema:
+        type: string
+    apiKey:
+      name: apiKey
+      in: query
+      description: apikey for authorization
+      required: false
+      schema:
+        type: string
+    instance-id-path:
+      name: instanceId
+      in: path
+      description: Course Instance's UUID
+      required: true
+      schema:
+        type: string
+    sort-by:
+      name: sortBy
+      in: query
+      description: Param to sort collection results by a specific field
+      required: false
+      example: sortBy=name/sort.descending
+      schema:
+        type: string
+        pattern: ^(name|id)\/sort\.(ascending|descending)$
+    instanceIds:
+      name: instanceIds
+      in: query
+      description: List of Folio instance identifiers
+      required: false
+      schema:
+        type: string
+        pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}[, ]*)+$
+    fullPeriodicals:
+      name: fullPeriodicals
+      in: query
+      description: Flag for including items data
+      required: false
+      schema:
+        type: boolean
+        default: false
+    sort:
+      name: sort
+      in: query
+      description: 'Sort criteria in the format: `property,direction` (e.g., `locationName,asc`).
+
+        Supported properties are: effectiveShelvingOrder, libraryName, locationName, status.
+
+        The default sort order is effectiveShelvingOrder, libraryName, locationName, status (ascending).
+
+        '
+      schema:
+        type: string
+  responses:
+    healthCheckResponse:
+      description: Success
+      content:
+        text/plain:
+          schema:
+            type: string
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+    accessDeniedResponse:
+      description: Access Denied
+      content:
+        application/json:
+          example:
+            code: 403
+            errorMessage: Access denied
+          schema:
+            $ref: '#/components/schemas/Error'
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    unprocessableEntityErrorResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 422
+            errorMessage: Unable to be process entity
+          schema:
+            $ref: '#/components/schemas/Error'
+    notImplementedResponse:
+      description: The server does not support the functionality required to fulfill the request
+      content:
+        application/json:
+          example: the method that is unavailable
+          schema:
+            $ref: '#/components/schemas/Error'

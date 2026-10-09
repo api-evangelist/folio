@@ -1,0 +1,749 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "User Tenant Association integration API",
+  "description": "User Tenant Association integration API",
+  "version": "0.0.1"
+ },
+ "servers": [
+  {
+   "url": "/consortia/{consortiumId}/"
+  }
+ ],
+ "paths": {
+  "/user-tenants": {
+   "get": {
+    "description": "User Tenant Associations",
+    "summary": "Get a list of user tenant associations",
+    "operationId": "getUserTenants",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/consortiumId"
+     },
+     {
+      "$ref": "#/components/parameters/userId"
+     },
+     {
+      "$ref": "#/components/parameters/username"
+     },
+     {
+      "$ref": "#/components/parameters/tenantId"
+     },
+     {
+      "$ref": "#/components/parameters/trait_pageable_offset"
+     },
+     {
+      "$ref": "#/components/parameters/trait_pageable_limit"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/UserTenantCollection"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "post": {
+    "description": "User Tenant Associations",
+    "summary": "Inserts a single user_tenant associations",
+    "operationId": "postUserTenants",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/consortiumId"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/UserTenantBody"
+    },
+    "responses": {
+     "201": {
+      "$ref": "#/components/responses/UserTenant"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "delete": {
+    "description": "Delete User Tenant Associations for particular user id and tenant id",
+    "summary": "Delete User Tenant Association by user id and tenant id",
+    "operationId": "deleteUserTenant",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/consortiumId"
+     },
+     {
+      "$ref": "#/components/parameters/requiredUserId"
+     },
+     {
+      "$ref": "#/components/parameters/requiredTenantId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "$ref": "#/components/responses/NoContent"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/user-tenants/{associationId}": {
+   "description": "User Tenant Associations",
+   "get": {
+    "summary": "Get a list of user tenant associations by association id",
+    "operationId": "getUserTenantByAssociationId",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/consortiumId"
+     },
+     {
+      "$ref": "#/components/parameters/associationId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/UserTenant"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "requestBodies": {
+   "UserTenantBody": {
+    "description": "user_tenant object",
+    "required": true,
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/UserTenant"
+      }
+     }
+    }
+   }
+  },
+  "responses": {
+   "User": {
+    "description": "User",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/User"
+      }
+     }
+    }
+   },
+   "UserTenant": {
+    "description": "Returns a user tenant association object",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/UserTenant"
+      }
+     }
+    }
+   },
+   "UserTenantCollection": {
+    "description": "Returns a user tenant association collection object",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/UserTenantCollection"
+      }
+     }
+    }
+   },
+   "NoContent": {
+    "description": "No content"
+   },
+   "NotFound": {
+    "description": "Resource not found",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "BadRequest": {
+    "description": "Bad request",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "Unauthorized": {
+    "description": "Not authorized to perform requested action",
+    "content": {
+     "text/plain": {
+      "example": "unable to perform action -- unauthorized"
+     }
+    }
+   },
+   "UnprocessableEntity": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "InternalServerError": {
+    "description": "Internal server error",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   }
+  },
+  "parameters": {
+   "consortiumId": {
+    "in": "path",
+    "name": "consortiumId",
+    "schema": {
+     "$ref": "#/components/schemas/uuid"
+    },
+    "required": true,
+    "description": "The ID of consortium"
+   },
+   "tenantId": {
+    "in": "query",
+    "name": "tenantId",
+    "schema": {
+     "type": "string"
+    },
+    "description": "The ID of the tenant"
+   },
+   "requiredTenantId": {
+    "in": "query",
+    "name": "tenantId",
+    "schema": {
+     "type": "string"
+    },
+    "required": true,
+    "description": "The ID of the tenant"
+   },
+   "associationId": {
+    "in": "path",
+    "name": "associationId",
+    "schema": {
+     "$ref": "#/components/schemas/uuid"
+    },
+    "required": true,
+    "description": "UUID of the user to get and associated tenants."
+   },
+   "userId": {
+    "in": "query",
+    "name": "userId",
+    "schema": {
+     "$ref": "#/components/schemas/uuid"
+    },
+    "description": "The UUID of the user"
+   },
+   "requiredUserId": {
+    "in": "query",
+    "name": "userId",
+    "schema": {
+     "$ref": "#/components/schemas/uuid"
+    },
+    "description": "The UUID of the user"
+   },
+   "username": {
+    "in": "query",
+    "name": "username",
+    "schema": {
+     "type": "string",
+     "description": "The username of the user"
+    }
+   },
+   "trait_pageable_offset": {
+    "name": "offset",
+    "in": "query",
+    "description": "Skip over a number of elements by specifying an offset value for the query",
+    "schema": {
+     "default": 0,
+     "minimum": 0,
+     "maximum": 2147483647,
+     "type": "integer"
+    }
+   },
+   "trait_pageable_limit": {
+    "name": "limit",
+    "in": "query",
+    "description": "Limit the number of elements returned in the response",
+    "schema": {
+     "default": 100,
+     "minimum": 0,
+     "maximum": 2147483647,
+     "type": "integer"
+    }
+   }
+  },
+  "schemas": {
+   "uuid": {
+    "type": "string",
+    "format": "uuid"
+   },
+   "UserTenant": {
+    "description": "A JSON schema for the User Tenant",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid"
+     },
+     "userId": {
+      "type": "string",
+      "format": "uuid"
+     },
+     "username": {
+      "type": "string"
+     },
+     "tenantId": {
+      "type": "string"
+     },
+     "tenantName": {
+      "type": "string"
+     },
+     "isPrimary": {
+      "type": "boolean"
+     },
+     "centralTenantId": {
+      "type": "string"
+     },
+     "consortiumId": {
+      "type": "string",
+      "format": "uuid"
+     },
+     "email": {
+      "type": "string"
+     },
+     "mobilePhoneNumber": {
+      "type": "string"
+     },
+     "phoneNumber": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "userId",
+     "tenantId"
+    ]
+   },
+   "UserTenantCollection": {
+    "description": "A JSON schema for the User Tenants Collection",
+    "type": "object",
+    "properties": {
+     "userTenants": {
+      "type": "array",
+      "description": "The list of user tenants",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/UserTenant"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "userTenants",
+     "totalRecords"
+    ]
+   },
+   "Parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "type": "string",
+      "minLength": 1
+     },
+     "value": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "Parameters": {
+    "description": "List of key/value parameters of an error",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/Parameter"
+    },
+    "additionalProperties": false
+   },
+   "Error": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/Parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message"
+    ]
+   },
+   "Address": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "A unique id for this address",
+      "type": "string"
+     },
+     "countryId": {
+      "description": "The country code for this address",
+      "type": "string"
+     },
+     "addressLine1": {
+      "description": "Address, Line 1",
+      "type": "string"
+     },
+     "addressLine2": {
+      "description": "Address, Line 2",
+      "type": "string"
+     },
+     "city": {
+      "description": "City name",
+      "type": "string"
+     },
+     "region": {
+      "description": "Region",
+      "type": "string"
+     },
+     "postalCode": {
+      "description": "Postal Code",
+      "type": "string"
+     },
+     "addressTypeId": {
+      "description": "A UUID that corresponds with an address type object",
+      "type": "string"
+     },
+     "primaryAddress": {
+      "description": "Is this the user's primary address?",
+      "type": "boolean"
+     }
+    },
+    "additionalProperties": false
+   },
+   "Personal": {
+    "type": "object",
+    "properties": {
+     "lastName": {
+      "description": "The user's surname",
+      "type": "string"
+     },
+     "firstName": {
+      "description": "The user's given name",
+      "type": "string"
+     },
+     "middleName": {
+      "description": "The user's middle name (if any)",
+      "type": "string"
+     },
+     "preferredFirstName": {
+      "description": "The user's preferred name",
+      "type": "string"
+     },
+     "email": {
+      "description": "The user's email address",
+      "type": "string"
+     },
+     "phone": {
+      "description": "The user's primary phone number",
+      "type": "string"
+     },
+     "mobilePhone": {
+      "description": "The user's mobile phone number",
+      "type": "string"
+     },
+     "dateOfBirth": {
+      "type": "string",
+      "description": "The user's birth date",
+      "format": "date-time"
+     },
+     "addresses": {
+      "description": "Physical addresses associated with the user",
+      "type": "array",
+      "minItems": 0,
+      "items": {
+       "$ref": "#/components/schemas/Address"
+      }
+     },
+     "preferredContactTypeId": {
+      "description": "Id of user's preferred contact type",
+      "type": "string"
+     },
+     "preferredContactTypeIds": {
+      "description": "IDs of user's preferred contact types like Email, Mail, or Text Message",
+      "type": "array",
+      "minItems": 0,
+      "items": {
+       "type": "string"
+      }
+     },
+     "profilePictureLink": {
+      "description": "Link to the profile picture",
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "additionalProperties": true,
+    "required": [
+     "lastName"
+    ]
+   },
+   "userInfo": {
+    "type": "object",
+    "description": "User Display Information",
+    "properties": {
+     "lastName": {
+      "type": "string",
+      "readOnly": true,
+      "description": "Last name of the user"
+     },
+     "firstName": {
+      "type": "string",
+      "readOnly": true,
+      "description": "First name of the user"
+     },
+     "middleName": {
+      "type": "string",
+      "readOnly": true,
+      "description": "Middle name or initial of the user"
+     }
+    },
+    "example": {
+     "lastName": "Doe",
+     "firstName": "John",
+     "middleName": "X."
+    }
+   },
+   "Metadata": {
+    "type": "object",
+    "title": "Metadata",
+    "description": "Metadata about creation and changes to records",
+    "properties": {
+     "createdDate": {
+      "type": "string",
+      "description": "Date and time when the record was created"
+     },
+     "createdByUserId": {
+      "$ref": "#/components/schemas/uuid",
+      "description": "ID of the user who created the record"
+     },
+     "createdByUsername": {
+      "type": "string",
+      "description": "Username of the user who created the record (when available)"
+     },
+     "createdBy": {
+      "$ref": "#/components/schemas/userInfo",
+      "description": "Additional information of the user who created the record (when available)"
+     },
+     "updatedDate": {
+      "type": "string",
+      "description": "Date and time when the record was last updated"
+     },
+     "updatedByUserId": {
+      "$ref": "#/components/schemas/uuid",
+      "description": "ID of the user who last updated the record"
+     },
+     "updatedByUsername": {
+      "type": "string",
+      "description": "Username of the user who updated the record (when available)"
+     },
+     "updatedBy": {
+      "$ref": "#/components/schemas/userInfo",
+      "description": "Additional information of the user who updated the record (when available)"
+     }
+    },
+    "required": [
+     "createdDate"
+    ]
+   },
+   "Tags": {
+    "type": "object",
+    "title": "tags",
+    "properties": {
+     "tagList": {
+      "description": "List of tags",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "additionalProperties": false
+   },
+   "User": {
+    "type": "object",
+    "title": "User",
+    "properties": {
+     "username": {
+      "description": "A unique name belonging to a user. Typically used for login",
+      "type": "string"
+     },
+     "id": {
+      "description": "A globally unique (UUID) identifier for the user",
+      "type": "string"
+     },
+     "externalSystemId": {
+      "description": "An ID that corresponds to an external authority",
+      "type": "string"
+     },
+     "barcode": {
+      "description": "The library barcode for this user",
+      "type": "string"
+     },
+     "active": {
+      "description": "A flag to determine if a user can log in, take out loans, etc.",
+      "type": "boolean"
+     },
+     "type": {
+      "description": "The class of user",
+      "type": "string"
+     },
+     "patronGroup": {
+      "description": "A UUID corresponding to the group the user belongs to",
+      "type": "string"
+     },
+     "departments": {
+      "description": "A UUIDs corresponding to the departments the user belongs to",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+       "type": "string",
+       "format": "uuid"
+      }
+     },
+     "meta": {
+      "description": "Deprecated",
+      "type": "object"
+     },
+     "proxyFor": {
+      "description": "Deprecated",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "personal": {
+      "$ref": "#/components/schemas/Personal"
+     },
+     "enrollmentDate": {
+      "description": "The date in which the user joined the organization",
+      "type": "string",
+      "format": "date-time"
+     },
+     "expirationDate": {
+      "description": "The date for when the user becomes inactive",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdDate": {
+      "description": "Deprecated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedDate": {
+      "description": "Deprecated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/Metadata"
+     },
+     "tags": {
+      "$ref": "#/components/schemas/Tags"
+     },
+     "customFields": {
+      "description": "Object that contains custom field",
+      "type": "object",
+      "additionalProperties": true
+     }
+    },
+    "additionalProperties": true
+   },
+   "Errors": {
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/Error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   }
+  }
+ }
+}

@@ -1,0 +1,635 @@
+openapi: 3.2.0
+info:
+  title: Folio Role Capability Set API
+  version: '1.0'
+  description: 'Operations tagged role-capability-set across 4 of this provider''s published API definitions: folio-mod-consortia-keycloak-sharing-roles-openapi.json, folio-mod-roles-keycloak-openapi.json, folio-mod-consortia-keycloak-sharing-roles-openapi.yml, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /consortia/{consortiumId}/sharing
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: role-capability-set
+paths:
+  /roles/capability-sets:
+    post:
+      summary: start sharing role capability sets
+      operationId: startSharingRoleCapabilitySets
+      tags:
+      - role-capability-set
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      requestBody:
+        $ref: '#/components/requestBodies/SharingRoleCapabilitySetBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/SharingRoleCapabilitySetResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      description: Get role-capability-set relation items by CQL query
+      operationId: getRoleCapabilitySets
+      tags:
+      - role-capability-set
+      parameters:
+      - $ref: '#/components/parameters/query'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '201':
+          description: Array of roles users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/roleCapabilitySets'
+              example:
+                $ref: '#/components/examples/roleCapabilitySetsResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get role capability sets
+      x-summary-source: derived
+    servers:
+    - url: /consortia/{consortiumId}/sharing
+  /roles/{roleId}/capability-sets:
+    delete:
+      summary: delete sharing role capability set
+      operationId: deleteSharingRoleCapabilitySets
+      tags:
+      - role-capability-set
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/roleId'
+      requestBody:
+        $ref: '#/components/requestBodies/SharingRoleCapabilitySetBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/SharingRoleCapabilitySetDeleteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    servers:
+    - url: /consortia/{consortiumId}/sharing
+  /roles/{id}/capability-sets:
+    get:
+      description: Get capability sets assigned to role by role identifier
+      operationId: getCapabilitySetsByRoleId
+      tags:
+      - role-capability-set
+      parameters:
+      - $ref: '#/components/parameters/pathRoleId'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: Assigned to a role capabilities in a paginated view
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/capabilitySets'
+              example:
+                $ref: '#/components/examples/capabilitySetsResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get capability sets by role id
+      x-summary-source: derived
+    put:
+      description: Modifies the set of capability sets assigned to the specified role.
+      operationId: updateRoleCapabilitySets
+      tags:
+      - role-capability-set
+      parameters:
+      - $ref: '#/components/parameters/pathRoleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/capabilitySetsUpdateRequest'
+            example:
+              $ref: '#/components/examples/capabilitySetsUpdateRequest'
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Update role capability sets
+      x-summary-source: derived
+    delete:
+      description: Removes all capability sets assignments for the specified role identifier
+      operationId: deleteRoleCapabilitySets
+      tags:
+      - role-capability-set
+      parameters:
+      - $ref: '#/components/parameters/pathRoleId'
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Delete role capability sets
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  requestBodies:
+    SharingRoleCapabilitySetBody:
+      description: Sharing role capability sets object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingRoleCapabilitySetRequest'
+          example:
+            roleId: 4844767a-8367-4926-9999-514c35840399
+            roleName: test
+            url: /roles/capability-sets
+            payload:
+              roleId: 4844767a-8367-4926-9999-514c35840399
+              capabilitySetNames:
+              - account_item.view
+              - account_item.create
+              type: local
+  parameters:
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+    roleId:
+      in: path
+      name: roleId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of role
+    pathRoleId:
+      in: path
+      required: true
+      name: id
+      description: Role identifier
+      schema:
+        type: string
+        format: uuid
+      example: 1e985e76-e9ca-401c-ad8e-0d121a11111e
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 2
+    query:
+      in: query
+      name: query
+      description: A query string to filter users based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+      example: role
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+      example: 20
+  schemas:
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    SharingRoleCapabilitySetResponse:
+      description: A JSON schema for the Sharing Role Capability Sets object response for post request
+      type: object
+      properties:
+        createPCIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        updatePCIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+      required:
+      - createPCIds
+      - updatePCIds
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    SharingRoleCapabilitySetRequest:
+      description: A JSON schema for the Sharing Role Capability Sets object
+      type: object
+      properties:
+        roleId:
+          description: id of sharing role record
+          type: string
+          format: uuid
+        roleName:
+          description: name of sharing role
+          type: string
+        url:
+          description: URL for publishing requests for consortia tenants
+          type: string
+        payload:
+          description: Http request body that contains roleId, capability set names
+          type: object
+      additionalProperties: false
+      required:
+      - roleId
+      - roleName
+      - url
+    SharingRoleCapabilitySetDeleteResponse:
+      description: A JSON schema for the Sharing Role Capability Sets object response for delete request
+      type: object
+      properties:
+        pcIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+      required:
+      - pcId
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    uuid:
+      type: string
+      format: uuid
+    capabilitySetsUpdateRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Capability Set Relation Update Request Schema
+      description: Request body to update capability sets assigned to entity (role, user, etc.)
+      type: object
+      properties:
+        capabilitySetIds:
+          description: List of capability set identifiers
+          type: array
+          items:
+            type: string
+            description: Capability identifier
+            format: uuid
+        capabilitySetNames:
+          description: List of capability names
+          type: array
+          items:
+            type: string
+            description: Capability names
+    capabilitySet:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: Capability Set Object Schema
+      description: Object containing details of a capability set
+      properties:
+        id:
+          description: A unique identifier for this capability
+          type: string
+          format: uuid
+        name:
+          description: a human-readable name/label for this capability.  Takes the form of {resourceName}.{scope}, e.g. item.create
+          type: string
+          readOnly: true
+        description:
+          description: Free form description of the capability
+          type: string
+        resource:
+          description: The resource this capability is associated with, e.g. item
+          type: string
+          pattern: ^[A-Za-z\s]+$
+        action:
+          description: The action this capability is associated with, e.g. create
+          $ref: '#/components/schemas/capabilityAction'
+        applicationId:
+          description: The id of the application which defines the capability
+          type: string
+        moduleId:
+          description: The id of the module which defines the capability
+          type: string
+        type:
+          description: The type of capability
+          $ref: '#/components/schemas/capabilityType'
+        permission:
+          description: Folio permission name
+          type: string
+        capabilities:
+          description: List with assigned capability ids
+          type: array
+          minItems: 1
+          items:
+            type: string
+            description: Capability identifier
+            format: uuid
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readOnly: true
+        visible:
+          description: Is visible in UI
+          type: boolean
+      required:
+      - resource
+      - action
+      - permissions
+      - type
+      - applicationId
+    roleCapabilitySet:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Role-Capability Set Relation Schema
+      description: Role-Capability Set Relation Schema
+      type: object
+      properties:
+        roleId:
+          description: Role identifier as UUID
+          type: string
+          format: uuid
+        capabilitySetId:
+          description: Capability set identifier as UUID
+          type: string
+          format: uuid
+        metadata:
+          $ref: '#/components/schemas/metadata'
+    capabilityAction:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The action this capability is associated with, e.g. create
+      type: string
+      enum:
+      - view
+      - create
+      - edit
+      - delete
+      - manage
+      - execute
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    capabilitySets:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Capability Sets Object Schema
+      description: Response body containing capability set records
+      type: object
+      properties:
+        capabilitySets:
+          description: A collection of capability sets
+          type: array
+          items:
+            $ref: '#/components/schemas/capabilitySet'
+          minItems: 1
+        totalRecords:
+          readOnly: true
+          description: The total number of records matching the provided criteria
+          type: integer
+          format: int64
+      required:
+      - capabilities
+    capabilityType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The type of capability
+      type: string
+      enum:
+      - settings
+      - data
+      - procedural
+    roleCapabilitySets:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Role-Capability Set Objects Schema
+      description: Response body containing role-capabilitySet relations for search request
+      type: object
+      properties:
+        totalRecords:
+          description: The total number of role-capability objects matching the provided criteria
+          type: integer
+          format: int64
+        roleCapabilitySets:
+          description: List with found/created role-capabilitySet relations
+          type: array
+          items:
+            $ref: '#/components/schemas/roleCapabilitySet'
+    roleCapabilitySetsRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Role-CapabilitySet Request Schema
+      description: Request body to assign existing capability sets to a role
+      type: object
+      properties:
+        roleId:
+          type: string
+          format: uuid
+          description: ID of the role
+        capabilitySetIds:
+          description: List of capability set identifiers
+          type: array
+          items:
+            type: string
+            description: Capability set identifier
+            format: uuid
+        capabilitySetNames:
+          description: List of capability set names
+          type: array
+          items:
+            type: string
+            description: Capability set names
+      required:
+      - roleId
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+      additionalProperties: false
+  responses:
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    SharingRoleCapabilitySetResponse:
+      description: Returns a sharing role capability set object response for post operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingRoleCapabilitySetResponse'
+          example:
+            createPCIds:
+            - 44a7e57b-c535-4ad1-bdb4-099d48f3fd37
+            - cf8fc598-fa4f-4a7d-9d1a-fdd3fac3cbd4
+            updatePCIds:
+            - f3b1b1b4-4b1b-4b1b-4b1b-4b1b4b1b4b1b
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    SharingRoleCapabilitySetDeleteResponse:
+      description: Returns a sharing role capability set response for delete operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingRoleCapabilitySetDeleteResponse'
+          example:
+            pcIds:
+            - 44a7e57b-c535-4ad1-bdb4-099d48f3fd37
+            - cf8fc598-fa4f-4a7d-9d1a-fdd3fac3cbd4
+    notFoundResponse:
+      description: Not found error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/notFoundResponse'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/badRequestResponse'
+  examples:
+    capabilitySetsUpdateRequest:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    notFoundResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    internalServerErrorResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    badRequestResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    roleCapabilitySetsResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    roleCapabilitySetsRequest:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    capabilitySetsResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+x-refined-from:
+- folio-mod-consortia-keycloak-sharing-roles-openapi.json
+- folio-mod-roles-keycloak-openapi.json
+- folio-mod-consortia-keycloak-sharing-roles-openapi.yml
+- folio-mod-roles-keycloak-openapi.yml

@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-dashboard-widget-definition-schema.json",
+  "title": "DashboardWidgetDefinition",
+  "description": "A single dashboard widget definition, describing a self-service search/list widget that a dashboard-capable FOLIO app can render against one of its own resources. The `definition` block configures the columns available for the results table, quick-search matching, structured filtering, and sorting.",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-mod-agreements-openapi.yml#/components/schemas/DashboardWidgetDefinition",
+  "type": "object",
+  "required": [
+    "type",
+    "version",
+    "name",
+    "definition"
+  ],
+  "properties": {
+    "type": {
+      "type": "object",
+      "description": "The widget implementation this definition targets.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Widget type name, e.g. `SimpleSearch`."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the widget type's own configuration format."
+        }
+      }
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of this specific widget definition."
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name of the widget, e.g. `ERM Licenses`."
+    },
+    "definition": {
+      "type": "object",
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "description": "API path the widget queries for `resource` records."
+        },
+        "resource": {
+          "type": "string",
+          "description": "Name of the resource type the widget lists/searches."
+        },
+        "results": {
+          "type": "object",
+          "description": "Columns available in the widget's results table.",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DashboardWidgetResultColumn"
+              }
+            }
+          }
+        },
+        "matches": {
+          "type": "object",
+          "description": "Fields the widget's free-text quick search matches against.",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DashboardWidgetMatchColumn"
+              }
+            },
+            "termConfigurable": {
+              "type": "boolean",
+              "description": "Whether the user can choose which of these fields to search."
+            }
+          }
+        },
+        "filters": {
+          "type": "object",
+          "description": "Fields available for building structured filters.",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DashboardWidgetFilterColumn"
+              }
+            }
+          }
+        },
+        "sort": {
+          "type": "object",
+          "description": "Fields the results table can be sorted by.",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DashboardWidgetSortColumn"
+              }
+            }
+          }
+        },
+        "configurableProperties": {
+          "type": "object",
+          "description": "Per-instance widget settings a user can override when adding this widget to a dashboard, keyed by property name.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "configurable": {
+                "type": "boolean",
+                "description": "Whether the user may override this property."
+              },
+              "defValue": {
+                "description": "Default value. Type depends on the property."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "DashboardWidgetFilterColumn": {
+      "type": "object",
+      "description": "A field available for building a structured filter.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Internal field identifier."
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label for the field."
+        },
+        "filterPath": {
+          "type": "string",
+          "description": "Dot-path/query field the filter is applied to."
+        },
+        "valueType": {
+          "type": "string",
+          "description": "Value type the filter compares, e.g. `String`, `UUID`, `Date`, `Enum`, `Array`."
+        },
+        "resource": {
+          "type": "string",
+          "description": "For `valueType: UUID` reference filters, the related resource type to look up candidate values from."
+        },
+        "comparators": {
+          "type": "array",
+          "description": "Comparison operators the UI may offer for this filter.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enumValues": {
+          "type": "array",
+          "description": "For `valueType: Enum` filters, the allowed values.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "DashboardWidgetMatchColumn": {
+      "type": "object",
+      "description": "A field the widget's free-text quick search matches against.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Internal field identifier."
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label for the field."
+        },
+        "accessPath": {
+          "type": "string",
+          "description": "Dot-path into the resource record to match the search term against."
+        },
+        "default": {
+          "type": "boolean",
+          "description": "Whether this field is matched by default."
+        }
+      },
+      "additionalProperties": true
+    },
+    "DashboardWidgetResultColumn": {
+      "type": "object",
+      "description": "A single column in a dashboard widget's results table.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Internal column identifier."
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label for the column."
+        },
+        "accessPath": {
+          "type": "string",
+          "description": "Dot-path into the resource record used to derive the cell value."
+        },
+        "valueType": {
+          "type": "string",
+          "description": "How the UI should render the cell value.",
+          "enum": [
+            "String",
+            "Link",
+            "Date",
+            "Boolean",
+            "Array"
+          ]
+        },
+        "arrayDisplayPath": {
+          "type": "string",
+          "description": "For `valueType: Array` columns, the dot-path within each array item to display."
+        }
+      },
+      "additionalProperties": true
+    },
+    "DashboardWidgetSortColumn": {
+      "type": "object",
+      "description": "A field the widget's results table can be sorted by.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Internal field identifier."
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label for the field."
+        },
+        "sortPath": {
+          "type": "string",
+          "description": "Dot-path/query field used when sorting."
+        },
+        "sortTypes": {
+          "type": "array",
+          "description": "Supported sort directions.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

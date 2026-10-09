@@ -1,0 +1,388 @@
+openapi: 3.2.0
+info:
+  title: Folio Entitlement API
+  version: v1
+  description: 'Operations tagged entitlement across 2 of this provider''s published API definitions: folio-mgr-tenant-entitlements-openapi.json, folio-mgr-tenant-entitlements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: Entitlement
+paths:
+  /entitlements:
+    post:
+      operationId: create
+      description: 'Installs/enables application for tenant.
+
+        Basic authorization is required to perform request (e.g. Authorization=Basic dXNlcjp1c2Vy).'
+      tags:
+      - Entitlement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entitlementRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      - $ref: '#/components/parameters/ignoreErrors'
+      - $ref: '#/components/parameters/async'
+      - $ref: '#/components/parameters/purgeOnRollback'
+      responses:
+        '201':
+          description: A list with successfully created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedEntitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Create
+      x-summary-source: derived
+    put:
+      operationId: upgrade
+      description: 'Upgrades application (or install/enables) for tenant.
+
+        Basic authorization is required to perform request (e.g. Authorization=Basic dXNlcjp1c2Vy).'
+      tags:
+      - Entitlement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entitlementRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      - $ref: '#/components/parameters/async'
+      responses:
+        '200':
+          description: A list with successfully created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedEntitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Upgrade
+      x-summary-source: derived
+    get:
+      operationId: findByQueryOrTenantName
+      description: 'Retrieves all the entitlement using query tools (CQL query, limit and offset parameters).
+
+        Basic authorization is required to perform request (e.g. Authorization=Basic dXNlcjp1c2Vy).'
+      tags:
+      - Entitlement
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-tenant-name'
+      - $ref: '#/components/parameters/query-includeModules'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      - $ref: '#/components/parameters/x-okapi-token'
+      responses:
+        '200':
+          description: A list with created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find by query or tenant name
+      x-summary-source: derived
+    delete:
+      operationId: delete
+      description: 'Delete application installation by id, when making request add basic authorization
+
+        for an admin user (e.g. Basic YWRtaW46YWRtaW4=).'
+      tags:
+      - Entitlement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entitlementRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      - $ref: '#/components/parameters/ignoreErrors'
+      - $ref: '#/components/parameters/purge'
+      - $ref: '#/components/parameters/async'
+      responses:
+        '200':
+          description: List with removed tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedEntitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Delete
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /entitlements/state:
+    put:
+      summary: Apply a desired state of application entitlements for a tenant
+      description: 'Sets the complete list of applications that should be entitled for a tenant.
+
+
+        This endpoint is declarative and idempotent. It compares the provided list of applications (the "desired state") with the currently entitled applications and automatically calculates the necessary operations (Entitle, Upgrade, Revoke) to align the tenant''s state with the request.
+
+
+        - Any applications in the desired state that are not currently entitled will be **entitled**.
+
+        - Any applications in the desired state with a version different from the currently entitled version will be **upgraded**.
+
+        - Any currently entitled applications that are not present in the desired state list will be **revoked**.'
+      operationId: applyState
+      tags:
+      - Entitlement
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      - $ref: '#/components/parameters/ignoreErrors'
+      - $ref: '#/components/parameters/async'
+      - $ref: '#/components/parameters/purge'
+      - $ref: '#/components/parameters/purgeOnRollback'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/desiredStateRequestBody'
+      responses:
+        '200':
+          description: A list with successfully application entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedEntitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  parameters:
+    query-tenant-name:
+      in: query
+      required: false
+      name: tenant
+      description: Tenant name to filter by.
+      schema:
+        type: string
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: false
+      description: An OKAPI authentication token
+      schema:
+        type: string
+    purge:
+      name: purge
+      in: query
+      description: "Defines if create by entitlement process resources must be purged, including:\n  - Keycloak authorization resources (if integration is enabled)\n  - Folio modules data (_tenant API request will be performed with parameter: purge=true)\nAPI Gateway routes will be removed in any case.\n"
+      required: false
+      schema:
+        type: boolean
+        default: false
+    async:
+      name: async
+      in: query
+      required: false
+      description: Enables asynchronous install operation
+      schema:
+        type: boolean
+        default: false
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    tenantParameters:
+      name: tenantParameters
+      in: query
+      description: Parameters for tenant init
+      required: false
+      schema:
+        type: string
+    purgeOnRollback:
+      name: purgeOnRollback
+      in: query
+      description: Defines if module data must be purged on rollback.
+      required: false
+      schema:
+        type: boolean
+        default: false
+    ignoreErrors:
+      name: ignoreErrors
+      in: query
+      description: "If `ignoreErrors` is set to `false` then the rollback operation is enabled\nif one or more stages failed. If it set to `true` - stage rollbacks are disabled.\nRollback will return the system to initial state:\n  * All installed tenant modules will be uninstalled\n  * All created API Gateway routes will be deleted for the application\n  * All created Keycloak resources will be deleted for the application\n"
+      required: false
+      schema:
+        type: boolean
+        default: false
+    query-includeModules:
+      in: query
+      required: false
+      name: includeModules
+      description: Indicates if list of modules should be loaded for each entitlement.
+      schema:
+        type: boolean
+        default: false
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+  schemas:
+    entitlement:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: installation.json
+      title: Tenant Entitlement Schema
+      description: Tenant entitlement descriptor
+      type: object
+      properties:
+        applicationId:
+          description: A Name-Version id of application
+          type: string
+        tenantId:
+          description: A tenant identifier
+          type: string
+          format: uuid
+        modules:
+          description: A list of module identifiers
+          type: array
+          items:
+            type: string
+            description: A module identifier
+      required:
+      - applicationId
+      - tenantId
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    extendedEntitlements:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: installation.json
+      title: Tenant Entitlement Result Schema
+      description: Tenant entitlement result descriptor
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        flowId:
+          description: An entitlement flow identifier
+          type: string
+          format: uuid
+        entitlements:
+          type: array
+          description: New, upgraded or revoked entitlement for request
+          items:
+            $ref: '#/components/schemas/entitlement'
+    entitlements:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: installations.json
+      title: Tenant Entitlements Schema
+      description: List of tenant entitlements (installations)
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        entitlements:
+          type: array
+          description: Found entitlement records
+          items:
+            $ref: '#/components/schemas/entitlement'
+    desiredStateRequestBody:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: desiredStateRequest.json
+      title: Tenant Desired State Request Schema
+      description: A collection of application ids which represent the desired state for the tenant
+      properties:
+        tenantId:
+          description: Tenant id
+          type: string
+          format: uuid
+        applications:
+          description: List of application ids
+          type: array
+          minItems: 0
+          maxItems: 150
+          items:
+            type: string
+      required:
+      - applications
+      - tenantId
+    entitlementRequestBody:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: installationRequest.json
+      title: Tenant Entitlement Request Schema
+      description: A collection of application ids to install
+      properties:
+        tenantId:
+          description: Tenant id
+          type: string
+          format: uuid
+        applications:
+          description: List of application ids
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+      required:
+      - applications
+      - tenantId
+  responses:
+    badRequestResponse:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mgr-tenant-entitlements-openapi.json
+- folio-mgr-tenant-entitlements-openapi.yml

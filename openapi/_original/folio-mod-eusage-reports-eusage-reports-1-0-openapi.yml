@@ -1,0 +1,1066 @@
+# x-archived-from: folio-mod-eusage-reports-eusage-reports-1-0-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.1.0
+info:
+  title: EUsage Reports
+  version: v1
+paths:
+  /eusage-reports/report-titles:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/facets'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/query'
+    - $ref: '#/components/parameters/offset'
+    - in: query
+      name: counterReportId
+      required: false
+      description: limit titles associated with counter report (UUID)
+      schema:
+        type: string
+    - in: query
+      name: providerId
+      required: false
+      description: limit titles associated with usage provider (UUID)
+      schema:
+        type: string
+    get:
+      description: Get titles with links to KB. The response contains facets response with facet type "status" and counts for values "matched", "ignored", "unmatched. The resulting set can be limited by parameter query (CQL) as well as counterReportId and providerId (these are NOT part of CQL). The CQL query itself supports fields "cql.allRecords", "id", "counterReportTitle", "ISBN", "printISSN", "onlineISSN", "kbTitleId" and "kbManualMatch".
+      operationId: getReportTitles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reportTitles'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+    post:
+      description: POST titles with links to KB
+      operationId: postReportTitles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/reportTitles'
+      responses:
+        '204':
+          description: OK
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/report-packages:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/offset'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/query'
+    get:
+      description: Get KB title - package relationship.
+      operationId: getReportPackages
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reportPackages'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/report-titles/from-counter:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    post:
+      description: Parse counter reports
+      operationId: postFromCounter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fromCounterRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fromCounterResponse'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/title-data:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/offset'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/query'
+    get:
+      description: Get counter report title data.
+      operationId: getTitleData
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/titleDataEntries'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/report-data:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/offset'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/query'
+    get:
+      description: This returns data for parsed agreements.
+      operationId: getReportData
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reportDataEntries'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/report-data/from-agreement:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    post:
+      description: Parse agreements and populate report data
+      operationId: postFromAgreement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fromAgreementRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fromAgreementResponse'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/stored-reports/use-over-time:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/accessCountPeriod'
+    - $ref: '#/components/parameters/agreementId'
+    - $ref: '#/components/parameters/csv'
+    - $ref: '#/components/parameters/startDate'
+    - $ref: '#/components/parameters/endDate'
+    - $ref: '#/components/parameters/format'
+    - $ref: '#/components/parameters/includeOA'
+    - $ref: '#/components/parameters/full'
+    get:
+      description: Return usage data over time, where usageDateRange falls within startDate, endDate
+      operationId: getUseOverTime
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/report'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/stored-reports/reqs-by-date-of-use:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/accessCountPeriod'
+    - $ref: '#/components/parameters/agreementId'
+    - $ref: '#/components/parameters/csv'
+    - $ref: '#/components/parameters/startDate'
+    - $ref: '#/components/parameters/endDate'
+    - $ref: '#/components/parameters/format'
+    - $ref: '#/components/parameters/includeOA'
+    - $ref: '#/components/parameters/full'
+    - $ref: '#/components/parameters/yopInterval'
+    get:
+      description: Return requests by date of use; this is like use over time but additionally groups by publication year.
+      operationId: getReqsByDateOfUse
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/report'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/stored-reports/reqs-by-pub-year:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/accessCountPeriod'
+    - $ref: '#/components/parameters/agreementId'
+    - $ref: '#/components/parameters/csv'
+    - $ref: '#/components/parameters/startDate'
+    - $ref: '#/components/parameters/endDate'
+    - $ref: '#/components/parameters/format'
+    - $ref: '#/components/parameters/includeOA'
+    - $ref: '#/components/parameters/periodOfUse'
+    - $ref: '#/components/parameters/full'
+    get:
+      description: Return requests by publication year where usageDateRange falls within startDate, endDate. Grouping controlled by periodOfUse. "accessCountPeriods" array lists the publication years to be used as column labels for numbers in the "totalItemRequestsByPeriod", "uniqueItemRequestsByPeriod" and "accessCountsByPeriod" arrays.
+      operationId: getReqsByPubYear
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/report'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/stored-reports/cost-per-use:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/accessCountPeriod'
+    - $ref: '#/components/parameters/agreementId'
+    - $ref: '#/components/parameters/csv'
+    - $ref: '#/components/parameters/startDate'
+    - $ref: '#/components/parameters/endDate'
+    - $ref: '#/components/parameters/format'
+    - $ref: '#/components/parameters/includeOA'
+    - $ref: '#/components/parameters/full'
+    get:
+      description: Return cost per where usageDateRange falls within startDate, endDate. The report is structured in periods, typically months, and the cost-per-use in a period is invoiced amount divided by download count (unique or total) and further divided in number of periods where any title has downloads. This way the cost for download is divided into periods (with non-zero use) and then evenly divided across titles within those periods. Consider agreement that has two titles, titleA and titleB where titleA has downloads in May and June. titleB has downloads in June only. In May, the title count is 1. In June, the title count is 2. The total periods where any title occurs is p = 2+1 = 3. Cost per download for titleA in May is (paidAmount/p) / downloads(TitleA,May) and in June (paidAmount/p) / downloads(TitleA,June). Cost per download for titleB in June is paidAmount/p / downloads(TitleB,June).
+      operationId: getCostPerUse
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reportCost'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+  /eusage-reports/report-data/status/{id}:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - in: path
+      name: id
+      required: true
+      description: agreement identifier
+      schema:
+        type: string
+        format: uuid
+    get:
+      description: Return status of operation associated with identifier.
+      operationId: getReportStatus
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reportStatus'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+components:
+  parameters:
+    okapi_tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: false
+      schema:
+        type: string
+    okapi_token:
+      in: header
+      name: X-Okapi-Token
+      description: Okapi Token
+      required: false
+      schema:
+        type: string
+    okapi_url:
+      in: header
+      name: X-Okapi-Url
+      description: Okapi URL
+      required: false
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      description: Skip over number of elements (default is first element)
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+    query:
+      in: query
+      name: query
+      description: CQL query
+      required: false
+      schema:
+        type: string
+    facets:
+      in: query
+      name: facets
+      description: facet names. Each facet is separated by comma.
+      required: false
+      schema:
+        type: string
+    accessCountPeriod:
+      in: query
+      name: accessCountPeriod
+      description: Group access according to this parameter. May be given in a number of months (nM) or in years (nY). The value "auto" makes it group as 1Y if startDate is given as YYYY; otherwise 1M.
+      required: false
+      schema:
+        type: string
+        default: auto
+        pattern: ^(\d+[YM])|(auto)$
+    agreementId:
+      in: query
+      name: agreementId
+      description: Agreement identifier
+      required: true
+      schema:
+        type: string
+        format: uuid
+    csv:
+      in: query
+      name: csv
+      description: whether to return CSV response with details.
+      required: false
+      schema:
+        type: boolean
+        default: false
+    startDate:
+      in: query
+      name: startDate
+      description: first year for year reporting, or first month for month reporting
+      required: true
+      schema:
+        type: string
+        pattern: ^[12]\d\d\d(-0[1-9]|-1[012])?$
+        description: A year in range 1000-2999, or a year in range 1000-2999 and a minus and a month in range 01-12 (similar to RFC3339, section 5.6).
+        example: 2019-04
+    endDate:
+      in: query
+      name: endDate
+      description: last year for year reporting, or last month for month reporting
+      required: true
+      schema:
+        type: string
+        pattern: ^[12]\d\d\d(-0[1-9]|-1[012])?$
+        description: A year in range 1000-2999, or a year in range 1000-2999 and a minus and a month in range 01-12 (similar to RFC3339, section 5.6).
+        example: 2019-06
+    format:
+      in: query
+      name: format
+      description: item format type
+      schema:
+        type: string
+        pattern: ^(BOOK|JOURNAL|ALL)$
+    full:
+      in: query
+      name: full
+      description: whether to return full response or brief (summary) response
+      required: false
+      schema:
+        type: boolean
+        default: true
+    includeOA:
+      in: query
+      name: includeOA
+      description: whether to include Open Access material
+      required: false
+      schema:
+        type: boolean
+        default: false
+    periodOfUse:
+      in: query
+      name: periodOfUse
+      description: a number of months or years for grouping
+      required: true
+      schema:
+        type: string
+        pattern: ^\d+[YM]$
+    yopInterval:
+      in: query
+      name: yopInterval
+      description: a number of months or years for grouping publication dates
+      required: false
+      schema:
+        type: string
+        default: auto
+        pattern: ^(\d+[YM])|(auto)$
+  responses:
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example:
+              value: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              value:
+              - error: Invalid JSON in request
+    trait_404:
+      description: Not Found
+      content:
+        text/plain:
+          schema:
+            type: string
+            example:
+              value: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+        application/json:
+          schema:
+            type: object
+            example:
+              value:
+              - error: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example:
+              value: Internal server error, contact administrator
+  examples:
+    notFoundText:
+      value: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+    notFoundJson:
+      value:
+      - error: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+    internalServerError:
+      value: Internal server error, contact administrator
+    invalidJsonText:
+      value: Invalid JSON in request
+    invalidJsonJson:
+      value:
+      - error: Invalid JSON in request
+  schemas:
+    reportTitles:
+      description: report titles (for both request and response)
+      type: object
+      properties:
+        titles:
+          description: List of titles
+          type: array
+          items:
+            $ref: '#/components/schemas/reportTitle'
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      additionalProperties: false
+      required:
+      - titles
+    reportTitle:
+      description: report title entry
+      type: object
+      properties:
+        id:
+          type: string
+          description: title identifier (UUID)
+        counterReportTitle:
+          type: string
+          description: Title as it appears in counter report
+        kbTitleName:
+          type: string
+          description: KB title name
+        kbTitleId:
+          type: string
+          description: KB title identifier. If not given, title is ignored (kbManualMatch=true) or unmatched (kbManualMatch=false)
+          format: uuid
+        kbManualMatch:
+          type: boolean
+          description: whether the counter title to kb title is manually set or ignored
+        printISSN:
+          type: string
+          description: ISSN for print instance
+        onlineISSN:
+          type: string
+          description: ISSN for online instance
+        ISBN:
+          type: string
+          description: ISBN-13 with hyphens
+        DOI:
+          type: string
+          description: Digital Object identifier
+        publicationType:
+          type: string
+          description: publication type from ERM ('serial', 'monograph')
+      required:
+      - id
+    resultInfo:
+      description: Common result set information for streaming response
+      type: object
+      properties:
+        totalRecords:
+          description: Total number of entries in response
+          type: integer
+        diagnostics:
+          description: Diagnostics for response
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                description: single diagnostic message
+                type: string
+        facets:
+          type: array
+          description: Array of facets
+          items:
+            type: object
+            description: A facet
+            properties:
+              facetValues:
+                type: array
+                description: Array of facet values
+                items:
+                  type: object
+                  description: A facet value
+                  properties:
+                    count:
+                      type: integer
+                      description: Count of facet values
+                    value:
+                      description: Value Object
+              type:
+                type: string
+                description: Type of facet
+      additionalProperties: false
+    reportPackages:
+      description: get KB packages
+      type: object
+      properties:
+        packages:
+          description: List of packages
+          type: array
+          items:
+            $ref: '#/components/schemas/reportPackage'
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      additionalProperties: false
+      required:
+      - packages
+    reportPackage:
+      description: KB package entry
+      type: object
+      properties:
+        kbPackageId:
+          type: string
+          description: KB package identifier
+          format: uuid
+        kbPackageName:
+          type: string
+          description: KB package name
+        kbTitleId:
+          type: string
+          description: KB title identifier
+          format: uuid
+      additionalProperties: false
+      required:
+      - kbPackageId
+    fromCounterRequest:
+      description: Specify what counter to report from
+      type: object
+      properties:
+        counterReportId:
+          description: Counter report identifier
+          type: string
+          format: uuid
+        providerId:
+          description: Counter reports with given usage data provider ID
+          type: string
+      additionalProperties: false
+    fromCounterResponse:
+      description: Parse counter report response
+      type: object
+      additionalProperties: false
+    titleDataEntries:
+      description: return title data entries
+      type: object
+      properties:
+        data:
+          description: List of title data entries
+          type: array
+          items:
+            $ref: '#/components/schemas/titleDataEntry'
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      additionalProperties: false
+      required:
+      - data
+      - resultInfo
+    titleDataEntry:
+      description: title data entry from counter reports
+      type: object
+      properties:
+        id:
+          type: string
+          description: title data identifier
+          format: uuid
+        titleEntryId:
+          type: string
+          description: key to title entries
+          format: uuid
+        counterReportId:
+          type: string
+          description: counter report identifier
+          format: uuid
+        counterReportTitle:
+          type: string
+          description: counter report title
+        providerId:
+          type: string
+          description: usage data provider identifier
+          format: uuid
+        publicationDate:
+          type: string
+          description: Publication date in ISO format YYYY-MM-DD. example 1988-05-17
+        usageYearMonth:
+          type: string
+          description: 'Usage data range (Postgresql daterange). example: [2021-01-01,2021-02-01)'
+        uniqueAccessCount:
+          type: integer
+          description: Unique access count
+        totalAccessCount:
+          type: integer
+          description: Total access count
+        openAccess:
+          type: boolean
+          description: Whether open access
+      additionalProperties: false
+      required:
+      - id
+      - titleEntryId
+      - counterReportId
+      - counterReportTitle
+      - openAccess
+    reportDataEntries:
+      description: report data entries
+      type: object
+      properties:
+        data:
+          description: List of data entries
+          type: array
+          items:
+            $ref: '#/components/schemas/reportDataEntry'
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      additionalProperties: false
+      required:
+      - data
+      - resultInfo
+    reportDataEntry:
+      description: report data entry (agreement line information)
+      type: object
+      properties:
+        id:
+          type: string
+          description: report data identifier
+          format: uuid
+        kbTitleId:
+          type: string
+          description: kb title identifier (if the agreement line is a title)
+          format: uuid
+        kbPackageId:
+          type: string
+          description: kb package identifier (if the agreement line is a package)
+          format: uuid
+        type:
+          type: string
+          description: one of journal, package, ebook
+        agreementId:
+          type: string
+          description: agreement identifier
+          format: uuid
+        agreementLineId:
+          type: string
+          description: agreement line identifier
+          format: uuid
+        poLineId:
+          type: string
+          description: po line identifier (UUID)
+          format: uuid
+        encumberedCost:
+          type: number
+          description: cost from the PO line
+        invoicedCost:
+          type: number
+          description: Total access count
+        fiscalYearRange:
+          type: string
+          description: kept on the fiscal year record, there should be a link from the invoice to that record
+        subscriptionDateRange:
+          type: string
+          description: subscription period - retrieved from the invoice
+        coverageDateRanges:
+          type: string
+          description: coverage dates as retrieved from the agreement
+        orderType:
+          type: string
+          description: purchase order type
+          enum:
+          - One-Time
+          - Ongoing
+        invoiceNumber:
+          type: string
+          description: invoice line number
+        poLineNumber:
+          type: string
+          description: human readable PO line number
+      additionalProperties: false
+      required:
+      - id
+      - agreementLineId
+    fromAgreementRequest:
+      description: Import from agreement request
+      type: object
+      properties:
+        agreementId:
+          description: Agreement Identifier
+          type: string
+          format: uuid
+      additionalProperties: false
+    fromAgreementResponse:
+      description: Import from agreement response
+      type: object
+      properties:
+        reportLinesCreated:
+          description: Number of report lines created
+          type: integer
+      additionalProperties: false
+    report:
+      description: Usage report schema
+      type: object
+      properties:
+        agreementId:
+          type: string
+          description: Agreement identifier
+          format: uuid
+        accessCountPeriods:
+          description: List of reporting periods, either a list of months or a list of years, for example ["2020-03", "2020-04", "2020-05"]
+          type: array
+          items:
+            type: string
+        totalItemRequestsTotal:
+          type: integer
+          nullable: true
+          description: Access count total for all periods and all items
+        totalItemRequestsByPeriod:
+          type: array
+          description: Access count per period, total for all items
+          items:
+            type: integer
+            nullable: true
+        totalRequestsPublicationYearsByPeriod:
+          type: array
+          description: Access count per period for each publication year, total for all items
+          items:
+            type: object
+            description: object with publication year as key and count as value
+        totalRequestsPeriodsOfUseByPeriod:
+          type: array
+          description: Access count per period for each publication period, total for all items
+          items:
+            type: object
+            description: object with publication year as key and count as value
+        uniqueItemRequestsTotal:
+          type: integer
+          nullable: true
+          description: Unique access count total for all periods and all items
+        uniqueItemRequestsByPeriod:
+          type: array
+          description: Unique access count per period, total for all items
+          items:
+            type: integer
+            nullable: true
+        uniqueRequestsPublicationYearsByPeriod:
+          type: array
+          description: Unique count per period for each publication year, total for all items
+          items:
+            type: object
+            description: object with publication year as key and count as value
+        uniqueRequestsPeriodsOfUseByPeriod:
+          type: array
+          description: Unique access count per period for each publication period, total for all items
+          items:
+            type: object
+            description: object with publication year as key and count as value
+        items:
+          description: List of items, with access data per item
+          type: array
+          items:
+            $ref: '#/components/schemas/reportRow'
+        execution:
+          description: Information about execution, such as various timings
+          type: object
+      additionalProperties: false
+    reportRow:
+      description: Single row of usage report data
+      type: object
+      properties:
+        kbId:
+          type: string
+          description: KB identifier
+        title:
+          type: string
+          description: Title of the item
+        printISSN:
+          type: string
+          description: ISSN for print instance
+        onlineISSN:
+          type: string
+          description: ISSN for online instance
+        ISBN:
+          type: string
+          description: ISBN for instance
+        publicationYear:
+          type: string
+          description: Publication year .. or range (eg 2000 for 1Y, or 2000-2001 for 2Y)
+        periodOfUse:
+          type: string
+          description: The usage period of this publication year report row, either one month like 2018-03 or one year like 2018 or a month range like 2018-03 - 2018-05 or a year range like 2018-2019
+        accessType:
+          type: string
+          description: Counter report access type like controlled or OA_Gold
+        metricType:
+          type: string
+          enum:
+          - Total_Item_Requests
+          - Unique_Item_Requests
+          description: Handling of multiple requests of the same client
+        accessCountTotal:
+          type: integer
+          nullable: true
+          description: Sum of all access counts
+        accessCountsByPeriod:
+          type: array
+          description: Access count per reporting period
+          items:
+            type: integer
+            nullable: true
+      additionalProperties: false
+    reportCost:
+      description: Cost report schema
+      type: object
+      properties:
+        accessCountPeriods:
+          description: List of reporting periods, either a list of months or a list of years, for example ["2020-03", "2020-04", "2020-05"]
+          type: array
+          items:
+            type: string
+        amountEncumberedTotal:
+          description: This number is sum of all encumbered amounts in the total access period
+          type: number
+        amountPaidTotal:
+          description: This number is sum of all paid amounts in the total access period
+          type: number
+        costByPeriod:
+          type: array
+          description: Total cost for each period
+          items:
+            type: number
+            nullable: true
+        items:
+          description: List of items, with access data per item
+          type: array
+          items:
+            $ref: '#/components/schemas/reportCostRow'
+        titleCountByPeriod:
+          type: array
+          description: Title count per period, total for all items
+          items:
+            type: integer
+            nullable: true
+        totalItemRequestsByPeriod:
+          type: array
+          description: Total access count per period
+          items:
+            type: integer
+            nullable: true
+        totalItemCostsPerRequestsByPeriod:
+          type: array
+          description: Cost per period, total for all items
+          items:
+            type: number
+            nullable: true
+        uniqueItemRequestsByPeriod:
+          type: array
+          description: Unique access count per period
+          items:
+            type: integer
+            nullable: true
+        uniqueItemCostsPerRequestsByPeriod:
+          type: array
+          description: Unique access count per period, total for all items
+          items:
+            type: number
+            nullable: true
+        execution:
+          description: Information about execution, such as various timings
+          type: object
+      additionalProperties: false
+    reportCostRow:
+      description: Single row of cost report data
+      type: object
+      properties:
+        kbId:
+          type: string
+          description: KB identifier
+        title:
+          type: string
+          description: Title if the item
+        derivedTitle:
+          type: boolean
+          description: Indicate whether the resource is derived from an agreement line
+        printISSN:
+          type: string
+          description: ISSN for print instance
+        onlineISSN:
+          type: string
+          description: ISSN for online instance
+        ISBN:
+          type: string
+          description: ISBN for instance
+        orderType:
+          type: string
+          enum:
+          - One-Time
+          - Ongoing
+          description: Order type from agreement - defaults to Ongoing
+        poLineIDs:
+          type: array
+          description: PO line IDs
+          items:
+            type: string
+            description: PO line ID
+        invoiceNumbers:
+          type: array
+          description: Invoice numbers
+          items:
+            type: string
+            description: Invoice number
+        fiscalDateStart:
+          type: string
+          description: Fiscal date start, YYYY-MM-DD
+        fiscalDateEnd:
+          type: string
+          description: Fiscal date end, YYYY-MM-DD
+        subscriptionDateStart:
+          type: string
+          description: Subscription date start, YYYY-MM-DD
+        subscriptionDateEnd:
+          type: string
+          description: Subscription date end, YYYY-MM-DD
+        publicationYear:
+          type: string
+          description: Publication year .. or range (eg 2000 for 1Y, or 2000-2001 for 2Y)
+        amountEncumbered:
+          type: number
+          description: Encumbered amount for PO lines
+        amountPaid:
+          description: Paid amount for invoices
+          type: number
+        totalItemRequests:
+          description: total item requests
+          type: integer
+        uniqueItemRequests:
+          description: unique item requests
+          type: integer
+        costPerTotalRequest:
+          type: number
+          description: Cost per total request for invoices
+        costPerUniqueRequest:
+          type: number
+          description: Cost per unique request for invoices
+      additionalProperties: false
+    reportStatus:
+      description: report status
+      type: object
+      properties:
+        id:
+          type: string
+          description: report data identifier
+          format: uuid
+        lastUpdated:
+          type: string
+          description: date and time of last update - UTC zone
+        active:
+          type: boolean
+          description: whether being updated at the moment
+      additionalProperties: false
+      required:
+      - id

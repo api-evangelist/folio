@@ -1,0 +1,676 @@
+# x-archived-from: folio-mod-consortia-keycloak-consortia-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Consortium integration API
+  description: Consortium integration API
+  version: 0.0.1
+paths:
+  /consortia:
+    get:
+      summary: Get consortium collection
+      operationId: getConsortiumCollection
+      responses:
+        '200':
+          $ref: '#/components/responses/ConsortiumCollection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Save consortium
+      operationId: saveConsortium
+      responses:
+        '201':
+          $ref: '#/components/responses/Consortium'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      requestBody:
+        $ref: '#/components/requestBodies/ConsortiumBody'
+  /consortia/{consortiumId}:
+    get:
+      summary: Get consortium record based on consortiumId
+      operationId: getConsortium
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Consortium'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      summary: Update consortium name
+      operationId: updateConsortium
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      responses:
+        '200':
+          $ref: '#/components/responses/Consortium'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      requestBody:
+        $ref: '#/components/requestBodies/ConsortiumBody'
+components:
+  requestBodies:
+    ConsortiumBody:
+      description: Consortium object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Consortium'
+  responses:
+    Consortium:
+      description: Consortium Object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Consortium'
+    ConsortiumCollection:
+      description: Collection of Consortium Object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConsortiumCollection'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Unauthorized:
+      description: Not authorized to perform requested action
+      content:
+        text/plain:
+          example: unable to perform action -- unauthorized
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+  schemas:
+    userCollection:
+      $ref: '#/components/schemas/UserCollection'
+    userCapabilitySetsRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: User-CapabilitySet Request Schema
+      description: Request body to assign existing capability sets to a user
+      type: object
+      properties:
+        userId:
+          type: string
+          description: User identifier
+        capabilitySetIds:
+          description: List of capability identifiers
+          type: array
+          items:
+            type: string
+            description: Capability set identifier
+            format: uuid
+          minItems: 1
+      required:
+      - roleId
+      - capabilitySetIds
+    capability-sets:
+      $ref: '#/components/schemas/capabilitySets'
+    capabilities:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Capabilities Object Schema
+      description: Response body containing capability records
+      type: object
+      properties:
+        capabilities:
+          description: A collection of capability sets
+          type: array
+          items:
+            $ref: '#/components/schemas/capability'
+          minItems: 1
+        totalRecords:
+          readOnly: true
+          description: The total number of records matching the provided criteria
+          type: integer
+          format: int64
+      required:
+      - capabilities
+    roles:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: roles.json
+      title: Roles schema
+      description: Roles
+      type: object
+      properties:
+        roles:
+          description: Role identifier
+          type: array
+          items:
+            $ref: '#/components/schemas/role'
+          nullable: false
+        totalRecords:
+          description: The total number of roles matching the provided criteria
+          type: integer
+      required:
+      - roles
+    Consortium:
+      type: object
+      description: Consortium
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      additionalProperties: false
+      required:
+      - id
+      - name
+    ConsortiumCollection:
+      type: object
+      description: A JSON schema for the Consortium Collection
+      properties:
+        consortia:
+          type: array
+          description: The list of consortia
+          items:
+            type: object
+            $ref: '#/components/schemas/Consortium'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - consortia
+      - totalRecords
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    uuid:
+      type: string
+      format: uuid
+    Address:
+      type: object
+      properties:
+        id:
+          description: A unique id for this address
+          type: string
+        countryId:
+          description: The country code for this address
+          type: string
+        addressLine1:
+          description: Address, Line 1
+          type: string
+        addressLine2:
+          description: Address, Line 2
+          type: string
+        city:
+          description: City name
+          type: string
+        region:
+          description: Region
+          type: string
+        postalCode:
+          description: Postal Code
+          type: string
+        addressTypeId:
+          description: A UUID that corresponds with an address type object
+          type: string
+        primaryAddress:
+          description: Is this the user's primary address?
+          type: boolean
+      additionalProperties: false
+    Personal:
+      type: object
+      properties:
+        lastName:
+          description: The user's surname
+          type: string
+        firstName:
+          description: The user's given name
+          type: string
+        middleName:
+          description: The user's middle name (if any)
+          type: string
+        preferredFirstName:
+          description: The user's preferred name
+          type: string
+        email:
+          description: The user's email address
+          type: string
+        phone:
+          description: The user's primary phone number
+          type: string
+        mobilePhone:
+          description: The user's mobile phone number
+          type: string
+        dateOfBirth:
+          type: string
+          description: The user's birth date
+          format: date-time
+        addresses:
+          description: Physical addresses associated with the user
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/Address'
+        preferredContactTypeId:
+          description: Id of user's preferred contact type
+          type: string
+        preferredContactTypeIds:
+          description: IDs of user's preferred contact types like Email, Mail, or Text Message
+          type: array
+          minItems: 0
+          items:
+            type: string
+        profilePictureLink:
+          description: Link to the profile picture
+          type: string
+          format: uri
+      additionalProperties: true
+      required:
+      - lastName
+    userInfo:
+      type: object
+      description: User Display Information
+      properties:
+        lastName:
+          type: string
+          readOnly: true
+          description: Last name of the user
+        firstName:
+          type: string
+          readOnly: true
+          description: First name of the user
+        middleName:
+          type: string
+          readOnly: true
+          description: Middle name or initial of the user
+      example:
+        lastName: Doe
+        firstName: John
+        middleName: X.
+    Metadata:
+      type: object
+      title: Metadata
+      description: Metadata about creation and changes to records
+      properties:
+        createdDate:
+          type: string
+          description: Date and time when the record was created
+        createdByUserId:
+          $ref: '#/components/schemas/uuid'
+          description: ID of the user who created the record
+        createdByUsername:
+          type: string
+          description: Username of the user who created the record (when available)
+        createdBy:
+          $ref: '#/components/schemas/userInfo'
+          description: Additional information of the user who created the record (when available)
+        updatedDate:
+          type: string
+          description: Date and time when the record was last updated
+        updatedByUserId:
+          $ref: '#/components/schemas/uuid'
+          description: ID of the user who last updated the record
+        updatedByUsername:
+          type: string
+          description: Username of the user who updated the record (when available)
+        updatedBy:
+          $ref: '#/components/schemas/userInfo'
+          description: Additional information of the user who updated the record (when available)
+      required:
+      - createdDate
+    Tags:
+      type: object
+      title: tags
+      properties:
+        tagList:
+          description: List of tags
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    User:
+      type: object
+      title: User
+      properties:
+        username:
+          description: A unique name belonging to a user. Typically used for login
+          type: string
+        id:
+          description: A globally unique (UUID) identifier for the user
+          type: string
+        externalSystemId:
+          description: An ID that corresponds to an external authority
+          type: string
+        barcode:
+          description: The library barcode for this user
+          type: string
+        active:
+          description: A flag to determine if a user can log in, take out loans, etc.
+          type: boolean
+        type:
+          description: The class of user
+          type: string
+        patronGroup:
+          description: A UUID corresponding to the group the user belongs to
+          type: string
+        departments:
+          description: A UUIDs corresponding to the departments the user belongs to
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+        meta:
+          description: Deprecated
+          type: object
+        proxyFor:
+          description: Deprecated
+          type: array
+          items:
+            type: string
+        personal:
+          $ref: '#/components/schemas/Personal'
+        enrollmentDate:
+          description: The date in which the user joined the organization
+          type: string
+          format: date-time
+        expirationDate:
+          description: The date for when the user becomes inactive
+          type: string
+          format: date-time
+        createdDate:
+          description: Deprecated
+          type: string
+          format: date-time
+        updatedDate:
+          description: Deprecated
+          type: string
+          format: date-time
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        tags:
+          $ref: '#/components/schemas/Tags'
+        customFields:
+          description: Object that contains custom field
+          type: object
+          additionalProperties: true
+      additionalProperties: true
+    UserCollection:
+      type: object
+      properties:
+        users:
+          type: array
+          description: User collection
+          items:
+            type: object
+            $ref: '#/components/schemas/User'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - users
+      - totalRecords
+    capabilityAction:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The action this capability is associated with, e.g. create
+      type: string
+      enum:
+      - view
+      - create
+      - edit
+      - delete
+      - manage
+      - execute
+    capabilityType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The type of capability
+      type: string
+      enum:
+      - settings
+      - data
+      - procedural
+    capabilitySet:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: Capability Set Object Schema
+      description: Object containing the details of the capability set
+      properties:
+        id:
+          description: A unique identifier for this capability
+          type: string
+          format: uuid
+        name:
+          description: a human-readable name/label for this capability.  Takes the form of {resourceName}.{scope}, e.g. item.create
+          type: string
+          readOnly: true
+        description:
+          description: Free form description of the capability
+          type: string
+        resource:
+          description: The resource this capability is associated with, e.g. item
+          type: string
+          pattern: ^[A-Za-z\s]+$
+        action:
+          description: The action this capability is associated with, e.g. create
+          $ref: '#/components/schemas/capabilityAction'
+        applicationId:
+          description: The id of the application which defines the capability
+          type: string
+        moduleId:
+          description: The id of the module which defines the capability
+          type: string
+        type:
+          description: The type of capability
+          $ref: '#/components/schemas/capabilityType'
+        permission:
+          description: Folio permission name
+          type: string
+        capabilities:
+          description: List with assigned capability ids
+          type: array
+          minItems: 1
+          items:
+            type: string
+            description: Capability identifier
+            format: uuid
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+          readOnly: true
+      required:
+      - resource
+      - action
+      - permissions
+      - type
+      - applicationId
+    capabilitySets:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Capability Sets Object Schema
+      description: Response body containing capability set records
+      type: object
+      properties:
+        capabilitySets:
+          description: A collection of capability sets
+          type: array
+          items:
+            $ref: '#/components/schemas/capabilitySet'
+          minItems: 1
+        totalRecords:
+          readOnly: true
+          description: The total number of records matching the provided criteria
+          type: integer
+          format: int64
+      required:
+      - capabilities
+    httpMethod:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Http Method
+      type: string
+      enum:
+      - GET
+      - HEAD
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+      - TRACE
+    endpoint:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: endpoint.json
+      description: Object containing the details of the http-endpoint.
+      properties:
+        path:
+          type: string
+          description: Endpoint's static path / expression
+        method:
+          description: Http Method
+          $ref: '#/components/schemas/httpMethod'
+    capability:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: Capability Set Object Schema
+      description: Object containing the details of the capability set
+      properties:
+        id:
+          description: A unique identifier for this capability
+          type: string
+          format: uuid
+        name:
+          description: a human-readable name/label for this capability.  Takes the form of {resourceName}.{scope}, e.g. item.create
+          type: string
+          readOnly: true
+        description:
+          description: Free form description of the capability
+          type: string
+        resource:
+          description: The resource this capability is associated with, e.g. item
+          type: string
+          pattern: ^[A-Za-z\s]+$
+        action:
+          description: The action this capability is associated with, e.g. create
+          $ref: '#/components/schemas/capabilityAction'
+        applicationId:
+          description: The id of the application which defines the capability
+          type: string
+        permission:
+          description: Folio permission name
+          type: string
+        endpoints:
+          type: array
+          description: List of assigned endpoints
+          items:
+            $ref: '#/components/schemas/endpoint'
+        type:
+          description: The type of capability
+          $ref: '#/components/schemas/capabilityType'
+        metadata:
+          description: Metadata about creation and changes to records
+          $ref: '#/components/schemas/Metadata'
+          readOnly: true
+      required:
+      - resource
+      - action
+      - permissions
+      - type
+      - applicationId
+    role:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Role schema
+      description: Role
+      type: object
+      properties:
+        id:
+          description: Role identifier
+          type: string
+          format: uuid
+        name:
+          description: A human-readable name/label for this role
+          type: string
+      required:
+      - name

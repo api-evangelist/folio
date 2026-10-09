@@ -1,0 +1,560 @@
+openapi: 3.2.0
+info:
+  title: Folio Mapping Profiles API
+  version: v1
+  description: 'Operations tagged Mapping Profiles across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+tags:
+- name: Mapping Profiles
+paths:
+  /mapping-profiles:
+    get:
+      description: API for getting mapping profiles
+      operationId: getMappingProfiles
+      parameters:
+      - $ref: '#/components/parameters/trait_queryable'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      responses:
+        '200':
+          description: Mapping profiles collection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mappingProfileCollection'
+              example:
+                mappingProfiles:
+                - id: 3798f546-7afb-11ea-bc55-0242ac130003
+                  name: Example mapping profile
+                  description: Example mapping profile description
+                  recordTypes:
+                  - INSTANCE
+                  outputFormat: MARC
+                  transformations:
+                  - fieldId: electronicAccess.linkText
+                    path: Json path for electronicAccess[*].linkText
+                    transformation: '001'
+                    enabled: true
+                    recordType: INSTANCE
+                  userInfo:
+                    firstName: User
+                    lastName: User
+                    userName: '@username'
+                  metadata:
+                    createdDate: '2020-04-10T12:41:22.000'
+                    createdByUserId: ''
+                    createdByUsername: '@username'
+                    updatedDate: '2020-04-10T12:41:22.000'
+                    updatedByUserId: ''
+                    updatedByUsername: '@username'
+                totalRecords: 1
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '401':
+          description: Not authorized to perform requested action
+          content:
+            text/plain:
+              example: unauthorized
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Mapping Profiles
+      summary: Get mapping profiles
+      x-summary-source: derived
+    post:
+      description: API for uploading mapping profiles
+      operationId: postMappingProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mappingProfile'
+            example:
+              id: 3798f546-7afb-11ea-bc55-0242ac130003
+              name: Mapping profile
+              description: Mapping profile description
+              recordTypes:
+              - INSTANCE
+              outputFormat: MARC
+              transformations:
+              - fieldId: electronicAccess.linkText
+                path: Json path for electronicAccess[*].linkText
+                transformation: '001'
+                enabled: true
+                recordType: INSTANCE
+              userInfo:
+                firstName: User
+                lastName: User
+                userName: '@username'
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '201':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mappingProfile'
+              example:
+                id: 3798f546-7afb-11ea-bc55-0242ac130003
+                name: Mapping profile
+                description: Mapping profile description
+                recordTypes:
+                - INSTANCE
+                outputFormat: MARC
+                transformations:
+                - fieldId: electronicAccess.linkText
+                  path: Json path for electronicAccess[*].linkText
+                  transformation: '001'
+                  enabled: true
+                  recordType: INSTANCE
+                userInfo:
+                  firstName: User
+                  lastName: User
+                  userName: '@username'
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+            text/plain:
+              example: Invalid request
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Mapping Profiles
+      summary: Post mapping profile
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+  /mapping-profiles/{mappingProfileId}:
+    get:
+      description: Get specific mapping profile
+      operationId: getMappingProfileById
+      parameters:
+      - name: mappingProfileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: Mapping profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mappingProfile'
+              example:
+                id: 3798f546-7afb-11ea-bc55-0242ac130003
+                name: Mapping profile
+                description: Mapping profile description
+                recordTypes:
+                - INSTANCE
+                outputFormat: MARC
+                transformations:
+                - fieldId: electronicAccess.linkText
+                  path: Json path for electronicAccess[*].linkText
+                  transformation: '001'
+                  enabled: true
+                  recordType: INSTANCE
+                userInfo:
+                  firstName: User
+                  lastName: User
+                  userName: '@username'
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Mapping Profiles
+      summary: Get mapping profile by id
+      x-summary-source: derived
+    put:
+      description: Update specific mapping profile
+      operationId: putMappingProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mappingProfile'
+            example:
+              id: 3798f546-7afb-11ea-bc55-0242ac130003
+              name: Mapping profile
+              description: Mapping profile description
+              recordTypes:
+              - INSTANCE
+              outputFormat: MARC
+              transformations:
+              - fieldId: electronicAccess.linkText
+                path: Json path for electronicAccess[*].linkText
+                transformation: '001'
+                enabled: true
+                recordType: INSTANCE
+              userInfo:
+                firstName: User
+                lastName: User
+                userName: '@username'
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      parameters:
+      - name: mappingProfileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '204':
+          description: Updated
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Mapping Profiles
+      summary: Put mapping profile
+      x-summary-source: derived
+    delete:
+      description: Delete specific mapping profile
+      operationId: deleteMappingProfileById
+      parameters:
+      - name: mappingProfileId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '204':
+          description: Deleted
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Mapping Profiles
+      summary: Delete mapping profile by id
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+components:
+  schemas:
+    userInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: User information
+      type: object
+      additionalProperties: false
+      properties:
+        firstName:
+          description: User first name
+          type: string
+        lastName:
+          description: User last name
+          type: string
+        userName:
+          description: User name (nickname)
+          type: string
+    mappingProfileCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of Mapping Profiles
+      type: object
+      additionalProperties: false
+      properties:
+        mappingProfiles:
+          description: List of Mapping Profiles
+          type: array
+          id: mappingProfileList
+          items:
+            type: object
+            $ref: '#/components/schemas/mappingProfile'
+        totalRecords:
+          description: Total number of Mapping Profiles
+          type: integer
+      required:
+      - mappingProfiles
+      - totalRecords
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    uuid:
+      type: string
+      format: uuid
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    transformations:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Mapping transformations detail
+      type: object
+      javaType: org.folio.rest.jaxrs.model.Transformations
+      additionalProperties: false
+      properties:
+        fieldId:
+          description: Field identifier
+          type: string
+        path:
+          description: JSON path to set mapped value
+          type: string
+        enabled:
+          description: Indicates whether field should be mapped
+          type: boolean
+          default: false
+        transformation:
+          description: Mapping expression
+          type: string
+        recordType:
+          description: Mapping Profile type
+          type: string
+          $ref: '#/components/schemas/recordTypes'
+        metadataParameters:
+          description: Additional parameters used for mapping
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - fieldId
+      - recordType
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    recordTypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Enum of entity (record) types
+      type: string
+      additionalProperties: false
+      enum:
+      - INSTANCE
+      - HOLDINGS
+      - ITEM
+      - AUTHORITY
+      - SRS
+      - LINKED_DATA
+    mappingProfile:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Mapping Profile schema
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          format: uuid
+        name:
+          description: Mapping Profile name
+          type: string
+        default:
+          description: Is default mapping profile
+          type: boolean
+          default: false
+          readonly: true
+        description:
+          description: Mapping Profile description
+          type: string
+        recordTypes:
+          description: Mapping Profile records type
+          type: array
+          items:
+            type: string
+            $ref: '#/components/schemas/recordTypes'
+        transformations:
+          description: List of mapping profile transformations
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/transformations'
+        userInfo:
+          description: First name, last name and username of the user, who updated the Mapping Profile
+          type: object
+          $ref: '#/components/schemas/userInfo'
+        outputFormat:
+          description: Mapping Profile output format
+          type: string
+          enum:
+          - MARC
+          - LINKED_DATA
+        fieldsSuppression:
+          description: Fields to suppress
+          type: string
+        suppress999ff:
+          description: Supress 999 field rule
+          type: boolean
+          default: false
+        locked:
+          description: True if locked, false if unlocked
+          type: boolean
+          default: false
+        lockedBy:
+          description: UUID of the user who locked the mapping profile
+          type: string
+          format: uuid
+        lockedAt:
+          description: Date and time when mapping profile was locked
+          type: string
+          format: date-time
+        metadata:
+          description: Metadata provided by the server
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      required:
+      - name
+      - recordTypes
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  parameters:
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_queryable:
+      name: query
+      in: query
+      description: A query string to filter rules based on matching criteria in fields.
+      schema:
+        type: string
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-data-export-openapi.yml

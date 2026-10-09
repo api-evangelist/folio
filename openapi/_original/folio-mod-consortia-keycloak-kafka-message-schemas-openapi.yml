@@ -1,0 +1,316 @@
+# x-archived-from: folio-mod-consortia-keycloak-kafka-message-schemas-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: mod-consortia-keycloak schemas
+  version: v1
+servers:
+- url: https://order-stub.com/
+paths:
+  /kafka-stub-endpoint:
+    get:
+      responses:
+        '200':
+          description: stub
+components:
+  schemas:
+    UUID:
+      type: string
+      format: uuid
+    userEvent:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: User event
+      type: object
+      properties:
+        id:
+          description: UUID of the event
+          $ref: '#/components/schemas/uuid'
+        action:
+          description: Action for user (Create, Edit or Delete)
+          type: string
+          enum:
+          - Create
+          - Edit
+          - Delete
+        tenantId:
+          description: The name of the user's tenant
+          type: string
+        performedBy:
+          description: UUID of the user who performed the action
+          $ref: '#/components/schemas/uuid'
+        eventDate:
+          description: Date time when event triggered
+          format: date-time
+          type: string
+        actionDate:
+          description: Date time when user action occurred
+          format: date-time
+          type: string
+        isPersonalDataChanged:
+          description: A flag to determine if personal data of a user changed
+          type: boolean
+        userDto:
+          description: Full snapshot of the user
+          type: object
+          $ref: '#/components/schemas/User'
+      additionalProperties: false
+    primaryAffiliationEvent:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Primary affiliation event
+      type: object
+      properties:
+        id:
+          description: UUID of the event
+          $ref: '#/components/schemas/uuid'
+        userId:
+          description: UUID of the user
+          $ref: '#/components/schemas/uuid'
+        username:
+          description: The user's username, for delete event it will be empty
+          type: string
+        tenantId:
+          description: The name of the user's tenant
+          type: string
+        centralTenantId:
+          description: The name of the user's central tenant
+          type: string
+        consortiumId:
+          description: The consortium uuid that user belongs to
+          $ref: '#/components/schemas/uuid'
+        email:
+          description: The user's email
+          type: string
+        mobilePhoneNumber:
+          description: The user's mobile phone number
+          type: string
+        phoneNumber:
+          description: The user's phone number
+          type: string
+        externalSystemId:
+          description: External system id of user
+          type: string
+        barcode:
+          description: The user's barcode
+          type: string
+      additionalProperties: false
+      required:
+      - id
+      - userId
+      - tenantId
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    Address:
+      type: object
+      properties:
+        id:
+          description: A unique id for this address
+          type: string
+        countryId:
+          description: The country code for this address
+          type: string
+        addressLine1:
+          description: Address, Line 1
+          type: string
+        addressLine2:
+          description: Address, Line 2
+          type: string
+        city:
+          description: City name
+          type: string
+        region:
+          description: Region
+          type: string
+        postalCode:
+          description: Postal Code
+          type: string
+        addressTypeId:
+          description: A UUID that corresponds with an address type object
+          type: string
+        primaryAddress:
+          description: Is this the user's primary address?
+          type: boolean
+      additionalProperties: false
+    Personal:
+      type: object
+      properties:
+        lastName:
+          description: The user's surname
+          type: string
+        firstName:
+          description: The user's given name
+          type: string
+        middleName:
+          description: The user's middle name (if any)
+          type: string
+        preferredFirstName:
+          description: The user's preferred name
+          type: string
+        email:
+          description: The user's email address
+          type: string
+        phone:
+          description: The user's primary phone number
+          type: string
+        mobilePhone:
+          description: The user's mobile phone number
+          type: string
+        dateOfBirth:
+          type: string
+          description: The user's birth date
+          format: date-time
+        addresses:
+          description: Physical addresses associated with the user
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/Address'
+        preferredContactTypeId:
+          description: Id of user's preferred contact type
+          type: string
+        preferredContactTypeIds:
+          description: IDs of user's preferred contact types like Email, Mail, or Text Message
+          type: array
+          minItems: 0
+          items:
+            type: string
+        profilePictureLink:
+          description: Link to the profile picture
+          type: string
+          format: uri
+      additionalProperties: true
+      required:
+      - lastName
+    common_uuid:
+      type: string
+      format: uuid
+    userInfo:
+      type: object
+      description: User Display Information
+      properties:
+        lastName:
+          type: string
+          readOnly: true
+          description: Last name of the user
+        firstName:
+          type: string
+          readOnly: true
+          description: First name of the user
+        middleName:
+          type: string
+          readOnly: true
+          description: Middle name or initial of the user
+      example:
+        lastName: Doe
+        firstName: John
+        middleName: X.
+    Metadata:
+      type: object
+      title: Metadata
+      description: Metadata about creation and changes to records
+      properties:
+        createdDate:
+          type: string
+          description: Date and time when the record was created
+        createdByUserId:
+          $ref: '#/components/schemas/common_uuid'
+          description: ID of the user who created the record
+        createdByUsername:
+          type: string
+          description: Username of the user who created the record (when available)
+        createdBy:
+          $ref: '#/components/schemas/userInfo'
+          description: Additional information of the user who created the record (when available)
+        updatedDate:
+          type: string
+          description: Date and time when the record was last updated
+        updatedByUserId:
+          $ref: '#/components/schemas/common_uuid'
+          description: ID of the user who last updated the record
+        updatedByUsername:
+          type: string
+          description: Username of the user who updated the record (when available)
+        updatedBy:
+          $ref: '#/components/schemas/userInfo'
+          description: Additional information of the user who updated the record (when available)
+      required:
+      - createdDate
+    Tags:
+      type: object
+      title: tags
+      properties:
+        tagList:
+          description: List of tags
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    User:
+      type: object
+      title: User
+      properties:
+        username:
+          description: A unique name belonging to a user. Typically used for login
+          type: string
+        id:
+          description: A globally unique (UUID) identifier for the user
+          type: string
+        externalSystemId:
+          description: An ID that corresponds to an external authority
+          type: string
+        barcode:
+          description: The library barcode for this user
+          type: string
+        active:
+          description: A flag to determine if a user can log in, take out loans, etc.
+          type: boolean
+        type:
+          description: The class of user
+          type: string
+        patronGroup:
+          description: A UUID corresponding to the group the user belongs to
+          type: string
+        departments:
+          description: A UUIDs corresponding to the departments the user belongs to
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+        meta:
+          description: Deprecated
+          type: object
+        proxyFor:
+          description: Deprecated
+          type: array
+          items:
+            type: string
+        personal:
+          $ref: '#/components/schemas/Personal'
+        enrollmentDate:
+          description: The date in which the user joined the organization
+          type: string
+          format: date-time
+        expirationDate:
+          description: The date for when the user becomes inactive
+          type: string
+          format: date-time
+        createdDate:
+          description: Deprecated
+          type: string
+          format: date-time
+        updatedDate:
+          description: Deprecated
+          type: string
+          format: date-time
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        tags:
+          $ref: '#/components/schemas/Tags'
+        customFields:
+          description: Object that contains custom field
+          type: object
+          additionalProperties: true
+      additionalProperties: true

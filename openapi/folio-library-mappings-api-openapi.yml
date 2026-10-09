@@ -1,0 +1,229 @@
+openapi: 3.2.0
+info:
+  title: Folio Library Mappings API
+  version: v1
+  description: 'Operations tagged library-mappings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: library-mappings
+paths:
+  /central-servers/{centralServerId}/libraries/location-mappings/:
+    get:
+      description: Get a list of library to Inn-Reach location mappings for the given central server
+      operationId: getLibraryMappingsByServerId
+      tags:
+      - library-mappings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/libraryMappingsDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_malformed_query_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      summary: Get library mappings by server id
+      x-summary-source: derived
+    put:
+      description: Update (replace) the entire collection of library to Inn-Reach location mappings associated with the central server
+      operationId: putLibraryMappings
+      tags:
+      - library-mappings
+      responses:
+        '204':
+          description: Collection successfully updated
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '409':
+          $ref: '#/components/responses/trait_response_409'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/libraryMappingsDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Put library mappings
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  parameters:
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    libraryMappingDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Library mapping
+      type: object
+      properties:
+        id:
+          description: Mapping id
+          type: string
+          format: uuid
+        libraryId:
+          description: Library id
+          type: string
+          format: uuid
+        innReachLocationId:
+          description: Inn-Reach location id
+          type: string
+          format: uuid
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - libraryId
+      - innReachLocationId
+    libraryMappingsDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Library mapping collection
+      type: object
+      properties:
+        libraryMappings:
+          description: List of library mappings
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/libraryMappingDTO'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - libraryMappings
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  responses:
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_malformed_query_400:
+      description: Bad request, e.g. malformed query parameter.
+      content:
+        application/json:
+          example:
+            value:
+              $ref: examples/error.sample
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_409:
+      description: Item state conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+x-refined-from:
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-inn-reach-settings-openapi.yml

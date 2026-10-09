@@ -1,0 +1,272 @@
+openapi: 3.2.0
+info:
+  title: Folio Linking Rules API
+  version: v1.0
+  description: 'Operations tagged linking-rules across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://localhost:8081
+tags:
+- name: linking-rules
+paths:
+  /linking-rules/instance-authority:
+    get:
+      description: Retrieve instance-authority linking rules
+      operationId: getInstanceAuthorityLinkingRules
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Collection of linking rules
+                items:
+                  $ref: '#/components/schemas/linkingRuleDto'
+                title: Collection of linking rules
+                type: array
+          description: The authority linking rules collection
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - linking-rules
+      summary: Get instance authority linking rules
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+  /linking-rules/instance-authority/{ruleId}:
+    get:
+      description: Retrieve instance-authority linking rule by ID
+      operationId: getInstanceAuthorityLinkingRuleById
+      parameters:
+      - description: ID of the instance-authority linking rule
+        explode: false
+        in: path
+        name: ruleId
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/linkingRuleDto'
+          description: The authority linking rule
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - linking-rules
+      summary: Get instance authority linking rule by id
+      x-summary-source: derived
+    patch:
+      description: Partially update instance-authority linking rule by ID
+      operationId: patchInstanceAuthorityLinkingRuleById
+      parameters:
+      - description: ID of the instance-authority linking rule
+        explode: false
+        in: path
+        name: ruleId
+        required: true
+        schema:
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/linkingRulePatchRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/linkingRuleDto'
+          description: The authority linking rule
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - linking-rules
+      summary: Patch instance authority linking rule by id
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+components:
+  schemas:
+    linkingRulePatchRequest:
+      description: Linking rule PATCH request
+      properties:
+        id:
+          type: integer
+        autoLinkingEnabled:
+          type: boolean
+        authoritySubfields:
+          items:
+            $ref: '#/components/schemas/charString'
+          type: array
+          uniqueItems: true
+      title: Linking rule PATCH request
+      type: object
+    subfieldModification:
+      description: Subfield modification to link source and target subfields.
+      example:
+        source: source
+        target: target
+      properties:
+        source:
+          description: A string that must contain one character
+          type: string
+        target:
+          description: A string that must contain one character
+          type: string
+      title: Subfield modification.
+      type: object
+    subfieldValidation:
+      description: Subfield validation before linking.
+      example:
+        existence:
+        - key: true
+        - key: true
+      properties:
+        existence:
+          description: Specify if subfield should exist or not.
+          items:
+            additionalProperties:
+              type: boolean
+            type: object
+          type: array
+      title: Subfield validation.
+      type: object
+    charString:
+      description: A string that must contain one character
+      type: string
+    linkingRuleDto:
+      description: Field to filed linking rule
+      example:
+        id: 0
+        bibField: bibField
+        authorityField: authorityField
+        authoritySubfields:
+        - null
+        - null
+        subfieldModifications:
+        - source: source
+          target: target
+        - source: source
+          target: target
+        validation:
+          existence:
+          - key: true
+          - key: true
+        autoLinkingEnabled: true
+      properties:
+        id:
+          type: integer
+        bibField:
+          type: string
+        authorityField:
+          type: string
+        authoritySubfields:
+          items:
+            $ref: '#/components/schemas/charString'
+          type: array
+        subfieldModifications:
+          items:
+            $ref: '#/components/schemas/subfieldModification'
+          type: array
+        validation:
+          $ref: '#/components/schemas/subfieldValidation'
+        autoLinkingEnabled:
+          type: boolean
+      title: Field to filed linking rule
+      type: object
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/error_parameters_inner'
+          type: array
+      type: object
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object
+x-refined-from:
+- folio-mod-entities-links-openapi.json
+- folio-mod-entities-links-openapi.yml

@@ -1,0 +1,319 @@
+openapi: 3.2.0
+info:
+  title: Folio File Definitions API
+  version: v1
+  description: 'Operations tagged File Definitions across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+tags:
+- name: File Definitions
+paths:
+  /file-definitions:
+    post:
+      description: API for uploading files
+      operationId: postFileDefinition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fileDefinition'
+            example:
+              id: 88dfac11-1caf-4470-9ad1-d533f6360bdd
+              fileName: marc.csv
+              status: COMPLETED
+              size: 200
+              uploadFormat: csv
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '201':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileDefinition'
+              example:
+                id: 88dfac11-1caf-4470-9ad1-d533f6360bdd
+                fileName: marc.csv
+                status: COMPLETED
+                size: 200
+                uploadFormat: csv
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '413':
+          description: Request entity too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - File Definitions
+      summary: Post file definition
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+  /file-definitions/{fileDefinitionId}:
+    get:
+      description: Get specific file definition
+      operationId: getFileDefinitionById
+      parameters:
+      - name: fileDefinitionId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      responses:
+        '200':
+          description: File definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileDefinition'
+              example:
+                id: 88dfac11-1caf-4470-9ad1-d533f6360bdd
+                fileName: marc.csv
+                status: COMPLETED
+                size: 200
+                uploadFormat: csv
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - File Definitions
+      summary: Get file definition by id
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+  /file-definitions/{fileDefinitionId}/upload:
+    post:
+      description: Upload file definition
+      operationId: uploadFile
+      parameters:
+      - name: fileDefinitionId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      requestBody:
+        required: false
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fileDefinition'
+              example:
+                id: 88dfac11-1caf-4470-9ad1-d533f6360bdd
+                fileName: marc.csv
+                status: COMPLETED
+                size: 200
+                uploadFormat: csv
+                metadata:
+                  createdDate: '2019-07-22T11:22:07Z'
+                  createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  createdByUsername: janedoeuser
+                  updatedDate: '2019-07-27T13:28:54Z'
+                  updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                  updatedByUsername: ''
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Mapping profile not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - File Definitions
+      summary: Upload file
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+components:
+  schemas:
+    fileDefinition:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: File definition
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: UUID of this File Definition
+          type: string
+          format: uuid
+        fileName:
+          description: File name
+          type: string
+        jobExecutionId:
+          description: Job execution id
+          type: string
+          format: uuid
+        sourcePath:
+          description: Path to the file
+          type: string
+        status:
+          description: Status of file upload
+          type: string
+          enum:
+          - NEW
+          - IN_PROGRESS
+          - COMPLETED
+          - ERROR
+        size:
+          description: Size of the file in Kbyte
+          type: integer
+        uploadFormat:
+          description: Format of upload file
+          type: string
+          enum:
+          - csv
+          - cql
+          default: csv
+        metadata:
+          description: 'Meta information '
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - fileName
+    uuid:
+      type: string
+      format: uuid
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-data-export-openapi.yml

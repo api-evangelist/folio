@@ -1,0 +1,1920 @@
+openapi: 3.2.0
+info:
+  title: Folio Resources API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Resources across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Resources
+paths:
+  /erm/resource:
+    description: Supports search of resources (packages, package content items, platform title instances, and title instances) in the Agreements local knowledgebase
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Resources
+      summary: Get a set of resource records
+      operationId: getResources
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/{ermResourceId}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/ermResourceId'
+    get:
+      tags:
+      - Resources
+      summary: Get a specified resource record
+      operationId: getResource
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErmResource'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/electronic:
+    description: Supports search of electronic resources (packages and electronic title instances) in the Agreements local knowledgebase
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Resources
+      summary: Get a set of electronic resource records
+      operationId: getElectronicResources
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/{ermResourceId}/entitlementOptions:
+    description: Returns the list of entitlement options (ways of acquiring the specified resource) -- packages or package content items that this resource could be entitled through
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/ermResourceId'
+    get:
+      tags:
+      - Resources
+      summary: Get entitlement options for a specified resource
+      operationId: getResourceEntitlementOptions
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/EntitlementOptionResults'
+                - $ref: '#/components/schemas/EntitlementOptionResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/{ermResourceId}/static/entitlementOptions:
+    description: Returns the packages and package content items already resolved as entitlement options for the specified resource, without recalculating the full entitlement options lookup
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/ermResourceId'
+    get:
+      tags:
+      - Resources
+      summary: Get static (pre-resolved) entitlement options for a specified resource
+      operationId: getResourceStaticEntitlementOptions
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/EntitlementOptionResults'
+                - $ref: '#/components/schemas/EntitlementOptionResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/{ermResourceId}/entitlements:
+    description: Returns the list of entitlements (agreement lines) which include the specified resource, directly or indirectly (e.g. as part of a package)
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/ermResourceId'
+    get:
+      tags:
+      - Resources
+      summary: Get entitlements for a specified resource
+      operationId: getResourceEntitlements
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/EntitlementResults'
+                - $ref: '#/components/schemas/EntitlementResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error -- resource does not exist, or is not a type that can carry entitlements
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/{ermResourceId}/entitlements/related:
+    description: Returns the list of entitlements (agreement lines) which offer access to the same title as the specified resource, but on other platform/package combinations. Only valid for package content item and platform title instance resources; returns an empty list for title instance resources
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/ermResourceId'
+    get:
+      tags:
+      - Resources
+      summary: Get related entitlements for a specified resource
+      operationId: getResourceRelatedEntitlements
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/EntitlementResults'
+                - $ref: '#/components/schemas/EntitlementResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error -- resource does not exist, or is not a package content item or platform title instance
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/markForDelete/pkg:
+    description: Marks the package content items belonging to the specified packages for deletion, cascading to platform title instances, title instances, and works that would become orphaned as a result. A resource is only marked for deletion if it has no active entitlements. This is a dry-run/staging step -- see /erm/resource/delete/pkg to actually perform the deletion
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/includeIds'
+    post:
+      tags:
+      - Resources
+      summary: Mark the resources belonging to a set of packages for deletion
+      operationId: markPackageResourcesForDelete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkForDeleteResponse'
+        '400':
+          description: Bad request error -- missing or empty request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/markForDelete/pci:
+    description: Marks the specified package content items for deletion, cascading to platform title instances, title instances, and works that would become orphaned as a result. A resource is only marked for deletion if it has no active entitlements. This is a dry-run/staging step -- see /erm/resource/delete/pci to actually perform the deletion
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/includeIds'
+    post:
+      tags:
+      - Resources
+      summary: Mark package content items for deletion
+      operationId: markPcisForDelete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkForDeleteResponse'
+        '400':
+          description: Bad request error -- missing or empty request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/markForDelete/pti:
+    description: Marks the specified platform title instances for deletion, cascading to title instances and works that would become orphaned as a result. A resource is only marked for deletion if it has no active entitlements. This is a dry-run/staging step -- see /erm/resource/delete/pti to actually perform the deletion
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/includeIds'
+    post:
+      tags:
+      - Resources
+      summary: Mark platform title instances for deletion
+      operationId: markPtisForDelete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkForDeleteResponse'
+        '400':
+          description: Bad request error -- missing or empty request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/markForDelete/ti:
+    description: Marks the specified title instances for deletion, cascading to works that would become orphaned as a result. A resource is only marked for deletion if it has no active entitlements. This is a dry-run/staging step -- see /erm/resource/delete/ti to actually perform the deletion
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/includeIds'
+    post:
+      tags:
+      - Resources
+      summary: Mark title instances for deletion
+      operationId: markTisForDelete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkForDeleteResponse'
+        '400':
+          description: Bad request error -- missing or empty request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/delete/pkg:
+    description: Queues a background job that deletes the specified packages, along with their package content items, and any platform title instances, title instances, and works that become orphaned as a result. A resource is only deleted if it has no active entitlements. Deletion happens asynchronously -- the response is a job record whose progress can be tracked via the persistent job endpoints
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    post:
+      tags:
+      - Resources
+      summary: Delete a set of packages
+      operationId: deletePackages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceDeletionJob'
+        '400':
+          description: Bad request error -- missing or empty request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/delete/pci:
+    description: Marks the specified package content items for deletion and immediately deletes them, cascading to platform title instances, title instances, and works that become orphaned as a result. A resource is only deleted if it has no active entitlements
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/includeIds'
+    post:
+      tags:
+      - Resources
+      summary: Delete package content items
+      operationId: deletePcis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '400':
+          description: Bad request error -- missing or empty request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/delete/pti:
+    description: Marks the specified platform title instances for deletion and immediately deletes them, cascading to title instances and works that become orphaned as a result. A resource is only deleted if it has no active entitlements
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/includeIds'
+    post:
+      tags:
+      - Resources
+      summary: Delete platform title instances
+      operationId: deletePtis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '400':
+          description: Bad request error -- missing or empty request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/resource/delete/ti:
+    description: Marks the specified title instances for deletion and immediately deletes them, cascading to works that become orphaned as a result. A resource is only deleted if it has no active entitlements
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/includeIds'
+    post:
+      tags:
+      - Resources
+      summary: Delete title instances
+      operationId: deleteTis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBody'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '400':
+          description: Bad request error -- missing or empty request body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  statusCode:
+                    type: integer
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  schemas:
+    EntitlementResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Entitlement'
+    MarkForDeleteResponse:
+      type: object
+      properties:
+        resourceIds:
+          description: Omitted (null) unless the `includeIds` query parameter is set to true
+          oneOf:
+          - $ref: '#/components/schemas/MarkForDeleteMap'
+          - type: 'null'
+        statistics:
+          $ref: '#/components/schemas/DeletionCounts'
+    DeleteResponse:
+      type: object
+      properties:
+        markedForDeletion:
+          $ref: '#/components/schemas/MarkForDeleteResponse'
+        deleted:
+          $ref: '#/components/schemas/MarkForDeleteResponse'
+    ErmResourceResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/ErmResourceResultsArray'
+    IdentifierOccurrence:
+      type: object
+      properties:
+        title:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        identifier:
+          $ref: '#/components/schemas/Identifier'
+        status:
+          $ref: '#/components/schemas/Refdata'
+    EntitlementOption:
+      allOf:
+      - oneOf:
+        - $ref: '#/components/schemas/PackageContentItem'
+        - $ref: '#/components/schemas/Package'
+      - type: object
+        properties:
+          _object:
+            oneOf:
+            - $ref: '#/components/schemas/TitleInstance'
+            - $ref: '#/components/schemas/PlatformTitleInstance'
+            - $ref: '#/components/schemas/PackageContentItem'
+            - $ref: '#/components/schemas/Package'
+            discriminator:
+              propertyName: class
+              mapping:
+                org.olf.kb.TitleInstance: '#/components/schemas/TitleInstance'
+                org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
+                org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
+                org.olf.kb.Pkg: '#/components/schemas/Package'
+    Embargo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        movingWallStart:
+          $ref: '#/components/schemas/EmbargoStatement'
+        movingWallEnd:
+          $ref: '#/components/schemas/EmbargoStatement'
+    PackageDescriptionUrl:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+    AlternateName:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: Agreements that owns the alternate name
+    EntitlementOptionResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/EntitlementOptionResultsArray'
+    TitleInstanceRef:
+      description: A lightweight representation of a title instance, used where a title references another title (e.g. `TitleInstance.relatedTitles`). Unlike the full `TitleInstance` representation, fields such as `class`, `dateCreated` and `coverage` are not populated on this partial view, and it does not nest further `relatedTitles`.
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+    UsageDataProvider:
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          type: object
+    DeleteBody:
+      type: object
+      required:
+      - resources
+      properties:
+        resources:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            format: uuid
+    CustomPropertyValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        internal:
+          type: boolean
+        note:
+          type: string
+        publicNote:
+          type: string
+        value:
+          oneOf:
+          - type: string
+          - type: integer
+          - $ref: '#/components/schemas/Refdata'
+        type:
+          $ref: '#/components/schemas/CustomPropertyDefinition'
+    Package:
+      type: object
+      required:
+      - name
+      - source
+      - reference
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.Pkg
+          source:
+            type: string
+          sourceDataCreated:
+            type: string
+            format: date-time
+          sourceDataUpdated:
+            type: string
+            format: date-time
+          sourceTitleCount:
+            type: integer
+          syncContentsFromSource:
+            type: boolean
+          reference:
+            type: string
+          nominalPlatform:
+            $ref: '#/components/schemas/Platform'
+          vendor:
+            $ref: '#/components/schemas/Organisation'
+          lifecycleStatus:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          availabilityScope:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          packageDescriptionUrls:
+            type: array
+            items:
+              $ref: '#/components/schemas/PackageDescriptionUrl'
+          contentTypes:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContentType'
+          availabilityConstraints:
+            type: array
+            items:
+              $ref: '#/components/schemas/AvailabilityConstraint'
+          resourceCount:
+            type: integer
+    AlternateResourceName:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    Entitlement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        activeFrom:
+          type:
+          - string
+          - 'null'
+          format: date
+        activeTo:
+          type:
+          - string
+          - 'null'
+          format: date
+        authority:
+          type: string
+          enum:
+          - GOKB-RESOURCE
+          - EKB-PACKAGE
+          - EKB-TITLE
+        contentUpdated:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        customCoverage:
+          type: boolean
+        coverage:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoverageStatement'
+        docs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        endDate:
+          type:
+          - string
+          - 'null'
+          format: date
+          readOnly: true
+          description: Duplicates activeTo date
+        explanation:
+          type: string
+        haveAccess:
+          type: boolean
+        note:
+          type: string
+        description:
+          type: string
+        owner:
+          $ref: '#/components/schemas/Agreement'
+          readOnly: true
+        poLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseOrderLine'
+        resource:
+          $ref: '#/components/schemas/EntitlementOption'
+        reference:
+          type: string
+        reference_object:
+          type: object
+        startDate:
+          type:
+          - string
+          - 'null'
+          format: date
+          readOnly: true
+          description: Duplicates activeFrom date
+        suppressFromDiscovery:
+          type: boolean
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        type:
+          type: string
+          enum:
+          - detached
+          - external
+          - internal
+    ErmResource:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        class:
+          type: string
+          enum:
+          - org.olf.kb.TitleInstance
+          - org.olf.kb.PlatformTitleInstance
+          - org.olf.kb.PackageContentItem
+          - org.olf.kb.Pkg
+        coverage:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoverageStatement'
+        customCoverage:
+          type: boolean
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        name:
+          type: string
+        normalizedName:
+          type: string
+          readOnly: true
+        description:
+          type: string
+        publicationType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        suppressFromDiscovery:
+          type: boolean
+        subType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        type:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        alternateResourceNames:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternateResourceName'
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifierOccurrence'
+        _object:
+          description: The full, type-specific representation of this resource (fields vary depending on `class`)
+          oneOf:
+          - $ref: '#/components/schemas/TitleInstance'
+          - $ref: '#/components/schemas/PlatformTitleInstance'
+          - $ref: '#/components/schemas/PackageContentItem'
+          - $ref: '#/components/schemas/Package'
+          discriminator:
+            propertyName: class
+            mapping:
+              org.olf.kb.TitleInstance: '#/components/schemas/TitleInstance'
+              org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
+              org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
+              org.olf.kb.Pkg: '#/components/schemas/Package'
+    PurchaseOrderLine:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        poLineId:
+          type: string
+          format: uuid
+    TitleInstance:
+      type: object
+      required:
+      - name
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.TitleInstance
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          identifiers:
+            type: array
+            items:
+              $ref: '#/components/schemas/IdentifierOccurrence'
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+          relatedTitles:
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/TitleInstanceRef'
+    InternalContact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        role:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        user:
+          type: string
+          format: uuid
+    DeletionCounts:
+      type: object
+      properties:
+        pci:
+          type: integer
+        pti:
+          type: integer
+        ti:
+          type: integer
+        work:
+          type: integer
+    CoverageStatement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        summary:
+          type: string
+        startVolume:
+          type: string
+        startIssue:
+          type: string
+        endVolume:
+          type: string
+        endIssue:
+          type: string
+    PackageContentItem:
+      type: object
+      required:
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PackageContentItem
+          accessStart:
+            type: string
+            format: date
+          accessEnd:
+            type: string
+            format: date
+          addedTimestamp:
+            type: integer
+          depth:
+            type: string
+          lastSeenTimestamp:
+            type: integer
+          longName:
+            type: string
+          note:
+            type: string
+          removedTimestamp:
+            type: integer
+          embargo:
+            $ref: '#/components/schemas/Embargo'
+          pkg:
+            $ref: '#/components/schemas/Package'
+          pti:
+            $ref: '#/components/schemas/PlatformTitleInstance'
+    Agreement:
+      type: object
+      required:
+      - id
+      - name
+      - agreementStatus
+      - periods
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+          description: GORM optimistic-locking version, incremented on every update.
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+        description:
+          type: string
+        agreementStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        isPerpetual:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        reasonForClosure:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        renewalPriority:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        alternateNames:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternateName'
+        localReference:
+          type: string
+        vendorReference:
+          type: string
+        agreementContentTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementContentType'
+        periods:
+          type: array
+          items:
+            type: object
+            required:
+            - startDate
+            properties:
+              startDate:
+                type: string
+                format: date
+              endDate:
+                type: string
+                format: date
+              cancellationDeadline:
+                type: string
+                format: date
+              periodStatus:
+                type: string
+              note:
+                type: string
+              id:
+                type: string
+                format: uuid
+        startDate:
+          type: string
+          format: date
+          readOnly: true
+        endDate:
+          type:
+          - string
+          - 'null'
+          format: date
+          readOnly: true
+          description: Null if any period on the agreement is open-ended (has no end date)
+        cancellationDeadline:
+          type:
+          - string
+          - 'null'
+          format: date
+          readOnly: true
+          description: Null if no period on the agreement has a cancellation deadline set
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/InternalContact'
+        orgs:
+          type: array
+          description: Organisations associated with the agreement
+          items:
+            $ref: '#/components/schemas/AgreementOrg'
+        externalLicenseDocs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        supplementaryDocs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        linkedLicenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedLicense'
+        usageDataProviders:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsageDataProvider'
+        inwardRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementRelationship'
+        outwardRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementRelationship'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        customProperties:
+          type: object
+          description: Custom properties (agreement supplementary properties) — keys are property names, values are arrays of property value instances
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/CustomPropertyValue'
+    AgreementRelationship:
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        outward:
+          $ref: '#/components/schemas/AgreementRelationshipAgreement'
+        inward:
+          $ref: '#/components/schemas/AgreementRelationshipAgreement'
+    PlatformTitleInstance:
+      type: object
+      required:
+      - platform
+      - titleInstance
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PlatformTitleInstance
+          longName:
+            type: string
+          platform:
+            $ref: '#/components/schemas/Platform'
+          titleInstance:
+            $ref: '#/components/schemas/TitleInstance'
+          url:
+            type: string
+            format: uri
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    RefdataCategory:
+      type: object
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refdata'
+    DocumentAttachment:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        location:
+          type: string
+        url:
+          type: string
+          format: uri
+        note:
+          type: string
+        atType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        fileUpload:
+          $ref: '#/components/schemas/File'
+    EmbargoStatement:
+      type: object
+      properties:
+        unit:
+          type: string
+          enum:
+          - days
+          - months
+          - years
+        length:
+          type: integer
+    File:
+      type: object
+      required:
+      - id
+      - name
+      - size
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          type: string
+          description: MIME type of the uploaded file
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          description: Original filename of the uploaded file
+        size:
+          type: integer
+          description: Size of the uploaded file in bytes
+    AvailabilityConstraint:
+      type: object
+      required:
+      - id
+      - body
+      properties:
+        id:
+          type: string
+          format: uuid
+        body:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    ContentType:
+      type: object
+      required:
+      - id
+      - contentType
+      properties:
+        id:
+          type: string
+          format: uuid
+        contentType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    CustomPropertyDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        primary:
+          type: boolean
+        defaultInternal:
+          type: boolean
+        retired:
+          type: boolean
+        weight:
+          type: integer
+        type:
+          type: string
+          description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
+        category:
+          $ref: '#/components/schemas/RefdataCategory'
+    Platform:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        locators:
+          type: array
+          items:
+            type: object
+            properties:
+              domainName:
+                type: string
+              id:
+                type: string
+                format: uuid
+    AgreementOrg:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: Agreement that owns the organisation
+        org:
+          $ref: '#/components/schemas/Organisation'
+        primaryOrg:
+          type: boolean
+          description: Whether this is the primary organisation for the agreement
+          default: false
+        note:
+          type: string
+          description: A note about this organisation's relationship to the agreement
+        roles:
+          type: array
+          description: The roles this organisation plays in relation to the agreement
+          items:
+            type: object
+            required:
+            - id
+            - role
+            properties:
+              id:
+                type: string
+                format: uuid
+                readOnly: true
+              owner:
+                $ref: '#/components/schemas/AgreementOrg'
+                readOnly: true
+              role:
+                description: The role (e.g. Content provider)
+                oneOf:
+                - type: string
+                - $ref: '#/components/schemas/Refdata'
+              note:
+                type: string
+    EntitlementResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/EntitlementResultsArray'
+    ResourceDeletionJob:
+      description: An asynchronous job tracking a package deletion. Deletion is queued and processed in the background; poll this resource's id via the persistent job endpoints to check progress
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        class:
+          type: string
+          enum:
+          - org.olf.general.jobs.ResourceDeletionJob
+        name:
+          type: string
+        dateCreated:
+          type: integer
+        started:
+          description: Null until the job begins running
+          type:
+          - string
+          - 'null'
+          format: date-time
+        ended:
+          description: Null until the job finishes
+          type:
+          - string
+          - 'null'
+          format: date-time
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        result:
+          description: Null until the job finishes
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+          - type: 'null'
+        fileUpload:
+          $ref: '#/components/schemas/File'
+        fullLogCount:
+          type: integer
+        errorLogCount:
+          type: integer
+        infoLogCount:
+          type: integer
+        deletionJobType:
+          type: string
+          enum:
+          - PackageDeletionJob
+          - PciDeletionJob
+        resourceInputs:
+          description: JSON-encoded list of the resource ids submitted for deletion
+          type: string
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    AgreementRelationshipAgreement:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        agreementStatus:
+          $ref: '#/components/schemas/Refdata'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+    ErmResourceResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/ErmResource'
+    AgreementContentType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          $ref: '#/components/schemas/Refdata'
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        normValue:
+          type: string
+        value:
+          type: string
+    LinkedLicense:
+      type: object
+      properties:
+        amendments:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedAmendment'
+        id:
+          type: string
+        owner:
+          type: string
+          format: uuid
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          type: object
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    LinkedAmendment:
+      type: object
+      properties:
+        amendmentId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: string
+          format: uuid
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    MarkForDeleteMap:
+      type: object
+      properties:
+        pci:
+          type: array
+          items:
+            type: string
+            format: uuid
+        pti:
+          type: array
+          items:
+            type: string
+            format: uuid
+        ti:
+          type: array
+          items:
+            type: string
+            format: uuid
+        work:
+          type: array
+          items:
+            type: string
+            format: uuid
+    Identifier:
+      type: object
+      properties:
+        ns:
+          type: object
+          properties:
+            value:
+              type: string
+        value:
+          type: string
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
+    EntitlementOptionResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/EntitlementOption'
+  parameters:
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    includeIds:
+      in: query
+      name: includeIds
+      description: Whether to include the ids of affected resources in the response. Defaults to false
+      required: false
+      schema:
+        type: boolean
+        default: false
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    ermResourceId:
+      in: path
+      name: ermResourceId
+      description: UUID for an ERM resource
+      required: true
+      schema:
+        type: string
+        format: uuid
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-agreements-openapi.yml

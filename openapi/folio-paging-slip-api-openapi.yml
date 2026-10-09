@@ -1,0 +1,194 @@
+openapi: 3.2.0
+info:
+  title: Folio Paging Slip API
+  version: v1
+  description: 'Operations tagged paging-slip across 2 of this provider''s published API definitions: folio-mod-inn-reach-circulation-openapi.json, folio-mod-inn-reach-circulation-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: paging-slip
+paths:
+  /paging-slips/{servicePointId}:
+    get:
+      description: Get a list of available tokens for INN-Reach paging slips
+      operationId: getPagingSlips
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pagingSlipsDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      tags:
+      - paging-slip
+      parameters:
+      - $ref: circulation.yaml#/components/parameters/servicePointId
+      summary: Get paging slips
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  responses:
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    pagingSlipsDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of paging slips
+      type: object
+      properties:
+        pagingSlips:
+          description: Collection of current paging slips
+          id: pagingSlips
+          type: array
+          items:
+            title: Paging slip
+            description: Paging slip representation of item, request and requester
+            type: object
+            properties:
+              innReachTransaction:
+                description: Paging slip representation of an INN-Reach transaction
+                type: object
+                properties:
+                  patronName:
+                    description: Patron name
+                    type: string
+                  patronAgencyCode:
+                    description: Patron agency code
+                    type: string
+                  patronAgencyDescription:
+                    description: Patron agency description
+                    type: string
+                  patronTypeCode:
+                    description: Patron type
+                    type: integer
+                  patronTypeDescription:
+                    description: Patron type description
+                    type: string
+                  centralServerCode:
+                    description: Unique code that identifies the central server
+                    type: string
+                  centralServerId:
+                    description: UUID of the central server configuration
+                    type: string
+                    format: UUID
+                  localServerCode:
+                    description: Unique code that identifies the local server
+                    type: string
+                  itemAgencyCode:
+                    description: Item agency code
+                    type: string
+                  itemAgencyDescription:
+                    description: Item agency description
+                    type: string
+                  pickupLocationCode:
+                    description: Pickup location code
+                    type: string
+                  pickupLocationPrintName:
+                    description: Pickup location print name
+                    type: string
+                  pickupLocationDeliveryStop:
+                    description: Pickup location
+                    type: string
+              item:
+                description: Paging slip representation of an item
+                type: object
+                properties:
+                  effectiveLocationFolioName:
+                    description: Effective location FOLIO name
+                    type: string
+                  title:
+                    description: Primary title (or label) associated with an item
+                    type: string
+                  barcode:
+                    description: Unique inventory control number for physical resources, used largely for circulation purposes
+                    type: string
+                  author:
+                    description: Author
+                    type: string
+                  effectiveCallNumber:
+                    type: string
+                    description: Effective call number, an identifier assigned to the item or its holding
+                  shelvingOrder:
+                    type: string
+                    description: A system generated normalization of the call number that allows for call number sorting in reports and search results
+                  hrid:
+                    type: string
+                    description: The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID
+                  effectiveCallNumberComponents:
+                    type: object
+                    description: Elements of a full call number generated from the item or holding
+                    properties:
+                      callNumber:
+                        type: string
+                        description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
+                      prefix:
+                        type: string
+                        description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
+                      suffix:
+                        type: string
+                        description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
+                  volume:
+                    description: Volume is intended for monographs when a multipart monograph (e.g. a biography of Gerorge Bernard Shaw in three volumes)
+                    type: string
+                  enumeration:
+                    description: Enumeration is the descriptive information for the numbering scheme of a serial, usually identified by level and a descriptive caption, e.g., level 0 = v. and level 1 = no. This means that each issue of the serial has a volume and an issue number that would appear (e.g. v.71:no.6-2)
+                    type: string
+                  chronology:
+                    description: Chronology is the descriptive information for the dating scheme of a serial, usually identified by level, e.g., level 0 = year level 1 = month. This means that each issue of the serial has a month and a year on each issue (e.g. 1985:July-Dec.)
+                    type: string
+                  copyNumber:
+                    description: Copy number is the piece identifier. The copy number reflects if the library has a copy of a single-volume monograph; a copy of a multi-volume, (e.g. Copy 1, or C.7.)
+                    type: string
+                  displaySummary:
+                    description: Display summary about the item
+                    type: string
+                additionalProperties: false
+              slip:
+                type: object
+                description: Slip info
+                properties:
+                  name:
+                    description: Slip name
+                    type: string
+            additionalProperties: false
+        totalRecords:
+          description: Total number of paging slips
+          type: integer
+          default: 0
+      additionalProperties: false
+      required:
+      - pagingSlips
+      - totalRecords
+x-refined-from:
+- folio-mod-inn-reach-circulation-openapi.json
+- folio-mod-inn-reach-circulation-openapi.yml

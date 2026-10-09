@@ -1,0 +1,257 @@
+openapi: 3.2.0
+info:
+  title: Folio Configuration API
+  version: '1.0'
+  description: 'Operations tagged Configuration across 4 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-mosaic-openapi.json, folio-mod-data-export-openapi.yml, folio-mod-mosaic-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+- url: /mosaic
+tags:
+- name: Configuration
+paths:
+  /configuration:
+    post:
+      description: Adds configuration value
+      operationId: postDataExportConfiguration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/config'
+            example:
+              key: slice_size
+              value: '100000'
+      responses:
+        '201':
+          description: Configuration added/updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/config'
+              example:
+                key: slice_size
+                value: '100000'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: invalid slice size
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Configuration
+      summary: Post data export configuration
+      x-summary-source: derived
+    description: Configuration API
+    get:
+      summary: Get Mosaic configuration
+      operationId: getConfiguration
+      responses:
+        '200':
+          $ref: '#/components/responses/MosaicConfigurationResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Configuration
+    put:
+      summary: Update Mosaic configuration
+      operationId: updateConfiguration
+      requestBody:
+        $ref: '#/components/requestBodies/MosaicConfigurationBody'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Configuration
+    servers:
+    - url: /data-export/
+components:
+  schemas:
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    config:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Configuration key/value pairs
+      type: object
+      properties:
+        key:
+          description: Unique name of config data
+          type: string
+        value:
+          description: Value of config data
+          type: string
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    MosaicConfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The UUID format string
+        defaultTemplateId:
+          type: string
+          description: The UUID format string
+        metadata:
+          type: object
+          description: Metadata about creation and changes to records
+      required:
+      - id
+      - defaultTemplateId
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+  responses:
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error, e.g. due to misconfiguration
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    MosaicConfigurationResponse:
+      description: Mosaic configuration object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MosaicConfiguration'
+    BadRequest:
+      description: Bad request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the parameter or line/character number with malformed data) provided in the response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    NoContent:
+      description: No content
+  requestBodies:
+    MosaicConfigurationBody:
+      description: Mosaic configuration object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MosaicConfiguration'
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-mosaic-openapi.json
+- folio-mod-data-export-openapi.yml
+- folio-mod-mosaic-openapi.yml

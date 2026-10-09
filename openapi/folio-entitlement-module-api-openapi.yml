@@ -1,0 +1,124 @@
+openapi: 3.2.0
+info:
+  title: Folio Entitlement Module API
+  version: v1
+  description: 'Operations tagged entitlement-module across 2 of this provider''s published API definitions: folio-mgr-tenant-entitlements-openapi.json, folio-mgr-tenant-entitlements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: entitlement-module
+paths:
+  /entitlements/modules/{moduleId}:
+    get:
+      operationId: getModuleEntitlements
+      description: Retrieve a list of module entitlements
+      tags:
+      - entitlement-module
+      parameters:
+      - $ref: '#/components/parameters/path-module-id'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      responses:
+        '200':
+          description: A list with created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get module entitlements
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  responses:
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+  schemas:
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    entitlements:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: installations.json
+      title: Tenant Entitlements Schema
+      description: List of tenant entitlements (installations)
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        entitlements:
+          type: array
+          description: Found entitlement records
+          items:
+            $ref: '#/components/schemas/entitlement'
+    entitlement:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: installation.json
+      title: Tenant Entitlement Schema
+      description: Tenant entitlement descriptor
+      type: object
+      properties:
+        applicationId:
+          description: A Name-Version id of application
+          type: string
+        tenantId:
+          description: A tenant identifier
+          type: string
+          format: uuid
+        modules:
+          description: A list of module identifiers
+          type: array
+          items:
+            type: string
+            description: A module identifier
+      required:
+      - applicationId
+      - tenantId
+  parameters:
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    path-module-id:
+      in: path
+      required: true
+      name: moduleId
+      description: Module id
+      schema:
+        type: string
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+x-refined-from:
+- folio-mgr-tenant-entitlements-openapi.json
+- folio-mgr-tenant-entitlements-openapi.yml

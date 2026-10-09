@@ -1,0 +1,300 @@
+openapi: 3.2.0
+info:
+  title: Folio Dashboard API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Dashboard across 4 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-licenses-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Dashboard
+paths:
+  /dashboard/definitions:
+    get:
+      tags:
+      - Dashboard
+      summary: List dashboard widget definitions
+      description: 'Returns the dashboard widget definitions bundled with this module, describing the self-service search/list widgets (e.g. simple agreement search) that can be added to a FOLIO dashboard. Definitions are cached in memory after the first request, for the lifetime of the running instance. No specific permission is required beyond a valid tenant/token.
+
+
+        This path is provided under the `dashboard` interface, declared as `interfaceType: multiple` in the module descriptor, because other dashboard-capable modules (e.g. mod-licenses) expose the same path for their own widget definitions. Since more than one module enabled for a tenant can answer this exact path, a plain request is ambiguous — Okapi needs an `X-Okapi-Module-Id` header naming which one to route to. Discover the candidate module ids first with `GET /_/proxy/tenants/{tenant}/modules?provide=dashboard`, then pass one of them back on this request.'
+      operationId: getDashboardDefinitions
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      - $ref: '#/components/parameters/x-okapi-module-id'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DashboardWidgetDefinition'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  schemas:
+    DashboardWidgetResultColumn:
+      type: object
+      description: A single column in a dashboard widget's results table.
+      properties:
+        name:
+          type: string
+          description: Internal column identifier.
+        label:
+          type: string
+          description: Display label for the column.
+        accessPath:
+          type: string
+          description: Dot-path into the resource record used to derive the cell value.
+        valueType:
+          type: string
+          description: How the UI should render the cell value.
+          enum:
+          - String
+          - Link
+          - Date
+          - Boolean
+          - Array
+        arrayDisplayPath:
+          type: string
+          description: 'For `valueType: Array` columns, the dot-path within each array item to display.'
+      additionalProperties: true
+    DashboardWidgetFilterColumn:
+      type: object
+      description: A field available for building a structured filter.
+      properties:
+        name:
+          type: string
+          description: Internal field identifier.
+        label:
+          type: string
+          description: Display label for the field.
+        filterPath:
+          type: string
+          description: Dot-path/query field the filter is applied to.
+        valueType:
+          type: string
+          description: Value type the filter compares, e.g. `String`, `UUID`, `Date`, `Enum`, `Array`.
+        resource:
+          type: string
+          description: 'For `valueType: UUID` reference filters, the related resource type to look up candidate values from.'
+        comparators:
+          type: array
+          description: Comparison operators the UI may offer for this filter.
+          items:
+            type: string
+        enumValues:
+          type: array
+          description: 'For `valueType: Enum` filters, the allowed values.'
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+              label:
+                type: string
+      additionalProperties: true
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    DashboardWidgetDefinition:
+      type: object
+      description: A single dashboard widget definition, describing a self-service search/list widget that a dashboard-capable FOLIO app can render against one of its own resources. The `definition` block configures the columns available for the results table, quick-search matching, structured filtering, and sorting.
+      required:
+      - type
+      - version
+      - name
+      - definition
+      properties:
+        type:
+          type: object
+          description: The widget implementation this definition targets.
+          properties:
+            name:
+              type: string
+              description: Widget type name, e.g. `SimpleSearch`.
+            version:
+              type: string
+              description: Version of the widget type's own configuration format.
+        version:
+          type: string
+          description: Version of this specific widget definition.
+        name:
+          type: string
+          description: Display name of the widget, e.g. `ERM Licenses`.
+        definition:
+          type: object
+          properties:
+            baseUrl:
+              type: string
+              description: API path the widget queries for `resource` records.
+            resource:
+              type: string
+              description: Name of the resource type the widget lists/searches.
+            results:
+              type: object
+              description: Columns available in the widget's results table.
+              properties:
+                columns:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DashboardWidgetResultColumn'
+            matches:
+              type: object
+              description: Fields the widget's free-text quick search matches against.
+              properties:
+                columns:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DashboardWidgetMatchColumn'
+                termConfigurable:
+                  type: boolean
+                  description: Whether the user can choose which of these fields to search.
+            filters:
+              type: object
+              description: Fields available for building structured filters.
+              properties:
+                columns:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DashboardWidgetFilterColumn'
+            sort:
+              type: object
+              description: Fields the results table can be sorted by.
+              properties:
+                columns:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DashboardWidgetSortColumn'
+            configurableProperties:
+              type: object
+              description: Per-instance widget settings a user can override when adding this widget to a dashboard, keyed by property name.
+              additionalProperties:
+                type: object
+                properties:
+                  configurable:
+                    type: boolean
+                    description: Whether the user may override this property.
+                  defValue:
+                    description: Default value. Type depends on the property.
+    DashboardWidgetSortColumn:
+      type: object
+      description: A field the widget's results table can be sorted by.
+      properties:
+        name:
+          type: string
+          description: Internal field identifier.
+        label:
+          type: string
+          description: Display label for the field.
+        sortPath:
+          type: string
+          description: Dot-path/query field used when sorting.
+        sortTypes:
+          type: array
+          description: Supported sort directions.
+          items:
+            type: string
+            enum:
+            - asc
+            - desc
+      additionalProperties: true
+    DashboardWidgetMatchColumn:
+      type: object
+      description: A field the widget's free-text quick search matches against.
+      properties:
+        name:
+          type: string
+          description: Internal field identifier.
+        label:
+          type: string
+          description: Display label for the field.
+        accessPath:
+          type: string
+          description: Dot-path into the resource record to match the search term against.
+        default:
+          type: boolean
+          description: Whether this field is matched by default.
+      additionalProperties: true
+  parameters:
+    x-okapi-module-id:
+      in: header
+      name: X-Okapi-Module-Id
+      required: true
+      description: 'ID of the specific module to route this request to. Required on paths  backed by an `interfaceType: multiple` interface'
+      schema:
+        type: string
+        example: mod-agreements-7.4.0-SNAPSHOT
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    x-okapi-module-id_2:
+      in: header
+      name: X-Okapi-Module-Id
+      required: true
+      description: 'ID of the specific module to route this request to. Required on paths  backed by an `interfaceType: multiple` interface'
+      schema:
+        type: string
+    x-okapi-module-id_3:
+      in: header
+      name: X-Okapi-Module-Id
+      required: true
+      description: 'ID of the specific module to route this request to. Required on paths  backed by an `interfaceType: multiple` interface'
+      schema:
+        type: string
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-licenses-openapi.json
+- folio-mod-agreements-openapi.yml
+- folio-mod-licenses-openapi.yml

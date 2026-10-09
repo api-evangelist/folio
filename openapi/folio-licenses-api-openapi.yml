@@ -1,0 +1,941 @@
+openapi: 3.2.0
+info:
+  title: Folio Licenses API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Licenses across 2 of this provider''s published API definitions: folio-mod-licenses-openapi.json, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Licenses
+paths:
+  /licenses/licenses:
+    description: Supports search and creation of Licenses
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Licenses
+      summary: Get a set of license records
+      operationId: getLicenses
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/LicenseResults'
+                - $ref: '#/components/schemas/LicenseResultsArray'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    post:
+      tags:
+      - Licenses
+      summary: Create license record
+      operationId: postLicense
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/License'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/{licenseId}:
+    get:
+      tags:
+      - Licenses
+      summary: Get a specified license record
+      operationId: getLicense
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    put:
+      tags:
+      - Licenses
+      summary: Update license record
+      operationId: putLicense
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/License'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    delete:
+      tags:
+      - Licenses
+      summary: Delete a specified license record
+      operationId: deleteLicense
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/{licenseId}/linkedAgreements:
+    description: Proxies to the ERM module to retrieve subscription agreements linked to the specified license
+    get:
+      tags:
+      - Licenses
+      summary: Get subscription agreements linked to a specified license
+      operationId: getLicenseLinkedAgreements
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: A list of subscription agreements linked to the license
+                items:
+                  type: object
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/{licenseId}/clone:
+    post:
+      tags:
+      - Licenses
+      summary: Clone a specified license record
+      operationId: postLicenseClone
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Flags indicating which groups of fields, or individual fields, to copy onto the cloned license. Each key is either a group name (copies every field in that group) or one of the individual field names, set to true to copy it.
+              properties:
+                licenseInfo:
+                  type: boolean
+                  description: 'Group: copy name, type, description and status'
+                internalContacts:
+                  type: boolean
+                  description: 'Group: copy contacts'
+                organizations:
+                  type: boolean
+                  description: 'Group: copy orgs'
+                coreDocs:
+                  type: boolean
+                  description: 'Group: copy docs'
+                terms:
+                  type: boolean
+                  description: 'Group: copy customProperties'
+                licenseDateInfo:
+                  type: boolean
+                  description: 'Group: copy endDateSemantics, startDate and endDate'
+                name:
+                  type: boolean
+                  description: Copy the license name
+                type:
+                  type: boolean
+                  description: Copy the license type
+                description:
+                  type: boolean
+                  description: Copy the license description
+                status:
+                  type: boolean
+                  description: Copy the license status
+                contacts:
+                  type: boolean
+                  description: Copy internal contacts
+                orgs:
+                  type: boolean
+                  description: Copy organizations
+                docs:
+                  type: boolean
+                  description: Copy documents
+                customProperties:
+                  type: boolean
+                  description: Copy custom properties (terms)
+                endDateSemantics:
+                  type: boolean
+                  description: Copy end date semantics
+                startDate:
+                  type: boolean
+                  description: Copy the start date
+                endDate:
+                  type: boolean
+                  description: Copy the end date
+                supplementaryDocs:
+                  type: boolean
+                  description: Copy supplementary documents
+              additionalProperties:
+                type: boolean
+                description: Any other single field name on the license, set to true to copy it
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/compareTerms:
+    post:
+      tags:
+      - Licenses
+      summary: Compare license terms
+      description: Streams a CSV comparing selected fields and custom properties (terms) across a set of specified licenses. Always writes a header row; a data row is only written for licenses matched by `ids`.
+      operationId: postLicensesCompareTerms
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  description: UUIDs of the licenses to include in the comparison
+                  items:
+                    type: string
+                    format: uuid
+                include:
+                  type: object
+                  description: Which columns to output. Set a license property name to `true` to output it as a column, or use the special key `customProperties` to select terms. Any other single-value field name on the license is also accepted, set to `true`.
+                  properties:
+                    id:
+                      type: boolean
+                      description: Include the license id column
+                    name:
+                      type: boolean
+                      description: Include the license name column
+                    description:
+                      type: boolean
+                      description: Include the license description column
+                    status:
+                      type: boolean
+                      description: Include the license status column
+                    startDate:
+                      type: boolean
+                      description: Include the license start date column
+                    endDate:
+                      type: boolean
+                      description: Include the license end date column
+                    endDateSemantics:
+                      type: boolean
+                      description: Include the license end date semantics column
+                    openEnded:
+                      type: boolean
+                      description: Include the derived open-ended flag column
+                    type:
+                      type: boolean
+                      description: Include the license type column
+                    localReference:
+                      type: boolean
+                      description: Include the license local reference column
+                    dateCreated:
+                      type: boolean
+                      description: Include the record creation date column
+                    lastUpdated:
+                      type: boolean
+                      description: Include the record last-updated date column
+                    customProperties:
+                      type: object
+                      description: Map of custom property (term) name to `true`, to include that term. For each included term, the parts selected in `terms` are each output as a separate column.
+                      additionalProperties:
+                        type: boolean
+                  additionalProperties:
+                    type: boolean
+                    description: Any other single-value license field name, set to `true` to include it as a column. Collection-valued fields (e.g. `tags`, `docs`, `contacts`, `orgs`) are not rejected, but render poorly since each row is joined from the raw object's string form rather than a meaningful value.
+                terms:
+                  type: object
+                  description: Which parts of each custom property named in `include.customProperties` to output as columns.
+                  properties:
+                    value:
+                      type: boolean
+                      description: Include the term's value column
+                    internal:
+                      type: boolean
+                      description: Include the term's internal note column
+                    note:
+                      type: boolean
+                      description: Include the term's note column
+                    publicNote:
+                      type: boolean
+                      description: Include the term's public note column
+      responses:
+        '200':
+          description: 'OK. CSV body, one row per matched license, columns per the `include` and `terms` selections above. The response has a `Content-Disposition: attachment; filename=export.csv` header.'
+          content:
+            text/csv:
+              schema:
+                type: string
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  schemas:
+    LicenseResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/LicenseResultsArray'
+    AlternateName:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: License that owns the alternate name
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    CustomPropertyValue:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        internal:
+          type: boolean
+        note:
+          type: string
+        publicNote:
+          type: string
+        value:
+          oneOf:
+          - type: string
+          - type: integer
+          - $ref: '#/components/schemas/RefData'
+        type:
+          $ref: '#/components/schemas/CustomPropertyDefinition'
+    LicenseResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/License'
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+    InternalContact:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: License that owns the contact
+        user:
+          type: string
+          format: uuid
+        role:
+          description: The contact's role in relation to the license
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/RefData'
+    RefData:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+        owner:
+          $ref: '#/components/schemas/RefDataCategory'
+    RefDataCategory:
+      type: object
+      required:
+      - id
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+          readOnly: true
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefData'
+    LicenseOrg:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: License that owns the organisation
+        org:
+          $ref: '#/components/schemas/Organisation'
+        primaryOrg:
+          type: boolean
+          description: Whether this is the primary organisation for the license
+          default: false
+        note:
+          type: string
+          description: A note about this organisation's relationship to the license
+        roles:
+          type: array
+          description: The roles this organisation plays in relation to the license
+          items:
+            type: object
+            required:
+            - id
+            - role
+            properties:
+              id:
+                type: string
+                format: uuid
+                readOnly: true
+              owner:
+                $ref: '#/components/schemas/LicenseOrg'
+                readOnly: true
+              role:
+                description: The role (e.g. Licensor)
+                oneOf:
+                - type: string
+                - $ref: '#/components/schemas/RefData'
+              note:
+                type: string
+    License:
+      allOf:
+      - $ref: '#/components/schemas/LicenseCore'
+      - type: object
+        properties:
+          type:
+            description: The license type (e.g. Local, Consortial, National, Alliance)
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/RefData'
+          localReference:
+            type: string
+            description: A local reference identifier for the license
+          alternateNames:
+            type: array
+            description: Alternative names for the license
+            items:
+              $ref: '#/components/schemas/AlternateName'
+          orgs:
+            type: array
+            description: Organisations associated with the license
+            items:
+              $ref: '#/components/schemas/LicenseOrg'
+          amendments:
+            type: array
+            description: Amendments to the license, sorted by start date descending
+            items:
+              $ref: '#/components/schemas/LicenseAmendment'
+    DocumentAttachment:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        note:
+          type: string
+        url:
+          type: string
+          format: uri
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    CustomPropertyDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        primary:
+          type: boolean
+        defaultInternal:
+          type: boolean
+        retired:
+          type: boolean
+        weight:
+          type: integer
+        type:
+          type: string
+          description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
+        category:
+          $ref: '#/components/schemas/RefDataCategory'
+    LicenseAmendment:
+      allOf:
+      - $ref: '#/components/schemas/LicenseCore'
+    LicenseCore:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier
+        name:
+          type: string
+          description: The name of the license or amendment
+        description:
+          type: string
+          description: A description of the license or amendment
+        status:
+          description: The status (e.g. In negotiation, Not yet active, Active, Rejected, Expired)
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/RefData'
+        startDate:
+          type: string
+          format: date
+          description: The date on which the license or amendment becomes active
+        endDate:
+          type: string
+          format: date
+          description: The date on which the license or amendment expires
+        endDateSemantics:
+          description: How the end date should be interpreted (e.g. Explicit, Open ended, Implicit)
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/RefData'
+        openEnded:
+          type: boolean
+          description: Derived flag indicating whether the license or amendment is open-ended
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The date and time the record was created
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The date and time the record was last updated
+        tags:
+          type: array
+          description: Tags applied to the license or amendment
+          items:
+            $ref: '#/components/schemas/Tag'
+        docs:
+          type: array
+          description: Documents attached to the license or amendment
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        supplementaryDocs:
+          type: array
+          description: Supplementary documents attached to the license or amendment
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        contacts:
+          type: array
+          description: Internal contacts associated with the license or amendment
+          items:
+            $ref: '#/components/schemas/InternalContact'
+        customProperties:
+          type: object
+          description: Custom properties (license terms) — keys are property names, values are arrays of property value instances
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/CustomPropertyValue'
+    ValidationError:
+      type: object
+      required:
+      - message
+      - path
+      - _links
+      properties:
+        message:
+          type: string
+        path:
+          type: string
+        _links:
+          type: object
+          required:
+          - self
+          properties:
+            self:
+              type: object
+              required:
+              - href
+              properties:
+                href:
+                  type: string
+                  format: uri
+    Tag:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        value:
+          type: string
+        normValue:
+          type: string
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
+  parameters:
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    licenseId:
+      in: path
+      name: licenseId
+      description: UUID for a license
+      required: true
+      schema:
+        type: string
+        format: uuid
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-licenses-openapi.json
+- folio-mod-licenses-openapi.yml

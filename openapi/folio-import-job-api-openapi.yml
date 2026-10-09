@@ -1,0 +1,155 @@
+openapi: 3.2.0
+info:
+  title: Folio import, job API
+  version: v1
+  description: 'Operations tagged import, job across 2 of this provider''s published API definitions: folio-mod-linked-data-import-openapi.json, folio-mod-linked-data-import-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: import, job
+paths:
+  /linked-data-import/jobs/{jobExecutionId}:
+    get:
+      operationId: getJobInfo
+      tags:
+      - import, job
+      description: Returns information about Import Job by ID
+      parameters:
+      - name: jobExecutionId
+        in: path
+        required: true
+        description: The ID of the Import Job Execution
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Import Job information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jobInfo'
+        '404':
+          description: Job not found
+        '500':
+          description: Internal Server Error
+      summary: Get job info
+      x-summary-source: derived
+  /linked-data-import/jobs/{jobExecutionId}/failed-lines:
+    get:
+      operationId: getFailedLines
+      tags:
+      - import, job
+      description: Downloads CSV file with failed RDF lines for the specified job
+      parameters:
+      - name: jobExecutionId
+        in: path
+        required: true
+        description: The ID of the Import Job Execution
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: CSV file with failed RDF lines
+          headers:
+            Content-Disposition:
+              description: Attachment header for file download
+              schema:
+                type: string
+                example: attachment; filename="failed-lines.csv"
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Job not found
+        '500':
+          description: Internal Server Error
+      summary: Get failed lines
+      x-summary-source: derived
+  /linked-data-import/jobs/{jobExecutionId}/stop:
+    put:
+      operationId: stopJob
+      tags:
+      - import, job
+      description: Stops running Import Job by execution ID
+      parameters:
+      - name: jobExecutionId
+        in: path
+        required: true
+        description: The ID of the Import Job Execution
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Job has been stopped successfully
+        '404':
+          description: Job is not found
+        '409':
+          description: Job cannot be stopped because it's not running
+        '500':
+          description: Internal Server Error
+      summary: Stop job
+      x-summary-source: derived
+components:
+  schemas:
+    jobInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Import Job Information
+      required:
+      - startDate
+      - startedBy
+      - status
+      - fileName
+      - latestStep
+      properties:
+        startDate:
+          type: string
+          description: Job start date and time
+        endDate:
+          type: string
+          description: Job end date and time
+        startedBy:
+          type: string
+          description: User who started the job
+        status:
+          type: string
+          description: Current job status from Spring Batch BatchStatus
+        fileName:
+          type: string
+          description: Name of the file being imported
+        latestStep:
+          type: string
+          description: Current step being executed
+        linesRead:
+          type: integer
+          format: int64
+          description: Number of lines read from the file
+        linesMapped:
+          type: integer
+          format: int64
+          description: Number of lines successfully mapped
+        linesFailedMapping:
+          type: integer
+          format: int64
+          description: Number of lines failed during mapping
+        linesCreated:
+          type: integer
+          format: int64
+          description: Number of resources created
+        linesUpdated:
+          type: integer
+          format: int64
+          description: Number of resources updated
+        linesFailedSaving:
+          type: integer
+          format: int64
+          description: Number of lines failed during saving
+        savingComplete:
+          type: boolean
+          description: Indicates if the saving process is complete
+x-refined-from:
+- folio-mod-linked-data-import-openapi.json
+- folio-mod-linked-data-import-openapi.yml

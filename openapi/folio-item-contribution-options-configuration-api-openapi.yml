@@ -1,0 +1,220 @@
+openapi: 3.2.0
+info:
+  title: Folio Item Contribution Options Configuration API
+  version: v1
+  description: 'Operations tagged item-contribution-options-configuration across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: item-contribution-options-configuration
+paths:
+  /central-servers/{centralServerId}/item-contribution-options:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/itemContributionOptionsConfigurationDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Get Item Contribution Options Configuration by id
+      operationId: getItemContributionOptionsConfigurationById
+      tags:
+      - item-contribution-options-configuration
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Get item contribution options configuration by id
+      x-summary-source: derived
+    put:
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Update Item Contribution Options Configuration
+      operationId: updateItemContributionOptionsConfiguration
+      tags:
+      - item-contribution-options-configuration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/itemContributionOptionsConfigurationDTO'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Update item contribution options configuration
+      x-summary-source: derived
+    post:
+      description: Add new item contribution options configuration associated with the central server
+      operationId: createItemContributionOptionsConfiguration
+      tags:
+      - item-contribution-options-configuration
+      responses:
+        '201':
+          description: Item Contribution Options Configuration created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/itemContributionOptionsConfigurationDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/itemContributionOptionsConfigurationDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Create item contribution options configuration
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    itemContributionOptionsConfigurationDTO:
+      description: Item Contribution Options
+      type: object
+      properties:
+        id:
+          description: Item Contribution Options Configuration id
+          type: string
+          format: UUID
+        notAvailableItemStatuses:
+          description: A list of FOLIO item states that should be considered "Not available"
+          type: array
+          items:
+            type: string
+        nonLendableLoanTypes:
+          description: A list of FOLIO loan types that should be considered non-lendable
+          type: array
+          items:
+            type: string
+            format: UUID
+        nonLendableLocations:
+          description: A list of FOLIO locations whose items should be considered non-lendable
+          type: array
+          items:
+            type: string
+            format: UUID
+        nonLendableMaterialTypes:
+          description: A list of FOLIO material types that should be considered non-lendable
+          type: array
+          items:
+            type: string
+            format: UUID
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  responses:
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+x-refined-from:
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-inn-reach-settings-openapi.yml

@@ -1,0 +1,343 @@
+# x-archived-from: folio-edge-erm-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Erm API
+  version: v1
+servers:
+- url: /erm/
+paths:
+  /erm/license-terms/{id}:
+    get:
+      tags:
+      - licenseTerms
+      operationId: getLicenseTerms
+      summary: Retrieve license terms by package/title identifier
+      description: Retrieve license terms by package/title identifier
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      responses:
+        '200':
+          description: Calls the backend service associated with the type parameter and returns the response as-is
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/license-terms'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /erm/license-terms/batch:
+    post:
+      tags:
+      - batchLicenseTerms
+      operationId: batchLicenseTerms
+      summary: Retrieve license terms by package/title identifier in batch
+      description: Retrieve license terms by package/title identifier in batch
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/request-ids'
+      responses:
+        '200':
+          description: Calls the backend service associated with the type parameter and returns the response as-is
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/license-terms-batch'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+components:
+  responses:
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+    accessDeniedResponse:
+      description: Access Denied
+      content:
+        application/json:
+          example:
+            code: 403
+            errorMessage: Access denied
+          schema:
+            $ref: '#/components/schemas/Error'
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    unprocessableEntityErrorResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 422
+            errorMessage: Unable to be process entity
+          schema:
+            $ref: '#/components/schemas/Error'
+    notImplementedResponse:
+      description: The server does not support the functionality required to fulfill the request
+      content:
+        application/json:
+          example: the method that is unavailable
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    requestQueryParameters:
+      $ref: '#/components/schemas/RequestQueryParameters'
+    errorResponse:
+      $ref: '#/components/schemas/Error'
+    license-term-item:
+      description: License term item record
+      type: object
+      properties:
+        id:
+          description: License term id
+          type: number
+        name:
+          description: License term name
+          type: string
+        label:
+          description: License term label
+          type: string
+        description:
+          description: License term description
+          type: string
+        visibility:
+          description: License term visibility
+          type: string
+        primary:
+          description: Indicates if this license term is primary
+          type: boolean
+        value:
+          description: Free-form JSON value (can be string, object, array, etc).
+          x-java-type: java.lang.Object
+        weight:
+          description: License term weight for sorting
+          type: number
+        publicNote:
+          description: Public note for this license term
+          type: string
+      required:
+      - id
+      - name
+      - label
+      - description
+      - visibility
+      - primary
+      - value
+      - weight
+      - publicNote
+    license-terms:
+      description: License terms values by id
+      type: object
+      properties:
+        licenseTerms:
+          description: Array of license term objects with found values
+          type: array
+          items:
+            type: object
+            description: license term item object
+            $ref: '#/components/schemas/license-term-item'
+      required:
+      - licenseTerms
+    Error:
+      type: object
+      properties:
+        code:
+          description: Error status code
+          type: integer
+        errorMessage:
+          description: Error message text
+          type: string
+    request-ids:
+      type: object
+      description: Request body for batch license term request
+      properties:
+        ids:
+          description: List of request ids
+          type: array
+          items:
+            type: string
+      required:
+      - ids
+      uniqueItems: true
+      additionalProperties: false
+    license-terms-batch-item:
+      description: License term item response
+      type: object
+      properties:
+        id:
+          type: string
+          description: id field
+        licenseTerms:
+          description: Array of license term objects with found values
+          type: array
+          items:
+            type: object
+            description: license term item object
+            $ref: '#/components/schemas/license-term-item'
+      required:
+      - id
+      - licenseTerms
+    license-terms-batch:
+      description: License terms response
+      type: object
+      properties:
+        results:
+          type: array
+          description: license term items found by provided ids
+          items:
+            type: object
+            description: license term item response
+            $ref: '#/components/schemas/license-terms-batch-item'
+      required:
+      - results
+    RequestQueryParameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: A CQL query string with search conditions.
+          minLength: 1
+        limit:
+          type: integer
+          description: Limit the number of elements returned in the response
+          maximum: 2147483647
+          minimum: 0
+          default: 10
+        offset:
+          type: integer
+          description: Skip over a number of elements by specifying an offset value for the query
+          maximum: 2147483647
+          minimum: 0
+          default: 0
+        lang:
+          type: string
+          description: Requested language
+          default: en
+          pattern: '[a-zA-Z]{2}'
+        expand:
+          type: string
+          description: Whether or not to expand the id fields
+  parameters:
+    id:
+      name: id
+      in: path
+      description: The UUID of a FOLIO user
+      required: true
+      schema:
+        type: string
+    request-query-parameters:
+      name: requestQueryParameters
+      in: query
+      description: Request query parameters(query, limit, offset and etc.) as object.
+      schema:
+        $ref: '#/components/schemas/RequestQueryParameters'
+    query-parameter:
+      name: query
+      in: query
+      description: The keyword query in CQL format
+      schema:
+        type: string
+    lang:
+      name: lang
+      in: query
+      description: Requested language
+      required: false
+      example: en
+      schema:
+        pattern: '[a-zA-Z]{2}'
+        default: en
+        type: string
+    type:
+      name: type
+      in: query
+      description: Indicates how to route the request
+      required: true
+      schema:
+        type: string
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    x-okapi-url-header:
+      name: x-okapi-url
+      in: header
+      description: x-okapi-url header value
+      required: false
+      schema:
+        type: string
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    authorization:
+      name: authorization
+      in: header
+      description: apikey for authorization
+      required: false
+      schema:
+        type: string
+    apiKey:
+      name: apiKey
+      in: query
+      description: apikey for authorization
+      required: false
+      schema:
+        type: string

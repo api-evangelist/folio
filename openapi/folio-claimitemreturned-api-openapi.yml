@@ -1,0 +1,153 @@
+openapi: 3.2.0
+info:
+  title: Folio Claim Item Returned API
+  version: v1
+  description: 'Operations tagged claimItemReturned across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: claimItemReturned
+paths:
+  /circulation-bff/loans/{loanId}/claim-item-returned:
+    post:
+      operationId: claimItemReturned
+      description: Claims item returned
+      tags:
+      - claimItemReturned
+      parameters:
+      - name: loanId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The ID of the loan
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/claimItemReturnedRequest'
+        required: true
+      responses:
+        '204':
+          description: The loaned item has been successfully claimed returned
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Claim item returned
+      x-summary-source: derived
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    claimItemReturnedRequest:
+      type: object
+      description: Request body schema for claim item returned API
+      properties:
+        itemClaimedReturnedDateTime:
+          description: The date and time when the item is to be claimed returned
+          type: string
+          format: date-time
+        comment:
+          description: Comment explaining why the item has been claimed returned
+          type: string
+      additionalProperties: true
+      required:
+      - itemClaimedReturnedDateTime
+  examples:
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+    unprocessableEntityResponse:
+      description: Validation error for the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            response:
+              $ref: '#/components/examples/validationErrorResponse'
+x-refined-from:
+- folio-mod-circulation-bff-circulationbff-openapi.json
+- folio-mod-circulation-bff-circulationbff-openapi.yml

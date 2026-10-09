@@ -1,0 +1,355 @@
+openapi: 3.2.0
+info:
+  title: Folio Search Resources IDs API
+  version: v4.1.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged search-resources-ids across 2 of this provider''s published API definitions: folio-mod-search-openapi.json, folio-mod-search-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://{environment}-okapi.ci.folio.org
+  variables:
+    environment:
+      default: folio-dev-spitfire
+      enum:
+      - folio-dev-spitfire
+      - folio-perf-spitfire
+- description: Reference environments.
+  url: https://folio-{environment}-okapi.dev.folio.org
+  variables:
+    environment:
+      default: snapshot
+      enum:
+      - snapshot
+      - snapshot-2
+tags:
+- description: Provides endpoints to retrieve record IDs by CQL queries, without returning the full record data.
+  name: search-resources-ids
+paths:
+  /search/resources/jobs/{jobId}:
+    get:
+      description: Get a job for the stream of resource ids.
+      operationId: getIdsJob
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      - description: UUID of the job to get
+        in: path
+        name: jobId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                streamIdsJobResponse:
+                  $ref: '#/components/examples/streamIdsJobResponse'
+              schema:
+                $ref: '#/components/schemas/resourceIdsJob'
+          description: Job for the stream of resource ids
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Job
+      tags:
+      - search-resources-ids
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/resources/jobs:
+    post:
+      description: Creates a job for the stream of resource ids.
+      operationId: submitIdsJob
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              streamIdsJobRequest:
+                $ref: '#/components/examples/streamIdsJobRequest'
+            schema:
+              $ref: '#/components/schemas/resourceIdsJob'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                streamIdsJobResponse:
+                  $ref: '#/components/examples/streamIdsJobResponse'
+              schema:
+                $ref: '#/components/schemas/resourceIdsJob'
+          description: Job for the stream of resource ids
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Trigger new Job
+      tags:
+      - search-resources-ids
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/resources/jobs/{jobId}/ids:
+    get:
+      description: Get a list of resource ids by job id
+      operationId: getResourceIds
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      - description: UUID of the job to get
+        in: path
+        name: jobId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                idsResponse:
+                  $ref: '#/components/examples/resourceIdsResult'
+          description: Resources ids as a json stream
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Resource IDs
+      tags:
+      - search-resources-ids
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+components:
+  schemas:
+    resourceIdsJob:
+      additionalProperties: false
+      description: Job for the stream of entity ids.
+      example:
+        id: id
+        query: query
+        status: IN_PROGRESS
+        entityType: INSTANCE
+        createdDate: createdDate
+      properties:
+        id:
+          description: Unique ID for the job record.
+          readOnly: true
+          type: string
+        query:
+          description: CQL query for getting ids.
+          type: string
+        status:
+          description: Ids streaming status.
+          enum:
+          - IN_PROGRESS
+          - ERROR
+          - COMPLETED
+          - DEPRECATED
+          readOnly: true
+          type: string
+        entityType:
+          description: Type of entity for streaming ids.
+          enum:
+          - INSTANCE
+          - AUTHORITY
+          - HOLDINGS
+          type: string
+        createdDate:
+          description: Date and time when the record was created.
+          readOnly: true
+          type: string
+      required:
+      - entityType
+      - query
+      type: object
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: 'null'
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    errorResponse:
+      description: A set of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        total_records:
+          description: Total number of errors
+          type: integer
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      type: object
+  examples:
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    resourceIdsResult:
+      value:
+        ids:
+        - id: e7e7f4a4-ff8e-48f4-ae8e-25770b7ab4b9
+        - id: e60063f6-db50-4a2a-93f6-6b27ab0420f2
+        - id: 5fab345a-30a4-4aee-8667-1e33d4627ce9
+        totalRecords: 3
+    streamIdsJobResponse:
+      value:
+        id: eea1432c-beb8-4f4f-b96a-f8de977f1106
+        query: title=*
+        status: COMPLETED
+        entityType: INSTANCE
+        createdDate: '1974-12-03T00:00:00'
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    streamIdsJobRequest:
+      value:
+        query: title=*
+        entityType: INSTANCE
+x-refined-from:
+- folio-mod-search-openapi.json
+- folio-mod-search-openapi.yml

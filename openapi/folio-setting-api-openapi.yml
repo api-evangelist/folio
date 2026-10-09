@@ -1,0 +1,299 @@
+openapi: 3.2.0
+info:
+  title: Folio Setting API
+  version: 1.0.0
+  description: 'Operations tagged setting across 2 of this provider''s published API definitions: folio-mod-dcb-dcb-transaction-openapi.json, folio-mod-dcb-dcb-transaction-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Setting
+paths:
+  /dcb/settings:
+    description: DCB settings endpoint
+    get:
+      description: Search DCB settings by CQL query with pagination
+      operationId: findDcbSettings
+      tags:
+      - Setting
+      parameters:
+      - $ref: '#/components/parameters/query'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: List of DCB settings matching the query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsCollection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Find dcb settings
+      x-summary-source: derived
+    post:
+      description: Create DCB setting
+      operationId: createDcbSetting
+      tags:
+      - Setting
+      requestBody:
+        description: DCB setting to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+      responses:
+        '201':
+          description: created DCB setting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setting'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Create dcb setting
+      x-summary-source: derived
+  /dcb/settings/{id}:
+    get:
+      description: Get DCB setting by id
+      operationId: getDcbSettingById
+      tags:
+      - Setting
+      parameters:
+      - $ref: '#/components/parameters/pathId'
+      responses:
+        '200':
+          description: DCB setting with the given id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setting'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Get dcb setting by id
+      x-summary-source: derived
+    put:
+      description: Update DCB setting by id
+      operationId: updateDcbSettingById
+      tags:
+      - Setting
+      requestBody:
+        description: DCB setting to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+      parameters:
+      - $ref: '#/components/parameters/pathId'
+      responses:
+        '204':
+          description: DCB setting updated successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Update dcb setting by id
+      x-summary-source: derived
+    delete:
+      description: Delete DCB setting by id
+      operationId: deleteDcbSettingById
+      tags:
+      - Setting
+      parameters:
+      - $ref: '#/components/parameters/pathId'
+      responses:
+        '204':
+          description: DCB setting deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Delete dcb setting by id
+      x-summary-source: derived
+components:
+  schemas:
+    SettingsCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of settings
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Setting'
+        totalRecords:
+          description: The number of setting records returned in this collection
+          type: integer
+      additionalProperties: false
+      required:
+      - items
+      - totalRecords
+    Setting:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Setting
+      type: object
+      properties:
+        id:
+          description: Setting Identifier
+          type: string
+          format: uuid
+        scope:
+          $ref: '#/components/schemas/SettingScope'
+        key:
+          type: string
+          description: Key within scope for this setting
+        value:
+          type: object
+          description: Settings value (any type)
+        _version:
+          type: integer
+          description: Record version for optimistic locking
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - id
+      - scope
+      - key
+      - value
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    SettingScope:
+      type: string
+      description: Scope for this entry (normally a module)
+      enum:
+      - mod-dcb
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  parameters:
+    pathId:
+      in: path
+      required: true
+      name: id
+      description: Record identifier
+      schema:
+        type: string
+        format: uuid
+      example: 1e111e76-1111-401c-ad8e-0d121a11111e
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 0
+    query:
+      in: query
+      name: query
+      description: A query string to filter records based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+        default: cql.allRecords=1
+      example: role
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 50
+        minimum: 0
+      example: 100
+  responses:
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+x-refined-from:
+- folio-mod-dcb-dcb-transaction-openapi.json
+- folio-mod-dcb-dcb-transaction-openapi.yml

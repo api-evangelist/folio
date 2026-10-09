@@ -1,0 +1,1289 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-export-config-schema.json",
+  "title": "ExportConfig",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-mod-data-export-spring-export-configs-openapi.yml#/components/schemas/ExportConfig",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "type": {
+      "description": "Export type",
+      "$ref": "#/$defs/ExportType"
+    },
+    "tenant": {
+      "description": "Tenant id",
+      "type": "string"
+    },
+    "exportTypeSpecificParameters": {
+      "$ref": "#/$defs/ExportTypeSpecificParameters"
+    },
+    "scheduleFrequency": {
+      "type": "integer",
+      "description": "Number of time periods"
+    },
+    "schedulePeriod": {
+      "type": "string",
+      "description": "Time period for repeating job",
+      "enum": [
+        "WEEK",
+        "DAY",
+        "HOUR",
+        "NONE"
+      ]
+    },
+    "scheduleTime": {
+      "type": "string",
+      "description": "Time to run the job"
+    },
+    "weekDays": {
+      "type": "array",
+      "description": "Day of week to run the job",
+      "items": {
+        "type": "string",
+        "description": "Day of week",
+        "enum": [
+          "MONDAY",
+          "TUESDAY",
+          "WEDNESDAY",
+          "THURSDAY",
+          "FRIDAY",
+          "SATURDAY",
+          "SUNDAY"
+        ]
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "exportTypeSpecificParameters",
+    "schedulePeriod"
+  ],
+  "$defs": {
+    "AuthorityControlExportConfig": {
+      "type": "object",
+      "properties": {
+        "fromDate": {
+          "description": "Report date range start",
+          "type": "string",
+          "format": "date"
+        },
+        "toDate": {
+          "description": "Report date range end",
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "required": [
+        "fromDate",
+        "toDate"
+      ]
+    },
+    "EHoldingsExportConfig": {
+      "type": "object",
+      "properties": {
+        "recordId": {
+          "description": "Unique identifier of package - combination of providerId-packageId",
+          "type": "string"
+        },
+        "recordType": {
+          "type": "string",
+          "description": "The record type",
+          "enum": [
+            "PACKAGE",
+            "RESOURCE"
+          ]
+        },
+        "titleSearchFilters": {
+          "description": "The filters needed to filter package titles",
+          "type": "string"
+        },
+        "packageFields": {
+          "description": "The list of package fields for export",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "titleFields": {
+          "description": "The list of title fields for export",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "recordId",
+        "recordType"
+      ]
+    },
+    "EdiConfig": {
+      "type": "object",
+      "properties": {
+        "accountNoList": {
+          "description": "The list of account numbers of the vendor",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "defaultAcquisitionMethods": {
+          "description": "Default acquisition methods for the accounts",
+          "type": "array",
+          "items": {
+            "description": "UUID of the acquisition method",
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "ediNamingConvention": {
+          "description": "The naming convention for this EDI",
+          "type": "string"
+        },
+        "libEdiCode": {
+          "description": "The library code for this EDI",
+          "type": "string"
+        },
+        "libEdiType": {
+          "description": "The library type for this EDI",
+          "type": "string",
+          "enum": [
+            "014/EAN",
+            "31B/US-SAN",
+            "091/Vendor-assigned",
+            "092/Customer-assigned"
+          ]
+        },
+        "vendorEdiCode": {
+          "description": "The library code for this EDI",
+          "type": "string"
+        },
+        "vendorEdiType": {
+          "description": "The library type for this EDI",
+          "type": "string",
+          "enum": [
+            "014/EAN",
+            "31B/US-SAN",
+            "091/Vendor-assigned",
+            "092/Customer-assigned"
+          ]
+        },
+        "notes": {
+          "description": "The notes for this EDI",
+          "type": "string"
+        },
+        "sendAccountNumber": {
+          "description": "If true then send account number",
+          "type": "boolean",
+          "default": false
+        },
+        "supportOrder": {
+          "description": "If true then order support",
+          "type": "boolean",
+          "default": false
+        },
+        "supportInvoice": {
+          "description": "If true then invoice support",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "EdiFtp": {
+      "type": "object",
+      "properties": {
+        "ftpConnMode": {
+          "description": "The FTP connection mode for this EDI",
+          "type": "string",
+          "enum": [
+            "Active",
+            "Passive"
+          ]
+        },
+        "ftpFormat": {
+          "description": "The FTP format for this EDI",
+          "type": "string",
+          "enum": [
+            "SFTP",
+            "FTP"
+          ]
+        },
+        "ftpMode": {
+          "description": "The FTP mode for this EDI",
+          "type": "string",
+          "enum": [
+            "ASCII",
+            "Binary"
+          ]
+        },
+        "ftpPort": {
+          "description": "The port for this EDI",
+          "type": "integer"
+        },
+        "invoiceDirectory": {
+          "description": "The invoice directory for this EDI",
+          "type": "string"
+        },
+        "isPrimaryTransmissionMethod": {
+          "description": "Primary transmission method",
+          "type": "boolean"
+        },
+        "notes": {
+          "description": "The notes for this EDI",
+          "type": "string"
+        },
+        "orderDirectory": {
+          "description": "The order directory for this EDI",
+          "type": "string"
+        },
+        "password": {
+          "description": "The login password for this EDI",
+          "type": "string"
+        },
+        "serverAddress": {
+          "description": "The server address for this EDI",
+          "type": "string"
+        },
+        "username": {
+          "description": "The login username for this EDI",
+          "type": "string"
+        }
+      }
+    },
+    "EdiSchedule": {
+      "type": "object",
+      "properties": {
+        "enableScheduledExport": {
+          "description": "Whether or not to enable scheduled for exports",
+          "type": "boolean",
+          "default": false
+        },
+        "scheduleParameters": {
+          "$ref": "#/$defs/ScheduleParameters"
+        },
+        "schedulingNotes": {
+          "description": "The schedule notes for this EDI job",
+          "type": "string"
+        }
+      }
+    },
+    "ExportType": {
+      "type": "string",
+      "enum": [
+        "CIRCULATION_LOG",
+        "BURSAR_FEES_FINES",
+        "BATCH_VOUCHER_EXPORT",
+        "EDIFACT_ORDERS_EXPORT",
+        "CLAIMS",
+        "ORDERS_EXPORT",
+        "INVOICE_EXPORT",
+        "BULK_EDIT_IDENTIFIERS",
+        "BULK_EDIT_QUERY",
+        "BULK_EDIT_UPDATE",
+        "E_HOLDINGS",
+        "AUTH_HEADINGS_UPDATES",
+        "FAILED_LINKED_BIB_UPDATES"
+      ],
+      "default": "BURSAR_FEES_FINES"
+    },
+    "ExportTypeSpecificParameters": {
+      "type": "object",
+      "properties": {
+        "bursarFeeFines": {
+          "$ref": "#/$defs/bursarExportJob"
+        },
+        "vendorEdiOrdersExportConfig": {
+          "$ref": "#/$defs/VendorEdiOrdersExportConfig"
+        },
+        "query": {
+          "description": "CQL query to be passed to the module which data is being exported. Use it to filter data.",
+          "type": "string",
+          "maxLength": 5000
+        },
+        "eHoldingsExportConfig": {
+          "$ref": "#/$defs/EHoldingsExportConfig"
+        },
+        "authorityControlExportConfig": {
+          "$ref": "#/$defs/AuthorityControlExportConfig"
+        }
+      }
+    },
+    "ScheduleParameters": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Schedule unique identifier",
+          "type": "string",
+          "format": "uuid"
+        },
+        "scheduleFrequency": {
+          "type": "integer",
+          "description": "Number of time periods"
+        },
+        "schedulePeriod": {
+          "type": "string",
+          "description": "Time period for repeating job",
+          "enum": [
+            "MONTH",
+            "WEEK",
+            "DAY",
+            "HOUR",
+            "EXACT_DATE",
+            "NONE"
+          ]
+        },
+        "schedulingDate": {
+          "description": "The date (MM/DD/YYYY) for this job to start running",
+          "format": "date-time",
+          "type": "string"
+        },
+        "scheduleTime": {
+          "type": "string",
+          "description": "Time to run the job"
+        },
+        "scheduleDay": {
+          "type": "integer",
+          "description": "Day of month to run the job (One-based)"
+        },
+        "weekDays": {
+          "type": "array",
+          "description": "Day of week to run the job",
+          "items": {
+            "type": "string",
+            "description": "Day of week",
+            "enum": [
+              "MONDAY",
+              "TUESDAY",
+              "WEDNESDAY",
+              "THURSDAY",
+              "FRIDAY",
+              "SATURDAY",
+              "SUNDAY"
+            ]
+          }
+        },
+        "timeZone": {
+          "type": "string",
+          "description": "Schedule time zone",
+          "default": "UTC"
+        }
+      }
+    },
+    "VendorEdiOrdersExportConfig": {
+      "type": "object",
+      "properties": {
+        "exportConfigId": {
+          "description": "UUID of the export configuration. Needed to find Jobs by export config UUID",
+          "type": "string",
+          "format": "uuid"
+        },
+        "vendorId": {
+          "description": "UUID of the acquisition method",
+          "type": "string",
+          "format": "uuid"
+        },
+        "configName": {
+          "description": "Configuration name",
+          "type": "string"
+        },
+        "configDescription": {
+          "description": "Configuration description",
+          "type": "string"
+        },
+        "ediConfig": {
+          "description": "EDI config for this vendor",
+          "$ref": "#/$defs/EdiConfig"
+        },
+        "ediFtp": {
+          "$ref": "#/$defs/EdiFtp"
+        },
+        "ediSchedule": {
+          "$ref": "#/$defs/EdiSchedule"
+        },
+        "isDefaultConfig": {
+          "description": "If true then config is default",
+          "type": "boolean",
+          "default": false
+        },
+        "integrationType": {
+          "description": "Type of the integration",
+          "type": "string",
+          "enum": [
+            "Ordering",
+            "Claiming"
+          ]
+        },
+        "transmissionMethod": {
+          "description": "Transmission method",
+          "type": "string",
+          "enum": [
+            "FTP",
+            "File download"
+          ]
+        },
+        "fileFormat": {
+          "description": "File format",
+          "type": "string",
+          "enum": [
+            "CSV",
+            "EDI"
+          ]
+        },
+        "claimPieceIds": {
+          "description": "Claim piece ids. Applicable only for Claiming integration type",
+          "type": "array",
+          "items": {
+            "description": "UUID of the piece",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "bursarExportDataToken": {
+      "description": "Usable token for bursar export",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/bursarExportTokenAggregate"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenConstant"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenCurrentDate"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenFeeDate"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenFeeAmount"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenFeeMetadata"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenItemData"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenUserData"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenUserDataOptional"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenConditional"
+        }
+      ]
+    },
+    "bursarExportFilter": {
+      "description": "Filter for bursar export job",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/bursarExportFilterAge"
+        },
+        {
+          "$ref": "#/$defs/bursarExportFilterAmount"
+        },
+        {
+          "$ref": "#/$defs/bursarExportFilterFeeType"
+        },
+        {
+          "$ref": "#/$defs/bursarExportFilterLocation"
+        },
+        {
+          "$ref": "#/$defs/bursarExportFilterPatronGroup"
+        },
+        {
+          "$ref": "#/$defs/bursarExportFilterServicePoint"
+        },
+        {
+          "$ref": "#/$defs/bursarExportFilterCondition"
+        },
+        {
+          "$ref": "#/$defs/bursarExportFilterNegation"
+        },
+        {
+          "$ref": "#/$defs/bursarExportFilterPass"
+        },
+        {
+          "$ref": "#/$defs/bursarExportFilterFeeFineOwner"
+        }
+      ]
+    },
+    "bursarExportFilterAge": {
+      "description": "Filter by fees within certain days range",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "Age"
+        },
+        "numDays": {
+          "description": "Number of days",
+          "type": "integer",
+          "minimum": 1
+        },
+        "condition": {
+          "description": "Condition to get days range",
+          "type": "string",
+          "enum": [
+            "LESS_THAN_EQUAL",
+            "LESS_THAN",
+            "GREATER_THAN",
+            "GREATER_THAN_EQUAL"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "numDays",
+        "condition"
+      ]
+    },
+    "bursarExportFilterAggregate": {
+      "description": "Filter by aggregate data",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "Aggregate"
+        },
+        "property": {
+          "description": "Property to filter on",
+          "type": "string",
+          "enum": [
+            "NUM_ROWS",
+            "TOTAL_AMOUNT"
+          ]
+        },
+        "amount": {
+          "description": "Amount to filter on",
+          "type": "integer"
+        },
+        "condition": {
+          "description": "Condition to filter on",
+          "type": "string",
+          "enum": [
+            "LESS_THAN_EQUAL",
+            "LESS_THAN",
+            "GREATER_THAN",
+            "GREATER_THAN_EQUAL"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "property",
+        "amount",
+        "condition"
+      ]
+    },
+    "bursarExportFilterAmount": {
+      "description": "Filter by fee amount",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "Amount"
+        },
+        "amount": {
+          "description": "Amount to filter by",
+          "type": "integer"
+        },
+        "condition": {
+          "description": "Condition to filter by",
+          "type": "string",
+          "enum": [
+            "LESS_THAN_EQUAL",
+            "LESS_THAN",
+            "GREATER_THAN",
+            "GREATER_THAN_EQUAL"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "amount",
+        "condition"
+      ]
+    },
+    "bursarExportFilterCondition": {
+      "description": "Filter conditional operations",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "Condition"
+        },
+        "operation": {
+          "description": "Conditional operation of the filter",
+          "type": "string",
+          "enum": [
+            "AND",
+            "OR"
+          ]
+        },
+        "criteria": {
+          "description": "Criteria to apply of the filter",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/bursarExportFilter"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "operation",
+        "criteria"
+      ]
+    },
+    "bursarExportFilterFeeFineOwner": {
+      "description": "Filter by fee fine owner",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "FeeFineOwner"
+        },
+        "feeFineOwner": {
+          "description": "Id of fee/fine owner to filter by",
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "feeFineOwner"
+      ]
+    },
+    "bursarExportFilterFeeType": {
+      "description": "Filter by fee type",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "FeeType"
+        },
+        "feeFineTypeId": {
+          "description": "Id of fee/fine type to filter by",
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "feeFineTypeId"
+      ]
+    },
+    "bursarExportFilterLocation": {
+      "description": "Filter by location",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "Location"
+        },
+        "locationId": {
+          "description": "Id of location to filter by",
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "locationId"
+      ]
+    },
+    "bursarExportFilterNegation": {
+      "description": "Negation of filter for bursar export",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "Negation"
+        },
+        "criteria": {
+          "description": "Filter to negate",
+          "$ref": "#/$defs/bursarExportFilter"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "criteria"
+      ]
+    },
+    "bursarExportFilterPass": {
+      "description": "Filter that is always true",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "Pass"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ]
+    },
+    "bursarExportFilterPatronGroup": {
+      "description": "Filter by patron group",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "PatronGroup"
+        },
+        "patronGroupId": {
+          "description": "Id of patron group to filter by",
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "patronGroupId"
+      ]
+    },
+    "bursarExportFilterServicePoint": {
+      "description": "Filter by service point",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of filter",
+          "type": "string",
+          "default": "ServicePoint"
+        },
+        "servicePointId": {
+          "description": "Id of service point to filter by",
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "servicePointId"
+      ]
+    },
+    "bursarExportHeaderFooterToken": {
+      "description": "Token permitted in header/footer",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/bursarExportTokenAggregate"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenConstant"
+        },
+        {
+          "$ref": "#/$defs/bursarExportTokenCurrentDate"
+        }
+      ]
+    },
+    "bursarExportJob": {
+      "description": "Bursar export job schema",
+      "type": "object",
+      "properties": {
+        "filter": {
+          "description": "Filter to use for the regular export",
+          "$ref": "#/$defs/bursarExportFilter"
+        },
+        "groupByPatron": {
+          "description": "Choose whether to group fee/fines by patron",
+          "type": "boolean"
+        },
+        "groupByPatronFilter": {
+          "description": "Filter to use for the export when grouping by patron",
+          "$ref": "#/$defs/bursarExportFilterAggregate"
+        },
+        "header": {
+          "description": "Header format for the export file",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/bursarExportHeaderFooterToken"
+          }
+        },
+        "data": {
+          "description": "Data format for the export file",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/bursarExportDataToken"
+          }
+        },
+        "footer": {
+          "description": "Footer format for the export file",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/bursarExportHeaderFooterToken"
+          }
+        },
+        "transferInfo": {
+          "description": "Transfer information for the export",
+          "$ref": "#/$defs/bursarExportTransferCriteria"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "filter",
+        "groupByPatron",
+        "header",
+        "data",
+        "footer",
+        "transferInfo"
+      ]
+    },
+    "bursarExportTokenAggregate": {
+      "description": "Token to represent aggregated result of multiple fees",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of data token",
+          "type": "string",
+          "default": "Aggregate"
+        },
+        "value": {
+          "description": "Data to represent",
+          "type": "string",
+          "enum": [
+            "NUM_ROWS",
+            "TOTAL_AMOUNT"
+          ]
+        },
+        "decimal": {
+          "type": "boolean",
+          "description": "Whether to return value with decimal. Only applicable for total amount"
+        },
+        "lengthControl": {
+          "description": "Control length of the token",
+          "$ref": "#/$defs/bursarExportTokenLengthControl"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value",
+        "decimal"
+      ]
+    },
+    "bursarExportTokenConditional": {
+      "description": "Token to represent other data tokens depending on certain conditions",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of the data token",
+          "type": "string",
+          "default": "Conditional"
+        },
+        "conditions": {
+          "description": "Conditions to apply to the token",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "condition": {
+                "description": "Condition to apply to the item",
+                "$ref": "#/$defs/bursarExportFilter"
+              },
+              "value": {
+                "description": "Data to represent if the condition is true",
+                "$ref": "#/$defs/bursarExportDataToken"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "condition",
+              "value"
+            ]
+          }
+        },
+        "else": {
+          "description": "Data to represent if no condition is true",
+          "$ref": "#/$defs/bursarExportDataToken"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "conditions",
+        "else"
+      ]
+    },
+    "bursarExportTokenConstant": {
+      "description": "Token to represent a constant used as an arbitrary string",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of data token",
+          "type": "string",
+          "default": "Constant"
+        },
+        "value": {
+          "description": "Value of the constant",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ]
+    },
+    "bursarExportTokenCurrentDate": {
+      "description": "Token to represent part of date",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of data token",
+          "type": "string",
+          "default": "Date"
+        },
+        "value": {
+          "description": "Type of date value to represent",
+          "$ref": "#/$defs/bursarExportTokenDateType"
+        },
+        "timezone": {
+          "description": "Timezone to use for date",
+          "type": "string"
+        },
+        "lengthControl": {
+          "description": "Control length of the token",
+          "$ref": "#/$defs/bursarExportTokenLengthControl"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value",
+        "timezone"
+      ]
+    },
+    "bursarExportTokenDateType": {
+      "description": "Schema to represent the type of date information",
+      "type": "string",
+      "enum": [
+        "YEAR_LONG",
+        "YEAR_SHORT",
+        "MONTH",
+        "DATE",
+        "HOUR",
+        "MINUTE",
+        "SECOND",
+        "QUARTER",
+        "WEEK_OF_YEAR_ISO",
+        "WEEK_YEAR_ISO",
+        "DAY_OF_YEAR",
+        "YYYYMMDD",
+        "YYYY-MM-DD",
+        "MMDDYYYY",
+        "DDMMYYYY"
+      ]
+    },
+    "bursarExportTokenFeeAmount": {
+      "description": "Token to represent fee amount",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of data token",
+          "type": "string",
+          "default": "FeeAmount"
+        },
+        "decimal": {
+          "description": "Whether to return value with decimal",
+          "type": "boolean"
+        },
+        "lengthControl": {
+          "description": "Control length of the token",
+          "$ref": "#/$defs/bursarExportTokenLengthControl"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "decimal"
+      ]
+    },
+    "bursarExportTokenFeeDate": {
+      "description": "Token to represent part of date about a fee",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of data token",
+          "type": "string",
+          "default": "FeeDate"
+        },
+        "property": {
+          "description": "Property of fee to be represented by token",
+          "type": "string",
+          "enum": [
+            "CREATED",
+            "UPDATED",
+            "DUE",
+            "RETURNED"
+          ]
+        },
+        "value": {
+          "description": "Type of date value to represent",
+          "$ref": "#/$defs/bursarExportTokenDateType"
+        },
+        "placeholder": {
+          "description": "Placeholder value to use if date is not available",
+          "type": "string"
+        },
+        "timezone": {
+          "description": "Timezone to use for date",
+          "type": "string"
+        },
+        "lengthControl": {
+          "description": "Control length of token",
+          "$ref": "#/$defs/bursarExportTokenLengthControl"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "property",
+        "value",
+        "placeholder",
+        "timezone"
+      ]
+    },
+    "bursarExportTokenFeeMetadata": {
+      "description": "Token to represent fee metadata",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of data token",
+          "type": "string",
+          "default": "FeeMetadata"
+        },
+        "value": {
+          "description": "Metadata to represent",
+          "type": "string",
+          "enum": [
+            "FEE_FINE_TYPE_ID",
+            "FEE_FINE_TYPE_NAME"
+          ]
+        },
+        "lengthControl": {
+          "description": "Control length of token",
+          "$ref": "#/$defs/bursarExportTokenLengthControl"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ]
+    },
+    "bursarExportTokenItemData": {
+      "description": "Token to represent item data",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of token",
+          "type": "string",
+          "default": "ItemData"
+        },
+        "value": {
+          "description": "Item data to represent",
+          "type": "string",
+          "enum": [
+            "BARCODE",
+            "NAME",
+            "MATERIAL_TYPE",
+            "INSTITUTION_ID",
+            "CAMPUS_ID",
+            "LIBRARY_ID",
+            "LOCATION_ID"
+          ]
+        },
+        "placeholder": {
+          "description": "Placeholder text to display when no value is available",
+          "type": "string"
+        },
+        "lengthControl": {
+          "description": "Control length of token",
+          "$ref": "#/$defs/bursarExportTokenLengthControl"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value",
+        "placeholder"
+      ]
+    },
+    "bursarExportTokenLengthControl": {
+      "description": "Token to fill in or truncate the length of another token",
+      "type": "object",
+      "properties": {
+        "character": {
+          "description": "Character to fill in with",
+          "type": "string",
+          "maxLength": 1
+        },
+        "length": {
+          "description": "Desired length for the token",
+          "type": "integer"
+        },
+        "direction": {
+          "description": "Direction to fill in or truncate from",
+          "type": "string",
+          "enum": [
+            "FRONT",
+            "BACK"
+          ]
+        },
+        "truncate": {
+          "description": "Whether to truncate the token if it is longer than the desired length",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "character",
+        "length",
+        "direction",
+        "truncate"
+      ]
+    },
+    "bursarExportTokenUserData": {
+      "description": "Token to represent user data",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of data token",
+          "type": "string",
+          "default": "UserData"
+        },
+        "value": {
+          "description": "User data to represent",
+          "type": "string",
+          "enum": [
+            "FOLIO_ID"
+          ]
+        },
+        "lengthControl": {
+          "description": "Control length of token",
+          "$ref": "#/$defs/bursarExportTokenLengthControl"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ]
+    },
+    "bursarExportTokenUserDataOptional": {
+      "description": "Token to represent optional user data",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Type of data token",
+          "type": "string",
+          "default": "UserDataOptional"
+        },
+        "value": {
+          "description": "Optional user data to represent",
+          "type": "string",
+          "enum": [
+            "BARCODE",
+            "USERNAME",
+            "FIRST_NAME",
+            "MIDDLE_NAME",
+            "LAST_NAME",
+            "PATRON_GROUP_ID",
+            "EXTERNAL_SYSTEM_ID"
+          ]
+        },
+        "placeholder": {
+          "description": "Placeholder text to display when no value is present",
+          "type": "string"
+        },
+        "lengthControl": {
+          "description": "Control length of token",
+          "$ref": "#/$defs/bursarExportTokenLengthControl"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value",
+        "placeholder"
+      ]
+    },
+    "bursarExportTransferCriteria": {
+      "description": "Transfer criteria",
+      "type": "object",
+      "properties": {
+        "conditions": {
+          "description": "Conditions to apply to the transfer of fees/fines",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "condition": {
+                "description": "Condition to apply tp this item",
+                "$ref": "#/$defs/bursarExportFilter"
+              },
+              "account": {
+                "description": "Account to transfer fees/fines that meet this condition to",
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "condition",
+              "account"
+            ]
+          }
+        },
+        "else": {
+          "type": "object",
+          "description": "If none of the specified conditions is met",
+          "properties": {
+            "account": {
+              "description": "Account to transfer fees/fines that do not meet any specified conditions to",
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "account"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "conditions",
+        "else"
+      ]
+    }
+  }
+}

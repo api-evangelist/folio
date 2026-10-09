@@ -1,0 +1,401 @@
+openapi: 3.2.0
+info:
+  title: Folio Accessions API
+  version: v1
+  description: 'Operations tagged Accessions across 2 of this provider''s published API definitions: folio-mod-remote-storage-openapi.json, folio-mod-remote-storage-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /remote-storage/
+tags:
+- name: Accessions
+paths:
+  /accessions:
+    post:
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/accessionQueue'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad request
+        '422':
+          $ref: '#/components/responses/trait_validate_422'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Perform remote storage initiated accession
+      operationId: postAccession
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/accessionRequest'
+        required: true
+      tags:
+      - Accessions
+      summary: Post accession
+      x-summary-source: derived
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/accessionQueues'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Get a list of accession records
+      operationId: getAccessions
+      parameters:
+      - $ref: '#/components/parameters/trait_queryable_accessioned'
+      - $ref: '#/components/parameters/trait_queryable_storage_id'
+      - $ref: '#/components/parameters/trait_queryable_created_date'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      tags:
+      - Accessions
+      summary: Get accessions
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+  /accessions/id/{accessionId}:
+    put:
+      responses:
+        '204':
+          description: Set accession date time
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: No content
+      description: Set accessioned date by accession queue id
+      operationId: setAccessionedById
+      parameters:
+      - name: accessionId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      tags:
+      - Accessions
+      summary: Set accessioned by id
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+  /accessions/barcode/{barcode}:
+    put:
+      responses:
+        '204':
+          description: Set accession date time
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: No content
+      description: Set accessioned date by item barcode
+      operationId: setAccessionedByBarcode
+      parameters:
+      - name: barcode
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Accessions
+      summary: Set accessioned by barcode
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+components:
+  schemas:
+    baseCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Basic object to create pageable responses
+      type: object
+      properties:
+        totalRecords:
+          description: total records value
+          type: integer
+    parameter:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          description: Key of the parameter
+        value:
+          type: string
+          description: Value of the parameter
+      additionalProperties: false
+      required:
+      - key
+    accessionQueue:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Accession queue
+      properties:
+        id:
+          description: Accession queue id
+          $ref: '#/components/schemas/uuid'
+        itemBarcode:
+          description: Accession queue name
+          type: string
+        createdDateTime:
+          description: Created Date
+          type: string
+          format: date-time
+        accessionedDateTime:
+          description: Accessioned Date
+          type: string
+          format: date-time
+        remoteStorageId:
+          description: Remote storage id
+          $ref: '#/components/schemas/uuid'
+        callNumber:
+          description: Call number
+          type: string
+        instanceTitle:
+          description: Instance title
+          type: string
+        instanceAuthor:
+          description: Instance author
+          type: string
+        instanceContributors:
+          description: Instance contributors
+          type: string
+        publisher:
+          description: Instance publisher
+          type: string
+        publishYear:
+          description: Year of publication
+          type: string
+        publishPlace:
+          description: Place of publication
+          type: string
+        volume:
+          description: Volume
+          type: string
+        enumeration:
+          description: Enumeration
+          type: string
+        chronology:
+          description: Chronology
+          type: string
+        issn:
+          description: ISSN identifier
+          type: string
+        isbn:
+          description: ISBN identifier
+          type: string
+        oclc:
+          description: OCLC identifier
+          type: string
+        physicalDescription:
+          description: Physical description
+          type: string
+        materialType:
+          description: Material type
+          type: string
+        copyNumber:
+          description: Copy number
+          type: string
+        permanentLocationId:
+          description: Permanent location id
+          $ref: '#/components/schemas/uuid'
+        notes:
+          description: Accession queue notes
+          type: array
+          items:
+            description: Accession queue note
+            type: object
+            $ref: '#/components/schemas/accessionQueueNote'
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required: []
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+    accessionQueueNote:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Accession queue note
+      properties:
+        noteType:
+          description: Note type
+          type: string
+        note:
+          description: Accession queue note
+          type: string
+        staffOnly:
+          description: Staff only flag
+          type: boolean
+      additionalProperties: false
+      required: []
+    accessionQueues:
+      allOf:
+      - $ref: '#/components/schemas/baseCollection'
+      - type: object
+        properties:
+          accessions:
+            type: array
+            items:
+              $ref: '#/components/schemas/accessionQueue'
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Regexp pattern for UUID validation
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    accessionRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Accession request body
+      properties:
+        itemBarcode:
+          description: Barcode of the item to be accessioned
+          type: string
+        remoteStorageId:
+          description: Remote storage id
+          $ref: '#/components/schemas/uuid'
+      additionalProperties: false
+      required:
+      - itemBarcode
+      - remoteStorageId
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          $ref: '#/components/schemas/uuid'
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          $ref: '#/components/schemas/uuid'
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  parameters:
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_queryable_storage_id:
+      name: storageId
+      in: query
+      description: Remote storage id
+      schema:
+        type: string
+    trait_queryable_accessioned:
+      name: accessioned
+      in: query
+      description: Flag to indicate, that accession queue record was accessioned and has accesion date
+      schema:
+        type: boolean
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_queryable_created_date:
+      name: createdDate
+      in: query
+      description: Date of accession queue record creation
+      schema:
+        type: string
+  responses:
+    trait_validate_422:
+      description: Validation errors
+      content:
+        application/json:
+          example: examples/errors.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mod-remote-storage-openapi.json
+- folio-mod-remote-storage-openapi.yml

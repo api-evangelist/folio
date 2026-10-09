@@ -1,0 +1,1055 @@
+openapi: 3.2.0
+info:
+  title: Folio Index Management API
+  version: v4.1.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged index-management across 2 of this provider''s published API definitions: folio-mod-search-openapi.json, folio-mod-search-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://{environment}-okapi.ci.folio.org
+  variables:
+    environment:
+      default: folio-dev-spitfire
+      enum:
+      - folio-dev-spitfire
+      - folio-perf-spitfire
+- description: Reference environments.
+  url: https://folio-{environment}-okapi.dev.folio.org
+  variables:
+    environment:
+      default: snapshot
+      enum:
+      - snapshot
+      - snapshot-2
+tags:
+- description: Provides endpoints to manage the search index, including creating or updating mappings, settings, and manually populating the index with records from external sources (e.g., inventory).
+  name: index-management
+paths:
+  /search/index/indices:
+    post:
+      description: Creates indices for passed resource name and tenant id in request header.
+      operationId: createIndices
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              objectExample:
+                $ref: '#/components/examples/indexRequestBody'
+            schema:
+              $ref: '#/components/schemas/createIndexRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                indexOperationResponse:
+                  $ref: '#/components/examples/indexOperationResponse'
+              schema:
+                $ref: '#/components/schemas/folioCreateIndexResponse'
+          description: Response with created indices and status (error message will be present if operation failed)
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Create Index
+      tags:
+      - index-management
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/index/mappings:
+    post:
+      description: Creates mappings for passed resource name and tenant id in request header.
+      operationId: updateMappings
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              updateMappingsRequest:
+                $ref: '#/components/examples/updateMappingsRequest'
+            schema:
+              $ref: '#/components/schemas/updateMappingsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                indexOperationResponse:
+                  $ref: '#/components/examples/indexOperationResponse'
+              schema:
+                $ref: '#/components/schemas/folioIndexOperationResponse'
+          description: Response with created indices and status (error message will be present if operation failed)
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Create Index Mappings
+      tags:
+      - index-management
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/index/records:
+    post:
+      description: Indexes the records into elasticsearch.
+      operationId: indexRecords
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              indexRecordsRequest:
+                $ref: '#/components/examples/indexRecordsRequest'
+            schema:
+              items:
+                $ref: '#/components/schemas/resourceEvent'
+              type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                successResponse:
+                  $ref: '#/components/examples/indexRecordSuccessResponse'
+                failureResponse:
+                  $ref: '#/components/examples/indexRecordFailureResponse'
+              schema:
+                $ref: '#/components/schemas/folioIndexOperationResponse'
+          description: Response with created indices and status (error message will be present if operation failed)
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Index Records
+      tags:
+      - index-management
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/index/settings:
+    put:
+      description: Update Index Dynamic Settings data.
+      operationId: updateIndexDynamicSettings
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              updateRequest:
+                $ref: '#/components/examples/updateIndexSettingsRequest'
+            schema:
+              $ref: '#/components/schemas/updateIndexDynamicSettingsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                indexOperationResponse:
+                  $ref: '#/components/examples/indexOperationResponse'
+              schema:
+                $ref: '#/components/schemas/folioIndexOperationResponse'
+          description: Response with updated index settings and status (error message will be present if operation failed)
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Update Index Settings
+      tags:
+      - index-management
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/index/inventory/reindex:
+    post:
+      description: Initiates reindex for the inventory records
+      operationId: reindexInventoryRecords
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              reindexRequest:
+                $ref: '#/components/examples/reindexRequest'
+            schema:
+              $ref: '#/components/schemas/reindexRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                reindexJobResponse:
+                  $ref: '#/components/examples/reindexJobResponse'
+              schema:
+                $ref: '#/components/schemas/reindexJob'
+          description: Reindex operation has been started
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Re-Index
+      tags:
+      - index-management
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/index/instance-records/reindex/status:
+    get:
+      description: Get a list of statuses for each resource reindexing
+      operationId: getReindexStatus
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                ReindexStatusResult:
+                  $ref: '#/components/examples/ReindexStatusResult'
+              schema:
+                items:
+                  $ref: '#/components/schemas/reindexStatusItem'
+                type: array
+          description: Reindex statuses by entity type
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Reindex Status
+      tags:
+      - index-management
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/index/instance-records/reindex/full:
+    post:
+      description: Initiates the full reindex for the inventory instance records
+      operationId: reindexInstanceRecords
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              reindexFullRequest:
+                $ref: '#/components/examples/reindexFullRequest'
+            schema:
+              $ref: '#/components/schemas/reindexFullRequest'
+      responses:
+        '200':
+          description: Full reindex operation has been started
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Re-Index
+      tags:
+      - index-management
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/index/instance-records/reindex/upload:
+    post:
+      description: Initiates reindex upload for inventory instance records
+      operationId: reindexUploadInstanceRecords
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              reindexRequest:
+                $ref: '#/components/examples/reindexUploadDto'
+            schema:
+              $ref: '#/components/schemas/reindexUploadDto'
+      responses:
+        '200':
+          description: Full reindex operation has been started
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Upload Re-Index
+      tags:
+      - index-management
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/index/instance-records/reindex/merge/failed:
+    post:
+      description: Initiates reindexing of failed merge ranges for inventory instance records
+      operationId: reindexFailedMergeRanges
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Reindexing of failed merge ranges has been started
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Failed Merge Ranges Re-Index
+      tags:
+      - index-management
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+components:
+  schemas:
+    indexSettings:
+      description: Elasticsearch/Opensearch index settings
+      properties:
+        numberOfShards:
+          description: The number of primary shards that an index should have.
+          maximum: 100
+          minimum: 1
+          type: integer
+        numberOfReplicas:
+          description: The number of replicas each primary shard has.
+          maximum: 100
+          minimum: 0
+          type: integer
+        refreshInterval:
+          description: How often to make new changes to the index visible to search (seconds). '-1' disables refresh.
+          maximum: 3600
+          minimum: -1
+          type: integer
+      type: object
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: 'null'
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    reindexFullRequest:
+      description: Full reindex request with optional tenant filtering
+      properties:
+        tenantId:
+          description: Optional specific tenant ID to reindex. If not provided, reindexes all consortium members.
+          pattern: ^[a-zA-Z0-9_.-]+$
+          type: string
+        indexSettings:
+          $ref: '#/components/schemas/indexSettings'
+      type: object
+    folioCreateIndexResponse:
+      additionalProperties: false
+      description: Folio search create index response
+      example:
+        errorMessage: errorMessage
+        indices:
+        - indices
+        - indices
+        status: success
+      properties:
+        errorMessage:
+          description: Error message with the reason why index was failed to create.
+          type: string
+        indices:
+          description: List of created elasticsearch indices.
+          items:
+            description: Create index name
+            type: string
+          minItems: 0
+          type: array
+        status:
+          description: Index creation status - success or error.
+          enum:
+          - success
+          - error
+          type: string
+      type: object
+    resourceDeleteEventSubType:
+      description: Resource event delete operation type - one of [soft-delete, hard-delete]
+      enum:
+      - SOFT_DELETE
+      - HARD_DELETE
+      type: string
+    errorResponse:
+      description: A set of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        total_records:
+          description: Total number of errors
+          type: integer
+      type: object
+    reindexRequest:
+      description: Reindex Request body
+      properties:
+        recreateIndex:
+          default: false
+          description: Boolean parameter, if set to true - tenant index must be recreated before reindex operation
+          type: boolean
+        resourceName:
+          description: Resource name to run reindex for
+          enum:
+          - authority
+          - location
+          - linked-data-authority
+          - linked-data-work
+          - linked-data-hub
+          type: string
+        indexSettings:
+          $ref: '#/components/schemas/indexSettings'
+      required:
+      - resourceName
+      type: object
+    updateMappingsRequest:
+      additionalProperties: false
+      description: Request to create resource mappings in Elasticsearch
+      properties:
+        resourceName:
+          description: Name of resource
+          type: string
+      required:
+      - resourceName
+      type: object
+    resourceEvent:
+      description: Resource event body
+      example:
+        id: id
+        type: UPDATE
+        deleteEventSubType: SOFT_DELETE
+        tenant: tenant
+        resourceName: resourceName
+        new: '{}'
+        old: '{}'
+      properties:
+        id:
+          description: Resource id
+          type: string
+        type:
+          $ref: '#/components/schemas/resourceEventType'
+        deleteEventSubType:
+          $ref: '#/components/schemas/resourceDeleteEventSubType'
+        tenant:
+          description: Tenant id
+          type: string
+        resourceName:
+          description: Name of resource
+          type: string
+        new:
+          description: Instance record new fields
+          type: object
+        old:
+          description: Instance record old fields
+          type: object
+      required:
+      - id
+      - tenant
+      type: object
+    reindexStatusItem:
+      description: Reindex status item
+      example:
+        entityType: entityType
+        status: status
+        targetTenantId: targetTenantId
+        totalMergeRanges: 0
+        processedMergeRanges: 6
+        totalUploadRanges: 1
+        processedUploadRanges: 5
+        startTimeMerge: startTimeMerge
+        endTimeMerge: endTimeMerge
+        startTimeUpload: startTimeUpload
+        endTimeUpload: endTimeUpload
+        startTimeStaging: startTimeStaging
+        endTimeStaging: endTimeStaging
+      properties:
+        entityType:
+          description: Entity type for reindex status item
+          type: string
+        status:
+          description: Reindex status
+          type: string
+        targetTenantId:
+          description: tenantId of consortium member being re-indexed
+          type: string
+        totalMergeRanges:
+          description: Total merge ranges to process for entity
+          type: integer
+        processedMergeRanges:
+          description: Processed merge ranges for entity
+          type: integer
+        totalUploadRanges:
+          description: Total upload ranges to process for entity
+          type: integer
+        processedUploadRanges:
+          description: Processed upload ranges for entity
+          type: integer
+        startTimeMerge:
+          description: Start time of reindex merge phase for entity
+          type: string
+        endTimeMerge:
+          description: End time of reindex merge phase for entity
+          type: string
+        startTimeUpload:
+          description: Start time of reindex upload phase for entity
+          type: string
+        endTimeUpload:
+          description: End time of reindex upload phase for entity
+          type: string
+        startTimeStaging:
+          description: Start time of reindex staging phase for entity
+          type: string
+        endTimeStaging:
+          description: End time of reindex staging phase for entity
+          type: string
+      type: object
+    reindexJob:
+      description: Get job by id response
+      example:
+        id: id
+        jobStatus: jobStatus
+        submittedDate: submittedDate
+      properties:
+        id:
+          description: Job id
+          type: string
+        jobStatus:
+          description: Overall job status
+          type: string
+        submittedDate:
+          description: Timestamp when the job has been submitted
+          type: string
+      type: object
+    createIndexRequest:
+      additionalProperties: false
+      description: Request body to create Elasticsearch index
+      properties:
+        resourceName:
+          description: Name of resource
+          type: string
+      required:
+      - resourceName
+      type: object
+    reindexUploadDto:
+      description: Reindex Upload Entity types
+      properties:
+        entityTypes:
+          description: Entity name to run reindex upload
+          items:
+            enum:
+            - instance
+            - subject
+            - contributor
+            - classification
+            - call-number
+            type: object
+          minItems: 1
+          type: array
+        indexSettings:
+          $ref: '#/components/schemas/indexSettings'
+      required:
+      - entityTypes
+      type: object
+    indexDynamicSettings:
+      description: Elasticsearch/Opensearch index dynamic settings
+      properties:
+        numberOfReplicas:
+          description: The number of replicas each primary shard has.
+          maximum: 100
+          minimum: 0
+          type: integer
+        refreshInterval:
+          description: How often to make new changes to the index visible to search (seconds). '-1' disables refresh.
+          maximum: 3600
+          minimum: -1
+          type: integer
+      type: object
+    updateIndexDynamicSettingsRequest:
+      description: Update Index Settings request body
+      properties:
+        resourceName:
+          description: Resource name to set index Settings
+          type: string
+        indexSettings:
+          $ref: '#/components/schemas/indexDynamicSettings'
+      required:
+      - resourceName
+      type: object
+    folioIndexOperationResponse:
+      additionalProperties: false
+      description: Folio search create index response
+      example:
+        errorMessage: errorMessage
+        status: success
+      properties:
+        errorMessage:
+          description: Error message with the reason why index was failed to create.
+          type: string
+        status:
+          description: Index creation status - success or error.
+          enum:
+          - success
+          - error
+          type: string
+      type: object
+    resourceEventType:
+      description: Resource event operation type - one of [update, create, delete, delete_all, reindex]
+      enum:
+      - UPDATE
+      - CREATE
+      - DELETE
+      - REINDEX
+      - DELETE_ALL
+      type: string
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      type: object
+  examples:
+    indexRequestBody:
+      value:
+        resourceName: instance
+    reindexRequest:
+      value:
+        recreateIndex: true
+        resourceName: authority
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    indexRecordsRequest:
+      value:
+      - resourceName: instance
+        id: 83249565-16a8-4687-9061-fd1de43d7f34
+        type: CREATE
+        tenant: diku
+        new:
+          id: 83249565-16a8-4687-9061-fd1de43d7f34
+          hrid: in869
+          title: 'Kunstschätze aus badischen Schlössern :Meersburg, Rastatt, Favorite, Bruchsal, Heidelberg, Schwetzingen : 9. Juli bis 12. Oktober 1968, Ausstellung im Gartensaal des Karlsruher Schlosses /Badisches Landesmuseum Karlsruhe ; [Gesamtgestaltung und Redaktion, Ernst Petrasch].'
+          source: MARC
+          editions:
+          - 2. Aufl.
+          metadata:
+            createdDate: '1974-12-03T00:00:00'
+            updatedDate: '2018-10-15T13:25:11Z'
+          statusId: 7cc3837e-c4f1-4584-a3ae-b0c0bfce4bb2
+          subjects:
+          - Art--Germany--Exhibitions.
+          - Castles--Germany--Exhibitions.
+          - Art, Modern.
+          - Exhibition catalogs.
+          languages:
+          - ger
+          indexTitle: 'Kunstschätze aus badischen Schlössern :Meersburg, Rastatt, Favorite, Bruchsal, Heidelberg, Schwetzingen : 9. Juli bis 12. Oktober 1968, Ausstellung im Gartensaal des Karlsruher Schlosses /Badisches Landesmuseum Karlsruhe ; [Gesamtgestaltung und Redaktion, Ernst Petrasch].'
+          identifiers:
+          - value: (ICU)BID10243
+            identifierTypeId: 2baf4cec-6abf-438b-abd0-a6c512c3c173
+          - value: (OCoLC)26620653
+            identifierTypeId: 01ca9cda-7027-4d64-abed-9e3c4943daf2
+          publication:
+          - place:
+              Karlsruhe: null
+            publisher: The Museum
+            dateOfPublication: '1968'
+          contributors:
+          - name: Badisches Landesmuseum Karlsruhe
+            primary: true
+            contributorNameTypeId: 2b4007a7-2d96-4262-a360-c9f760e355c3
+          - name: Petrasch, Ernst
+            primary: false
+            contributorNameTypeId: 35b01201-597f-4938-a0d1-110245ba9d67
+          instanceTypeId: 1c43b4c1-b138-4386-a91d-0d305e4ddf23
+          modeOfIssuanceId: 7b143a6c-84e8-4168-94b1-24220a3d14cc
+          discoverySuppress: false
+          statusUpdatedDate: '2019-12-18T20:46:50Z'
+          physicalDescriptions:
+          - 46 p.: ill. ; 21 cm.
+    updateIndexSettingsRequest:
+      value:
+        resourceName: instance
+        indexSettings:
+          numberOfReplicas: 4
+          refreshInterval: -1
+    indexRecordSuccessResponse:
+      value:
+        status: success
+    updateMappingsRequest:
+      value:
+        resourceName: authority
+    indexRecordFailureResponse:
+      value:
+        status: error
+        errorMessage: Instance index doesn't exist
+    reindexJobResponse:
+      value:
+        id: 68ec4438-8b93-46df-8c36-232db4f7862e
+        jobStatus: In progress
+        submittedDate: '2024-12-05T10:22:22'
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    reindexFullRequest:
+      value:
+        tenantId: college
+        indexSettings:
+          numberOfShards: 1
+          numberOfReplicas: 1
+          refreshInterval: 1
+    indexOperationResponse:
+      value:
+        errorMessage: Failed to update index settings
+        status: error
+    reindexUploadDto:
+      value:
+        entityTypes:
+        - instance
+        - subject
+        - contributor
+        - classification
+    ReindexStatusResult:
+      value:
+      - entityType: instance
+        status: UPLOAD_COMPLETED
+        targetTenantId: college
+        totalMergeRanges: 3
+        processedMergeRanges: 3
+        totalUploadRanges: 2
+        processedUploadRanges: 2
+        startTimeMerge: '2024-04-01T01:37:34.15755006Z'
+        endTimeMerge: '2024-04-01T01:37:35.15755006Z'
+        startTimeUpload: '2024-04-01T01:37:36.15755006Z'
+        endTimeUpload: '2024-04-01T01:37:37.15755006Z'
+      - entityType: item
+        status: MERGE_IN_PROGRESS
+        targetTenantId: college
+        totalMergeRanges: 3
+        processedMergeRanges: 2
+        startTimeMerge: '2024-04-01T01:37:34.15755006Z'
+      - entityType: holdings
+        status: STAGING_COMPLETED
+        targetTenantId: college
+        totalMergeRanges: 3
+        processedMergeRanges: 2
+        startTimeMerge: '2024-04-01T01:37:34.15755006Z'
+        endTimeMerge: '2024-04-01T01:37:35.15755006Z'
+        startTimeStaging: '2024-04-01T01:37:30.15755006Z'
+        endTimeStaging: '2024-04-01T01:37:33.15755006Z'
+      - entityType: contributor
+        status: UPLOAD_COMPLETED
+        targetTenantId: college
+        totalUploadRanges: 3
+        processedUploadRanges: 3
+        startTimeUpload: '2024-04-01T01:37:34.15755006Z'
+        endTimeUpload: '2024-04-01T01:37:35.15755006Z'
+      - entityType: classification
+        status: UPLOAD_FAILED
+        targetTenantId: college
+        totalUploadRanges: 2
+        processedUploadRanges: 1
+        startTimeUpload: '2024-04-01T01:37:36.15755006Z'
+        endTimeUpload: '2024-04-01T01:37:37.15755006Z'
+x-refined-from:
+- folio-mod-search-openapi.json
+- folio-mod-search-openapi.yml

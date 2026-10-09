@@ -1,0 +1,4512 @@
+{
+ "openapi": "3.0.3",
+ "info": {
+  "contact": {
+   "name": "Spitfire team"
+  },
+  "description": "API for managing record specifications and validating records against them",
+  "title": "Record Specifications API",
+  "version": "1.0.0"
+ },
+ "servers": [
+  {
+   "description": "Development environments.",
+   "url": "https://{environment}-okapi.ci.folio.org",
+   "variables": {
+    "environment": {
+     "default": "folio-dev-spitfire",
+     "enum": [
+      "folio-dev-spitfire",
+      "folio-perf-spitfire"
+     ]
+    }
+   }
+  },
+  {
+   "description": "Reference environments.",
+   "url": "https://folio-{environment}-okapi.dev.folio.org",
+   "variables": {
+    "environment": {
+     "default": "snapshot",
+     "enum": [
+      "snapshot",
+      "snapshot-2"
+     ]
+    }
+   }
+  }
+ ],
+ "tags": [
+  {
+   "description": "Provides API for managing specifications.",
+   "name": "specification-storage"
+  },
+  {
+   "description": "Provides API for managing specification fields.",
+   "name": "specification-storage-fields"
+  },
+  {
+   "description": "Provides API for managing specification field indicators.",
+   "name": "specification-storage-indicators"
+  },
+  {
+   "description": "Provides API for managing specification field subfields.",
+   "name": "specification-storage-subfields"
+  }
+ ],
+ "paths": {
+  "/specification-storage/specifications": {
+   "get": {
+    "description": "Get a collection of specifications.",
+    "operationId": "getSpecifications",
+    "parameters": [
+     {
+      "description": "Filter by specification's family.",
+      "in": "query",
+      "name": "family",
+      "schema": {
+       "$ref": "#/components/schemas/family"
+      }
+     },
+     {
+      "description": "Filter by specification's family profile.",
+      "in": "query",
+      "name": "profile",
+      "schema": {
+       "$ref": "#/components/schemas/familyProfile"
+      }
+     },
+     {
+      "description": "Limit the number of elements returned in the response.",
+      "in": "query",
+      "name": "include",
+      "schema": {
+       "$ref": "#/components/schemas/includeParam"
+      }
+     },
+     {
+      "description": "Limit the number of elements returned in the response.",
+      "in": "query",
+      "name": "limit",
+      "schema": {
+       "default": 100,
+       "maximum": 500,
+       "minimum": 0,
+       "type": "integer"
+      }
+     },
+     {
+      "description": "Skip over a number of elements by specifying an offset value for the query.",
+      "in": "query",
+      "name": "offset",
+      "schema": {
+       "default": 0,
+       "maximum": 9999,
+       "minimum": 0,
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Collection": {
+          "$ref": "#/components/examples/specificationDtoCollection"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/specificationDtoCollection"
+        }
+       }
+      },
+      "description": "Collection of specifications"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Get Specifications",
+    "tags": [
+     "specification-storage"
+    ]
+   }
+  },
+  "/specification-storage/specifications/{specificationId}": {
+   "get": {
+    "description": "Get a specification by id.",
+    "operationId": "getSpecification",
+    "parameters": [
+     {
+      "description": "Specification ID",
+      "in": "path",
+      "name": "specificationId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Limit the number of elements returned in the response.",
+      "in": "query",
+      "name": "include",
+      "schema": {
+       "$ref": "#/components/schemas/includeParam"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "RequestExample": {
+          "$ref": "#/components/examples/specificationDto"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/specificationDto"
+        }
+       }
+      },
+      "description": "Specification object"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Get Specification by ID",
+    "tags": [
+     "specification-storage"
+    ]
+   }
+  },
+  "/specification-storage/specifications/{specificationId}/sync": {
+   "post": {
+    "description": "Sync or return to defaults the specification (will remove all changes)",
+    "operationId": "syncSpecification",
+    "parameters": [
+     {
+      "description": "Specification ID",
+      "in": "path",
+      "name": "specificationId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "202": {
+      "description": "Specification successfully synced"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Sync specification",
+    "tags": [
+     "specification-storage"
+    ]
+   }
+  },
+  "/specification-storage/specifications/{specificationId}/rules": {
+   "get": {
+    "description": "Get a collection of specification rules enabled and disabled.",
+    "operationId": "getSpecificationRules",
+    "parameters": [
+     {
+      "description": "Specification ID",
+      "in": "path",
+      "name": "specificationId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Collection": {
+          "$ref": "#/components/examples/specificationRuleDtoCollection"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/specificationRuleDtoCollection"
+        }
+       }
+      },
+      "description": "Collection of specifications"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Get Specification Rules",
+    "tags": [
+     "specification-storage"
+    ]
+   }
+  },
+  "/specification-storage/specifications/{specificationId}/rules/{id}": {
+   "patch": {
+    "description": "Enable or disable specification rule.",
+    "operationId": "toggleSpecificationRule",
+    "parameters": [
+     {
+      "description": "Specification ID",
+      "in": "path",
+      "name": "specificationId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     },
+     {
+      "description": "Specification Rule ID",
+      "in": "path",
+      "name": "id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "examples": {
+        "Enable": {
+         "summary": "Enables rule for the specification",
+         "value": {
+          "enabled": true
+         }
+        },
+        "Disable": {
+         "summary": "Disables rule for the specification",
+         "value": {
+          "enabled": false
+         }
+        }
+       },
+       "schema": {
+        "$ref": "#/components/schemas/toggleSpecificationRuleDto"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "description": "Operation was successful"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Toggle Specification Rule",
+    "tags": [
+     "specification-storage"
+    ]
+   }
+  },
+  "/specification-storage/specifications/{specificationId}/fields": {
+   "get": {
+    "description": "Get a collection of fields definitions that are defined in the specification.",
+    "operationId": "getSpecificationFields",
+    "parameters": [
+     {
+      "description": "Specification ID",
+      "in": "path",
+      "name": "specificationId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Collection": {
+          "$ref": "#/components/examples/specificationFieldDtoCollection"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/specificationFieldDtoCollection"
+        }
+       }
+      },
+      "description": "Collection of fields definitions"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Get Specification Field Definitions",
+    "tags": [
+     "specification-storage"
+    ]
+   },
+   "post": {
+    "description": "Create new local field definition for the specification",
+    "operationId": "createSpecificationLocalField",
+    "parameters": [
+     {
+      "description": "Specification ID",
+      "in": "path",
+      "name": "specificationId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "examples": {
+        "RequestExample": {
+         "$ref": "#/components/examples/specificationFieldChangeDto"
+        }
+       },
+       "schema": {
+        "$ref": "#/components/schemas/specificationFieldChangeDto"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Created": {
+          "$ref": "#/components/examples/specificationFieldDto"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/specificationFieldDto"
+        }
+       }
+      },
+      "description": "Local field definition was created"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Create Local Field Definition",
+    "tags": [
+     "specification-storage"
+    ]
+   }
+  },
+  "/specification-storage/fields/{id}": {
+   "delete": {
+    "description": "Delete field definition",
+    "operationId": "deleteField",
+    "parameters": [
+     {
+      "description": "Specification Field ID",
+      "in": "path",
+      "name": "id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Field definition was deleted"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Delete Field Definition",
+    "tags": [
+     "specification-storage-fields"
+    ]
+   },
+   "put": {
+    "description": "Update a fields definition.",
+    "operationId": "updateField",
+    "parameters": [
+     {
+      "description": "Specification Field ID",
+      "in": "path",
+      "name": "id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "examples": {
+        "RequestExample": {
+         "$ref": "#/components/examples/specificationFieldChangeDto"
+        }
+       },
+       "schema": {
+        "$ref": "#/components/schemas/specificationFieldChangeDto"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "RequestExample": {
+          "$ref": "#/components/examples/specificationFieldChangeDto"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/specificationFieldDto"
+        }
+       }
+      },
+      "description": "Field definition was updated"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Update Field Definitions",
+    "tags": [
+     "specification-storage-fields"
+    ]
+   }
+  },
+  "/specification-storage/fields/{fieldId}/subfields": {
+   "get": {
+    "description": "Get a collection of subfields definitions that are defined in the field.",
+    "operationId": "getFieldSubfields",
+    "parameters": [
+     {
+      "description": "Specification Field ID",
+      "in": "path",
+      "name": "fieldId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Collection": {
+          "$ref": "#/components/examples/subfieldDtoCollection"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/subfieldDtoCollection"
+        }
+       }
+      },
+      "description": "Collection of subfields definitions"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Get Field Subfields Definitions",
+    "tags": [
+     "specification-storage-fields"
+    ]
+   },
+   "post": {
+    "description": "Create new local subfield definition for the field",
+    "operationId": "createFieldLocalSubfield",
+    "parameters": [
+     {
+      "description": "Specification Field ID",
+      "in": "path",
+      "name": "fieldId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "examples": {
+        "RequestExample": {
+         "$ref": "#/components/examples/subfieldChangeDto"
+        }
+       },
+       "schema": {
+        "$ref": "#/components/schemas/subfieldChangeDto"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Created": {
+          "$ref": "#/components/examples/subfieldDto"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/subfieldDto"
+        }
+       }
+      },
+      "description": "Local subfield definition was created"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Create Local Subfield Definition",
+    "tags": [
+     "specification-storage-fields"
+    ]
+   }
+  },
+  "/specification-storage/fields/{fieldId}/indicators": {
+   "get": {
+    "description": "Get a collection of indicators definitions that are defined in the field.",
+    "operationId": "getFieldIndicators",
+    "parameters": [
+     {
+      "description": "Specification Field ID",
+      "in": "path",
+      "name": "fieldId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Collection": {
+          "$ref": "#/components/examples/fieldIndicatorDtoCollection"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/fieldIndicatorDtoCollection"
+        }
+       }
+      },
+      "description": "Collection of indicators definitions"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Get Field Indicator Definitions",
+    "tags": [
+     "specification-storage-fields"
+    ]
+   },
+   "post": {
+    "description": "Create new local indicator definition for the field",
+    "operationId": "createFieldLocalIndicator",
+    "parameters": [
+     {
+      "description": "Specification Field ID",
+      "in": "path",
+      "name": "fieldId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "examples": {
+        "RequestExample": {
+         "$ref": "#/components/examples/fieldIndicatorChangeDto"
+        }
+       },
+       "schema": {
+        "$ref": "#/components/schemas/fieldIndicatorChangeDto"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Created": {
+          "$ref": "#/components/examples/fieldIndicatorDto"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/fieldIndicatorDto"
+        }
+       }
+      },
+      "description": "Local indicator definition was created"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Create Local Indicator Definition",
+    "tags": [
+     "specification-storage-fields"
+    ]
+   }
+  },
+  "/specification-storage/indicators/{indicatorId}": {
+   "put": {
+    "description": "Update an indicator definition.",
+    "operationId": "updateIndicator",
+    "parameters": [
+     {
+      "description": "Field Indicator ID",
+      "in": "path",
+      "name": "indicatorId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "examples": {
+        "RequestExample": {
+         "$ref": "#/components/examples/fieldIndicatorChangeDto"
+        }
+       },
+       "schema": {
+        "$ref": "#/components/schemas/fieldIndicatorChangeDto"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "RequestExample": {
+          "$ref": "#/components/examples/fieldIndicatorChangeDto"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/fieldIndicatorDto"
+        }
+       }
+      },
+      "description": "Indicator definition was updated"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Update Field Indicators",
+    "tags": [
+     "specification-storage-indicators"
+    ]
+   }
+  },
+  "/specification-storage/indicators/{indicatorId}/indicator-codes": {
+   "get": {
+    "description": "Get a collection of codes definitions that are defined in the indicator.",
+    "operationId": "getIndicatorCodes",
+    "parameters": [
+     {
+      "description": "Field Indicator ID",
+      "in": "path",
+      "name": "indicatorId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Collection": {
+          "$ref": "#/components/examples/indicatorCodeDtoCollection"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/indicatorCodeDtoCollection"
+        }
+       }
+      },
+      "description": "Collection of codes definitions"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Get Indicator Code Definitions",
+    "tags": [
+     "specification-storage-indicators"
+    ]
+   },
+   "post": {
+    "description": "Create new local code definition for the indicator",
+    "operationId": "createIndicatorLocalCode",
+    "parameters": [
+     {
+      "description": "Field Indicator ID",
+      "in": "path",
+      "name": "indicatorId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "examples": {
+        "RequestExample": {
+         "$ref": "#/components/examples/indicatorCodeChangeDto"
+        }
+       },
+       "schema": {
+        "$ref": "#/components/schemas/indicatorCodeChangeDto"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "Created": {
+          "$ref": "#/components/examples/indicatorCodeDto"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/indicatorCodeDto"
+        }
+       }
+      },
+      "description": "Local code definition was created"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Create Local Code Definition",
+    "tags": [
+     "specification-storage-indicators"
+    ]
+   }
+  },
+  "/specification-storage/indicator-codes/{indicatorCodeId}": {
+   "delete": {
+    "description": "Delete indicator code definition",
+    "operationId": "deleteIndicatorCode",
+    "parameters": [
+     {
+      "description": "Indicator code ID",
+      "in": "path",
+      "name": "indicatorCodeId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Indicator code definition was deleted"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Delete Indicator Code Definition",
+    "tags": [
+     "specification-storage-indicators"
+    ]
+   },
+   "put": {
+    "description": "Update an indicator code definition.",
+    "operationId": "updateIndicatorCode",
+    "parameters": [
+     {
+      "description": "Indicator code ID",
+      "in": "path",
+      "name": "indicatorCodeId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "examples": {
+        "RequestExample": {
+         "$ref": "#/components/examples/indicatorCodeChangeDto"
+        }
+       },
+       "schema": {
+        "$ref": "#/components/schemas/indicatorCodeChangeDto"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "ResponseExample": {
+          "$ref": "#/components/examples/indicatorCodeDto"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/indicatorCodeDto"
+        }
+       }
+      },
+      "description": "Indicator code definition was updated"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Update Indicator Codes",
+    "tags": [
+     "specification-storage-indicators"
+    ]
+   }
+  },
+  "/specification-storage/subfields/{subfieldId}": {
+   "delete": {
+    "description": "Delete subfield definition",
+    "operationId": "deleteSubfield",
+    "parameters": [
+     {
+      "description": "Subfield ID",
+      "in": "path",
+      "name": "subfieldId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Subfield definition was deleted"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Delete Subfield Definition",
+    "tags": [
+     "specification-storage-subfields"
+    ]
+   },
+   "put": {
+    "description": "Update an subfield definition.",
+    "operationId": "updateSubfield",
+    "parameters": [
+     {
+      "description": "Subfield ID",
+      "in": "path",
+      "name": "subfieldId",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "examples": {
+        "RequestExample": {
+         "$ref": "#/components/examples/subfieldChangeDto"
+        }
+       },
+       "schema": {
+        "$ref": "#/components/schemas/subfieldChangeDto"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "ResponseExample": {
+          "$ref": "#/components/examples/subfieldDto"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/subfieldDto"
+        }
+       }
+      },
+      "description": "Indicator code definition was updated"
+     },
+     "400": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "validationErrorResponse": {
+          "$ref": "#/components/examples/validationErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "Validation errors"
+     },
+     "500": {
+      "content": {
+       "application/json": {
+        "examples": {
+         "unknownError": {
+          "$ref": "#/components/examples/unknownErrorResponse"
+         }
+        },
+        "schema": {
+         "$ref": "#/components/schemas/errorCollection"
+        }
+       }
+      },
+      "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+     }
+    },
+    "summary": "Update Subfield",
+    "tags": [
+     "specification-storage-subfields"
+    ]
+   }
+  }
+ },
+ "components": {
+  "examples": {
+   "specificationDtoCollection": {
+    "value": {
+     "specifications": [
+      {
+       "id": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "title": "MARC Bibliographic Specification",
+       "family": "MARC",
+       "profile": "bibliographic",
+       "url": "https://www.loc.gov/marc/bibliographic/",
+       "fields": [],
+       "rules": [],
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "a37d01ba-75c7-4a0c-997e-309823f1df3f",
+       "title": "MARC Authority Specification",
+       "family": "MARC",
+       "profile": "authority",
+       "url": "https://www.loc.gov/marc/authority/",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      }
+     ],
+     "totalRecords": 2
+    }
+   },
+   "validationErrorResponse": {
+    "value": {
+     "errors": [
+      {
+       "message": "must not be null",
+       "type": "MethodArgumentNotValidException",
+       "code": "validation_error",
+       "parameters": [
+        {
+         "key": "parameter",
+         "value": "null"
+        }
+       ]
+      }
+     ],
+     "total_records": 1
+    }
+   },
+   "unknownErrorResponse": {
+    "value": {
+     "errors": [
+      {
+       "message": "Illegal argument error",
+       "type": "IllegalArgumentException",
+       "code": "unknown_error"
+      }
+     ],
+     "total_records": 1
+    }
+   },
+   "specificationDto": {
+    "value": {
+     "id": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+     "title": "MARC Bibliographic Specification",
+     "family": "MARC",
+     "profile": "bibliographic",
+     "url": "https://www.loc.gov/marc/bibliographic/",
+     "fields": [],
+     "rules": [],
+     "metadata": {
+      "createdDate": "2024-05-22 14:55:06",
+      "createdByUserId": "00000000-0000-0000-0000-000000000000",
+      "updatedDate": "2024-05-22 14:55:06",
+      "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+     }
+    }
+   },
+   "specificationRuleDtoCollection": {
+    "value": {
+     "rules": [
+      {
+       "id": "7c843a14-4c87-4c7d-9ad6-5c7654bff9b5",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Undefined Field",
+       "description": "Field is not defined but exists in a record",
+       "code": "undefinedField",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "b67da9f9-6f54-4727-9fd0-58a522a56fde",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Deprecated Field",
+       "description": "Field is deprecated but exists in a record",
+       "code": "deprecatedField",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "c1b80d56-5f6f-4c0e-92df-6d2356eb379f",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Non-Repeatable Field",
+       "description": "Field is non-repeatable but exists more than once in a record",
+       "code": "nonRepeatableField",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "db1f2423-037e-4ec9-9931-ff25ccbac917",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Missing Field",
+       "description": "Field is required but does not exist in a record",
+       "code": "missingField",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "35675d8c-7753-4d74-9e8c-5ff749931f2a",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Invalid Field Value",
+       "description": "Field is flat and contains an invalid value",
+       "code": "invalidFieldValue",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "3ec76c78-28c9-4c29-9439-19f8345e86db",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Invalid Indicator",
+       "description": "Field contains specified indicators and codes but with invalid indicator in the record",
+       "code": "invalidIndicator",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "108ca421-24ba-4dc2-8d0f-661c00667e9a",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Undefined Subfield",
+       "description": "Subfield is not defined but exists in a record's field",
+       "code": "undefinedSubfield",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "ceb0cfc7-d2b1-4358-829b-f7204f4305bd",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Deprecated Subfield",
+       "description": "Subfield is deprecated but exists in a record's field",
+       "code": "deprecatedSubfield",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "1aa070fd-d2b5-4def-bf3d-699895f13b88",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Non-Repeatable Subfield",
+       "description": "Subfield is non-repeatable but exists more than once in a record's field",
+       "code": "nonRepeatableSubfield",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "3cf61681-deb9-482c-beac-db8544fa3019",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Missing Subfield",
+       "description": "Subfield is required but does not exist in a record's field",
+       "code": "missingSubfield",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "2182d955-c1e8-44b6-8f97-94b2b173244d",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Invalid Subfield Value",
+       "description": "Subfield value is not valid based on subfield definition",
+       "code": "invalidSubfieldValue",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "ed98f7ce-ee87-47a3-a509-367e3fae540f",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "name": "Non-Repeatable 1XX Field",
+       "description": "More than one field from the 1XX group exists in a record",
+       "code": "nonRepeatable1XXField",
+       "enabled": true,
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 14:55:06",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      }
+     ],
+     "totalRecords": 12
+    }
+   },
+   "specificationFieldDtoCollection": {
+    "value": {
+     "fields": [
+      {
+       "id": "ff0780f9-573d-46ba-8bf1-73181052f4b4",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "tag": "001",
+       "label": "Control Number",
+       "url": "https://www.loc.gov/marc/bibliographic/bd001.html",
+       "repeatable": false,
+       "required": true,
+       "deprecated": false,
+       "scope": "system",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "7f38eb68-31e5-47c0-8553-8dfcacf167bc",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "tag": "270",
+       "label": "Address",
+       "url": "https://www.loc.gov/marc/bibliographic/bd270.html",
+       "repeatable": true,
+       "required": false,
+       "deprecated": false,
+       "scope": "standard",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "0005d827-5be7-4bd3-b7ce-2a51a353d1ab",
+       "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "tag": "LDR",
+       "label": "Leader",
+       "url": "https://www.loc.gov/marc/bibliographic/bdleader.html",
+       "repeatable": false,
+       "required": true,
+       "deprecated": false,
+       "scope": "system",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      }
+     ],
+     "totalRecords": 3
+    }
+   },
+   "specificationFieldChangeDto": {
+    "value": {
+     "tag": "888",
+     "label": "Custom Field - Contributor Data",
+     "url": "http://www.example.org/field888.html",
+     "repeatable": true,
+     "required": true
+    }
+   },
+   "specificationFieldDto": {
+    "value": {
+     "id": "ff0780f9-573d-46ba-8bf1-73181052f4b4",
+     "specificationId": "6eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+     "tag": "666",
+     "label": "Mystic Field",
+     "url": "https://www.loc.gov/marc/bibliographic/bd666.html",
+     "repeatable": false,
+     "required": true,
+     "deprecated": false,
+     "scope": "local",
+     "metadata": {
+      "createdDate": "2024-05-22 14:55:06",
+      "createdByUserId": "00000000-0000-0000-0000-000000000000",
+      "updatedDate": "2024-05-22 15:30:42",
+      "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+     }
+    }
+   },
+   "subfieldDtoCollection": {
+    "value": {
+     "subfields": [
+      {
+       "id": "1ee161ba-5d50-4687-95f4-8dc9c52fcd53",
+       "fieldId": "27ce6b65-f959-4a4b-89b6-a2be7d2e9fc1",
+       "code": "a",
+       "label": "Subfield A",
+       "scope": "local",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "83a66097-8752-45c1-ad9f-3382c6b07b93",
+       "fieldId": "27ce6b65-f959-4a4b-89b6-a2be7d2e9fc1",
+       "code": "b",
+       "label": "Subfield B",
+       "scope": "standard",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "ad27d224-ad62-4160-bde1-1eb88c64e8b8",
+       "fieldId": "27ce6b65-f959-4a4b-89b6-a2be7d2e9fc1",
+       "code": "9",
+       "label": "Subfield 9",
+       "scope": "system",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      }
+     ]
+    }
+   },
+   "subfieldChangeDto": {
+    "value": {
+     "code": "a",
+     "label": "Subfield A",
+     "repeatable": true,
+     "required": true
+    }
+   },
+   "subfieldDto": {
+    "value": {
+     "id": "1ee161ba-5d50-4687-95f4-8dc9c52fcd53",
+     "fieldId": "27ce6b65-f959-4a4b-89b6-a2be7d2e9fc1",
+     "code": "a",
+     "label": "Subfield A",
+     "scope": "local",
+     "metadata": {
+      "createdDate": "2024-05-22 14:55:06",
+      "createdByUserId": "00000000-0000-0000-0000-000000000000",
+      "updatedDate": "2024-05-22 15:30:42",
+      "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+     }
+    }
+   },
+   "fieldIndicatorDtoCollection": {
+    "value": {
+     "indicators": [
+      {
+       "id": "ff0780f9-573d-46ba-8bf1-73181052f4b5",
+       "fieldId": "5eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "order": 1,
+       "label": "Ind 1",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "ff0780f9-573d-46ba-8bf1-73181052f4b6",
+       "fieldId": "5eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+       "order": 2,
+       "label": "Ind 2",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      }
+     ],
+     "totalRecords": 2
+    }
+   },
+   "fieldIndicatorChangeDto": {
+    "value": {
+     "order": 1,
+     "label": "Ind 1"
+    }
+   },
+   "fieldIndicatorDto": {
+    "value": {
+     "id": "ff0780f9-573d-46ba-8bf1-73181052f4b5",
+     "fieldId": "5eefa4c6-bbf7-4845-ad82-de7fc4abd0e3",
+     "order": 1,
+     "label": "Ind 1",
+     "metadata": {
+      "createdDate": "2024-05-22 14:55:06",
+      "createdByUserId": "00000000-0000-0000-0000-000000000000",
+      "updatedDate": "2024-05-22 15:30:42",
+      "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+     }
+    }
+   },
+   "indicatorCodeDtoCollection": {
+    "value": {
+     "codes": [
+      {
+       "id": "ff0780f9-573d-46ba-8bf1-73181052f4c2",
+       "indicatorId": "ff0780f9-573d-46ba-8bf1-73181052f4b5",
+       "code": "0",
+       "label": "Code 0",
+       "scope": "local",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "ff0780f9-573d-46ba-8bf1-73181052f4c3",
+       "indicatorId": "ff0780f9-573d-46ba-8bf1-73181052f4b5",
+       "code": "1",
+       "label": "Code 1",
+       "scope": "standard",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      },
+      {
+       "id": "ff0780f9-573d-46ba-8bf1-73181052f4c4",
+       "indicatorId": "ff0780f9-573d-46ba-8bf1-73181052f4b5",
+       "code": "#",
+       "label": "Code #",
+       "scope": "system",
+       "metadata": {
+        "createdDate": "2024-05-22 14:55:06",
+        "createdByUserId": "00000000-0000-0000-0000-000000000000",
+        "updatedDate": "2024-05-22 15:30:42",
+        "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+       }
+      }
+     ],
+     "totalRecords": 2
+    }
+   },
+   "indicatorCodeChangeDto": {
+    "value": {
+     "code": "a",
+     "label": "Code a"
+    }
+   },
+   "indicatorCodeDto": {
+    "value": {
+     "id": "ff0780f9-573d-46ba-8bf1-73181052f4c1",
+     "indicatorId": "ff0780f9-573d-46ba-8bf1-73181052f4b5",
+     "code": "0",
+     "label": "Code 0",
+     "scope": "local",
+     "metadata": {
+      "createdDate": "2024-05-22 14:55:06",
+      "createdByUserId": "00000000-0000-0000-0000-000000000000",
+      "updatedDate": "2024-05-22 15:30:42",
+      "updatedByUserId": "00000000-0000-0000-0000-000000000000"
+     }
+    }
+   }
+  },
+  "parameters": {
+   "limit-param": {
+    "description": "Limit the number of elements returned in the response.",
+    "in": "query",
+    "name": "limit",
+    "schema": {
+     "default": 100,
+     "maximum": 500,
+     "minimum": 0,
+     "type": "integer"
+    }
+   },
+   "offset-param": {
+    "description": "Skip over a number of elements by specifying an offset value for the query.",
+    "in": "query",
+    "name": "offset",
+    "schema": {
+     "default": 0,
+     "maximum": 9999,
+     "minimum": 0,
+     "type": "integer"
+    }
+   },
+   "specificationId-param": {
+    "description": "Specification ID",
+    "in": "path",
+    "name": "specificationId",
+    "required": true,
+    "schema": {
+     "format": "uuid",
+     "type": "string"
+    }
+   },
+   "fieldId-param": {
+    "description": "Specification Field ID",
+    "in": "path",
+    "name": "fieldId",
+    "required": true,
+    "schema": {
+     "format": "uuid",
+     "type": "string"
+    }
+   },
+   "indicatorId-param": {
+    "description": "Field Indicator ID",
+    "in": "path",
+    "name": "indicatorId",
+    "required": true,
+    "schema": {
+     "format": "uuid",
+     "type": "string"
+    }
+   },
+   "indicatorCodeId-param": {
+    "description": "Indicator code ID",
+    "in": "path",
+    "name": "indicatorCodeId",
+    "required": true,
+    "schema": {
+     "format": "uuid",
+     "type": "string"
+    }
+   },
+   "subfieldId-param": {
+    "description": "Subfield ID",
+    "in": "path",
+    "name": "subfieldId",
+    "required": true,
+    "schema": {
+     "format": "uuid",
+     "type": "string"
+    }
+   }
+  },
+  "responses": {
+   "badRequestResponse": {
+    "content": {
+     "application/json": {
+      "examples": {
+       "validationErrorResponse": {
+        "$ref": "#/components/examples/validationErrorResponse"
+       }
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errorCollection"
+      }
+     }
+    },
+    "description": "Validation errors"
+   },
+   "internalServerErrorResponse": {
+    "content": {
+     "application/json": {
+      "examples": {
+       "unknownError": {
+        "$ref": "#/components/examples/unknownErrorResponse"
+       }
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errorCollection"
+      }
+     }
+    },
+    "description": "When unhandled exception occurred during code execution, e.g. NullPointerException."
+   }
+  },
+  "schemas": {
+   "family": {
+    "description": "Format family",
+    "enum": [
+     "MARC"
+    ],
+    "type": "string"
+   },
+   "familyProfile": {
+    "description": "Family profile",
+    "enum": [
+     "authority",
+     "bibliographic"
+    ],
+    "type": "string"
+   },
+   "includeParam": {
+    "default": "none",
+    "description": "define what to include in response",
+    "enum": [
+     "all",
+     "none",
+     "fields.required"
+    ],
+    "type": "string"
+   },
+   "specificationDtoCollection": {
+    "description": "Collection of specifications",
+    "example": {
+     "totalRecords": 6,
+     "specifications": [
+      {
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "profile": "authority",
+       "rules": [
+        {
+         "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "name": "name",
+         "description": "description",
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "enabled": true
+        },
+        {
+         "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "name": "name",
+         "description": "description",
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "enabled": true
+        }
+       ],
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "title": "title",
+       "family": "MARC",
+       "fields": [
+        {
+         "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "repeatable": true,
+         "subfields": [
+          {
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "repeatable": true,
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "required": false,
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          },
+          {
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "repeatable": true,
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "required": false,
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          }
+         ],
+         "deprecated": false,
+         "scope": "system",
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "tag": "tag",
+         "label": "label",
+         "indicators": [
+          {
+           "codes": [
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            },
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            }
+           ],
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "order": 0
+          },
+          {
+           "codes": [
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            },
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            }
+           ],
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "order": 0
+          }
+         ],
+         "url": "url",
+         "required": false
+        },
+        {
+         "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "repeatable": true,
+         "subfields": [
+          {
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "repeatable": true,
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "required": false,
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          },
+          {
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "repeatable": true,
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "required": false,
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          }
+         ],
+         "deprecated": false,
+         "scope": "system",
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "tag": "tag",
+         "label": "label",
+         "indicators": [
+          {
+           "codes": [
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            },
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            }
+           ],
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "order": 0
+          },
+          {
+           "codes": [
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            },
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            }
+           ],
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "order": 0
+          }
+         ],
+         "url": "url",
+         "required": false
+        }
+       ],
+       "url": "url"
+      },
+      {
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "profile": "authority",
+       "rules": [
+        {
+         "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "name": "name",
+         "description": "description",
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "enabled": true
+        },
+        {
+         "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "name": "name",
+         "description": "description",
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "enabled": true
+        }
+       ],
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "title": "title",
+       "family": "MARC",
+       "fields": [
+        {
+         "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "repeatable": true,
+         "subfields": [
+          {
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "repeatable": true,
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "required": false,
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          },
+          {
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "repeatable": true,
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "required": false,
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          }
+         ],
+         "deprecated": false,
+         "scope": "system",
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "tag": "tag",
+         "label": "label",
+         "indicators": [
+          {
+           "codes": [
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            },
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            }
+           ],
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "order": 0
+          },
+          {
+           "codes": [
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            },
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            }
+           ],
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "order": 0
+          }
+         ],
+         "url": "url",
+         "required": false
+        },
+        {
+         "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "repeatable": true,
+         "subfields": [
+          {
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "repeatable": true,
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "required": false,
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          },
+          {
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "repeatable": true,
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "required": false,
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+          }
+         ],
+         "deprecated": false,
+         "scope": "system",
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "tag": "tag",
+         "label": "label",
+         "indicators": [
+          {
+           "codes": [
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            },
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            }
+           ],
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "order": 0
+          },
+          {
+           "codes": [
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            },
+            {
+             "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "metadata": {
+              "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+              "createdDate": "createdDate",
+              "updatedDate": "updatedDate",
+              "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+             },
+             "code": "code",
+             "deprecated": false,
+             "scope": null,
+             "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+             "label": "label"
+            }
+           ],
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label",
+           "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "order": 0
+          }
+         ],
+         "url": "url",
+         "required": false
+        }
+       ],
+       "url": "url"
+      }
+     ]
+    },
+    "properties": {
+     "specifications": {
+      "description": "Collection of specifications",
+      "items": {
+       "$ref": "#/components/schemas/specificationDto"
+      },
+      "type": "array"
+     },
+     "totalRecords": {
+      "description": "Total number of specification in collection",
+      "type": "integer"
+     }
+    },
+    "title": "Specification DTO Collection",
+    "type": "object"
+   },
+   "errorCollection": {
+    "description": "Collection of errors",
+    "example": {
+     "errors": [
+      {
+       "message": "Illegal argument error",
+       "type": "IllegalArgumentException",
+       "code": "unknown_error"
+      }
+     ],
+     "total_records": 1
+    },
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "items": {
+       "$ref": "#/components/schemas/error"
+      },
+      "type": "array"
+     },
+     "totalRecords": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "title": "Error Collection",
+    "type": "object"
+   },
+   "specificationDto": {
+    "description": "Describes specification",
+    "example": {
+     "metadata": {
+      "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+      "createdDate": "createdDate",
+      "updatedDate": "updatedDate",
+      "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+     },
+     "profile": "authority",
+     "rules": [
+      {
+       "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "name": "name",
+       "description": "description",
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "enabled": true
+      },
+      {
+       "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "name": "name",
+       "description": "description",
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "enabled": true
+      }
+     ],
+     "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "title": "title",
+     "family": "MARC",
+     "fields": [
+      {
+       "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "repeatable": true,
+       "subfields": [
+        {
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "repeatable": true,
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "required": false,
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        },
+        {
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "repeatable": true,
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "required": false,
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        }
+       ],
+       "deprecated": false,
+       "scope": "system",
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "tag": "tag",
+       "label": "label",
+       "indicators": [
+        {
+         "codes": [
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          },
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          }
+         ],
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "order": 0
+        },
+        {
+         "codes": [
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          },
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          }
+         ],
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "order": 0
+        }
+       ],
+       "url": "url",
+       "required": false
+      },
+      {
+       "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "repeatable": true,
+       "subfields": [
+        {
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "repeatable": true,
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "required": false,
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        },
+        {
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "repeatable": true,
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "required": false,
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        }
+       ],
+       "deprecated": false,
+       "scope": "system",
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "tag": "tag",
+       "label": "label",
+       "indicators": [
+        {
+         "codes": [
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          },
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          }
+         ],
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "order": 0
+        },
+        {
+         "codes": [
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          },
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          }
+         ],
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "order": 0
+        }
+       ],
+       "url": "url",
+       "required": false
+      }
+     ],
+     "url": "url"
+    },
+    "properties": {
+     "id": {
+      "description": "Specification ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "title": {
+      "description": "Specification title",
+      "type": "string"
+     },
+     "family": {
+      "$ref": "#/components/schemas/family"
+     },
+     "profile": {
+      "$ref": "#/components/schemas/familyProfile"
+     },
+     "url": {
+      "description": "Help url for the specification",
+      "type": "string"
+     },
+     "fields": {
+      "description": "Specification field definitions",
+      "items": {
+       "$ref": "#/components/schemas/specificationFieldDto"
+      },
+      "type": "array"
+     },
+     "rules": {
+      "description": "Specification rules",
+      "items": {
+       "$ref": "#/components/schemas/specificationRuleDto"
+      },
+      "type": "array"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadataDto"
+     }
+    },
+    "title": "Specification DTO",
+    "type": "object",
+    "x-parent": "abstract"
+   },
+   "specificationRuleDtoCollection": {
+    "description": "Collection of specification rules DTOs",
+    "example": {
+     "totalRecords": 0,
+     "rules": [
+      {
+       "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "name": "name",
+       "description": "description",
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "enabled": true
+      },
+      {
+       "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "name": "name",
+       "description": "description",
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "enabled": true
+      }
+     ]
+    },
+    "properties": {
+     "rules": {
+      "description": "Collection of specification rules",
+      "items": {
+       "$ref": "#/components/schemas/specificationRuleDto"
+      },
+      "type": "array"
+     },
+     "totalRecords": {
+      "description": "Total number of specification rules in collection",
+      "type": "integer"
+     }
+    },
+    "title": "Specification Rule DTO Collection",
+    "type": "object"
+   },
+   "toggleSpecificationRuleDto": {
+    "description": "Object that define change of the specification rule enabled flag",
+    "properties": {
+     "enabled": {
+      "description": "Flag that enable or disable specification rule",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "enabled"
+    ],
+    "title": "Toggle Specification Rule",
+    "type": "object"
+   },
+   "specificationFieldDtoCollection": {
+    "description": "Collection of specification field DTOs",
+    "example": {
+     "totalRecords": 0,
+     "fields": [
+      {
+       "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "repeatable": true,
+       "subfields": [
+        {
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "repeatable": true,
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "required": false,
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        },
+        {
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "repeatable": true,
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "required": false,
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        }
+       ],
+       "deprecated": false,
+       "scope": "system",
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "tag": "tag",
+       "label": "label",
+       "indicators": [
+        {
+         "codes": [
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          },
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          }
+         ],
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "order": 0
+        },
+        {
+         "codes": [
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          },
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          }
+         ],
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "order": 0
+        }
+       ],
+       "url": "url",
+       "required": false
+      },
+      {
+       "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "repeatable": true,
+       "subfields": [
+        {
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "repeatable": true,
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "required": false,
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        },
+        {
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "repeatable": true,
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "required": false,
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+        }
+       ],
+       "deprecated": false,
+       "scope": "system",
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "tag": "tag",
+       "label": "label",
+       "indicators": [
+        {
+         "codes": [
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          },
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          }
+         ],
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "order": 0
+        },
+        {
+         "codes": [
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          },
+          {
+           "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "metadata": {
+            "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+            "createdDate": "createdDate",
+            "updatedDate": "updatedDate",
+            "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+           },
+           "code": "code",
+           "deprecated": false,
+           "scope": null,
+           "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+           "label": "label"
+          }
+         ],
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label",
+         "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "order": 0
+        }
+       ],
+       "url": "url",
+       "required": false
+      }
+     ]
+    },
+    "properties": {
+     "fields": {
+      "description": "Collection of specification fields",
+      "items": {
+       "$ref": "#/components/schemas/specificationFieldDto"
+      },
+      "type": "array"
+     },
+     "totalRecords": {
+      "description": "Total number of specification fields in collection",
+      "type": "integer"
+     }
+    },
+    "title": "Specification Fields DTO Collection",
+    "type": "object"
+   },
+   "specificationFieldChangeDto": {
+    "additionalProperties": false,
+    "description": "Describe field definition that should be created or change to existed field definition",
+    "properties": {
+     "tag": {
+      "description": "Record tag",
+      "pattern": "\\d{3}",
+      "type": "string"
+     },
+     "label": {
+      "description": "Tag description",
+      "maxLength": 350,
+      "type": "string"
+     },
+     "url": {
+      "description": "Help url for the tag",
+      "maxLength": 350,
+      "type": "string",
+      "x-field-extra-annotation": "@org.hibernate.validator.constraints.URL"
+     },
+     "repeatable": {
+      "default": true,
+      "description": "Define if tag is repeatable",
+      "type": "boolean"
+     },
+     "required": {
+      "default": false,
+      "description": "Define if tag is required",
+      "type": "boolean"
+     },
+     "deprecated": {
+      "default": false,
+      "description": "Define if tag is deprecated",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "label",
+     "tag"
+    ],
+    "title": "Field definition change DTO",
+    "type": "object"
+   },
+   "specificationFieldDto": {
+    "description": "Describe field definition that will be used for record validation",
+    "example": {
+     "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "metadata": {
+      "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+      "createdDate": "createdDate",
+      "updatedDate": "updatedDate",
+      "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+     },
+     "repeatable": true,
+     "subfields": [
+      {
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "repeatable": true,
+       "deprecated": false,
+       "scope": null,
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label",
+       "required": false,
+       "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      },
+      {
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "repeatable": true,
+       "deprecated": false,
+       "scope": null,
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label",
+       "required": false,
+       "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      }
+     ],
+     "deprecated": false,
+     "scope": "system",
+     "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "tag": "tag",
+     "label": "label",
+     "indicators": [
+      {
+       "codes": [
+        {
+         "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label"
+        },
+        {
+         "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label"
+        }
+       ],
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label",
+       "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "order": 0
+      },
+      {
+       "codes": [
+        {
+         "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label"
+        },
+        {
+         "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label"
+        }
+       ],
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label",
+       "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "order": 0
+      }
+     ],
+     "url": "url",
+     "required": false
+    },
+    "properties": {
+     "id": {
+      "description": "Field ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "specificationId": {
+      "description": "Specification ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "tag": {
+      "description": "Record tag",
+      "type": "string"
+     },
+     "label": {
+      "description": "Tag description",
+      "type": "string"
+     },
+     "url": {
+      "description": "Help url for the tag",
+      "type": "string",
+      "x-field-extra-annotation": "@org.hibernate.validator.constraints.URL"
+     },
+     "repeatable": {
+      "default": true,
+      "description": "Define if tag is repeatable",
+      "type": "boolean"
+     },
+     "required": {
+      "default": false,
+      "description": "Define if tag is required",
+      "type": "boolean"
+     },
+     "deprecated": {
+      "default": false,
+      "description": "Define if tag is deprecated",
+      "type": "boolean"
+     },
+     "scope": {
+      "$ref": "#/components/schemas/scope"
+     },
+     "subfields": {
+      "description": "Subfields definitions",
+      "items": {
+       "$ref": "#/components/schemas/subfieldDto"
+      },
+      "type": "array"
+     },
+     "indicators": {
+      "description": "Indicators definitions",
+      "items": {
+       "$ref": "#/components/schemas/fieldIndicatorDto"
+      },
+      "type": "array"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadataDto"
+     }
+    },
+    "title": "Field definition DTO",
+    "type": "object"
+   },
+   "subfieldDtoCollection": {
+    "description": "Collection of subfield DTOs",
+    "example": {
+     "totalRecords": 0,
+     "subfields": [
+      {
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "repeatable": true,
+       "deprecated": false,
+       "scope": null,
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label",
+       "required": false,
+       "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      },
+      {
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "repeatable": true,
+       "deprecated": false,
+       "scope": null,
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label",
+       "required": false,
+       "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      }
+     ]
+    },
+    "properties": {
+     "subfields": {
+      "description": "Collection of subfields",
+      "items": {
+       "$ref": "#/components/schemas/subfieldDto"
+      },
+      "type": "array"
+     },
+     "totalRecords": {
+      "description": "Total number of subfields in collection",
+      "type": "integer"
+     }
+    },
+    "title": "Subfields DTO Collection",
+    "type": "object"
+   },
+   "subfieldChangeDto": {
+    "additionalProperties": false,
+    "description": "Describe subfield definition that should be created or change to existed subfield definition",
+    "properties": {
+     "code": {
+      "description": "Subfield code",
+      "pattern": "[0-9a-z]",
+      "type": "string"
+     },
+     "label": {
+      "description": "Subfield description",
+      "maxLength": 350,
+      "type": "string"
+     },
+     "repeatable": {
+      "default": true,
+      "description": "Define if subfield is repeatable",
+      "type": "boolean"
+     },
+     "required": {
+      "default": false,
+      "description": "Define if subfield is required",
+      "type": "boolean"
+     },
+     "deprecated": {
+      "default": false,
+      "description": "Define if subfield is deprecated",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "code",
+     "label"
+    ],
+    "title": "Subfield definition change DTO",
+    "type": "object"
+   },
+   "subfieldDto": {
+    "description": "Describe field subfield definition that will be used for record validation",
+    "example": {
+     "metadata": {
+      "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+      "createdDate": "createdDate",
+      "updatedDate": "updatedDate",
+      "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+     },
+     "code": "code",
+     "repeatable": true,
+     "deprecated": false,
+     "scope": null,
+     "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "label": "label",
+     "required": false,
+     "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+    },
+    "properties": {
+     "id": {
+      "description": "Subfield ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "fieldId": {
+      "description": "Field ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "code": {
+      "description": "Subfield code",
+      "type": "string"
+     },
+     "label": {
+      "description": "Subfield description",
+      "type": "string"
+     },
+     "repeatable": {
+      "default": true,
+      "description": "Define if subfield is repeatable",
+      "type": "boolean"
+     },
+     "required": {
+      "default": false,
+      "description": "Define if subfield is required",
+      "type": "boolean"
+     },
+     "deprecated": {
+      "default": false,
+      "description": "Define if subfield is deprecated",
+      "type": "boolean"
+     },
+     "scope": {
+      "$ref": "#/components/schemas/scope"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadataDto"
+     }
+    },
+    "title": "Subfield definition DTO",
+    "type": "object"
+   },
+   "fieldIndicatorDtoCollection": {
+    "description": "Collection of field indicator DTOs",
+    "example": {
+     "totalRecords": 0,
+     "indicators": [
+      {
+       "codes": [
+        {
+         "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label"
+        },
+        {
+         "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label"
+        }
+       ],
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label",
+       "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "order": 0
+      },
+      {
+       "codes": [
+        {
+         "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label"
+        },
+        {
+         "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "metadata": {
+          "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+          "createdDate": "createdDate",
+          "updatedDate": "updatedDate",
+          "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+         },
+         "code": "code",
+         "deprecated": false,
+         "scope": null,
+         "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+         "label": "label"
+        }
+       ],
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label",
+       "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "order": 0
+      }
+     ]
+    },
+    "properties": {
+     "indicators": {
+      "description": "Collection of field indicators",
+      "items": {
+       "$ref": "#/components/schemas/fieldIndicatorDto"
+      },
+      "type": "array"
+     },
+     "totalRecords": {
+      "description": "Total number of field indicators in collection",
+      "type": "integer"
+     }
+    },
+    "title": "Field Indicators DTO Collection",
+    "type": "object"
+   },
+   "fieldIndicatorChangeDto": {
+    "additionalProperties": false,
+    "description": "Describe indicator definition that should be created or change to existed indicator definition",
+    "properties": {
+     "order": {
+      "description": "Indicator order",
+      "maximum": 2,
+      "minimum": 1,
+      "type": "integer"
+     },
+     "label": {
+      "description": "Indicator description",
+      "maxLength": 350,
+      "type": "string"
+     }
+    },
+    "required": [
+     "label",
+     "order"
+    ],
+    "title": "Field indicator definition change DTO",
+    "type": "object"
+   },
+   "fieldIndicatorDto": {
+    "description": "Describe field indicator definition that will be used for record validation",
+    "example": {
+     "codes": [
+      {
+       "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "deprecated": false,
+       "scope": null,
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label"
+      },
+      {
+       "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "deprecated": false,
+       "scope": null,
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label"
+      }
+     ],
+     "metadata": {
+      "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+      "createdDate": "createdDate",
+      "updatedDate": "updatedDate",
+      "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+     },
+     "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "label": "label",
+     "fieldId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "order": 0
+    },
+    "properties": {
+     "id": {
+      "description": "Indicator ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "fieldId": {
+      "description": "Field ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "order": {
+      "description": "Indicator order",
+      "type": "integer"
+     },
+     "label": {
+      "description": "Indicator description",
+      "type": "string"
+     },
+     "codes": {
+      "description": "Indicator codes definitions",
+      "items": {
+       "$ref": "#/components/schemas/indicatorCodeDto"
+      },
+      "type": "array"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadataDto"
+     }
+    },
+    "title": "Field indicator definition DTO",
+    "type": "object"
+   },
+   "indicatorCodeDtoCollection": {
+    "description": "Collection of indicator code DTOs",
+    "example": {
+     "codes": [
+      {
+       "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "deprecated": false,
+       "scope": null,
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label"
+      },
+      {
+       "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "metadata": {
+        "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+        "createdDate": "createdDate",
+        "updatedDate": "updatedDate",
+        "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+       },
+       "code": "code",
+       "deprecated": false,
+       "scope": null,
+       "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+       "label": "label"
+      }
+     ],
+     "totalRecords": 0
+    },
+    "properties": {
+     "codes": {
+      "description": "Collection of indicator codes",
+      "items": {
+       "$ref": "#/components/schemas/indicatorCodeDto"
+      },
+      "type": "array"
+     },
+     "totalRecords": {
+      "description": "Total number of indicator codes in collection",
+      "type": "integer"
+     }
+    },
+    "title": "Indicator codes DTO Collection",
+    "type": "object"
+   },
+   "indicatorCodeChangeDto": {
+    "additionalProperties": false,
+    "description": "Describe code definition that should be created or change to existed code definition",
+    "properties": {
+     "code": {
+      "description": "Indicator code",
+      "pattern": "[0-9a-z#]",
+      "type": "string"
+     },
+     "label": {
+      "description": "Code description",
+      "maxLength": 350,
+      "type": "string"
+     },
+     "deprecated": {
+      "default": false,
+      "description": "Define if indicator code is deprecated",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "code",
+     "label"
+    ],
+    "title": "Indicator code definition change DTO",
+    "type": "object"
+   },
+   "indicatorCodeDto": {
+    "description": "Describe indicator code definition that will be used for record validation",
+    "example": {
+     "indicatorId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "metadata": {
+      "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+      "createdDate": "createdDate",
+      "updatedDate": "updatedDate",
+      "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+     },
+     "code": "code",
+     "deprecated": false,
+     "scope": null,
+     "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "label": "label"
+    },
+    "properties": {
+     "id": {
+      "description": "Code ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "indicatorId": {
+      "description": "Indicator ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "code": {
+      "description": "Indicator Code",
+      "type": "string"
+     },
+     "label": {
+      "description": "Code description",
+      "type": "string"
+     },
+     "deprecated": {
+      "default": false,
+      "description": "Define if code is deprecated",
+      "type": "boolean"
+     },
+     "scope": {
+      "$ref": "#/components/schemas/scope"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadataDto"
+     }
+    },
+    "title": "Indicator code definition DTO",
+    "type": "object"
+   },
+   "error": {
+    "description": "An error",
+    "properties": {
+     "message": {
+      "description": "Error message text",
+      "type": "string"
+     },
+     "type": {
+      "description": "Error message type",
+      "type": "string"
+     },
+     "code": {
+      "description": "Error message code",
+      "type": "string"
+     },
+     "parameters": {
+      "description": "Error parameters",
+      "items": {
+       "$ref": "#/components/schemas/parameter"
+      },
+      "type": "array"
+     }
+    },
+    "title": "Error",
+    "type": "object"
+   },
+   "specificationRuleDto": {
+    "description": "Details of specification rule that will be used for validating a record",
+    "example": {
+     "specificationId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "metadata": {
+      "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+      "createdDate": "createdDate",
+      "updatedDate": "updatedDate",
+      "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+     },
+     "code": "code",
+     "name": "name",
+     "description": "description",
+     "id": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "enabled": true
+    },
+    "properties": {
+     "id": {
+      "description": "Rule ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "specificationId": {
+      "description": "Specification ID",
+      "format": "uuid",
+      "type": "string"
+     },
+     "name": {
+      "description": "Rule name",
+      "type": "string"
+     },
+     "description": {
+      "description": "Rule description",
+      "type": "string"
+     },
+     "code": {
+      "description": "Rule code",
+      "type": "string"
+     },
+     "enabled": {
+      "description": "Flag that define if the rule is enabled or disabled for the specification",
+      "type": "boolean"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadataDto"
+     }
+    },
+    "title": "Specification Rule DTO",
+    "type": "object"
+   },
+   "metadataDto": {
+    "description": "Creator, updater, creation date, last updated date",
+    "example": {
+     "createdByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91",
+     "createdDate": "createdDate",
+     "updatedDate": "updatedDate",
+     "updatedByUserId": "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+    },
+    "properties": {
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string"
+     },
+     "createdByUserId": {
+      "description": "ID of the user who created the record (when available)",
+      "format": "uuid",
+      "type": "string"
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string"
+     },
+     "updatedByUserId": {
+      "description": "ID of the user who last updated the record (when available)",
+      "format": "uuid",
+      "type": "string"
+     }
+    },
+    "title": "Metadata",
+    "type": "object"
+   },
+   "scope": {
+    "description": "Scope of the specification definition",
+    "enum": [
+     "system",
+     "standard",
+     "local"
+    ],
+    "type": "string"
+   },
+   "parameter": {
+    "description": "List of key/value parameters of an error",
+    "example": {
+     "key": "source",
+     "value": "invalid"
+    },
+    "properties": {
+     "key": {
+      "description": "Parameter key",
+      "type": "string"
+     },
+     "value": {
+      "description": "Parameter value",
+      "type": "string"
+     }
+    },
+    "title": "Error parameter",
+    "type": "object"
+   }
+  }
+ }
+}

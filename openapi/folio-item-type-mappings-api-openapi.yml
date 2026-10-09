@@ -1,0 +1,219 @@
+openapi: 3.2.0
+info:
+  title: Folio Item Type Mappings API
+  version: v1
+  description: 'Operations tagged item-type-mappings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: item-type-mappings
+paths:
+  /central-servers/{centralServerId}/item-type-mappings:
+    get:
+      tags:
+      - item-type-mappings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/itemTypeMappingsDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Get a list of Item Type Mappings
+      operationId: getItemTypeMappingsByServerId
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      summary: Get item type mappings by server id
+      x-summary-source: derived
+    put:
+      description: Update Item Type Mappings
+      operationId: updateItemTypeMappings
+      tags:
+      - item-type-mappings
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/itemTypeMappingsDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Update item type mappings
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    itemTypeMappingDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Item type mapping
+      type: object
+      properties:
+        id:
+          description: Mapping id
+          type: string
+          format: uuid
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        materialTypeId:
+          description: Material type id
+          type: string
+          format: uuid
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - centralItemType
+      - materialTypeId
+    itemTypeMappingsDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Item type mapping collection
+      type: object
+      properties:
+        itemTypeMappings:
+          description: List of item type mappings
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/itemTypeMappingDTO'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - itemTypeMappings
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  responses:
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+x-refined-from:
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-inn-reach-settings-openapi.yml

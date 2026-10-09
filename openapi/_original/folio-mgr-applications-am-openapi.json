@@ -1,0 +1,1594 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Manager Applications API",
+  "version": "v1",
+  "description": "Manager Applications API"
+ },
+ "servers": [
+  {
+   "url": "http://localhost:8081",
+   "description": "Locally deployed server"
+  }
+ ],
+ "paths": {
+  "/applications": {
+   "post": {
+    "operationId": "registerApplication",
+    "description": "Register a new application.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/x-okapi-token"
+     },
+     {
+      "$ref": "#/components/parameters/check"
+     }
+    ],
+    "tags": [
+     "applications"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/applicationDescriptor"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "An application descriptor as response body",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/applicationDescriptor"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "operationId": "getApplicationsByQuery",
+    "description": "Retrieve applications using two different modes:\n\n**Basic Mode** - Use `query`, `offset`, `limit` for simple database searches\n**Advanced Mode** - Use `appName`, `latest`, `preRelease`, `order`, `orderBy` for version-specific filtering\n\nAdvanced mode automatically activates when you use any of the advanced parameters and provides semantic version handling.\n",
+    "tags": [
+     "applications"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/cql-query"
+     },
+     {
+      "$ref": "#/components/parameters/query-offset"
+     },
+     {
+      "$ref": "#/components/parameters/query-limit"
+     },
+     {
+      "$ref": "#/components/parameters/full"
+     },
+     {
+      "$ref": "#/components/parameters/appName"
+     },
+     {
+      "$ref": "#/components/parameters/latest"
+     },
+     {
+      "$ref": "#/components/parameters/preRelease"
+     },
+     {
+      "$ref": "#/components/parameters/order"
+     },
+     {
+      "$ref": "#/components/parameters/orderBy"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "An application descriptors list",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/applicationDescriptors"
+        }
+       }
+      }
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/applications/cleanup": {
+   "post": {
+    "operationId": "cleanupApplications",
+    "description": "Remove unused application descriptors and return a best-effort cleanup summary.",
+    "tags": [
+     "applications"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/x-okapi-token"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Applications cleanup summary",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/applicationCleanupResult"
+        }
+       }
+      }
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     },
+     "501": {
+      "description": "Applications cleanup is not supported in FAR mode",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/errors"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/applications/{id}": {
+   "get": {
+    "operationId": "getApplicationById",
+    "description": "Retrieve registered application by id.",
+    "tags": [
+     "applications"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     },
+     {
+      "$ref": "#/components/parameters/full"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "An application descriptor",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/applicationDescriptor"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/entity-not-found"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   },
+   "delete": {
+    "operationId": "deregisterApplicationById",
+    "description": "De-register (delete) application by id.",
+    "tags": [
+     "applications"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-token"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "An application descriptor"
+     },
+     "404": {
+      "$ref": "#/components/responses/entity-not-found"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/applications/validate": {
+   "post": {
+    "operationId": "validateApplicationDescriptor",
+    "description": "Validate application descriptor.",
+    "tags": [
+     "applications"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/validation-mode"
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/applicationDescriptor"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/applications/validate-interfaces": {
+   "post": {
+    "operationId": "validateModulesInterfaceIntegrity",
+    "description": "Validate module interface integrity.",
+    "tags": [
+     "applications"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/applicationReferences"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/applications/validate-descriptors": {
+   "post": {
+    "operationId": "validateDescriptorsDependenciesIntegrity",
+    "description": "Validate descriptors integrity at application and interface levels. When scopeApplicationId is provided, validation is limited to that application's dependency tree; when omitted, all supplied descriptors are validated.",
+    "tags": [
+     "applications"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/applicationDescriptorsValidation"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "A list of application ids",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/applicationIds"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/applications/discovery": {
+   "get": {
+    "operationId": "searchApplicationsDiscovery",
+    "description": "Retrieve discovery information for applications matching a CQL query, organized by application.",
+    "tags": [
+     "application-discovery"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/cql-query"
+     },
+     {
+      "$ref": "#/components/parameters/query-offset"
+     },
+     {
+      "$ref": "#/components/parameters/query-limit"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Application discovery information grouped by application",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/applicationDiscoveries"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/applications/{id}/discovery": {
+   "get": {
+    "operationId": "getDiscovery",
+    "description": "Retrieve module discovery info for application referenced by id.",
+    "tags": [
+     "application-discovery"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     },
+     {
+      "$ref": "#/components/parameters/query-offset"
+     },
+     {
+      "$ref": "#/components/parameters/query-limit"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "An application discovery",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/moduleDiscoveries"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/modules/{id}": {
+   "get": {
+    "operationId": "getModuleBootstrap",
+    "description": "Retrieve bootstrap information for module referenced by id",
+    "tags": [
+     "module-bootstrap"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A module bootstrap info",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/moduleBootstrap"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/entity-not-found"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/modules/{id}/bootstrap": {
+   "get": {
+    "operationId": "getModuleIngressBootstrap",
+    "description": "Retrieve ingress bootstrap (the module's own routes only) for the module referenced by id",
+    "tags": [
+     "module-bootstrap"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Ingress bootstrap info (module with empty requiredModules)",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/moduleBootstrap"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/entity-not-found"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   },
+   "post": {
+    "operationId": "getModuleEgressBootstrap",
+    "description": "Retrieve egress bootstrap (required/optional modules) for the module referenced by id, restricted to the supplied application scope",
+    "tags": [
+     "module-bootstrap"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/egressBootstrapRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Egress bootstrap result scoped to the supplied applicationIds",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/egressBootstrap"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "404": {
+      "$ref": "#/components/responses/entity-not-found"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/modules/discovery": {
+   "get": {
+    "operationId": "searchModuleDiscovery",
+    "description": "Retrieving module discovery information by CQL query and pagination parameters.",
+    "tags": [
+     "module-discovery"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/cql-query"
+     },
+     {
+      "$ref": "#/components/parameters/query-offset"
+     },
+     {
+      "$ref": "#/components/parameters/query-limit"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Module discovery search result",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/moduleDiscoveries"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   },
+   "post": {
+    "operationId": "createModuleDiscoveries",
+    "description": "Creates module discovery information in a batch",
+    "tags": [
+     "module-discovery"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/x-okapi-token"
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/moduleDiscoveries"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "An application discovery as response body",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/moduleDiscoveries"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  },
+  "/modules/{id}/discovery": {
+   "get": {
+    "operationId": "getModuleDiscovery",
+    "description": "Retrieving discovery for the module referenced by id.",
+    "tags": [
+     "module-discovery"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A module discovery info",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/moduleDiscovery"
+        }
+       }
+      }
+     },
+     "404": {
+      "$ref": "#/components/responses/entity-not-found"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   },
+   "post": {
+    "operationId": "createModuleDiscovery",
+    "description": "Creates a discovery for the module referenced by id.",
+    "tags": [
+     "module-discovery"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-token"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/moduleDiscovery"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "A module discovery info",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/moduleDiscovery"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "404": {
+      "$ref": "#/components/responses/entity-not-found"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   },
+   "put": {
+    "operationId": "updateModuleDiscovery",
+    "description": "Update discovery for the module referenced by id.",
+    "tags": [
+     "module-discovery"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-token"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/moduleDiscovery"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "400": {
+      "$ref": "#/components/responses/bad-request"
+     },
+     "404": {
+      "$ref": "#/components/responses/entity-not-found"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   },
+   "delete": {
+    "operationId": "deleteModuleDiscovery",
+    "description": "Delete discovery of the module referenced by id.",
+    "tags": [
+     "module-discovery"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/path-entity-id"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-token"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "No content"
+     },
+     "500": {
+      "$ref": "#/components/responses/internal-server-error"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "applicationIds": {
+    "type": "array",
+    "items": {
+     "type": "string"
+    }
+   },
+   "applicationDescriptorsValidation": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Collection of application descriptors",
+    "properties": {
+     "applicationDescriptors": {
+      "description": "List of application descriptors",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "$ref": "#/components/schemas/applicationDescriptor"
+      }
+     },
+     "scopeApplicationId": {
+      "description": "Optional root application ID that must match a descriptor in applicationDescriptors. When provided, validation is limited to this application and its full dependency tree.",
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "required": [
+     "applicationDescriptors"
+    ]
+   },
+   "applicationDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Application Descriptor Schema",
+    "description": "Application Descriptor for Application Manager Installer",
+    "type": "object",
+    "x-implements": [
+     "org.folio.common.domain.model.Artifact"
+    ],
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/artifact"
+     }
+    ],
+    "properties": {
+     "description": {
+      "description": "A description of application manager",
+      "type": "string"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     },
+     "modules": {
+      "description": "List of modules which are grouped by the application",
+      "type": "array",
+      "id": "module",
+      "items": {
+       "$ref": "#/components/schemas/module"
+      }
+     },
+     "uiModules": {
+      "description": "List of ui-modules which are grouped by the application",
+      "type": "array",
+      "id": "uiModule",
+      "items": {
+       "$ref": "#/components/schemas/module"
+      }
+     },
+     "moduleDescriptors": {
+      "description": "List of module descriptors which are grouped by the application",
+      "type": "array",
+      "id": "moduleDescriptor",
+      "items": {
+       "$ref": "#/components/schemas/moduleDescriptor"
+      }
+     },
+     "uiModuleDescriptors": {
+      "description": "List of ui module descriptors which are grouped by the application",
+      "type": "array",
+      "id": "uiModuleDescriptor",
+      "items": {
+       "$ref": "#/components/schemas/moduleDescriptor"
+      }
+     },
+     "dependencies": {
+      "description": "List of dependencies to other applications",
+      "type": "array",
+      "id": "dependency",
+      "items": {
+       "$ref": "#/components/schemas/dependency"
+      }
+     },
+     "deployment": {
+      "description": "Deployment information",
+      "$ref": "#/components/schemas/applicationDeployment"
+     }
+    },
+    "additionalProperties": true
+   },
+   "applicationCleanupResult": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Summary of the application cleanup execution",
+    "properties": {
+     "inspected": {
+      "description": "The total number of application descriptors inspected for cleanup",
+      "type": "integer",
+      "minimum": 0
+     },
+     "cleaned": {
+      "description": "The number of application descriptors removed successfully",
+      "type": "integer",
+      "minimum": 0
+     },
+     "skipped": {
+      "description": "The number of application descriptors skipped because they are still installed",
+      "type": "integer",
+      "minimum": 0
+     },
+     "failed": {
+      "description": "The number of application descriptors that could not be removed due to errors",
+      "type": "integer",
+      "minimum": 0
+     },
+     "cleanedIds": {
+      "description": "The identifiers of application descriptors removed successfully",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "skippedIds": {
+      "description": "The identifiers of application descriptors skipped because they are still installed",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "failedIds": {
+      "description": "The identifiers of application descriptors that failed cleanup",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "required": [
+     "inspected",
+     "cleaned",
+     "skipped",
+     "failed",
+     "cleanedIds",
+     "skippedIds",
+     "failedIds"
+    ]
+   },
+   "applicationDescriptors": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Collection of application descriptors",
+    "properties": {
+     "applicationDescriptors": {
+      "description": "List of application descriptors",
+      "type": "array",
+      "id": "applicationDescriptor",
+      "items": {
+       "$ref": "#/components/schemas/applicationDescriptor"
+      }
+     },
+     "totalRecords": {
+      "description": "Total number of application descriptors",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "applicationDescriptors",
+     "totalRecords"
+    ]
+   },
+   "applicationDiscovery": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Discovery information for a single application",
+    "properties": {
+     "applicationId": {
+      "description": "The application identifier",
+      "type": "string"
+     },
+     "discovery": {
+      "description": "Discovery information for the modules that comprise this application",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/moduleDiscovery"
+      }
+     }
+    },
+    "required": [
+     "applicationId",
+     "discovery"
+    ]
+   },
+   "applicationDiscoveries": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Collection of discovery information organized by application",
+    "properties": {
+     "applicationDiscoveries": {
+      "description": "Discovery information grouped by application",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/applicationDiscovery"
+      }
+     },
+     "totalRecords": {
+      "readOnly": true,
+      "description": "The total number of applications matching the provided criteria",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "applicationDiscoveries"
+    ]
+   },
+   "moduleDiscovery": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Module discovery information",
+    "x-implements": [
+     "org.folio.common.domain.model.Artifact"
+    ],
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/artifact"
+     }
+    ],
+    "properties": {
+     "location": {
+      "description": "A url address of module where its been deployed",
+      "type": "string"
+     }
+    },
+    "required": [
+     "location"
+    ]
+   },
+   "moduleDiscoveries": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Collection of discovery information for modules that comprise an application",
+    "properties": {
+     "discovery": {
+      "description": "Discovery information for the modules that comprise this application",
+      "type": "array",
+      "id": "moduleDiscovery",
+      "items": {
+       "$ref": "#/components/schemas/moduleDiscovery"
+      }
+     },
+     "totalRecords": {
+      "readOnly": true,
+      "description": "The total number of records matching the provided criteria",
+      "type": "integer",
+      "format": "int64"
+     }
+    },
+    "required": [
+     "discovery"
+    ]
+   },
+   "moduleBootstrap": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Bootstrap information of the module",
+    "properties": {
+     "module": {
+      "description": "Discovery information of the module",
+      "$ref": "#/components/schemas/moduleBootstrapDiscovery"
+     },
+     "requiredModules": {
+      "description": "Discovery information for the required modules",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/moduleBootstrapDiscovery"
+      }
+     }
+    },
+    "required": [
+     "module"
+    ]
+   },
+   "egressBootstrapRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Request for egress module bootstrap. Required-module resolution is restricted to providers within the supplied application scope.",
+    "properties": {
+     "applicationIds": {
+      "description": "Application IDs that define the egress resolution scope.",
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "minItems": 1
+     }
+    },
+    "required": [
+     "applicationIds"
+    ]
+   },
+   "egressBootstrap": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Egress bootstrap: discovery information for the required/optional modules, resolved within a requested application scope.",
+    "properties": {
+     "requiredModules": {
+      "description": "Discovery information for the required/optional modules within scope",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/moduleBootstrapDiscovery"
+      }
+     }
+    },
+    "required": [
+     "requiredModules"
+    ]
+   },
+   "errorResponse": {
+    "$ref": "#/components/schemas/errors"
+   },
+   "applicationReferences": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Collection of application ids",
+    "properties": {
+     "applicationIds": {
+      "description": "List of application ids",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+       "description": "A Name-Version id of application",
+       "type": "string"
+      }
+     }
+    },
+    "required": [
+     "applicationIds"
+    ]
+   },
+   "validationMode": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "description": "Validation mode",
+    "enum": [
+     "default",
+     "basic",
+     "onCreate"
+    ],
+    "default": "default"
+   },
+   "version": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/",
+    "type": "string",
+    "pattern": "^(\\d+)\\.(\\d+)\\.(\\d+)(?:-([\\dA-Za-z-]+(?:\\.[\\dA-Za-z-]+)*))?(?:\\+[\\dA-Za-z-]+)?$"
+   },
+   "artifact": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Application Artifact Schema",
+    "description": "Artifact Descriptor for Application Manager Installer",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "A Name-Version id for identifying this artifact",
+      "type": "string"
+     },
+     "name": {
+      "description": "Artifact name",
+      "type": "string"
+     },
+     "version": {
+      "description": "The version of an artifact (semantic version approach)",
+      "$ref": "#/components/schemas/version"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "version"
+    ]
+   },
+   "metadata": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Metadata Schema",
+    "description": "Metadata about creation and changes to records, provided by the server (client should not provide)",
+    "type": "object",
+    "properties": {
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdBy": {
+      "description": "ID of the user who created the record (when available)",
+      "type": "string",
+      "format": "uuid"
+     },
+     "modifiedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "modifiedBy": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "createdDate"
+    ]
+   },
+   "module": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Module",
+    "x-implements": [
+     "org.folio.common.domain.model.Artifact"
+    ],
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/artifact"
+     }
+    ],
+    "properties": {
+     "url": {
+      "description": "URL to the artifact",
+      "type": "string"
+     }
+    }
+   },
+   "moduleDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A FOLIO Module",
+    "type": "object"
+   },
+   "dependency": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Dependency",
+    "x-class-extra-annotation": "@com.fasterxml.jackson.annotation.JsonIgnoreProperties({\"id\"})",
+    "properties": {
+     "name": {
+      "description": "Artifact name",
+      "type": "string"
+     },
+     "version": {
+      "description": "The concrete version of an artifact (semantic version) or the version range",
+      "type": "string",
+      "x-extra-annotation": "@org.folio.common.domain.validation.constraints.SemVersionOrRange"
+     },
+     "optional": {
+      "description": "Indicates whether the dependency is optional",
+      "type": "boolean",
+      "default": false
+     },
+     "preRelease": {
+      "description": "Controls pre-release (e.g. SNAPSHOT) inclusion when resolving this dependency's version range: 'true' includes pre-release alongside stable, picking the overall highest match (default); 'false' resolves stable versions only; 'only' resolves pre-release versions only.",
+      "type": "string",
+      "enum": [
+       "true",
+       "false",
+       "only"
+      ],
+      "default": "true"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "version"
+    ]
+   },
+   "applicationDeployment": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Application Deployment Schema",
+    "description": "An information about application deployment generated by pipelines",
+    "type": "object",
+    "properties": {
+     "modules": {
+      "description": "List of modules which are grouped by the application",
+      "type": "array",
+      "id": "module",
+      "items": {
+       "$ref": "#/components/schemas/module"
+      }
+     },
+     "ui-modules": {
+      "description": "List of modules which are grouped by the application",
+      "type": "array",
+      "id": "module",
+      "items": {
+       "$ref": "#/components/schemas/module"
+      }
+     },
+     "deployment": {
+      "description": "Deployment info about application",
+      "type": "object",
+      "title": "Deployment",
+      "properties": {
+       "type": {
+        "description": "type of deployment",
+        "type": "string"
+       },
+       "chart": {
+        "description": "url address of application where its been deployed",
+        "type": "string"
+       }
+      }
+     }
+    },
+    "additionalProperties": false
+   },
+   "errorCode": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "description": "Error message code",
+    "enum": [
+     "unknown_error",
+     "service_error",
+     "validation_error",
+     "not_found_error",
+     "found_error"
+    ]
+   },
+   "parameter": {
+    "description": "List of key/value parameters of an error",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+     "key": {
+      "description": "Parameter key",
+      "type": "string"
+     },
+     "value": {
+      "description": "Parameter value",
+      "type": "string"
+     }
+    }
+   },
+   "parameters": {
+    "description": "List of key/value parameters of an error",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/parameter"
+    }
+   },
+   "error": {
+    "description": "An error",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "description": "Error message code",
+      "$ref": "#/components/schemas/errorCode"
+     },
+     "parameters": {
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/parameters"
+     }
+    }
+   },
+   "errors": {
+    "description": "A set of errors",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "id": "errors",
+      "description": "List of errors",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    }
+   },
+   "moduleBootstrapEndpoint": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "An endpoint that an interface can provide",
+    "type": "object",
+    "properties": {
+     "methods": {
+      "description": "List of methods GET, POST,.. * (for all)",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "pathPattern": {
+      "description": "Path pattern match. * matches any path. {x} matches one or more characters but not slash",
+      "type": "string"
+     },
+     "path": {
+      "description": "Path prefix match",
+      "type": "string"
+     },
+     "permissionsRequired": {
+      "description": "Required permissions",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "permissionsDesired": {
+      "description": "Desired permissions",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "modulePermissions": {
+      "description": "Module permissions",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    }
+   },
+   "moduleBootstrapInterface": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "An interface that a module can provide",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Interface ID",
+      "type": "string"
+     },
+     "version": {
+      "description": "Interface version in major.minor format",
+      "type": "string"
+     },
+     "interfaceType": {
+      "description": "Interface type",
+      "type": "string"
+     },
+     "endpoints": {
+      "description": "Endpoint entries for this interface",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/moduleBootstrapEndpoint"
+      }
+     }
+    },
+    "required": [
+     "id",
+     "version",
+     "endpoints"
+    ]
+   },
+   "moduleBootstrapDiscovery": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A Module bootstrap discovery information",
+    "type": "object",
+    "properties": {
+     "moduleId": {
+      "description": "Module ID",
+      "type": "string"
+     },
+     "applicationId": {
+      "description": "Application ID",
+      "type": "string"
+     },
+     "location": {
+      "description": "Module location",
+      "type": "string"
+     },
+     "systemUserRequired": {
+      "description": "Whether the module requires system user or not",
+      "type": "boolean",
+      "default": false
+     },
+     "interfaces": {
+      "description": "Provided interfaces",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/moduleBootstrapInterface"
+      }
+     }
+    },
+    "required": [
+     "moduleId",
+     "applicationId"
+    ]
+   }
+  },
+  "responses": {
+   "bad-request": {
+    "description": "Error response if request body contains validation error (in json format)",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   },
+   "entity-not-found": {
+    "description": "Error response if entity is not found by id (in json format)",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   },
+   "internal-server-error": {
+    "description": "Error response for unhandled or critical server exceptions, e.g. NullPointerException.",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   }
+  },
+  "parameters": {
+   "path-entity-id": {
+    "in": "path",
+    "required": true,
+    "name": "id",
+    "description": "Entity/document id",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "query-limit": {
+    "in": "query",
+    "required": false,
+    "name": "limit",
+    "description": "Limit the number of elements returned in the response.",
+    "schema": {
+     "type": "integer",
+     "minimum": 0,
+     "maximum": 500,
+     "default": 10
+    }
+   },
+   "check": {
+    "in": "query",
+    "name": "check",
+    "required": false,
+    "description": "Whether to run default validation of application descriptor or not\nDefault validation mode specified in the application properties\n",
+    "schema": {
+     "type": "boolean",
+     "default": true
+    }
+   },
+   "query-offset": {
+    "in": "query",
+    "required": false,
+    "name": "offset",
+    "description": "Skip over a number of elements by specifying an offset value for the query.",
+    "schema": {
+     "type": "integer",
+     "minimum": 0,
+     "default": 0
+    }
+   },
+   "cql-query": {
+    "name": "query",
+    "in": "query",
+    "description": "A CQL query string with search conditions.",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "x-okapi-token": {
+    "name": "x-okapi-token",
+    "in": "header",
+    "required": false,
+    "description": "An OKAPI authentication token",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "full": {
+    "name": "full",
+    "in": "query",
+    "required": false,
+    "description": "Show full information in the response including ModuleDescriptors",
+    "schema": {
+     "type": "boolean",
+     "default": false
+    }
+   },
+   "validation-mode": {
+    "in": "query",
+    "name": "mode",
+    "required": false,
+    "description": "Validation mode to be applied",
+    "schema": {
+     "$ref": "#/components/schemas/validationMode"
+    }
+   },
+   "appName": {
+    "in": "query",
+    "name": "appName",
+    "required": false,
+    "description": "Filter results by application name.",
+    "schema": {
+     "type": "string"
+    },
+    "example": "my-app"
+   },
+   "latest": {
+    "in": "query",
+    "name": "latest",
+    "required": false,
+    "description": "Limit results to the latest N releases per application name using SemVer comparison. Common use case - latest=1 for the most recent release.",
+    "schema": {
+     "type": "integer",
+     "minimum": 1
+    }
+   },
+   "preRelease": {
+    "in": "query",
+    "name": "preRelease",
+    "required": false,
+    "description": "Control whether pre-release versions are included.\n- \"true\" \u2192 include all versions (default)\n- \"false\" \u2192 only stable releases\n- \"only\" \u2192 only pre-releases\n",
+    "schema": {
+     "type": "string",
+     "enum": [
+      true,
+      false,
+      "only"
+     ],
+     "default": true
+    },
+    "example": false
+   },
+   "order": {
+    "in": "query",
+    "name": "order",
+    "required": false,
+    "description": "Sort order of the results.",
+    "schema": {
+     "type": "string",
+     "enum": [
+      "asc",
+      "desc"
+     ],
+     "default": "desc"
+    },
+    "example": "desc"
+   },
+   "orderBy": {
+    "in": "query",
+    "name": "orderBy",
+    "required": false,
+    "description": "Field name to order results by.",
+    "schema": {
+     "type": "string",
+     "enum": [
+      "id",
+      "version"
+     ],
+     "default": "version"
+    },
+    "example": "version"
+   }
+  }
+ }
+}

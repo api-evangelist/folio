@@ -1,0 +1,159 @@
+openapi: 3.2.0
+info:
+  title: Folio Deployment API
+  version: v2.0
+  description: 'Operations tagged deployment across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: Deployment
+paths:
+  /_/deployment/modules:
+    post:
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              description: URI to the descriptor of the deployed instance
+              schema:
+                type: string
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentDescriptor'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: 'Deploy (launch process, start a container, etc) instance of a
+
+        particular service, according to the deployment descriptor.'
+      operationId: deployModuleInstance
+      tags:
+      - Deployment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentDescriptor'
+        required: true
+      summary: Deploy module instance
+      x-summary-source: derived
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentDescriptorList'
+      description: List all deployed instances
+      operationId: getAllDeployedModuleInstances
+      tags:
+      - Deployment
+      summary: Get all deployed module instances
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/deployment/modules/{instance_id}:
+    parameters:
+    - name: instance_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentDescriptor'
+        '404':
+          description: Not Found
+      description: Retrieve deployment descriptor for a particular instance
+      operationId: getDeployedModuleInstance
+      tags:
+      - Deployment
+      summary: Get deployed module instance
+      x-summary-source: derived
+    delete:
+      responses:
+        '204':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+      description: Shutdown instance
+      operationId: deleteDeployedModuleInstance
+      tags:
+      - Deployment
+      summary: Delete deployed module instance
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    DeploymentDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: DeploymentDescriptorList.json
+      title: DeploymentDescriptorList
+      description: Deployment information list
+      type: array
+      items:
+        $ref: '#/components/schemas/DeploymentDescriptor'
+    DeploymentDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: DeploymentDescriptor.json
+      title: DeploymentDescriptor
+      description: 'Module deployment information. There are two modes: deployment managed by Okapi (with nodeId specified) and remote module (with URL specified).'
+      type: object
+      additionalProperties: false
+      properties:
+        srvcId:
+          description: The Module ID for the instance
+          type: string
+        instId:
+          description: Instance ID (at least unique for node)
+          type: string
+        nodeId:
+          description: Node ID where module is deployed
+          type: string
+        url:
+          description: URL where module is deployed (not managed by Okapi)
+          type: string
+        descriptor:
+          description: Deployment details
+          $ref: '#/components/schemas/LaunchDescriptor'
+      required:
+      - srvcId
+    LaunchDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: LaunchDescriptor.json
+      title: LaunchDescriptor
+      description: Specifies how a module is deployed and undeployed
+      type: object
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-okapi-facade-openapi.json
+- folio-mod-okapi-facade-openapi.yml

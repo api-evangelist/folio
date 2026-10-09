@@ -1,0 +1,283 @@
+openapi: 3.2.0
+info:
+  title: Folio Node Entity Controller API
+  version: v0
+  description: 'Operations tagged node-entity-controller across 2 of this provider''s published API definitions: folio-mod-workflow-openapi-openapi.json, folio-mod-workflow-openapi-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:9000
+  description: Generated server url
+tags:
+- name: node-entity-controller
+paths:
+  /nodes:
+    get:
+      tags:
+      - node-entity-controller
+      description: get-node
+      operationId: getCollectionResource-node-get
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: 'Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PagedModelEntityModelNode'
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: '#/components/schemas/PagedModelEntityModelNode'
+            text/uri-list:
+              schema:
+                type: string
+      summary: Get collection resource node get
+      x-summary-source: derived
+    post:
+      tags:
+      - node-entity-controller
+      description: create-node
+      operationId: postCollectionResource-node-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeRequestBody'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelNode'
+      summary: Post collection resource node post
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:9000
+      description: Generated server url
+  /nodes/{id}:
+    get:
+      tags:
+      - node-entity-controller
+      description: get-node
+      operationId: getItemResource-node-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelNode'
+        '404':
+          description: Not Found
+      summary: Get item resource node get
+      x-summary-source: derived
+    put:
+      tags:
+      - node-entity-controller
+      description: update-node
+      operationId: putItemResource-node-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeRequestBody'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelNode'
+        '201':
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelNode'
+        '204':
+          description: No Content
+      summary: Put item resource node put
+      x-summary-source: derived
+    delete:
+      tags:
+      - node-entity-controller
+      description: delete-node
+      operationId: deleteItemResource-node-delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+      summary: Delete item resource node delete
+      x-summary-source: derived
+    patch:
+      tags:
+      - node-entity-controller
+      description: patch-node
+      operationId: patchItemResource-node-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeRequestBody'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelNode'
+        '204':
+          description: No Content
+      summary: Patch item resource node patch
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:9000
+      description: Generated server url
+components:
+  schemas:
+    PageMetadata:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+    NodeRequestBody:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          maxLength: 64
+          minLength: 3
+        description:
+          type: string
+          maxLength: 512
+          minLength: 0
+        deserializeAs:
+          type: string
+          readOnly: true
+        identifier:
+          type: string
+      required:
+      - name
+    EntityModelNode:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 3
+        description:
+          type: string
+          maxLength: 512
+          minLength: 0
+        deserializeAs:
+          type: string
+          readOnly: true
+        identifier:
+          type: string
+        _links:
+          $ref: '#/components/schemas/Links'
+      required:
+      - name
+    Links:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Link'
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        hreflang:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        deprecation:
+          type: string
+        profile:
+          type: string
+        name:
+          type: string
+        templated:
+          type: boolean
+    PagedModelEntityModelNode:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            nodes:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelNode'
+        _links:
+          $ref: '#/components/schemas/Links'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+x-refined-from:
+- folio-mod-workflow-openapi-openapi.json
+- folio-mod-workflow-openapi-openapi.yml

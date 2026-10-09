@@ -1,0 +1,1493 @@
+{
+ "openapi": "3.0.3",
+ "info": {
+  "title": "Lists API",
+  "description": "Lists API description",
+  "version": "1.0.0"
+ },
+ "servers": [
+  {
+   "url": "https://folio-etesting-snapshot-kong.ci.folio.org/"
+  }
+ ],
+ "paths": {
+  "/lists": {
+   "get": {
+    "summary": "ListEntity all reports",
+    "operationId": "getAllLists",
+    "tags": [
+     "list"
+    ],
+    "parameters": [
+     {
+      "name": "ids",
+      "in": "query",
+      "description": "List of ids to retrieve information for",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "format": "UUID"
+       }
+      }
+     },
+     {
+      "name": "entityTypeIds",
+      "in": "query",
+      "description": "List of entityTypeIds to retrieve information for",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "format": "UUID"
+       }
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "description": "Offset to start retrieving list information for",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "format": "int32",
+       "default": 0
+      }
+     },
+     {
+      "name": "size",
+      "in": "query",
+      "description": "how many item to return",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "format": "int32",
+       "default": 100
+      }
+     },
+     {
+      "name": "search",
+      "in": "query",
+      "description": "Search term for list name or description",
+      "required": false,
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "active",
+      "in": "query",
+      "description": "Indicates whether list should be active or not",
+      "required": false,
+      "schema": {
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "private",
+      "in": "query",
+      "description": "Indicates whether list should be private or not",
+      "required": false,
+      "schema": {
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "canned",
+      "in": "query",
+      "description": "Indicates whether returned lists should be canned/system generated. When omitted, both canned and non-canned lists are returned.",
+      "required": false,
+      "schema": {
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "createdBy",
+      "in": "query",
+      "description": "Only return lists created by users with these IDs",
+      "required": false,
+      "style": "form",
+      "explode": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "format": "UUID"
+       }
+      }
+     },
+     {
+      "name": "updatedBy",
+      "in": "query",
+      "description": "Only return lists last updated by users with these IDs",
+      "required": false,
+      "style": "form",
+      "explode": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "format": "UUID"
+       }
+      }
+     },
+     {
+      "name": "includeDeleted",
+      "in": "query",
+      "description": "Indicates if deleted lists should be included in the results (default false)",
+      "required": false,
+      "schema": {
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "updatedAsOf",
+      "in": "query",
+      "description": "Indicates the minimum create/update timestamp to filter lists by",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "format": "offset-date-time"
+      }
+     },
+     {
+      "name": "sortBy",
+      "in": "query",
+      "description": "Field to sort by. Supported values are name, updatedDate, and recordsCount",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "pattern": "^(name|updatedDate|recordsCount)$",
+       "enum": [
+        "name",
+        "updatedDate",
+        "recordsCount"
+       ]
+      }
+     },
+     {
+      "name": "sortOrder",
+      "in": "query",
+      "description": "Sort direction. Supported values are asc and desc",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "pattern": "^(asc|desc)$",
+       "enum": [
+        "asc",
+        "desc"
+       ]
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A paged array of reports",
+      "headers": {
+       "x-next": {
+        "description": "A link to the next page of responses",
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListSummaryResultsDTO"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   },
+   "post": {
+    "summary": "Create a List",
+    "operationId": "createList",
+    "tags": [
+     "list"
+    ],
+    "requestBody": {
+     "description": "List object",
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ListRequestDTO"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "returns if a list created successfully",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListDTO"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/{id}": {
+   "delete": {
+    "summary": "Delete List with the provided id",
+    "operationId": "deleteList",
+    "tags": [
+     "list"
+    ],
+    "description": "delete the list with the specific id (if exists).",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "List has been deleted"
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   },
+   "get": {
+    "operationId": "getListById",
+    "tags": [
+     "list"
+    ],
+    "description": "gets the specific list information (if exists).",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "returns specific list information (if exists)",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListDTO"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   },
+   "put": {
+    "summary": "Update a List",
+    "operationId": "updateList",
+    "tags": [
+     "list"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "requestBody": {
+     "description": "List object",
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ListUpdateRequestDTO"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "returns if a list updated successfully",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListDTO"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/{id}/refresh": {
+   "post": {
+    "operationId": "performRefresh",
+    "tags": [
+     "list"
+    ],
+    "description": "Perform refresh of the list.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Refresh request successfully submitted",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListRefreshDTO"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   },
+   "delete": {
+    "operationId": "cancelRefresh",
+    "tags": [
+     "list"
+    ],
+    "description": "Cancel refresh of the list.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Refresh cancelled"
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/{id}/contents": {
+   "get": {
+    "operationId": "getListContents",
+    "tags": [
+     "list"
+    ],
+    "description": "gets the list contents (if exists).",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     },
+     {
+      "name": "fields",
+      "in": "query",
+      "description": "List of fields to retrieve content for",
+      "required": false,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "description": "Offset to start retrieving items from",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "format": "int32",
+       "default": 0
+      }
+     },
+     {
+      "name": "size",
+      "in": "query",
+      "description": "How many items to return",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "format": "int32",
+       "default": 100
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A page of list contents",
+      "headers": {
+       "x-next": {
+        "description": "A link to the next page of list contents",
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ResultsetPage"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/{id}/exports": {
+   "post": {
+    "operationId": "exportList",
+    "tags": [
+     "listExport"
+    ],
+    "description": "Exports the list.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "requestBody": {
+     "description": "Export request",
+     "required": false,
+     "content": {
+      "application/json": {
+       "schema": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "returns if a list export request submitted successfully",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListExportDTO"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/{id}/exports/{exportId}": {
+   "get": {
+    "operationId": "getExportDetails",
+    "tags": [
+     "listExport"
+    ],
+    "description": "Get details of an export request",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     },
+     {
+      "$ref": "#/components/parameters/exportId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Returns details of requested exportId",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListExportDTO"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/{id}/exports/{exportId}/cancel": {
+   "post": {
+    "operationId": "cancelExport",
+    "tags": [
+     "listExport"
+    ],
+    "description": "Cancel the export.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     },
+     {
+      "$ref": "#/components/parameters/exportId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Export cancelled"
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/{id}/exports/{exportId}/download": {
+   "get": {
+    "operationId": "downloadList",
+    "tags": [
+     "listExport"
+    ],
+    "description": "Download the exported file.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     },
+     {
+      "$ref": "#/components/parameters/exportId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Ok",
+      "content": {
+       "application/octet-stream": {
+        "schema": {
+         "type": "string",
+         "format": "binary"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/configuration": {
+   "get": {
+    "operationId": "getListConfiguration",
+    "tags": [
+     "listConfiguration"
+    ],
+    "description": "Get list app configuration.",
+    "responses": {
+     "200": {
+      "description": "Returns list app configuration",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListConfiguration"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/{id}/versions": {
+   "get": {
+    "operationId": "getListVersions",
+    "tags": [
+     "list"
+    ],
+    "description": "Get all the historic versions of the specified list.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Getting all the historic versions of the list",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "type": null,
+          "$ref": "#/components/schemas/ListVersionDTO"
+         }
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/{id}/versions/{versionNumber}": {
+   "get": {
+    "operationId": "getListVersion",
+    "tags": [
+     "list"
+    ],
+    "description": "Get a specific historic version of the specified list.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     },
+     {
+      "$ref": "#/components/parameters/versionNumber"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Get the requested historic list version",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ListVersionDTO"
+        }
+       }
+      }
+     },
+     "4XX": {
+      "$ref": "#/components/responses/badRequestResponse"
+     }
+    }
+   }
+  },
+  "/lists/related-users": {
+   "get": {
+    "operationId": "getRelatedUsers",
+    "tags": [
+     "listRelatedUsers"
+    ],
+    "description": "Get users related to the list",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/role"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Related user",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/relatedUserCollection"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found",
+      "content": {
+       "text/plain": {
+        "example": "Related users not found"
+       }
+      }
+     },
+     "500": {
+      "description": "Internal server errors, e.g. due to misconfiguration",
+      "content": {
+       "text/plain": {
+        "example": "Internal server error"
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "parameters": {
+   "id": {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "description": "id of the list",
+    "schema": {
+     "type": "string",
+     "format": "UUID"
+    }
+   },
+   "exportId": {
+    "name": "exportId",
+    "in": "path",
+    "required": true,
+    "description": "exportId of the list",
+    "schema": {
+     "type": "string",
+     "format": "UUID"
+    }
+   },
+   "versionNumber": {
+    "name": "versionNumber",
+    "in": "path",
+    "required": true,
+    "description": "Integer number of the requested version",
+    "schema": {
+     "type": "integer",
+     "minimum": 1
+    }
+   },
+   "role": {
+    "name": "role",
+    "in": "query",
+    "required": true,
+    "description": "User role (create/update)",
+    "schema": {
+     "type": "string",
+     "enum": [
+      "create",
+      "update"
+     ]
+    }
+   }
+  },
+  "schemas": {
+   "ListDTO": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "List Entity DTO",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "List id",
+      "type": "string",
+      "format": "UUID"
+     },
+     "name": {
+      "description": "List name",
+      "type": "string"
+     },
+     "description": {
+      "description": "List description",
+      "type": "string"
+     },
+     "entityTypeId": {
+      "description": "ID of the entity Type",
+      "type": "string",
+      "format": "UUID"
+     },
+     "fqlQuery": {
+      "description": "FQL Query",
+      "type": "string"
+     },
+     "fields": {
+      "description": "Fields to be included in list contents",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "createdBy": {
+      "description": "ID of the user who created the record (when available)",
+      "type": "string",
+      "format": "UUID"
+     },
+     "createdByUsername": {
+      "description": "Created By Username",
+      "type": "string"
+     },
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "isActive": {
+      "description": "Indicates a List is Active or not",
+      "type": "boolean"
+     },
+     "isPrivate": {
+      "description": "Indicates a List is Private or not",
+      "type": "boolean"
+     },
+     "isCanned": {
+      "description": "Indicates if a List is canned or not",
+      "type": "boolean"
+     },
+     "isDeleted": {
+      "description": "Indicates if a List has been deleted",
+      "type": "boolean"
+     },
+     "updatedBy": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "format": "UUID"
+     },
+     "updatedByUsername": {
+      "description": "Username of the user who last updated the record (when available)",
+      "type": "string"
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "successRefresh": {
+      "description": "List Refresh Information",
+      "$ref": "#/components/schemas/ListRefreshDTO"
+     },
+     "inProgressRefresh": {
+      "description": "List In-Progress Refresh Information",
+      "$ref": "#/components/schemas/ListRefreshDTO"
+     },
+     "failedRefresh": {
+      "description": "List Failed Refresh Information",
+      "$ref": "#/components/schemas/ListRefreshDTO"
+     },
+     "version": {
+      "description": "Number of version",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "name",
+     "version"
+    ]
+   },
+   "ListRefreshDTO": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "List Refresh Details DTO",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "List Refresh id",
+      "type": "string",
+      "format": "UUID"
+     },
+     "listId": {
+      "description": "List id",
+      "type": "string",
+      "format": "UUID"
+     },
+     "status": {
+      "description": "Status of the refresh",
+      "type": "string",
+      "enum": [
+       "IN_PROGRESS",
+       "SUCCESS",
+       "FAILED",
+       "CANCELLED"
+      ]
+     },
+     "refreshStartDate": {
+      "description": "Date and time when the list refresh was started",
+      "type": "string",
+      "format": "date-time"
+     },
+     "refreshEndDate": {
+      "description": "Date and time when the list refresh was completed",
+      "type": "string",
+      "format": "date-time"
+     },
+     "refreshedBy": {
+      "description": "ID of the user who refreshed the list",
+      "type": "string",
+      "format": "UUID"
+     },
+     "refreshedByUsername": {
+      "description": "Username of the user who refreshed the list",
+      "type": "string"
+     },
+     "recordsCount": {
+      "description": "Number of the records found",
+      "type": "integer"
+     },
+     "contentVersion": {
+      "description": "Number of times list has been refreshed",
+      "type": "integer"
+     },
+     "error": {
+      "description": "Error encountered during list refresh",
+      "$ref": "#/components/schemas/ListAppError"
+     },
+     "listVersion": {
+      "description": "Contains the version of the list",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "listId",
+     "status",
+     "refreshStartDate",
+     "refreshedBy",
+     "refreshedByUsername"
+    ]
+   },
+   "ListRequestDTO": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "List Request DTO",
+    "type": "object",
+    "properties": {
+     "name": {
+      "description": "List name",
+      "type": "string",
+      "minLength": 1
+     },
+     "description": {
+      "description": "List description",
+      "type": "string"
+     },
+     "entityTypeId": {
+      "description": "ID of the entity Type",
+      "type": "string",
+      "format": "UUID"
+     },
+     "fqlQuery": {
+      "description": "FQL Query",
+      "type": "string"
+     },
+     "fields": {
+      "description": "Fields to be included in list contents",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "isActive": {
+      "description": "Indicates a List is Active or not",
+      "type": "boolean"
+     },
+     "isPrivate": {
+      "description": "Indicates a List is Private or not",
+      "type": "boolean"
+     },
+     "queryId": {
+      "description": "Optional id of query to create list from",
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "entityTypeId",
+     "isActive",
+     "isPrivate"
+    ]
+   },
+   "ListUpdateRequestDTO": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "List Update Request DTO",
+    "type": "object",
+    "properties": {
+     "name": {
+      "description": "List name",
+      "type": "string",
+      "minLength": 1
+     },
+     "description": {
+      "description": "List description",
+      "type": "string"
+     },
+     "fqlQuery": {
+      "description": "FQL Query",
+      "type": "string"
+     },
+     "fields": {
+      "description": "Fields to be included in list contents",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "isActive": {
+      "description": "Indicates a List is Active or not",
+      "type": "boolean"
+     },
+     "isPrivate": {
+      "description": "Indicates a List is Private or not",
+      "type": "boolean"
+     },
+     "version": {
+      "description": "Number of version",
+      "type": "integer"
+     },
+     "queryId": {
+      "description": "Query ID",
+      "type": "string",
+      "format": "UUID"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "isActive",
+     "isPrivate",
+     "version"
+    ]
+   },
+   "ListExportDTO": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "List Export DTO",
+    "type": "object",
+    "properties": {
+     "exportId": {
+      "description": "List Export id",
+      "type": "string",
+      "format": "UUID"
+     },
+     "listId": {
+      "description": "List Id",
+      "type": "string",
+      "format": "UUID"
+     },
+     "status": {
+      "description": "Status of the export",
+      "type": "string",
+      "enum": [
+       "IN_PROGRESS",
+       "SUCCESS",
+       "FAILED",
+       "CANCELLED"
+      ]
+     },
+     "startDate": {
+      "description": "Date and time when the export request was submitted",
+      "type": "string",
+      "format": "date-time"
+     },
+     "endDate": {
+      "description": "Date and time when the export was completed",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdBy": {
+      "description": "ID of the user who wants to export the list",
+      "type": "string",
+      "format": "UUID"
+     },
+     "fields": {
+      "description": "List of fields to export",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "exportId",
+     "listId",
+     "status",
+     "startDate",
+     "createdBy"
+    ]
+   },
+   "ListSummaryResultsDTO": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "List summary results DTO",
+    "type": "object",
+    "properties": {
+     "content": {
+      "description": "array of content",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ListSummaryDTO"
+      }
+     },
+     "totalRecords": {
+      "description": "Total number of records",
+      "type": "integer",
+      "format": "int64"
+     },
+     "totalPages": {
+      "description": "Total number of pages",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "content",
+     "totalRecords",
+     "totalPages"
+    ],
+    "ListSummaryDTO": {
+     "description": "List Summary DTO",
+     "type": "object",
+     "properties": {
+      "id": {
+       "description": "List id",
+       "type": "string",
+       "format": "UUID"
+      },
+      "name": {
+       "description": "List name",
+       "type": "string"
+      },
+      "entityTypeId": {
+       "description": "ID of the entity Type",
+       "type": "string",
+       "format": "UUID"
+      },
+      "createdByUsername": {
+       "description": "Created By Username",
+       "type": "string"
+      },
+      "createdDate": {
+       "description": "Date and time when the record was created",
+       "type": "string",
+       "format": "date-time"
+      },
+      "isActive": {
+       "description": "Indicates if a List is Active or not",
+       "type": "boolean"
+      },
+      "isPrivate": {
+       "description": "Indicate if a List is Private or not",
+       "type": "boolean"
+      },
+      "isCanned": {
+       "description": "Indicates if a List is canned or not",
+       "type": "boolean"
+      },
+      "isDeleted": {
+       "description": "Indicates if a List has been deleted",
+       "type": "boolean"
+      },
+      "updatedBy": {
+       "description": "ID of the user who last updated the record (when available)",
+       "type": "string",
+       "format": "UUID"
+      },
+      "updatedByUsername": {
+       "description": "Username of the user who last updated the record (when available)",
+       "type": "string"
+      },
+      "updatedDate": {
+       "description": "Date and time when the record was last updated",
+       "type": "string",
+       "format": "date-time"
+      },
+      "recordsCount": {
+       "description": "record count for refresh",
+       "type": "number"
+      },
+      "refreshedDate": {
+       "description": "End date for successful refresh",
+       "type": "string",
+       "format": "date-time"
+      },
+      "refreshedByUsername": {
+       "description": "Username who did the refresh",
+       "type": "string"
+      },
+      "isRefreshing": {
+       "description": "Indicates if list refresh is in progress",
+       "type": "boolean"
+      },
+      "latestRefreshFailed": {
+       "description": "Indicates if the most recent list refresh failed",
+       "type": "boolean"
+      }
+     },
+     "additionalProperties": false,
+     "required": [
+      "id",
+      "name",
+      "entityTypeId"
+     ]
+    }
+   },
+   "ListVersionDTO": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "List Version DTO",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Version id",
+      "type": "string",
+      "format": "UUID"
+     },
+     "name": {
+      "description": "List name",
+      "type": "string"
+     },
+     "description": {
+      "description": "List description",
+      "type": "string"
+     },
+     "fqlQuery": {
+      "description": "FQL Query",
+      "type": "string"
+     },
+     "fields": {
+      "description": "Fields to be included in list contents",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "isActive": {
+      "description": "Indicates a List is Active or not",
+      "type": "boolean"
+     },
+     "isPrivate": {
+      "description": "Indicates a List is Private or not",
+      "type": "boolean"
+     },
+     "updatedBy": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "format": "UUID"
+     },
+     "updatedByUsername": {
+      "description": "Username of the user who last updated the record (when available)",
+      "type": "string"
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "listId": {
+      "description": "list id",
+      "type": "string",
+      "format": "UUID"
+     },
+     "version": {
+      "description": "Number of version",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "name",
+     "version"
+    ]
+   },
+   "ResultsetPage": {
+    "type": "object"
+   },
+   "ContentItem": {
+    "type": "object",
+    "additionalProperties": {
+     "type": "object"
+    }
+   },
+   "ListAppError": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "description": "Error message text"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message",
+     "code"
+    ]
+   },
+   "ListConfiguration": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "List Configuration Data",
+    "type": "object",
+    "properties": {
+     "maxListSize": {
+      "description": "Maximum allowable size of a list",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "maxListSize"
+    ]
+   },
+   "RelatedUserCollection": {
+    "$ref": "#/components/schemas/relatedUserCollection"
+   },
+   "ListSummaryDTO": {
+    "description": "List Summary DTO",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "List id",
+      "type": "string",
+      "format": "UUID"
+     },
+     "name": {
+      "description": "List name",
+      "type": "string"
+     },
+     "entityTypeId": {
+      "description": "ID of the entity Type",
+      "type": "string",
+      "format": "UUID"
+     },
+     "createdByUsername": {
+      "description": "Created By Username",
+      "type": "string"
+     },
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "isActive": {
+      "description": "Indicates if a List is Active or not",
+      "type": "boolean"
+     },
+     "isPrivate": {
+      "description": "Indicate if a List is Private or not",
+      "type": "boolean"
+     },
+     "isCanned": {
+      "description": "Indicates if a List is canned or not",
+      "type": "boolean"
+     },
+     "isDeleted": {
+      "description": "Indicates if a List has been deleted",
+      "type": "boolean"
+     },
+     "updatedBy": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "format": "UUID"
+     },
+     "updatedByUsername": {
+      "description": "Username of the user who last updated the record (when available)",
+      "type": "string"
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "recordsCount": {
+      "description": "record count for refresh",
+      "type": "number"
+     },
+     "refreshedDate": {
+      "description": "End date for successful refresh",
+      "type": "string",
+      "format": "date-time"
+     },
+     "refreshedByUsername": {
+      "description": "Username who did the refresh",
+      "type": "string"
+     },
+     "isRefreshing": {
+      "description": "Indicates if list refresh is in progress",
+      "type": "boolean"
+     },
+     "latestRefreshFailed": {
+      "description": "Indicates if the most recent list refresh failed",
+      "type": "boolean"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "name",
+     "entityTypeId"
+    ]
+   },
+   "parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "description": "Parameter key",
+      "type": "string"
+     },
+     "value": {
+      "description": "Parameter value",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "parameters": {
+    "description": "List of key/value parameters of an error",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/parameter"
+    }
+   },
+   "relatedUser": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Related user who have ever started export",
+    "properties": {
+     "fullName": {
+      "description": "User full name",
+      "type": "string"
+     },
+     "id": {
+      "description": "User id",
+      "type": "string"
+     }
+    }
+   },
+   "relatedUserCollection": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Collection of related users",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "relatedUsers": {
+      "description": "List of related users",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/relatedUser"
+      }
+     },
+     "totalRecords": {
+      "type": "integer",
+      "default": 0
+     }
+    }
+   }
+  },
+  "responses": {
+   "badRequestResponse": {
+    "description": "Invalid request",
+    "content": {
+     "application/json": {
+      "example": {
+       "message": "List with ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found",
+       "code": "read-list.not.found"
+      },
+      "schema": {
+       "$ref": "#/components/schemas/ListAppError"
+      }
+     }
+    }
+   }
+  }
+ }
+}

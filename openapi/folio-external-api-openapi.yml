@@ -1,0 +1,220 @@
+openapi: 3.2.0
+info:
+  title: Folio External API
+  version: 1.0.0
+  description: 'Operations tagged External across 2 of this provider''s published API definitions: folio-edge-ill-openapi.json, folio-edge-ill-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+tags:
+- name: External
+paths:
+  /illService/tenants/{tenantId}/externalApi/directoryEntry:
+    get:
+      tags:
+      - External
+      description: External API access to directory entries
+      operationId: directoryEntry
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      - in: query
+        name: slug
+        description: The directory entry the information is requested for
+        schema:
+          type: string
+        required: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Directory entry
+      x-summary-source: derived
+    servers:
+    - url: /
+  /illService/tenants/{tenantId}/externalApi/iso18626:
+    post:
+      tags:
+      - External
+      description: Receives an ISO18626 xml message
+      operationId: iso18626
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/xml:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Iso18626
+      x-summary-source: derived
+    servers:
+    - url: /
+  /illService/tenants/{tenantId}/externalApi/statistics:
+    get:
+      tags:
+      - External
+      description: Return the statistics
+      operationId: statistics
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      - in: query
+        name: symbol
+        description: The symbol in the form authority:symbol that the statistics are required for
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Statistics
+      x-summary-source: derived
+    servers:
+    - url: /
+  /illService/tenants/{tenantId}/externalApi/statusReport:
+    get:
+      tags:
+      - External
+      description: Generates a brief status report about the service
+      operationId: statusReport
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Status report
+      x-summary-source: derived
+    servers:
+    - url: /
+components:
+  parameters:
+    tenant-id:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: diku
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        name: field
+        value: must not be empty
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+      example:
+        message: Entity already exists.
+        type: EntityExistsException
+        code: entity_exists
+        parameters:
+        - name: id
+          value: 5ac63bf6-20e4-4449-9efd-01dbca051acf
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Error Message Text
+          type: ServiceException
+          code: error_code
+          parameters:
+          - name: cause
+            value: Service exception cause
+        total_records: 1
+  responses:
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            errors:
+            - code: service
+              type: InternalServerErrorException
+              message: Unknown Service Exception
+            total_records: 1
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            errors:
+            - code: validation
+              type: BadRequest
+              message: The input provided is invalid.
+              parameters:
+              - name: field
+                value: must not be empty
+            total_records: 1
+x-refined-from:
+- folio-edge-ill-openapi.json
+- folio-edge-ill-openapi.yml

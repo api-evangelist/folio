@@ -1,0 +1,219 @@
+openapi: 3.2.0
+info:
+  title: Folio Paging Slip Template API
+  version: v1
+  description: 'Operations tagged paging-slip-template across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: paging-slip-template
+paths:
+  /central-servers/{centralServerId}/paging-slip-template:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pagingSlipTemplateDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Get Paging Slip Template
+      operationId: getPagingSlipTemplate
+      tags:
+      - paging-slip-template
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Get paging slip template
+      x-summary-source: derived
+    put:
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Update Paging Slip Template
+      operationId: updatePagingSlipTemplate
+      tags:
+      - paging-slip-template
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/pagingSlipTemplateDTO'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Update paging slip template
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /central-servers/paging-slip-template:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pagingSlipTemplatesDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Get list of Paging Slip Templates
+      operationId: getAllPagingSlipTemplates
+      tags:
+      - paging-slip-template
+      summary: Get all paging slip templates
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    pagingSlipTemplatesDTO:
+      description: INN-Reach paging slip templates collection
+      type: object
+      properties:
+        totalRecords:
+          description: Total records
+          type: integer
+          default: 0
+        pagingSlipTemplates:
+          description: List of INN-Reach paging slip templates
+          type: array
+          items:
+            $ref: '#/components/schemas/pagingSlipTemplateDTO'
+      additionalProperties: false
+      required:
+      - pagingSlipTemplates
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    pagingSlipTemplateDTO:
+      description: Paging Slip Template
+      type: object
+      properties:
+        id:
+          description: Paging Slip Template id
+          type: string
+          format: UUID
+        centralServerId:
+          description: Central server id
+          type: string
+          format: UUID
+        description:
+          description: Paging Slip Template description
+          type: string
+        template:
+          description: Paging Slip Template template
+          type: string
+          maxLength: 4094
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+  responses:
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+x-refined-from:
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-inn-reach-settings-openapi.yml

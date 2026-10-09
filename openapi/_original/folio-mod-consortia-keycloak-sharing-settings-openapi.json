@@ -1,0 +1,354 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Sharing setting integration API",
+  "description": "Sharing setting integration API",
+  "version": "0.0.1"
+ },
+ "servers": [
+  {
+   "url": "/consortia/{consortiumId}/sharing"
+  }
+ ],
+ "paths": {
+  "/settings": {
+   "post": {
+    "summary": "start setting sharing",
+    "operationId": "startSharingSetting",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/consortiumId"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/SharingSettingBody"
+    },
+    "responses": {
+     "201": {
+      "$ref": "#/components/responses/SharingSettingResponse"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "409": {
+      "$ref": "#/components/responses/Conflict"
+     },
+     "422": {
+      "$ref": "#/components/responses/Conflict"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/settings/{settingId}": {
+   "delete": {
+    "summary": "delete sharing setting",
+    "operationId": "deleteSharingSetting",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/consortiumId"
+     },
+     {
+      "$ref": "#/components/parameters/settingId"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/SharingSettingBody"
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/SharingSettingDeleteResponse"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "409": {
+      "$ref": "#/components/responses/Conflict"
+     },
+     "422": {
+      "$ref": "#/components/responses/Conflict"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "requestBodies": {
+   "SharingSettingBody": {
+    "description": "Sharing settings object",
+    "required": true,
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/SharingSettingRequest"
+      },
+      "example": {
+       "settingId": "1844767a-8367-4926-9999-514c35840399",
+       "url": "/organizations-storage/organizations",
+       "payload": {
+        "id": "1844767a-8367-4926-9999-514c35840399",
+        "name": "ORG-NAME",
+        "source": "local"
+       }
+      }
+     }
+    }
+   }
+  },
+  "responses": {
+   "SharingSettingResponse": {
+    "description": "Returns a sharing setting object response for post operation",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/SharingSettingResponse"
+      },
+      "example": {
+       "createSettingsPCId": "c734a41e-16ba-4a02-beb0-2d45081e39b1",
+       "updateSettingsPCId": "53e0f091-ffee-448c-a0f8-562d9ad6bf3f"
+      }
+     }
+    }
+   },
+   "SharingSettingDeleteResponse": {
+    "description": "Returns a sharing setting response for delete operation",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/SharingSettingDeleteResponse"
+      },
+      "example": {
+       "pcId": "c734a41e-16ba-4a02-beb0-2d45081e39b1"
+      }
+     }
+    }
+   },
+   "NoContent": {
+    "description": "No content"
+   },
+   "Conflict": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "NotFound": {
+    "description": "Resource not found",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "BadRequest": {
+    "description": "Bad request",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "Unauthorized": {
+    "description": "Not authorized to perform requested action",
+    "content": {
+     "text/plain": {
+      "example": "unable to perform action -- unauthorized"
+     }
+    }
+   },
+   "UnprocessableEntity": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "InternalServerError": {
+    "description": "Internal server error",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   }
+  },
+  "parameters": {
+   "consortiumId": {
+    "in": "path",
+    "name": "consortiumId",
+    "schema": {
+     "$ref": "#/components/schemas/uuid"
+    },
+    "required": true,
+    "description": "The ID of consortium"
+   },
+   "settingId": {
+    "in": "path",
+    "name": "settingId",
+    "schema": {
+     "$ref": "#/components/schemas/uuid"
+    },
+    "required": true,
+    "description": "The ID of setting"
+   }
+  },
+  "schemas": {
+   "uuid": {
+    "type": "string",
+    "format": "uuid"
+   },
+   "SharingSettingRequest": {
+    "description": "A JSON schema for the Sharing settings object",
+    "type": "object",
+    "properties": {
+     "settingId": {
+      "description": "id of sharing setting record",
+      "type": "string",
+      "format": "uuid"
+     },
+     "url": {
+      "description": "URL for publishing requests for consortia tenants",
+      "type": "string"
+     },
+     "payload": {
+      "description": "Http request body",
+      "type": "object"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "settingId",
+     "url"
+    ]
+   },
+   "SharingSettingResponse": {
+    "description": "A JSON schema for the Sharing settings object response for post request",
+    "type": "object",
+    "properties": {
+     "createSettingsPCId": {
+      "type": "string",
+      "format": "uuid"
+     },
+     "updateSettingsPCId": {
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "createSettingsPCId",
+     "updateSettingsPCId"
+    ]
+   },
+   "Parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "type": "string",
+      "minLength": 1
+     },
+     "value": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "Parameters": {
+    "description": "List of key/value parameters of an error",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/Parameter"
+    },
+    "additionalProperties": false
+   },
+   "Error": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/Parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message"
+    ]
+   },
+   "Errors": {
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/Error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   },
+   "SharingSettingDeleteResponse": {
+    "description": "A JSON schema for the Sharing settings object response for delete request",
+    "type": "object",
+    "properties": {
+     "pcId": {
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "pcId"
+    ]
+   }
+  }
+ }
+}

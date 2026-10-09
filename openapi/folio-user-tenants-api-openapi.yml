@@ -1,0 +1,295 @@
+openapi: 3.2.0
+info:
+  title: Folio User Tenants API
+  version: 0.0.1
+  description: 'Operations tagged User Tenants across 3 of this provider''s published API definitions: folio-mod-consortia-keycloak-user-tenants-openapi.json, folio-mod-consortia-keycloak-user-tenants-openapi.yml, folio-mod-consortia-user-tenants-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /consortia/{consortiumId}/
+tags:
+- name: User Tenants
+paths:
+  /user-tenants:
+    get:
+      description: User Tenant Associations
+      summary: Get a list of user tenant associations
+      operationId: getUserTenants
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/userId'
+      - $ref: '#/components/parameters/username'
+      - $ref: '#/components/parameters/tenantId'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserTenantCollection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - User Tenants
+    post:
+      description: User Tenant Associations
+      summary: Inserts a single user_tenant associations
+      operationId: postUserTenants
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      requestBody:
+        $ref: '#/components/requestBodies/UserTenantBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/UserTenant'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - User Tenants
+    delete:
+      description: Delete User Tenant Associations for particular user id and tenant id
+      summary: Delete User Tenant Association by user id and tenant id
+      operationId: deleteUserTenant
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/requiredUserId'
+      - $ref: '#/components/parameters/requiredTenantId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - User Tenants
+    servers:
+    - url: /consortia/{consortiumId}/
+  /user-tenants/{associationId}:
+    description: User Tenant Associations
+    get:
+      summary: Get a list of user tenant associations by association id
+      operationId: getUserTenantByAssociationId
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/associationId'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserTenant'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - User Tenants
+    servers:
+    - url: /consortia/{consortiumId}/
+components:
+  schemas:
+    UserTenantCollection:
+      description: A JSON schema for the User Tenants Collection
+      type: object
+      properties:
+        userTenants:
+          type: array
+          description: The list of user tenants
+          items:
+            type: object
+            $ref: '#/components/schemas/UserTenant'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - userTenants
+      - totalRecords
+    UserTenant:
+      description: A JSON schema for the User Tenant
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        username:
+          type: string
+        tenantId:
+          type: string
+        tenantName:
+          type: string
+        isPrimary:
+          type: boolean
+        centralTenantId:
+          type: string
+        consortiumId:
+          type: string
+          format: uuid
+        email:
+          type: string
+        mobilePhoneNumber:
+          type: string
+        phoneNumber:
+          type: string
+      additionalProperties: false
+      required:
+      - userId
+      - tenantId
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    uuid:
+      type: string
+      format: uuid
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+  parameters:
+    userId:
+      in: query
+      name: userId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      description: The UUID of the user
+    requiredTenantId:
+      in: query
+      name: tenantId
+      schema:
+        type: string
+      required: true
+      description: The ID of the tenant
+    associationId:
+      in: path
+      name: associationId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: UUID of the user to get and associated tenants.
+    requiredUserId:
+      in: query
+      name: userId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      description: The UUID of the user
+    tenantId:
+      in: query
+      name: tenantId
+      schema:
+        type: string
+      description: The ID of the tenant
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 100
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    username:
+      in: query
+      name: username
+      schema:
+        type: string
+        description: The username of the user
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+  responses:
+    UserTenantCollection:
+      description: Returns a user tenant association collection object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserTenantCollection'
+    UserTenant:
+      description: Returns a user tenant association object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserTenant'
+    NoContent:
+      description: No content
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  requestBodies:
+    UserTenantBody:
+      description: user_tenant object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserTenant'
+x-refined-from:
+- folio-mod-consortia-keycloak-user-tenants-openapi.json
+- folio-mod-consortia-keycloak-user-tenants-openapi.yml
+- folio-mod-consortia-user-tenants-openapi.yml

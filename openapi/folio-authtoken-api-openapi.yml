@@ -1,0 +1,376 @@
+openapi: 3.2.0
+info:
+  title: Folio Authtoken API
+  version: v1
+  description: 'Operations tagged authtoken across 2 of this provider''s published API definitions: folio-mod-login-keycloak-openapi.json, folio-mod-login-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: authtoken
+  description: Stub implementation for `authtoken` and `authtoken2` interfaces.
+paths:
+  /token:
+    post:
+      operationId: token-legacy
+      description: '***Not Implemented, Deprecated***
+
+
+        _Will be removed in a future releases_
+
+
+        Please use `/token/sign` instead. Returns a signed, non-expiring legacy access token.'
+      parameters:
+      - $ref: '#/components/parameters/okapi-token-required'
+      - $ref: '#/components/parameters/okapi-url-required'
+      tags:
+      - authtoken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signTokenPayload'
+      responses:
+        '201':
+          description: Created and signed token successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenResponseLegacy'
+        '501':
+          $ref: '#/components/responses/notImplementedEntityResponse'
+      summary: Token legacy
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /refreshtoken:
+    post:
+      operationId: token-sign-legacy
+      description: '***Not Implemented***
+
+
+        Returns a signed, expiring refresh token. This is a legacy endpoint and should not be
+
+        called by new code and will soon be fully depreciated.'
+      parameters:
+      - $ref: '#/components/parameters/okapi-token-required'
+      - $ref: '#/components/parameters/okapi-url-required'
+      tags:
+      - authtoken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signRefreshToken'
+        required: true
+      responses:
+        '201':
+          description: Created and signed token successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/token'
+        '501':
+          $ref: '#/components/responses/notImplementedEntityResponse'
+      summary: Token sign legacy
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /token/sign:
+    post:
+      operationId: token-sign
+      description: '***Not Implemented***
+
+
+        Returns a signed, expiring access token and refresh token. Also returns the expiration
+
+        of each token in the body of the response. The access token time to live is 10 minutes and
+
+        the refresh token is one week.'
+      tags:
+      - authtoken
+      parameters:
+      - $ref: '#/components/parameters/okapi-token-required'
+      - $ref: '#/components/parameters/okapi-url-required'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signTokenPayload'
+        required: true
+      responses:
+        '201':
+          description: Created and signed tokens successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenResponse'
+        '501':
+          $ref: '#/components/responses/notImplementedEntityResponse'
+      summary: Token sign
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /token/refresh:
+    post:
+      description: '***Not Implemented***
+
+
+        Returns a new refresh token and a new access token. Also returns the expiration of each token
+
+        in the body of the response. Time to live is 10 minutes for the access token and one week for
+
+        the refresh token.'
+      tags:
+      - authtoken
+      parameters:
+      - $ref: '#/components/parameters/okapi-token-required'
+      - $ref: '#/components/parameters/okapi-url-required'
+      operationId: token-refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/refreshToken'
+        required: true
+      responses:
+        '201':
+          description: Refreshed tokens successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenResponse'
+        '501':
+          $ref: '#/components/responses/notImplementedEntityResponse'
+      summary: Token refresh
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /token/invalidate:
+    post:
+      operationId: token-invalidate
+      description: '***Not Implemented***
+
+
+        Invalidate a single token'
+      tags:
+      - authtoken
+      parameters:
+      - $ref: '#/components/parameters/okapi-token-required'
+      - $ref: '#/components/parameters/okapi-url-required'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/refreshToken'
+        required: true
+      responses:
+        '204':
+          description: Invalidated token successfully
+        '501':
+          $ref: '#/components/responses/notImplementedEntityResponse'
+      summary: Token invalidate
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /token/invalidate-all:
+    post:
+      operationId: token-invalidate-all
+      description: '***Not Implemented***
+
+
+        Invalidate all tokens for a user'
+      tags:
+      - authtoken
+      parameters:
+      - $ref: '#/components/parameters/okapi-token-required'
+      - $ref: '#/components/parameters/okapi-url-required'
+      responses:
+        '204':
+          description: Invalidated tokens successfully
+        '501':
+          $ref: '#/components/responses/notImplementedEntityResponse'
+      summary: Token invalidate all
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    parameter:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: parameter.json
+      title: Key/Value Parameter Schema
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    tokenResponseLegacy:
+      description: The signed JWT token based on the payload
+      type: object
+      properties:
+        token:
+          type: string
+          description: The JWT token
+      required:
+      - token
+      additionalProperties: false
+    signTokenPayload:
+      description: The POST body for the request to generate a signed token
+      type: object
+      properties:
+        payload:
+          type: object
+          description: The payload of the token signing request
+          properties:
+            sub:
+              type: string
+              description: The subject (the username) for the user
+          required:
+          - sub
+          additionalProperties: true
+      required:
+      - payload
+      additionalProperties: false
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: parameters.json
+      title: List of Parameters Schema
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    token:
+      description: The signed JWT token based on the payload
+      type: object
+      properties:
+        token:
+          type: string
+          description: The JWT token
+      required:
+      - token
+      additionalProperties: false
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: errorCode.json
+      title: Error Code Schema
+      description: Error message code
+      type: string
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
+      - token.parse.failure
+      - token.refresh.unprocessable
+      - token.logout.unprocessable
+      - unauthorized_error
+    refreshToken:
+      description: The refresh token being presented to get a new refresh token and access token
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          description: The JWE refresh token
+      required:
+      - refreshToken
+      additionalProperties: false
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: error.json
+      title: Error Schema
+      description: An error object
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          description: Error message code
+          $ref: '#/components/schemas/errorCode'
+        parameters:
+          description: List of key/value parameters of an error
+          $ref: '#/components/schemas/parameters'
+    tokenResponse:
+      description: A signed JWT token when used in the context of a dummy token. Otherwise, a signed JWT access token and a signed JWE refresh token.
+      type: object
+      properties:
+        token:
+          type: string
+          description: A dummy token
+        refreshToken:
+          type: string
+          description: A refresh token
+        accessToken:
+          type: string
+          description: An access token
+      additionalProperties: false
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: Errors Schema
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    signRefreshToken:
+      description: The request to sign a new refresh token
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The user id of the request
+          format: uuid
+        sub:
+          type: string
+          description: The subject (user id) of the request
+      required:
+      - userId
+      - sub
+      additionalProperties: false
+  responses:
+    notImplementedEntityResponse:
+      description: Error response in JSON format for endpoints that are not implemented.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+  parameters:
+    okapi-url-required:
+      in: header
+      name: X-Okapi-Url
+      description: Okapi URL
+      required: true
+      schema:
+        type: string
+    okapi-token-required:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: true
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-login-keycloak-openapi.json
+- folio-mod-login-keycloak-openapi.yml

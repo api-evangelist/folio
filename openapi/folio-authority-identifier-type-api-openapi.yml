@@ -1,0 +1,227 @@
+openapi: 3.2.0
+info:
+  title: Folio Authority Identifier Type API
+  version: v1.0
+  description: 'Operations tagged authority-identifier-type across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://localhost:8081
+tags:
+- name: authority-identifier-type
+paths:
+  /authority-identifier-types:
+    get:
+      operationId: retrieveAuthorityIdentifierTypes
+      parameters:
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 2000
+          minimum: 1
+          type: integer
+      - description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+        in: query
+        name: query
+        required: false
+        schema:
+          default: cql.allRecords=1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authorityIdentifierTypeDtoCollection'
+          description: Returns a list of authority identifier types
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-identifier-type
+      summary: Retrieve authority identifier types
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+components:
+  schemas:
+    authorityIdentifierTypeDto:
+      description: An authority identifier type
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        code: code
+        source: source
+        metadata:
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: Unique ID of the authority identifier type; a UUID
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.id
+          x-fqm-essential: true
+        name:
+          description: Name of the authority identifier type
+          type: string
+          x-fqm-essential: true
+          x-fqm-id-column-name: id
+          x-fqm-visible-by-default: true
+          x-fqm-value-getter: :sourceAlias.name
+          x-fqm-value-source-api:
+            path: authority-identifier-types
+            valueJsonPath: $.identifierTypes.*.id
+            labelJsonPath: $.identifierTypes.*.name
+        code:
+          description: Stable human-readable code of the authority identifier type
+          type: string
+          x-fqm-value-getter: :sourceAlias.code
+        source:
+          description: Label indicating where the authority identifier type entry originates from, i.e. 'folio' or 'local'
+          type: string
+          x-fqm-ignore: true
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - code
+      - name
+      - source
+      type: object
+    authorityIdentifierTypeDtoCollection:
+      description: A collection of authority identifier types
+      example:
+        identifierTypes:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          code: code
+          source: source
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          code: code
+          source: source
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        totalRecords: 0
+      properties:
+        identifierTypes:
+          description: List of authority identifier types
+          items:
+            $ref: '#/components/schemas/authorityIdentifierTypeDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - identifierTypes
+      - totalRecords
+      type: object
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/error_parameters_inner'
+          type: array
+      type: object
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object
+    metadata:
+      description: Creater, updater, creation date, last updated date
+      example:
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+          x-fqm-value-getter: :sourceAlias.created_date
+          x-fqm-value-function: (:value)::timestamp
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.created_by_user_id
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+          x-fqm-value-getter: :sourceAlias.updated_date
+          x-fqm-value-function: (:value)::timestamp
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.updated_by_user_id
+      type: object
+x-refined-from:
+- folio-mod-entities-links-openapi.json
+- folio-mod-entities-links-openapi.yml

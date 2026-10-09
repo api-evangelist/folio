@@ -1,0 +1,1061 @@
+openapi: 3.2.0
+info:
+  title: Folio Specification Storage Fields API
+  version: 1.0.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged specification-storage-fields across 2 of this provider''s published API definitions: folio-mod-record-specifications-openapi.json, folio-mod-record-specifications-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://{environment}-okapi.ci.folio.org
+  variables:
+    environment:
+      default: folio-dev-spitfire
+      enum:
+      - folio-dev-spitfire
+      - folio-perf-spitfire
+- description: Reference environments.
+  url: https://folio-{environment}-okapi.dev.folio.org
+  variables:
+    environment:
+      default: snapshot
+      enum:
+      - snapshot
+      - snapshot-2
+tags:
+- description: Provides API for managing specification fields.
+  name: specification-storage-fields
+paths:
+  /specification-storage/fields/{id}:
+    delete:
+      description: Delete field definition
+      operationId: deleteField
+      parameters:
+      - description: Specification Field ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Field definition was deleted
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Delete Field Definition
+      tags:
+      - specification-storage-fields
+    put:
+      description: Update a fields definition.
+      operationId: updateField
+      parameters:
+      - description: Specification Field ID
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              RequestExample:
+                $ref: '#/components/examples/specificationFieldChangeDto'
+            schema:
+              $ref: '#/components/schemas/specificationFieldChangeDto'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                RequestExample:
+                  $ref: '#/components/examples/specificationFieldChangeDto'
+              schema:
+                $ref: '#/components/schemas/specificationFieldDto'
+          description: Field definition was updated
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Update Field Definitions
+      tags:
+      - specification-storage-fields
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /specification-storage/fields/{fieldId}/subfields:
+    get:
+      description: Get a collection of subfields definitions that are defined in the field.
+      operationId: getFieldSubfields
+      parameters:
+      - description: Specification Field ID
+        in: path
+        name: fieldId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                Collection:
+                  $ref: '#/components/examples/subfieldDtoCollection'
+              schema:
+                $ref: '#/components/schemas/subfieldDtoCollection'
+          description: Collection of subfields definitions
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Field Subfields Definitions
+      tags:
+      - specification-storage-fields
+    post:
+      description: Create new local subfield definition for the field
+      operationId: createFieldLocalSubfield
+      parameters:
+      - description: Specification Field ID
+        in: path
+        name: fieldId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              RequestExample:
+                $ref: '#/components/examples/subfieldChangeDto'
+            schema:
+              $ref: '#/components/schemas/subfieldChangeDto'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                Created:
+                  $ref: '#/components/examples/subfieldDto'
+              schema:
+                $ref: '#/components/schemas/subfieldDto'
+          description: Local subfield definition was created
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Create Local Subfield Definition
+      tags:
+      - specification-storage-fields
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /specification-storage/fields/{fieldId}/indicators:
+    get:
+      description: Get a collection of indicators definitions that are defined in the field.
+      operationId: getFieldIndicators
+      parameters:
+      - description: Specification Field ID
+        in: path
+        name: fieldId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                Collection:
+                  $ref: '#/components/examples/fieldIndicatorDtoCollection'
+              schema:
+                $ref: '#/components/schemas/fieldIndicatorDtoCollection'
+          description: Collection of indicators definitions
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Field Indicator Definitions
+      tags:
+      - specification-storage-fields
+    post:
+      description: Create new local indicator definition for the field
+      operationId: createFieldLocalIndicator
+      parameters:
+      - description: Specification Field ID
+        in: path
+        name: fieldId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              RequestExample:
+                $ref: '#/components/examples/fieldIndicatorChangeDto'
+            schema:
+              $ref: '#/components/schemas/fieldIndicatorChangeDto'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                Created:
+                  $ref: '#/components/examples/fieldIndicatorDto'
+              schema:
+                $ref: '#/components/schemas/fieldIndicatorDto'
+          description: Local indicator definition was created
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Create Local Indicator Definition
+      tags:
+      - specification-storage-fields
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: invalid
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      title: Error parameter
+      type: object
+    indicatorCodeDto:
+      description: Describe indicator code definition that will be used for record validation
+      example:
+        indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: createdDate
+          updatedDate: updatedDate
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        deprecated: false
+        scope: null
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        label: label
+      properties:
+        id:
+          description: Code ID
+          format: uuid
+          type: string
+        indicatorId:
+          description: Indicator ID
+          format: uuid
+          type: string
+        code:
+          description: Indicator Code
+          type: string
+        label:
+          description: Code description
+          type: string
+        deprecated:
+          default: false
+          description: Define if code is deprecated
+          type: boolean
+        scope:
+          $ref: '#/components/schemas/scope'
+        metadata:
+          $ref: '#/components/schemas/metadataDto'
+      title: Indicator code definition DTO
+      type: object
+    specificationFieldChangeDto:
+      additionalProperties: false
+      description: Describe field definition that should be created or change to existed field definition
+      properties:
+        tag:
+          description: Record tag
+          pattern: \d{3}
+          type: string
+        label:
+          description: Tag description
+          maxLength: 350
+          type: string
+        url:
+          description: Help url for the tag
+          maxLength: 350
+          type: string
+          x-field-extra-annotation: '@org.hibernate.validator.constraints.URL'
+        repeatable:
+          default: true
+          description: Define if tag is repeatable
+          type: boolean
+        required:
+          default: false
+          description: Define if tag is required
+          type: boolean
+        deprecated:
+          default: false
+          description: Define if tag is deprecated
+          type: boolean
+      required:
+      - label
+      - tag
+      title: Field definition change DTO
+      type: object
+    metadataDto:
+      description: Creator, updater, creation date, last updated date
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: createdDate
+        updatedDate: updatedDate
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      title: Metadata
+      type: object
+    errorCollection:
+      description: Collection of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+        totalRecords:
+          description: Total number of errors
+          type: integer
+      title: Error Collection
+      type: object
+    fieldIndicatorDtoCollection:
+      description: Collection of field indicator DTOs
+      example:
+        totalRecords: 0
+        indicators:
+        - codes:
+          - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            metadata:
+              createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              createdDate: createdDate
+              updatedDate: updatedDate
+              updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            code: code
+            deprecated: false
+            scope: null
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            label: label
+          - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            metadata:
+              createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              createdDate: createdDate
+              updatedDate: updatedDate
+              updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            code: code
+            deprecated: false
+            scope: null
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            label: label
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+          fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          order: 0
+        - codes:
+          - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            metadata:
+              createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              createdDate: createdDate
+              updatedDate: updatedDate
+              updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            code: code
+            deprecated: false
+            scope: null
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            label: label
+          - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            metadata:
+              createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              createdDate: createdDate
+              updatedDate: updatedDate
+              updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            code: code
+            deprecated: false
+            scope: null
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            label: label
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+          fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          order: 0
+      properties:
+        indicators:
+          description: Collection of field indicators
+          items:
+            $ref: '#/components/schemas/fieldIndicatorDto'
+          type: array
+        totalRecords:
+          description: Total number of field indicators in collection
+          type: integer
+      title: Field Indicators DTO Collection
+      type: object
+    scope:
+      description: Scope of the specification definition
+      enum:
+      - system
+      - standard
+      - local
+      type: string
+    subfieldDto:
+      description: Describe field subfield definition that will be used for record validation
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: createdDate
+          updatedDate: updatedDate
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        repeatable: true
+        deprecated: false
+        scope: null
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        label: label
+        required: false
+        fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: Subfield ID
+          format: uuid
+          type: string
+        fieldId:
+          description: Field ID
+          format: uuid
+          type: string
+        code:
+          description: Subfield code
+          type: string
+        label:
+          description: Subfield description
+          type: string
+        repeatable:
+          default: true
+          description: Define if subfield is repeatable
+          type: boolean
+        required:
+          default: false
+          description: Define if subfield is required
+          type: boolean
+        deprecated:
+          default: false
+          description: Define if subfield is deprecated
+          type: boolean
+        scope:
+          $ref: '#/components/schemas/scope'
+        metadata:
+          $ref: '#/components/schemas/metadataDto'
+      title: Subfield definition DTO
+      type: object
+    fieldIndicatorDto:
+      description: Describe field indicator definition that will be used for record validation
+      example:
+        codes:
+        - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+        - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: createdDate
+          updatedDate: updatedDate
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        label: label
+        fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        order: 0
+      properties:
+        id:
+          description: Indicator ID
+          format: uuid
+          type: string
+        fieldId:
+          description: Field ID
+          format: uuid
+          type: string
+        order:
+          description: Indicator order
+          type: integer
+        label:
+          description: Indicator description
+          type: string
+        codes:
+          description: Indicator codes definitions
+          items:
+            $ref: '#/components/schemas/indicatorCodeDto'
+          type: array
+        metadata:
+          $ref: '#/components/schemas/metadataDto'
+      title: Field indicator definition DTO
+      type: object
+    subfieldDtoCollection:
+      description: Collection of subfield DTOs
+      example:
+        totalRecords: 0
+        subfields:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          repeatable: true
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+          required: false
+          fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          repeatable: true
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+          required: false
+          fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        subfields:
+          description: Collection of subfields
+          items:
+            $ref: '#/components/schemas/subfieldDto'
+          type: array
+        totalRecords:
+          description: Total number of subfields in collection
+          type: integer
+      title: Subfields DTO Collection
+      type: object
+    fieldIndicatorChangeDto:
+      additionalProperties: false
+      description: Describe indicator definition that should be created or change to existed indicator definition
+      properties:
+        order:
+          description: Indicator order
+          maximum: 2
+          minimum: 1
+          type: integer
+        label:
+          description: Indicator description
+          maxLength: 350
+          type: string
+      required:
+      - label
+      - order
+      title: Field indicator definition change DTO
+      type: object
+    subfieldChangeDto:
+      additionalProperties: false
+      description: Describe subfield definition that should be created or change to existed subfield definition
+      properties:
+        code:
+          description: Subfield code
+          pattern: '[0-9a-z]'
+          type: string
+        label:
+          description: Subfield description
+          maxLength: 350
+          type: string
+        repeatable:
+          default: true
+          description: Define if subfield is repeatable
+          type: boolean
+        required:
+          default: false
+          description: Define if subfield is required
+          type: boolean
+        deprecated:
+          default: false
+          description: Define if subfield is deprecated
+          type: boolean
+      required:
+      - code
+      - label
+      title: Subfield definition change DTO
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      title: Error
+      type: object
+    specificationFieldDto:
+      description: Describe field definition that will be used for record validation
+      example:
+        specificationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: createdDate
+          updatedDate: updatedDate
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        repeatable: true
+        subfields:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          repeatable: true
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+          required: false
+          fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          repeatable: true
+          deprecated: false
+          scope: null
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+          required: false
+          fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        deprecated: false
+        scope: system
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tag: tag
+        label: label
+        indicators:
+        - codes:
+          - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            metadata:
+              createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              createdDate: createdDate
+              updatedDate: updatedDate
+              updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            code: code
+            deprecated: false
+            scope: null
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            label: label
+          - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            metadata:
+              createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              createdDate: createdDate
+              updatedDate: updatedDate
+              updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            code: code
+            deprecated: false
+            scope: null
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            label: label
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+          fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          order: 0
+        - codes:
+          - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            metadata:
+              createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              createdDate: createdDate
+              updatedDate: updatedDate
+              updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            code: code
+            deprecated: false
+            scope: null
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            label: label
+          - indicatorId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            metadata:
+              createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              createdDate: createdDate
+              updatedDate: updatedDate
+              updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            code: code
+            deprecated: false
+            scope: null
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            label: label
+          metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: createdDate
+            updatedDate: updatedDate
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          label: label
+          fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          order: 0
+        url: url
+        required: false
+      properties:
+        id:
+          description: Field ID
+          format: uuid
+          type: string
+        specificationId:
+          description: Specification ID
+          format: uuid
+          type: string
+        tag:
+          description: Record tag
+          type: string
+        label:
+          description: Tag description
+          type: string
+        url:
+          description: Help url for the tag
+          type: string
+          x-field-extra-annotation: '@org.hibernate.validator.constraints.URL'
+        repeatable:
+          default: true
+          description: Define if tag is repeatable
+          type: boolean
+        required:
+          default: false
+          description: Define if tag is required
+          type: boolean
+        deprecated:
+          default: false
+          description: Define if tag is deprecated
+          type: boolean
+        scope:
+          $ref: '#/components/schemas/scope'
+        subfields:
+          description: Subfields definitions
+          items:
+            $ref: '#/components/schemas/subfieldDto'
+          type: array
+        indicators:
+          description: Indicators definitions
+          items:
+            $ref: '#/components/schemas/fieldIndicatorDto'
+          type: array
+        metadata:
+          $ref: '#/components/schemas/metadataDto'
+      title: Field definition DTO
+      type: object
+  examples:
+    subfieldDtoCollection:
+      value:
+        subfields:
+        - id: 1ee161ba-5d50-4687-95f4-8dc9c52fcd53
+          fieldId: 27ce6b65-f959-4a4b-89b6-a2be7d2e9fc1
+          code: a
+          label: Subfield A
+          scope: local
+          metadata:
+            createdDate: '2024-05-22 14:55:06'
+            createdByUserId: 00000000-0000-0000-0000-000000000000
+            updatedDate: '2024-05-22 15:30:42'
+            updatedByUserId: 00000000-0000-0000-0000-000000000000
+        - id: 83a66097-8752-45c1-ad9f-3382c6b07b93
+          fieldId: 27ce6b65-f959-4a4b-89b6-a2be7d2e9fc1
+          code: b
+          label: Subfield B
+          scope: standard
+          metadata:
+            createdDate: '2024-05-22 14:55:06'
+            createdByUserId: 00000000-0000-0000-0000-000000000000
+            updatedDate: '2024-05-22 15:30:42'
+            updatedByUserId: 00000000-0000-0000-0000-000000000000
+        - id: ad27d224-ad62-4160-bde1-1eb88c64e8b8
+          fieldId: 27ce6b65-f959-4a4b-89b6-a2be7d2e9fc1
+          code: '9'
+          label: Subfield 9
+          scope: system
+          metadata:
+            createdDate: '2024-05-22 14:55:06'
+            createdByUserId: 00000000-0000-0000-0000-000000000000
+            updatedDate: '2024-05-22 15:30:42'
+            updatedByUserId: 00000000-0000-0000-0000-000000000000
+    unknownErrorResponse:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    subfieldChangeDto:
+      value:
+        code: a
+        label: Subfield A
+        repeatable: true
+        required: true
+    fieldIndicatorDto:
+      value:
+        id: ff0780f9-573d-46ba-8bf1-73181052f4b5
+        fieldId: 5eefa4c6-bbf7-4845-ad82-de7fc4abd0e3
+        order: 1
+        label: Ind 1
+        metadata:
+          createdDate: '2024-05-22 14:55:06'
+          createdByUserId: 00000000-0000-0000-0000-000000000000
+          updatedDate: '2024-05-22 15:30:42'
+          updatedByUserId: 00000000-0000-0000-0000-000000000000
+    fieldIndicatorChangeDto:
+      value:
+        order: 1
+        label: Ind 1
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    subfieldDto:
+      value:
+        id: 1ee161ba-5d50-4687-95f4-8dc9c52fcd53
+        fieldId: 27ce6b65-f959-4a4b-89b6-a2be7d2e9fc1
+        code: a
+        label: Subfield A
+        scope: local
+        metadata:
+          createdDate: '2024-05-22 14:55:06'
+          createdByUserId: 00000000-0000-0000-0000-000000000000
+          updatedDate: '2024-05-22 15:30:42'
+          updatedByUserId: 00000000-0000-0000-0000-000000000000
+    fieldIndicatorDtoCollection:
+      value:
+        indicators:
+        - id: ff0780f9-573d-46ba-8bf1-73181052f4b5
+          fieldId: 5eefa4c6-bbf7-4845-ad82-de7fc4abd0e3
+          order: 1
+          label: Ind 1
+          metadata:
+            createdDate: '2024-05-22 14:55:06'
+            createdByUserId: 00000000-0000-0000-0000-000000000000
+            updatedDate: '2024-05-22 15:30:42'
+            updatedByUserId: 00000000-0000-0000-0000-000000000000
+        - id: ff0780f9-573d-46ba-8bf1-73181052f4b6
+          fieldId: 5eefa4c6-bbf7-4845-ad82-de7fc4abd0e3
+          order: 2
+          label: Ind 2
+          metadata:
+            createdDate: '2024-05-22 14:55:06'
+            createdByUserId: 00000000-0000-0000-0000-000000000000
+            updatedDate: '2024-05-22 15:30:42'
+            updatedByUserId: 00000000-0000-0000-0000-000000000000
+        totalRecords: 2
+    specificationFieldChangeDto:
+      value:
+        tag: '888'
+        label: Custom Field - Contributor Data
+        url: http://www.example.org/field888.html
+        repeatable: true
+        required: true
+x-refined-from:
+- folio-mod-record-specifications-openapi.json
+- folio-mod-record-specifications-openapi.yml

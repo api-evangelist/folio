@@ -1,0 +1,94 @@
+openapi: 3.2.0
+info:
+  title: Folio Base Url API
+  version: v1
+  description: 'Operations tagged Base Url across 2 of this provider''s published API definitions: folio-mod-settings-openapi.json, folio-mod-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Base Url
+paths:
+  /base-url:
+    parameters:
+    - $ref: '#/components/parameters/okapi-tenant'
+    get:
+      description: Get the base URL of the front-end user interface.
+      operationId: getBaseUrl
+      responses:
+        '200':
+          description: Front-end user interface URL without tailing slash
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/baseUrl'
+              example:
+                baseUrl: https://folio.example.com
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Base Url
+      summary: Get base url
+      x-summary-source: derived
+    put:
+      description: Set the base URL of the front-end user interface.
+      operationId: setBaseUrl
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/baseUrl'
+            example:
+              baseUrl: https://folio.example.com
+      responses:
+        '204':
+          description: Base URL updated
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Base Url
+      summary: Set base url
+      x-summary-source: derived
+components:
+  responses:
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Invalid JSON in request
+  parameters:
+    okapi-tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: true
+      schema:
+        type: string
+        pattern: ^[_a-z][_a-z0-9]*$
+  schemas:
+    baseUrl:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        baseUrl:
+          description: Front-end user interface URL without tailing slash
+          type: string
+      additionalProperties: false
+      required:
+      - baseUrl
+x-refined-from:
+- folio-mod-settings-openapi.json
+- folio-mod-settings-openapi.yml

@@ -1,0 +1,86 @@
+openapi: 3.2.0
+info:
+  title: Folio Template API
+  version: 0.0.1
+  description: 'Operations tagged Template across 2 of this provider''s published API definitions: folio-mod-mosaic-openapi.json, folio-mod-mosaic-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /mosaic
+tags:
+- name: Template
+paths:
+  /template:
+    description: Template API
+    post:
+      summary: Generate default configuration template
+      operationId: generateDefaultTemplate
+      responses:
+        '201':
+          description: Default order template generated successfully
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Template
+    servers:
+    - url: /mosaic
+components:
+  schemas:
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+  responses:
+    InternalServerError:
+      description: Internal server error, e.g. due to misconfiguration
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+x-refined-from:
+- folio-mod-mosaic-openapi.json
+- folio-mod-mosaic-openapi.yml

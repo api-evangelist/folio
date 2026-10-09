@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-persistent-job-schema.json",
+  "title": "PersistentJob",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-mod-agreements-openapi.yml#/components/schemas/PersistentJob",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "class": {
+      "type": "string",
+      "description": "Fully-qualified class name identifying the concrete job type",
+      "enum": [
+        "org.olf.general.jobs.ComparisonJob",
+        "org.olf.general.jobs.CoverageRegenerationJob",
+        "org.olf.general.jobs.PackageImportJob",
+        "org.olf.general.jobs.KbartImportJob",
+        "org.olf.general.jobs.PackageIngestJob",
+        "org.olf.general.jobs.SupplementaryDocumentsCleaningJob",
+        "org.olf.general.jobs.ExternalEntitlementSyncJob",
+        "org.olf.general.jobs.PackageTriggerResyncJob",
+        "org.olf.general.jobs.TitleIngestJob",
+        "org.olf.general.jobs.ResourceDeletionJob",
+        "org.olf.general.jobs.EHoldingsEntitlementSyncJob",
+        "org.olf.general.jobs.IdentifierReassignmentJob"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "runnerId": {
+      "description": "Only present for comparison jobs (class ComparisonJob)",
+      "type": "string"
+    },
+    "dateCreated": {
+      "type": "integer"
+    },
+    "started": {
+      "description": "Null until the job begins running",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "ended": {
+      "description": "Null until the job finishes",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "status": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/Refdata"
+        }
+      ]
+    },
+    "result": {
+      "description": "Null until the job finishes",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "$ref": "#/$defs/Refdata"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fileUpload": {
+      "description": "Present only for job types that accept a file upload (e.g. packageImport, kbartImport)",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/File"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fullLogCount": {
+      "type": "integer"
+    },
+    "errorLogCount": {
+      "type": "integer"
+    },
+    "infoLogCount": {
+      "type": "integer"
+    },
+    "comparisonPoints": {
+      "description": "Only present for comparison jobs (class ComparisonJob)",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ComparisonPoint"
+      }
+    }
+  },
+  "$defs": {
+    "ComparisonPoint": {
+      "type": "object",
+      "properties": {
+        "titleList": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "File": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "size"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true
+        },
+        "contentType": {
+          "type": "string",
+          "description": "MIME type of the uploaded file"
+        },
+        "modified": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Original filename of the uploaded file"
+        },
+        "size": {
+          "type": "integer",
+          "description": "Size of the uploaded file in bytes"
+        }
+      }
+    },
+    "Refdata": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

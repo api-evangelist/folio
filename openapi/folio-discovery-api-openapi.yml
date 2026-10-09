@@ -1,0 +1,472 @@
+openapi: 3.2.0
+info:
+  title: Folio Discovery API
+  version: v2.0
+  description: 'Operations tagged discovery across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: Discovery
+paths:
+  /_/discovery/modules:
+    post:
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              description: URI to the registered instance
+              schema:
+                type: string
+            X-Okapi-Trace:
+              required: false
+              description: Okapi trace and timing
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentDescriptor'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Register instance under a specified service id
+      operationId: createDiscovery
+      tags:
+      - Discovery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentDescriptor'
+        required: true
+      summary: Create discovery
+      x-summary-source: derived
+    get:
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentDescriptorList'
+        '400':
+          description: Bad Request
+        '500':
+          description: Server Error
+      description: Return all instances
+      operationId: getAllDiscoveries
+      tags:
+      - Discovery
+      summary: Get all discoveries
+      x-summary-source: derived
+    delete:
+      responses:
+        '204':
+          description: OK
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+        '400':
+          description: Bad Request
+        '500':
+          description: Server Error
+      description: Delete all instances
+      operationId: deleteAllDiscoveries
+      tags:
+      - Discovery
+      summary: Delete all discoveries
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/discovery/modules/{service_id}:
+    parameters:
+    - name: service_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentDescriptorList'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: List all instances for a particular service
+      operationId: getDiscoveriesByService
+      tags:
+      - Discovery
+      summary: Get discoveries by service
+      x-summary-source: derived
+    delete:
+      responses:
+        '204':
+          description: No Content
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+        '404':
+          description: Not Found
+      description: Remove registration for a given instance
+      operationId: deleteDiscoveriesByService
+      tags:
+      - Discovery
+      summary: Delete discoveries by service
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/discovery/modules/{service_id}/{instance_id}:
+    parameters:
+    - name: instance_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: service_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentDescriptor'
+        '404':
+          description: Not Found
+      description: Get registration of a specified instance
+      operationId: getDiscoveryByInstance
+      tags:
+      - Discovery
+      summary: Get discovery by instance
+      x-summary-source: derived
+    delete:
+      responses:
+        '204':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+        '404':
+          description: Not Found
+      description: Remove registration for a given instance
+      operationId: deleteDiscoveryByInstance
+      tags:
+      - Discovery
+      summary: Delete discovery by instance
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/discovery/health:
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthDescriptorList'
+        '400':
+          description: Bad Request
+        '500':
+          description: Server Error
+      description: Get health info for all services
+      operationId: getAllDiscoveryHealth
+      tags:
+      - Discovery
+      summary: Get all discovery health
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/discovery/health/{service_id}:
+    parameters:
+    - name: service_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthDescriptorList'
+        '404':
+          description: Not Found
+      description: Health for all instances for a particular service
+      operationId: getDiscoveryHealthByService
+      tags:
+      - Discovery
+      summary: Get discovery health by service
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/discovery/health/{service_id}/{instance_id}:
+    parameters:
+    - name: instance_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: service_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthDescriptor'
+        '404':
+          description: Not Found
+      description: Get health for a particular instance
+      operationId: getDiscoveryHealthByInstance
+      tags:
+      - Discovery
+      summary: Get discovery health by instance
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/discovery/nodes:
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeDescriptorList'
+        '400':
+          description: Bad Request
+        '500':
+          description: Server Error
+      description: Get list of all nodes
+      operationId: getAllDiscoveryNodes
+      tags:
+      - Discovery
+      summary: Get all discovery nodes
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/discovery/nodes/{node_id}:
+    parameters:
+    - name: node_id
+      in: path
+      required: true
+      schema:
+        type: string
+    put:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeDescriptor'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Update descriptor of a particular node, only the name can be changed
+      operationId: updateDiscoveryNode
+      tags:
+      - Discovery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeDescriptor'
+        required: true
+      summary: Update discovery node
+      x-summary-source: derived
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeDescriptor'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Get info for one node
+      operationId: getDiscoveryNode
+      tags:
+      - Discovery
+      summary: Get discovery node
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    DeploymentDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: DeploymentDescriptorList.json
+      title: DeploymentDescriptorList
+      description: Deployment information list
+      type: array
+      items:
+        $ref: '#/components/schemas/DeploymentDescriptor'
+    LaunchDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: LaunchDescriptor.json
+      title: LaunchDescriptor
+      description: Specifies how a module is deployed and undeployed
+      type: object
+    HealthDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: HealthDescriptorList.json
+      title: HealthDescriptorList
+      description: List of health descriptors
+      type: array
+      items:
+        $ref: '#/components/schemas/HealthDescriptor'
+    DeploymentDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: DeploymentDescriptor.json
+      title: DeploymentDescriptor
+      description: 'Module deployment information. There are two modes: deployment managed by Okapi (with nodeId specified) and remote module (with URL specified).'
+      type: object
+      additionalProperties: false
+      properties:
+        srvcId:
+          description: The Module ID for the instance
+          type: string
+        instId:
+          description: Instance ID (at least unique for node)
+          type: string
+        nodeId:
+          description: Node ID where module is deployed
+          type: string
+        url:
+          description: URL where module is deployed (not managed by Okapi)
+          type: string
+        descriptor:
+          description: Deployment details
+          $ref: '#/components/schemas/LaunchDescriptor'
+      required:
+      - srvcId
+    NodeDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: NodeDescriptor.json
+      title: NodeDescriptor
+      description: Deployment node information
+      type: object
+      additionalProperties: false
+      properties:
+        nodeId:
+          description: Node ID
+          type: string
+        url:
+          description: Host:port for for this node
+          type: string
+        nodeName:
+          description: Human readable node name
+          type: string
+      required:
+      - nodeId
+      - url
+    NodeDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: NodeDescriptorList.json
+      title: NodeDescriptorList
+      description: List of Nodes
+      type: array
+      items:
+        $ref: '#/components/schemas/NodeDescriptor'
+    HealthDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: HealthDescriptor.json
+      title: HealthDescriptor
+      description: Health for an instance
+      type: object
+      additionalProperties: false
+      properties:
+        srvcId:
+          description: Service ID, normally same as Module ID
+          type: string
+        instId:
+          description: Instance ID, unique on node
+          type: string
+        healthMessage:
+          description: Health message
+          type: string
+        healthStatus:
+          description: Whether healthy
+          type: boolean
+      required:
+      - srvcId
+      - instId
+      - healthMessage
+      - healthStatus
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-okapi-facade-openapi.json
+- folio-mod-okapi-facade-openapi.yml

@@ -1,0 +1,457 @@
+openapi: 3.2.0
+info:
+  title: Edge DCB FOLIO Circulation API
+  description: Edge DCB FOLIO API
+  version: 1.0.0
+servers:
+- url: /dcbService/
+tags:
+- name: circulation
+paths:
+  /transactions/{dcbTransactionId}:
+    post:
+      summary: Create DCB transaction request
+      operationId: createDCBTransaction
+      tags:
+      - circulation
+      parameters:
+      - $ref: '#/components/parameters/dcbTransactionId'
+      requestBody:
+        $ref: '#/components/requestBodies/DCBTransaction'
+      responses:
+        '201':
+          $ref: '#/components/responses/TransactionStatusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      description: Update the details of a transaction
+      operationId: updateTransactionDetails
+      tags:
+      - circulation
+      parameters:
+      - $ref: '#/components/parameters/dcbTransactionId'
+      requestBody:
+        $ref: '#/components/requestBodies/DcbUpdateTransaction'
+      responses:
+        '204':
+          description: Transaction updated successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Update transaction details
+      x-summary-source: derived
+  /transactions/{dcbTransactionId}/status:
+    parameters:
+    - $ref: '#/components/parameters/dcbTransactionId'
+    get:
+      description: Get transaction status across circulation institutions
+      operationId: getDCBTransactionStatusById
+      tags:
+      - circulation
+      responses:
+        '200':
+          $ref: '#/components/responses/TransactionStatusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Get DCB transaction status by id
+      x-summary-source: derived
+    put:
+      description: Update transaction status across circulation institutions
+      operationId: updateDCBTransactionStatus
+      tags:
+      - circulation
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionStatusBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/TransactionStatusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Update DCB transaction status
+      x-summary-source: derived
+  /transactions/status:
+    parameters:
+    - $ref: '#/components/parameters/fromDate'
+    - $ref: '#/components/parameters/toDate'
+    - $ref: '#/components/parameters/pageNumber'
+    - $ref: '#/components/parameters/pageSize'
+    get:
+      description: Get a list of updated transactions between from date and to date with optional filtering and pagination
+      operationId: getTransactionStatusList
+      tags:
+      - circulation
+      responses:
+        '200':
+          $ref: '#/components/responses/TransactionStatusResponseCollection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Get transaction status list
+      x-summary-source: derived
+  /transactions/{dcbTransactionId}/renew:
+    parameters:
+    - $ref: '#/components/parameters/dcbTransactionId'
+    put:
+      description: Increment the renew loan count and returned transaction status with renewal details
+      operationId: renewItemLoanByTransactionId
+      tags:
+      - circulation
+      responses:
+        '200':
+          $ref: '#/components/responses/TransactionStatusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Renew item loan by transaction id
+      x-summary-source: derived
+components:
+  responses:
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    TransactionStatusResponseCollection:
+      description: List of TransactionResponse object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TransactionStatusResponseCollection'
+    TransactionStatusResponse:
+      description: TransactionStatusResponse object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TransactionStatusResponse'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    TransactionStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - CREATED
+          - OPEN
+          - CANCELLED
+          - IN_TRANSIT
+          - AWAITING_PICKUP
+          - ITEM_CHECKED_OUT
+          - ITEM_CHECKED_IN
+          - IN_TRANSIT_TO_LENDING
+          - EXPIRED
+          - CLOSED
+          - ERROR
+        message:
+          type: string
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    DcbPatron:
+      description: Patron metadata required for the transaction
+      type: object
+      properties:
+        id:
+          description: The unique identifier for the patron making the request as known in the requesting library
+          $ref: '#/components/schemas/uuid'
+        group:
+          description: The patron group associated with the requesting patron
+          type: string
+        barcode:
+          description: The barcode of the patron
+          type: string
+        borrowingLibraryCode:
+          description: The code which identifies the borrowing library
+          type: string
+        localNames:
+          description: 'The local names for the patron, for example: "[John, Johnny, Doe]"'
+          type: string
+    TransactionStatusResponse:
+      allOf:
+      - $ref: '#/components/schemas/TransactionStatus'
+      - $ref: '#/components/schemas/DcbTransaction'
+    TransactionStatusResponseCollection:
+      type: object
+      properties:
+        transactions:
+          type: array
+          description: transaction collection
+          items:
+            $ref: '#/components/schemas/TransactionStatusResponseList'
+        currentPageNumber:
+          type: integer
+          description: Page Number of the current request
+        currentPageSize:
+          type: integer
+          description: Number of items fetched
+        maximumPageNumber:
+          type: integer
+          description: maximum page Number to fetch total records with current page size
+        totalRecords:
+          description: total number of records which are matched to the current search
+          type: integer
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    DcbUpdateTransaction:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/DcbUpdateItem'
+    DcbPickup:
+      description: Pickup Location metadata required for the pickup service point
+      type: object
+      properties:
+        libraryName:
+          description: The name of the pickup library
+          type: string
+        libraryCode:
+          description: The code which identifies the pickup library
+          type: string
+        servicePointId:
+          description: The code which identifies the pickup service point
+          type: string
+        servicePointName:
+          description: The name of the pickup service point
+          type: string
+    DcbUpdateItem:
+      description: Item metadata required for updating the existing transaction
+      type: object
+      properties:
+        barcode:
+          description: The barcode of the item as specified in the lending library
+          type: string
+        materialType:
+          description: The “hub-normalized” form of the item item type, used in the circulation rules for determining the correct loan policy.
+          type: string
+        lendingLibraryCode:
+          description: The code which identifies the lending library
+          type: string
+      additionalProperties: false
+      required:
+      - barcode
+      - materialType
+      - lendingLibraryCode
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    TransactionStatusResponseList:
+      properties:
+        id:
+          description: Unique identifier of a transaction
+          $ref: '#/components/schemas/uuid'
+      allOf:
+      - $ref: '#/components/schemas/TransactionStatusResponse'
+    DcbTransaction:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/DcbItem'
+        patron:
+          $ref: '#/components/schemas/DcbPatron'
+        pickup:
+          $ref: '#/components/schemas/DcbPickup'
+        selfBorrowing:
+          description: selfBorrowing flag for BORROWING_PICKUP role to allow patrons to request items from own library via DCB
+          type: boolean
+        role:
+          type: string
+          enum:
+          - LENDER
+          - BORROWER
+          - PICKUP
+          - BORROWING-PICKUP
+    DcbItem:
+      description: Item metadata required for the transaction
+      type: object
+      properties:
+        id:
+          description: The unique item identifier
+          $ref: '#/components/schemas/uuid'
+        title:
+          description: The title of the item that has been requested
+          type: string
+        barcode:
+          description: The barcode of the item as specified in the lending library
+          type: string
+        materialType:
+          description: The “hub-normalized” form of the item material type, used in the circulation rules for determining the correct loan policy.
+          type: string
+        lendingLibraryCode:
+          description: The code which identifies the lending library
+          type: string
+        locationCode:
+          description: The location code of the item, representing the library agency code used for determining loan policy flexibility.
+          type: string
+        renewalInfo:
+          $ref: '#/components/schemas/renewalInfo'
+        holdCount:
+          description: The number of holds on the item (Will be returned only for Lender role)
+          type: integer
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    renewalInfo:
+      type: object
+      properties:
+        renewalCount:
+          description: renewalCount of the loan
+          type: integer
+        renewalMaxCount:
+          description: renewalMaxCount of loan as per the loan policy configuration
+          type: integer
+        renewable:
+          description: renewable
+          type: boolean
+  parameters:
+    dcbTransactionId:
+      in: path
+      name: dcbTransactionId
+      schema:
+        type: string
+      required: true
+    pageSize:
+      in: query
+      name: pageSize
+      description: Number of items per page (optional)
+      schema:
+        type: integer
+        default: 1000
+        minimum: 1
+        maximum: 2147483647
+      required: false
+    pageNumber:
+      in: query
+      name: pageNumber
+      description: Page number for pagination (optional)
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+      required: false
+    toDate:
+      in: query
+      name: toDate
+      description: End date for filtering transactions
+      schema:
+        type: string
+        format: date-time
+      required: true
+    fromDate:
+      in: query
+      name: fromDate
+      description: Start date for filtering transactions
+      schema:
+        type: string
+        format: date-time
+      required: true
+  requestBodies:
+    TransactionStatusBody:
+      description: TransactionStatus object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TransactionStatus'
+    DcbUpdateTransaction:
+      description: DCB transaction update object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DcbUpdateTransaction'
+    DCBTransaction:
+      description: DCB transaction object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DcbTransaction'

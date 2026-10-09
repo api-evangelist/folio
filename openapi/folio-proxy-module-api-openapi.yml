@@ -1,0 +1,494 @@
+openapi: 3.2.0
+info:
+  title: Folio Proxy Module API
+  version: v2.0
+  description: 'Operations tagged proxy-module across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: proxy-module
+paths:
+  /_/proxy/import/modules:
+    post:
+      responses:
+        '204':
+          description: OK
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Announce a list of new modules to the proxy. Once successful a module can be selected for a specific tenant. To announce only one module you may use /_/proxy/modules.
+      operationId: announceModules
+      tags:
+      - proxy-module
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleList'
+        required: true
+      parameters:
+      - name: check
+        in: query
+        description: Whether to check dependencies
+        schema:
+          default: true
+          type: boolean
+      - $ref: '#/components/parameters/query-pre-release'
+      - $ref: '#/components/parameters/query-npm-snapshot'
+      summary: Announce modules
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/proxy/cleanup/modules:
+    post:
+      responses:
+        '204':
+          description: OK
+          headers:
+            X-Okapi-Trace:
+              description: Okapi trace and timing
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Remove module snapshot modules descriptors that are obsolete. A module is considered obsolete if it is part of a release that is earlier than N latest releases (saveReleases) and not part of the M latest snapshots in that release.
+      operationId: cleanupModules
+      tags:
+      - proxy-module
+      parameters:
+      - name: removeDependencies
+        in: query
+        description: Force removal of modules that depend on obsolete snapshots
+        schema:
+          default: false
+          type: boolean
+      - name: saveReleases
+        in: query
+        required: true
+        description: The number of latest releases where snapshots are never considered obsolete
+        schema:
+          type: integer
+      - name: saveSnapshots
+        in: query
+        required: true
+        description: The number of latest snapshots that are never considered obsolete (preserved)
+        schema:
+          type: integer
+      summary: Cleanup modules
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/proxy/modules:
+    post:
+      responses:
+        '201':
+          description: Created
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+            Location:
+              description: URI to the created module instance
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleDescriptor'
+        '400':
+          description: Bad Request
+        '500':
+          description: Server Error
+      description: Announce new module to the proxy. Once successful a module can be selected for a specific tenant.
+      operationId: announceModule
+      tags:
+      - proxy-module
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleDescriptor'
+        required: true
+      parameters:
+      - name: check
+        in: query
+        description: Whether to check dependencies
+        schema:
+          default: true
+          type: boolean
+      - $ref: '#/components/parameters/query-pre-release'
+      - $ref: '#/components/parameters/query-npm-snapshot'
+      summary: Announce module
+      x-summary-source: derived
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleList'
+        '400':
+          description: Bad Request
+        '500':
+          description: Server Error
+      description: List all or subset of modules for proxy
+      operationId: getAllModules
+      tags:
+      - proxy-module
+      parameters:
+      - name: dot
+        in: query
+        description: If true, return Graphviz DOT content as plain text
+        schema:
+          default: false
+          type: boolean
+      - name: filter
+        in: query
+        description: Filter by module ID
+        schema:
+          type: string
+      - name: full
+        in: query
+        description: Whether full or compact MD should be returned
+        schema:
+          default: false
+          type: boolean
+      - name: latest
+        in: query
+        description: Limit to latest N releases (most likely 1 if given)
+        schema:
+          type: integer
+      - name: order
+        in: query
+        description: Order
+        schema:
+          enum:
+          - desc
+          - asc
+          type: string
+      - name: orderBy
+        in: query
+        description: Order by field
+        schema:
+          type: string
+      - name: provide
+        in: query
+        description: Limit to provided interfaces (each interface name separated by comma)
+        schema:
+          type: string
+      - name: require
+        in: query
+        description: Limit to required interfaces (each interface name separated by comma)
+        schema:
+          type: string
+      - name: scope
+        in: query
+        description: Limit to interface scope (only useful with provide and require)
+        schema:
+          type: string
+      - $ref: '#/components/parameters/query-pre-release'
+      - $ref: '#/components/parameters/query-npm-snapshot'
+      summary: Get all modules
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/proxy/modules/{module_id}:
+    parameters:
+    - name: module_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleDescriptor'
+      description: Retrieve descriptor for a particular module
+      operationId: getModule
+      tags:
+      - proxy-module
+      summary: Get module
+      x-summary-source: derived
+    delete:
+      responses:
+        '204':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      description: Remove module descriptor for a particular module, module will no longer be selectable by tenants
+      operationId: deleteModule
+      tags:
+      - proxy-module
+      summary: Delete module
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
+  schemas:
+    ModuleDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: ModuleDescriptor.json
+      title: ModuleDescriptor
+      description: A FOLIO Module
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Module ID with format product-semver
+          type: string
+        name:
+          description: Short name for module (does not include version)
+          type: string
+        replaces:
+          description: List of modules that this replaces
+          type: array
+          items:
+            description: Module name - without semantic version
+            type: string
+        tags:
+          description: Module tags
+          type: array
+          items:
+            description: Module tag
+            type: string
+        requires:
+          description: Required interfaces
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfaceReference'
+        provides:
+          description: Provided interfaces
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfaceDescriptor'
+        optional:
+          description: Optional interfaces
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfaceReference'
+        filters:
+          description: Provided filters
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutingEntry'
+        permissionSets:
+          description: Module Permission Sets
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+        env:
+          description: Supported environment variables
+          $ref: '#/components/schemas/EnvEntryList'
+        metadata:
+          description: Module Metadata (any object)
+          type: object
+        uiDescriptor:
+          description: UI module descriptor
+          $ref: '#/components/schemas/UiModuleDescriptor'
+        launchDescriptor:
+          description: Default deployment for this module
+          $ref: '#/components/schemas/LaunchDescriptor'
+      required:
+      - id
+    InterfaceReference:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: InterfaceReference.json
+      title: InterfaceReference
+      description: A reference to an interfaceDescriptor, by name and version
+      type: object
+    LaunchDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: LaunchDescriptor.json
+      title: LaunchDescriptor
+      description: Specifies how a module is deployed and undeployed
+      type: object
+    EnvEntryList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: EnvEntryList.json
+      title: EnvEntryList
+      description: List of environment variables
+      type: array
+      items:
+        $ref: '#/components/schemas/EnvEntry'
+    UiModuleDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: UiModuleDescriptor.json
+      title: UiModuleDescriptor
+      description: UI Module description
+      type: object
+    Permission:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: Permission.json
+      title: Permissions Definition Schema
+      description: Permission entity
+      type: object
+    ModuleList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: ModuleList.json
+      title: ModuleList
+      description: List of Module Descriptors
+      type: array
+      items:
+        $ref: '#/components/schemas/ModuleDescriptor'
+    InterfaceDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: InterfaceDescriptor.json
+      title: InterfaceDescriptor
+      description: An interface that a module can provide
+      type: object
+    RoutingEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: RoutingEntry.json
+      title: RoutingEntry
+      description: Okapi proxy routing entry
+      type: object
+      additionalProperties: false
+      properties:
+        methods:
+          description: List of methods GET, POST,.. * (for all)
+          type: array
+          items:
+            type: string
+        pathPattern:
+          description: Path pattern match. * matches any path. {x} matches one or more characters but not slash
+          type: string
+        path:
+          description: Path prefix match
+          type: string
+        rewritePath:
+          description: Rewrite path. e.g. have filter rewrite '/*' to '/events/*'
+          type: string
+        phase:
+          description: If given, may be auth, pre or post
+          type: string
+        level:
+          description: Processing level. Default is 50 (handlers)
+          type: string
+        type:
+          description: 'Proxy handling. One of: request-response, request-only, headers, redirect, system, internal, request-response-1.0. The default is request-response'
+          type: string
+        redirectPath:
+          description: If given, path that we internally redirect to
+          type: string
+        unit:
+          description: Delay unit
+          type: string
+        delay:
+          description: Delay between calls; a value of zero disables timer
+          type: string
+        schedule:
+          title: RoutingEntrySchedule
+          description: Timer schedule using cron-utils
+          type: object
+          additionalProperties: false
+          properties:
+            cron:
+              description: crontab specification
+              type: string
+            zone:
+              description: time zone (UTC is the default); See https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/ZoneId.html
+              type: string
+        permissionsRequired:
+          description: Required permissions for this entry
+          type: array
+          items:
+            type: string
+        permissionsDesired:
+          description: Desired permissions for this entry
+          type: array
+          items:
+            type: string
+        modulePermissions:
+          description: Module permissions for this entry
+          type: array
+          items:
+            type: string
+        permissionsRequiredTenant:
+          description: Required permissions that replace permissionsRequired when the user is authenticated and either the tenant matches each {tenantId} in pathPattern or pathPattern doesn't contain {tenantId}
+          type: array
+          items:
+            type: string
+        delegateCORS:
+          description: Okapi handles CORS by default. Set to true to delegate CORS handling to the module. This only applies to calls made via /_/invoke/tenant/<tid>/<path>. No OPTIONS entry in the methods array is needed for this.
+          type: boolean
+    EnvEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: EnvEntry.json
+      title: EnvEntry
+      description: Environment Variable
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          description: Key
+          type: string
+        value:
+          description: Value
+          type: string
+        description:
+          description: Description
+          type: string
+      required:
+      - name
+  parameters:
+    query-pre-release:
+      name: preRelease
+      in: query
+      description: Whether to use pre-release in operation. "true"&#58; use all modules; "false"&#58; releases (no pre-releases); "only"&#58; only pre-releases.
+      schema:
+        default: 'true'
+        enum:
+        - 'true'
+        - 'false'
+        - only
+        type: string
+    query-npm-snapshot:
+      name: npmSnapshot
+      in: query
+      description: Whether to use NPM module snapshots in operation. "true"&#58; use all modules; "false"&#58; releases (no NPM snapshots); "only"&#58; only NPM snapshots.
+      schema:
+        default: 'true'
+        enum:
+        - 'true'
+        - 'false'
+        - only
+        type: string
+x-refined-from:
+- folio-mod-okapi-facade-openapi.json
+- folio-mod-okapi-facade-openapi.yml

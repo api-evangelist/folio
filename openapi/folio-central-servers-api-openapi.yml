@@ -1,0 +1,346 @@
+openapi: 3.2.0
+info:
+  title: Folio Central Servers API
+  version: v1
+  description: 'Operations tagged central-servers across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: central-servers
+paths:
+  /central-servers:
+    post:
+      tags:
+      - central-servers
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/centralServerDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '409':
+          $ref: '#/components/responses/trait_response_409'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Add new central server
+      operationId: postCentralServer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/centralServerDTO'
+        required: true
+      summary: Post central server
+      x-summary-source: derived
+    get:
+      tags:
+      - central-servers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/centralServersDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Get a list of central servers
+      operationId: getCentralServers
+      parameters:
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      summary: Get central servers
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /central-servers/{centralServerId}:
+    get:
+      tags:
+      - central-servers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/centralServerDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      operationId: getCentralServerById
+      parameters:
+      - $ref: '#/components/parameters/id'
+      summary: Get central server by id
+      x-summary-source: derived
+    put:
+      tags:
+      - central-servers
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      operationId: updateCentralServer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/centralServerDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/id'
+      summary: Update central server
+      x-summary-source: derived
+    delete:
+      tags:
+      - central-servers
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      operationId: deleteCentralServer
+      parameters:
+      - $ref: '#/components/parameters/id'
+      summary: Delete central server
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    centralServersDTO:
+      description: Central servers collection
+      type: object
+      properties:
+        totalRecords:
+          description: Total records
+          type: integer
+        centralServers:
+          description: List of INN-Reach Central servers
+          type: array
+          items:
+            $ref: '#/components/schemas/centralServerDTO'
+      additionalProperties: false
+      required:
+      - centralServers
+    localAgencyDTO:
+      description: Local agency
+      type: object
+      properties:
+        id:
+          description: Local agency id
+          type: string
+          format: UUID
+        code:
+          description: Local agency code
+          type: string
+          maxLength: 5
+        folioLibraryIds:
+          description: Folio libraries ids
+          type: array
+          items:
+            type: string
+            format: UUID
+      additionalProperties: false
+      required:
+      - code
+      - folioLibraryIds
+    centralServerDTO:
+      description: Central server
+      type: object
+      properties:
+        id:
+          description: Central server id
+          type: string
+          format: UUID
+        name:
+          description: Central server name
+          type: string
+        description:
+          description: Central server description
+          type: string
+        localServerCode:
+          description: Server code
+          type: string
+          maxLength: 5
+        centralServerCode:
+          description: Central server code
+          type: string
+          maxLength: 5
+        centralServerAddress:
+          description: Central server http address
+          type: string
+        loanTypeId:
+          description: Loan type id
+          type: string
+          format: UUID
+        localAgencies:
+          description: Local agencies
+          type: array
+          items:
+            $ref: '#/components/schemas/localAgencyDTO'
+        centralServerKey:
+          description: Central server key
+          type: string
+        centralServerSecret:
+          description: Central server secret
+          type: string
+        localServerKey:
+          description: Local server key
+          type: string
+          format: UUID
+        localServerSecret:
+          description: Local server secret; UUID on write, then it will be hashed and salted
+          type: string
+        checkPickupLocation:
+          description: Indicates whether to look up pickup locations for INN-Reach item hold requests based on transaction pickupLocation
+          type: boolean
+          default: false
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+      - localServerCode
+      - centralServerCode
+      - centralServerAddress
+      - loanTypeId
+      - localAgencies
+      - centralServerKey
+      - centralServerSecret
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  responses:
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_409:
+      description: Item state conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+x-refined-from:
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-inn-reach-settings-openapi.yml

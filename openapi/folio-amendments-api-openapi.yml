@@ -1,0 +1,684 @@
+openapi: 3.2.0
+info:
+  title: Folio Amendments API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Amendments across 2 of this provider''s published API definitions: folio-mod-licenses-openapi.json, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Amendments
+paths:
+  /licenses/amendments:
+    description: Supports search and creation of Amendments
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Amendments
+      summary: Get a set of amendment records
+      operationId: getAmendments
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/AmendmentResults'
+                - $ref: '#/components/schemas/AmendmentResultsArray'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    post:
+      tags:
+      - Amendments
+      summary: Create amendment record
+      operationId: postAmendment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseAmendment'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseAmendment'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/amendments/{amendmentId}:
+    get:
+      tags:
+      - Amendments
+      summary: Get a specified amendment record
+      operationId: getAmendment
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseAmendment'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    put:
+      tags:
+      - Amendments
+      summary: Update amendment record
+      operationId: putAmendment
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseAmendment'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseAmendment'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    delete:
+      tags:
+      - Amendments
+      summary: Delete a specified amendment record
+      operationId: deleteAmendment
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/amendments/{amendmentId}/clone:
+    post:
+      tags:
+      - Amendments
+      summary: Clone a specified amendment record
+      operationId: postAmendmentClone
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Flags indicating which groups of fields, or individual fields, to copy onto the cloned amendment. Each key is either a group name (copies every field in that group) or one of the individual field names, set to true to copy it.
+              properties:
+                amendmentInfo:
+                  type: boolean
+                  description: 'Group: copy name, type, description and status'
+                internalContacts:
+                  type: boolean
+                  description: 'Group: copy contacts'
+                organizations:
+                  type: boolean
+                  description: 'Group: copy orgs'
+                coreDocs:
+                  type: boolean
+                  description: 'Group: copy docs'
+                terms:
+                  type: boolean
+                  description: 'Group: copy customProperties'
+                amendmentDateInfo:
+                  type: boolean
+                  description: 'Group: copy endDateSemantics, startDate and endDate'
+                name:
+                  type: boolean
+                  description: Copy the amendment name
+                type:
+                  type: boolean
+                  description: Copy the amendment type
+                description:
+                  type: boolean
+                  description: Copy the amendment description
+                status:
+                  type: boolean
+                  description: Copy the amendment status
+                contacts:
+                  type: boolean
+                  description: Copy internal contacts
+                orgs:
+                  type: boolean
+                  description: Copy organizations
+                docs:
+                  type: boolean
+                  description: Copy documents
+                customProperties:
+                  type: boolean
+                  description: Copy custom properties (terms)
+                endDateSemantics:
+                  type: boolean
+                  description: Copy end date semantics
+                startDate:
+                  type: boolean
+                  description: Copy the start date
+                endDate:
+                  type: boolean
+                  description: Copy the end date
+                supplementaryDocs:
+                  type: boolean
+                  description: Copy supplementary documents
+              additionalProperties:
+                type: boolean
+                description: Any other single field name on the amendment, set to true to copy it
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseAmendment'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  schemas:
+    AmendmentResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/LicenseAmendment'
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    CustomPropertyValue:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        internal:
+          type: boolean
+        note:
+          type: string
+        publicNote:
+          type: string
+        value:
+          oneOf:
+          - type: string
+          - type: integer
+          - $ref: '#/components/schemas/RefData'
+        type:
+          $ref: '#/components/schemas/CustomPropertyDefinition'
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+    InternalContact:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: License that owns the contact
+        user:
+          type: string
+          format: uuid
+        role:
+          description: The contact's role in relation to the license
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/RefData'
+    RefData:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+        owner:
+          $ref: '#/components/schemas/RefDataCategory'
+    AmendmentResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/AmendmentResultsArray'
+    RefDataCategory:
+      type: object
+      required:
+      - id
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+          readOnly: true
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefData'
+    DocumentAttachment:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        note:
+          type: string
+        url:
+          type: string
+          format: uri
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    CustomPropertyDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        primary:
+          type: boolean
+        defaultInternal:
+          type: boolean
+        retired:
+          type: boolean
+        weight:
+          type: integer
+        type:
+          type: string
+          description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
+        category:
+          $ref: '#/components/schemas/RefDataCategory'
+    LicenseAmendment:
+      allOf:
+      - $ref: '#/components/schemas/LicenseCore'
+    LicenseCore:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier
+        name:
+          type: string
+          description: The name of the license or amendment
+        description:
+          type: string
+          description: A description of the license or amendment
+        status:
+          description: The status (e.g. In negotiation, Not yet active, Active, Rejected, Expired)
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/RefData'
+        startDate:
+          type: string
+          format: date
+          description: The date on which the license or amendment becomes active
+        endDate:
+          type: string
+          format: date
+          description: The date on which the license or amendment expires
+        endDateSemantics:
+          description: How the end date should be interpreted (e.g. Explicit, Open ended, Implicit)
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/RefData'
+        openEnded:
+          type: boolean
+          description: Derived flag indicating whether the license or amendment is open-ended
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The date and time the record was created
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The date and time the record was last updated
+        tags:
+          type: array
+          description: Tags applied to the license or amendment
+          items:
+            $ref: '#/components/schemas/Tag'
+        docs:
+          type: array
+          description: Documents attached to the license or amendment
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        supplementaryDocs:
+          type: array
+          description: Supplementary documents attached to the license or amendment
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        contacts:
+          type: array
+          description: Internal contacts associated with the license or amendment
+          items:
+            $ref: '#/components/schemas/InternalContact'
+        customProperties:
+          type: object
+          description: Custom properties (license terms) — keys are property names, values are arrays of property value instances
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/CustomPropertyValue'
+    ValidationError:
+      type: object
+      required:
+      - message
+      - path
+      - _links
+      properties:
+        message:
+          type: string
+        path:
+          type: string
+        _links:
+          type: object
+          required:
+          - self
+          properties:
+            self:
+              type: object
+              required:
+              - href
+              properties:
+                href:
+                  type: string
+                  format: uri
+    Tag:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        value:
+          type: string
+        normValue:
+          type: string
+  parameters:
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    amendmentId:
+      in: path
+      name: amendmentId
+      description: UUID for an amendment
+      required: true
+      schema:
+        type: string
+        format: uuid
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-licenses-openapi.json
+- folio-mod-licenses-openapi.yml

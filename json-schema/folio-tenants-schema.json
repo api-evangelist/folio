@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-tenants-schema.json",
+  "title": "Tenants Schema",
+  "description": "Collection of tenants",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-mgr-tenants-openapi.yml#/components/schemas/tenants",
+  "id": "tenants.json",
+  "type": "object",
+  "properties": {
+    "tenants": {
+      "description": "List of tenants",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/tenant"
+      }
+    },
+    "totalRecords": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "tenants"
+  ],
+  "$defs": {
+    "metadata": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "title": "Metadata Schema",
+      "description": "Metadata about creation and changes to records, provided by the server (client should not provide)",
+      "type": "object",
+      "properties": {
+        "createdDate": {
+          "description": "Date and time when the record was created",
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "description": "ID of the user who created the record (when available)",
+          "type": "string",
+          "format": "uuid"
+        },
+        "modifiedDate": {
+          "description": "Date and time when the record was last updated",
+          "type": "string",
+          "format": "date-time"
+        },
+        "modifiedBy": {
+          "description": "ID of the user who last updated the record (when available)",
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "createdDate"
+      ]
+    },
+    "tenant": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "tenant.json",
+      "title": "Tenant Schema",
+      "description": "Tenant information",
+      "type": "object",
+      "x-implements": [
+        "org.folio.tm.domain.entity.base.Identifiable"
+      ],
+      "properties": {
+        "id": {
+          "description": "A UUID identifying this attribute",
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "description": "Tenant name",
+          "type": "string",
+          "pattern": "[a-z][a-z0-9_]{0,29}[a-z0-9]"
+        },
+        "description": {
+          "description": "Tenant description",
+          "type": "string"
+        },
+        "type": {
+          "description": "Tenant type",
+          "$ref": "#/$defs/tenantType"
+        },
+        "secure": {
+          "description": "The flag shows whether the particular tenant is secure or not",
+          "type": "boolean"
+        },
+        "attributes": {
+          "description": "List of tenant attributes",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tenantAttribute"
+          }
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ]
+    },
+    "tenantAttribute": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "tenantAttribute.json",
+      "title": "Tenant Attribute Schema",
+      "description": "Tenant attribute",
+      "type": "object",
+      "x-implements": [
+        "org.folio.tm.domain.entity.base.Identifiable"
+      ],
+      "properties": {
+        "id": {
+          "description": "A UUID identifying this attribute",
+          "type": "string",
+          "format": "uuid"
+        },
+        "key": {
+          "description": "Key for this attribute",
+          "type": "string"
+        },
+        "value": {
+          "description": "Value for this attribute",
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/metadata"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "value"
+      ]
+    },
+    "tenantType": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "tenantType.json",
+      "title": "Tenant Type Schema",
+      "description": "Tenant type",
+      "default": "default",
+      "type": "string",
+      "enum": [
+        "default",
+        "virtual"
+      ],
+      "x-enum-varnames": [
+        "DEFAULT",
+        "VIRTUAL"
+      ]
+    }
+  }
+}

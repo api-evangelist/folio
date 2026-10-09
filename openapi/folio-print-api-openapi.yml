@@ -1,0 +1,366 @@
+openapi: 3.2.0
+info:
+  title: Folio Print API
+  version: v1
+  description: 'Operations tagged Print across 2 of this provider''s published API definitions: folio-mod-batch-print-batchprint-openapi.json, folio-mod-batch-print-batchprint-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Print
+paths:
+  /print/entries:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/okapi_user'
+    get:
+      description: Get batch printing entries with optional CQL query. X-Okapi-Permissions must include batch-print.entries.collection.get
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/query'
+      operationId: getPrintEntries
+      responses:
+        '200':
+          description: Print entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entries'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Print
+      summary: Get print entries
+      x-summary-source: derived
+    delete:
+      description: Delete batch printing entries by comma separated IDs. X-Okapi-Permissions must include batch-print.entries.collection.delete
+      parameters:
+      - $ref: '#/components/parameters/ids'
+      operationId: deletePrintEntries
+      responses:
+        '204':
+          description: Print entries deleted
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Print
+      summary: Delete print entries
+      x-summary-source: derived
+    post:
+      description: Create print entry. X-Okapi-Permissions must include batch-print.entries.item.post
+      operationId: postPrintEntry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entry'
+      responses:
+        '204':
+          description: Print entry created
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '403':
+          $ref: '#/components/responses/trait_403'
+        '413':
+          $ref: '#/components/responses/trait_413'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Print
+      summary: Post print entry
+      x-summary-source: derived
+  /print/entries/{id}:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/okapi_user'
+    - in: path
+      name: id
+      required: true
+      description: Print entry identifier
+      schema:
+        type: string
+        format: uuid
+    get:
+      description: Get print entry by id. X-Okapi-Permissions must include batch-print.entries.item.get
+      operationId: getPrintEntry
+      responses:
+        '200':
+          description: Print entry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entry'
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '403':
+          $ref: '#/components/responses/trait_403'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Print
+      summary: Get print entry
+      x-summary-source: derived
+    delete:
+      description: Delete print entry. X-Okapi-Permissions must include batch-print.entries.item.delete
+      operationId: deletePrintEntry
+      responses:
+        '204':
+          description: Print entry deleted
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Print
+      summary: Delete print entry
+      x-summary-source: derived
+    put:
+      description: Update print entry. X-Okapi-Permissions must include batch-print.entries.item.put
+      operationId: updatePrintEntry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entry'
+      responses:
+        '204':
+          description: Print entry update
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '404':
+          $ref: '#/components/responses/trait_404'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Print
+      summary: Update print entry
+      x-summary-source: derived
+  /print/batch-creation:
+    parameters:
+    - $ref: '#/components/parameters/okapi_tenant'
+    - $ref: '#/components/parameters/okapi_token'
+    - $ref: '#/components/parameters/okapi_url'
+    - $ref: '#/components/parameters/okapi_user'
+    post:
+      description: Send mail to create print entry. X-Okapi-Permissions must include batch-print.print.write
+      operationId: createBatch
+      responses:
+        '204':
+          description: Print entry created
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '403':
+          $ref: '#/components/responses/trait_403'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Print
+      summary: Create batch
+      x-summary-source: derived
+components:
+  schemas:
+    resultInfo:
+      description: Common result set information for streaming response
+      type: object
+      properties:
+        totalRecords:
+          description: Total number of entries in response
+          type: integer
+        diagnostics:
+          description: Diagnostics for response
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                description: single diagnostic message
+                type: string
+        facets:
+          type: array
+          description: Array of facets
+          items:
+            type: object
+            description: A facet
+            properties:
+              facetValues:
+                type: array
+                description: Array of facet values
+                items:
+                  type: object
+                  description: A facet value
+                  properties:
+                    count:
+                      type: integer
+                      description: Count of facet values
+                    value:
+                      description: Value Object
+              type:
+                type: string
+                description: Type of facet
+      additionalProperties: false
+    entry:
+      description: Print entry
+      type: object
+      properties:
+        id:
+          description: Identifier
+          type: string
+          format: uuid
+        created:
+          type: string
+          description: Creation date time
+        type:
+          type: string
+          description: Print entry type
+        sortingField:
+          type: string
+          description: Print entry sorting field
+        content:
+          type: string
+          description: Print entry content
+      additionalProperties: false
+      required:
+      - id
+      - created
+      - type
+      - content
+    entries:
+      description: Print entries response,
+      type: object
+      properties:
+        items:
+          description: List of print entries
+          type: array
+          items:
+            $ref: '#/components/schemas/entry'
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      additionalProperties: false
+      required:
+      - items
+  parameters:
+    offset:
+      in: query
+      name: offset
+      description: Skip over number of elements (default is first element)
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    okapi_tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: true
+      schema:
+        type: string
+    query:
+      in: query
+      name: query
+      description: CQL query
+      required: false
+      schema:
+        type: string
+    okapi_url:
+      in: header
+      name: X-Okapi-Url
+      description: Okapi URL
+      required: false
+      schema:
+        type: string
+    ids:
+      in: query
+      name: ids
+      description: Comma-separated IDs of items
+      required: true
+      schema:
+        type: string
+    okapi_user:
+      in: header
+      name: X-Okapi-User-Id
+      description: Okapi user identifier
+      required: false
+      schema:
+        type: string
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+    okapi_token:
+      in: header
+      name: X-Okapi-Token
+      description: Okapi Token
+      required: false
+      schema:
+        type: string
+  responses:
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Invalid JSON in request
+    trait_413:
+      description: Payload Too Large
+      content:
+        text/plain:
+          schema:
+            type: string
+    trait_404:
+      description: Not Found
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
+    trait_403:
+      description: Forbidden
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Insufficient permissions to access resource
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Insufficient permissions to access resource
+x-refined-from:
+- folio-mod-batch-print-batchprint-openapi.json
+- folio-mod-batch-print-batchprint-openapi.yml

@@ -1,0 +1,298 @@
+openapi: 3.2.0
+info:
+  title: Folio Roles Users API
+  version: v1
+  description: 'Operations tagged roles-users across 2 of this provider''s published API definitions: folio-mod-roles-keycloak-openapi.json, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: roles-users
+paths:
+  /roles/users:
+    post:
+      description: Create a record associating role with user
+      operationId: assignRolesToUser
+      tags:
+      - roles-users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userRolesRequest'
+            example:
+              $ref: '#/components/examples/userRoleRequest'
+      responses:
+        '201':
+          description: Assigned role to user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userRoles'
+              example:
+                $ref: '#/components/examples/userRolesResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Assign roles to user
+      x-summary-source: derived
+    get:
+      description: Search user-role relations by CQL query
+      operationId: findUserRoles
+      tags:
+      - roles-users
+      parameters:
+      - $ref: '#/components/parameters/query'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: Array of roles users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userRoles'
+              example:
+                $ref: '#/components/examples/userRolesResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find user roles
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /roles/users/{id}:
+    get:
+      description: Get roles user by user ID
+      operationId: getUserRoles
+      tags:
+      - roles-users
+      parameters:
+      - $ref: '#/components/parameters/pathUserId'
+      responses:
+        '200':
+          description: Retrieve a user-role relation list by user ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userRoles'
+              example:
+                $ref: '#/components/examples/userRolesResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get user roles
+      x-summary-source: derived
+    put:
+      description: Update a roles user by user ID
+      operationId: updateUserRoles
+      tags:
+      - roles-users
+      parameters:
+      - $ref: '#/components/parameters/pathUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userRolesRequest'
+            example:
+              $ref: '#/components/examples/userRolesResponse'
+      responses:
+        '204':
+          description: Update existing roles user
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Update user roles
+      x-summary-source: derived
+    delete:
+      description: Delete a roles user by user ID
+      operationId: deleteUserRoles
+      tags:
+      - roles-users
+      parameters:
+      - $ref: '#/components/parameters/pathUserId'
+      responses:
+        '204':
+          description: Delete a roles user
+      summary: Delete user roles
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  parameters:
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 2
+    pathUserId:
+      in: path
+      required: true
+      name: id
+      description: User identifier
+      schema:
+        type: string
+        format: uuid
+      example: 1e111e76-1111-401c-ad8e-0d121a11111e
+    query:
+      in: query
+      name: query
+      description: A query string to filter users based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+      example: role
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+      example: 20
+  schemas:
+    userRoles:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: userRoles.json
+      title: List of User-Role Relation Items Schema
+      description: List of user-role relation items
+      type: object
+      properties:
+        userRoles:
+          description: List of user-role relation items
+          type: array
+          items:
+            $ref: '#/components/schemas/userRole'
+        totalRecords:
+          description: The total number of user-role relation items matching the provided criteria
+          type: integer
+    userRolesRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: userRolesRequest.json
+      title: User-roles relation Batch Request Schema
+      description: User-roles request body
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: User identifier (UUID)
+        roleIds:
+          type: array
+          description: Role identifiers
+          items:
+            type: string
+            format: uuid
+            description: Role identifier (UUID)
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    userRole:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: userRole.json
+      title: User-Role Relation Model Schema
+      description: User-role relation model
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: ID of the user
+        roleId:
+          type: string
+          format: uuid
+          description: Role identifier
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - userId
+      - roleId
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+      additionalProperties: false
+  responses:
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
+    notFoundResponse:
+      description: Not found error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/notFoundResponse'
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/badRequestResponse'
+  examples:
+    notFoundResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    userRoleRequest:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    internalServerErrorResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    badRequestResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    userRolesResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+x-refined-from:
+- folio-mod-roles-keycloak-openapi.json
+- folio-mod-roles-keycloak-openapi.yml

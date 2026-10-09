@@ -1,0 +1,503 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Sharing instance and setting integration API",
+  "description": "Sharing instance and setting integration API",
+  "version": "0.0.1"
+ },
+ "servers": [
+  {
+   "url": "/consortia/{consortiumId}/sharing"
+  }
+ ],
+ "paths": {
+  "/instances": {
+   "get": {
+    "description": "Sharing instances",
+    "summary": "Get list of sharing instances",
+    "operationId": "getSharingInstances",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/consortiumId"
+     },
+     {
+      "$ref": "#/components/parameters/instanceIdentifier"
+     },
+     {
+      "$ref": "#/components/parameters/sourceTenantId"
+     },
+     {
+      "$ref": "#/components/parameters/targetTenantId"
+     },
+     {
+      "$ref": "#/components/parameters/status"
+     },
+     {
+      "$ref": "#/components/parameters/trait_pageable_offset"
+     },
+     {
+      "$ref": "#/components/parameters/trait_pageable_limit"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/SharingInstanceCollection"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "post": {
+    "summary": "start instance sharing",
+    "operationId": "startSharingInstance",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/consortiumId"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/SharingInstanceBody"
+    },
+    "responses": {
+     "201": {
+      "$ref": "#/components/responses/SharingInstance"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "409": {
+      "$ref": "#/components/responses/Conflict"
+     },
+     "422": {
+      "$ref": "#/components/responses/Conflict"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/instances/{actionId}": {
+   "get": {
+    "summary": "Get Sharing instance by action ID",
+    "operationId": "getSharingInstanceById",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/consortiumId"
+     },
+     {
+      "$ref": "#/components/parameters/actionId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/SharingInstance"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "requestBodies": {
+   "SharingInstanceBody": {
+    "description": "Sharing Instance object",
+    "required": true,
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/SharingInstance"
+      }
+     }
+    }
+   }
+  },
+  "responses": {
+   "SharingInstance": {
+    "description": "Returns a sharing instance object object",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/SharingInstance"
+      }
+     }
+    }
+   },
+   "SharingInstanceCollection": {
+    "description": "Returns list of sharing instances",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/SharingInstanceCollection"
+      }
+     }
+    }
+   },
+   "NoContent": {
+    "description": "No content"
+   },
+   "Conflict": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "NotFound": {
+    "description": "Resource not found",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "BadRequest": {
+    "description": "Bad request",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "Unauthorized": {
+    "description": "Not authorized to perform requested action",
+    "content": {
+     "text/plain": {
+      "example": "unable to perform action -- unauthorized"
+     }
+    }
+   },
+   "UnprocessableEntity": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "InternalServerError": {
+    "description": "Internal server error",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   }
+  },
+  "parameters": {
+   "consortiumId": {
+    "in": "path",
+    "name": "consortiumId",
+    "schema": {
+     "$ref": "#/components/schemas/uuid"
+    },
+    "required": true,
+    "description": "The ID of consortium"
+   },
+   "actionId": {
+    "in": "path",
+    "name": "actionId",
+    "schema": {
+     "$ref": "#/components/schemas/uuid"
+    },
+    "required": true,
+    "description": "The ID of sharing instance"
+   },
+   "instanceIdentifier": {
+    "in": "query",
+    "name": "instanceIdentifier",
+    "schema": {
+     "$ref": "#/components/schemas/uuid"
+    },
+    "description": "The UUID of the instance"
+   },
+   "sourceTenantId": {
+    "in": "query",
+    "name": "sourceTenantId",
+    "schema": {
+     "type": "string"
+    },
+    "description": "The ID of the source tenant"
+   },
+   "targetTenantId": {
+    "in": "query",
+    "name": "targetTenantId",
+    "schema": {
+     "type": "string"
+    },
+    "description": "The ID of the target tenant"
+   },
+   "status": {
+    "in": "query",
+    "name": "status",
+    "schema": {
+     "$ref": "#/components/schemas/Status"
+    },
+    "description": "The status of the sharing instance"
+   },
+   "trait_pageable_offset": {
+    "name": "offset",
+    "in": "query",
+    "description": "Skip over a number of elements by specifying an offset value for the query",
+    "schema": {
+     "default": 0,
+     "minimum": 0,
+     "maximum": 2147483647,
+     "type": "integer"
+    }
+   },
+   "trait_pageable_limit": {
+    "name": "limit",
+    "in": "query",
+    "description": "Limit the number of elements returned in the response",
+    "schema": {
+     "default": 100,
+     "minimum": 0,
+     "maximum": 2147483647,
+     "type": "integer"
+    }
+   }
+  },
+  "schemas": {
+   "uuid": {
+    "type": "string",
+    "format": "uuid"
+   },
+   "Status": {
+    "type": "string",
+    "enum": [
+     "IN_PROGRESS",
+     "COMPLETE",
+     "ERROR"
+    ]
+   },
+   "userInfo": {
+    "type": "object",
+    "description": "User Display Information",
+    "properties": {
+     "lastName": {
+      "type": "string",
+      "readOnly": true,
+      "description": "Last name of the user"
+     },
+     "firstName": {
+      "type": "string",
+      "readOnly": true,
+      "description": "First name of the user"
+     },
+     "middleName": {
+      "type": "string",
+      "readOnly": true,
+      "description": "Middle name or initial of the user"
+     }
+    },
+    "example": {
+     "lastName": "Doe",
+     "firstName": "John",
+     "middleName": "X."
+    }
+   },
+   "Metadata": {
+    "type": "object",
+    "title": "Metadata",
+    "description": "Metadata about creation and changes to records",
+    "properties": {
+     "createdDate": {
+      "type": "string",
+      "description": "Date and time when the record was created"
+     },
+     "createdByUserId": {
+      "$ref": "#/components/schemas/uuid",
+      "description": "ID of the user who created the record"
+     },
+     "createdByUsername": {
+      "type": "string",
+      "description": "Username of the user who created the record (when available)"
+     },
+     "createdBy": {
+      "$ref": "#/components/schemas/userInfo",
+      "description": "Additional information of the user who created the record (when available)"
+     },
+     "updatedDate": {
+      "type": "string",
+      "description": "Date and time when the record was last updated"
+     },
+     "updatedByUserId": {
+      "$ref": "#/components/schemas/uuid",
+      "description": "ID of the user who last updated the record"
+     },
+     "updatedByUsername": {
+      "type": "string",
+      "description": "Username of the user who updated the record (when available)"
+     },
+     "updatedBy": {
+      "$ref": "#/components/schemas/userInfo",
+      "description": "Additional information of the user who updated the record (when available)"
+     }
+    },
+    "required": [
+     "createdDate"
+    ]
+   },
+   "SharingInstance": {
+    "description": "A JSON schema for the Sharing Instance",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid"
+     },
+     "instanceIdentifier": {
+      "type": "string",
+      "format": "uuid"
+     },
+     "sourceTenantId": {
+      "type": "string"
+     },
+     "targetTenantId": {
+      "type": "string"
+     },
+     "status": {
+      "type": "string",
+      "$ref": "#/components/schemas/Status"
+     },
+     "error": {
+      "type": "string"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/Metadata"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "instanceIdentifier",
+     "sourceTenantId",
+     "targetTenantId"
+    ]
+   },
+   "SharingInstanceCollection": {
+    "description": "A JSON schema for the Sharing Instances Collection",
+    "type": "object",
+    "properties": {
+     "sharingInstances": {
+      "type": "array",
+      "description": "The list of sharing instances",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/SharingInstance"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "sharingInstances",
+     "totalRecords"
+    ]
+   },
+   "Parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "type": "string",
+      "minLength": 1
+     },
+     "value": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "Parameters": {
+    "description": "List of key/value parameters of an error",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/Parameter"
+    },
+    "additionalProperties": false
+   },
+   "Error": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/Parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message"
+    ]
+   },
+   "Errors": {
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/Error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   }
+  }
+ }
+}

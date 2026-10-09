@@ -1,0 +1,170 @@
+openapi: 3.2.0
+info:
+  title: Folio Items API
+  version: v1
+  description: 'Operations tagged items across 4 of this provider''s published API definitions: folio-edge-inventory-openapi.json, folio-mod-remote-storage-openapi.json, folio-edge-inventory-openapi.yml, folio-mod-remote-storage-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inventory
+- url: /remote-storage/
+tags:
+- name: Items
+paths:
+  /inventory/items:
+    get:
+      tags:
+      - Items
+      operationId: getItems
+      summary: Retrieve collection of items
+      description: Retrieve collection of items.
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      - $ref: '#/components/parameters/request-query-parameters'
+      responses:
+        '200':
+          description: 'Calls the mod-inventory-storage GET /items API and returns the result as-is. \
+
+            The example of response: https://github.com/folio-org/mod-inventory-storage/blob/master/ramls/examples/items_get.json
+
+            '
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    servers:
+    - url: /inventory
+  /items/barcode/{barcode}/markAsMissing:
+    post:
+      responses:
+        '201':
+          description: Mark item as missing
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad request
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Mark item as missing
+      operationId: markItemAsMissingByBarcode
+      parameters:
+      - name: barcode
+        in: path
+        required: true
+        schema:
+          type: string
+      tags:
+      - Items
+      summary: Mark item as missing by barcode
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+components:
+  schemas:
+    RequestQueryParameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: A CQL query string with search conditions.
+          minLength: 1
+        limit:
+          type: integer
+          description: Limit the number of elements returned in the response
+          maximum: 2147483647
+          minimum: 0
+          default: 10
+        offset:
+          type: integer
+          description: Skip over a number of elements by specifying an offset value for the query
+          maximum: 2147483647
+          minimum: 0
+          default: 0
+        lang:
+          type: string
+          description: Requested language
+          default: en
+          pattern: '[a-zA-Z]{2}'
+        expand:
+          type: string
+          description: Whether or not to expand the id fields
+    Error:
+      type: object
+      properties:
+        code:
+          description: Error status code
+          type: integer
+        errorMessage:
+          description: Error message text
+          type: string
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    request-query-parameters:
+      name: requestQueryParameters
+      in: query
+      description: Request query parameters(query, limit, offset and etc.) as object.
+      schema:
+        $ref: '#/components/schemas/RequestQueryParameters'
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+x-refined-from:
+- folio-edge-inventory-openapi.json
+- folio-mod-remote-storage-openapi.json
+- folio-edge-inventory-openapi.yml
+- folio-mod-remote-storage-openapi.yml

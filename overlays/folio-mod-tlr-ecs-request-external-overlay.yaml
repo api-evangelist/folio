@@ -1,0 +1,36 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist overlay for FOLIO mod-tlr-ecs-request-external
+  version: 1.0.0
+extends: ../openapi/_original/folio-mod-tlr-ecs-request-external-openapi.yml
+x-generated: '2026-10-09'
+x-method: generated
+x-source: openapi/folio-mod-tlr-ecs-request-external-openapi.yml
+x-rationale: Adds the documented X-Okapi-Token security scheme the module spec omits, and a self-hosting note. Never
+  mutates the original OpenAPI.
+actions:
+- target: $
+  description: Add the X-Okapi-Token header scheme and a root requirement. The scheme is copied from the provider's
+    own declarations in mod-agreements (okapiToken, apiKey in header x-okapi-token) and mod-marc-migrations (ApiKey,
+    header X-Okapi-Token); this spec declares none.
+  update:
+    components:
+      securitySchemes:
+        okapiToken:
+          type: apiKey
+          in: header
+          name: X-Okapi-Token
+          description: FOLIO access token issued by the deployment gateway (Okapi or Kong/Keycloak). Requests are
+            also scoped to a tenant with the X-Okapi-Tenant header.
+    security:
+    - okapiToken: []
+- target: $.info
+  description: 'Record that FOLIO is self-hosted: there is no single public base URL.'
+  update:
+    x-folio-deployment:
+      hosting: self-hosted
+      note: Each library (or hosting vendor) runs its own FOLIO deployment and exposes this module through its own
+        gateway URL; requests carry X-Okapi-Tenant and X-Okapi-Token headers.
+      servers_in_spec: none declared
+      servers_note: The module spec declares no servers.
+    x-apievangelist-source: openapi/_original/folio-mod-tlr-ecs-request-external-openapi.json

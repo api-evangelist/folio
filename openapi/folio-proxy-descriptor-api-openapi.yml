@@ -1,0 +1,272 @@
+openapi: 3.2.0
+info:
+  title: Folio Proxy Descriptor API
+  version: v2.0
+  description: 'Operations tagged proxy-descriptor across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: proxy-descriptor
+paths:
+  /_/proxy/pull/modules:
+    post:
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleList'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Pull modules (i.e. Module Descriptors) from a remote repository. The PullDescriptor includes one or more URLs. And the operation will try all URLs in order until one succeeds. Hence, the URLs should be pointing to identical remote repositories.
+      operationId: pullDescriptors
+      tags:
+      - proxy-descriptor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PullDescriptor'
+        required: true
+      summary: Pull descriptors
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
+  schemas:
+    ModuleDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: ModuleDescriptor.json
+      title: ModuleDescriptor
+      description: A FOLIO Module
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Module ID with format product-semver
+          type: string
+        name:
+          description: Short name for module (does not include version)
+          type: string
+        replaces:
+          description: List of modules that this replaces
+          type: array
+          items:
+            description: Module name - without semantic version
+            type: string
+        tags:
+          description: Module tags
+          type: array
+          items:
+            description: Module tag
+            type: string
+        requires:
+          description: Required interfaces
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfaceReference'
+        provides:
+          description: Provided interfaces
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfaceDescriptor'
+        optional:
+          description: Optional interfaces
+          type: array
+          items:
+            $ref: '#/components/schemas/InterfaceReference'
+        filters:
+          description: Provided filters
+          type: array
+          items:
+            $ref: '#/components/schemas/RoutingEntry'
+        permissionSets:
+          description: Module Permission Sets
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+        env:
+          description: Supported environment variables
+          $ref: '#/components/schemas/EnvEntryList'
+        metadata:
+          description: Module Metadata (any object)
+          type: object
+        uiDescriptor:
+          description: UI module descriptor
+          $ref: '#/components/schemas/UiModuleDescriptor'
+        launchDescriptor:
+          description: Default deployment for this module
+          $ref: '#/components/schemas/LaunchDescriptor'
+      required:
+      - id
+    InterfaceReference:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: InterfaceReference.json
+      title: InterfaceReference
+      description: A reference to an interfaceDescriptor, by name and version
+      type: object
+    LaunchDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: LaunchDescriptor.json
+      title: LaunchDescriptor
+      description: Specifies how a module is deployed and undeployed
+      type: object
+    EnvEntryList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: EnvEntryList.json
+      title: EnvEntryList
+      description: List of environment variables
+      type: array
+      items:
+        $ref: '#/components/schemas/EnvEntry'
+    UiModuleDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: UiModuleDescriptor.json
+      title: UiModuleDescriptor
+      description: UI Module description
+      type: object
+    PullDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: PullDescriptor.json
+      title: PullDescriptor
+      description: Information controlling the pull facility
+      type: object
+      properties:
+        urls:
+          description: List of URLs from which Okapi attempts pulling
+          type: array
+          items:
+            type: string
+    Permission:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: Permission.json
+      title: Permissions Definition Schema
+      description: Permission entity
+      type: object
+    ModuleList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: ModuleList.json
+      title: ModuleList
+      description: List of Module Descriptors
+      type: array
+      items:
+        $ref: '#/components/schemas/ModuleDescriptor'
+    InterfaceDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: InterfaceDescriptor.json
+      title: InterfaceDescriptor
+      description: An interface that a module can provide
+      type: object
+    RoutingEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: RoutingEntry.json
+      title: RoutingEntry
+      description: Okapi proxy routing entry
+      type: object
+      additionalProperties: false
+      properties:
+        methods:
+          description: List of methods GET, POST,.. * (for all)
+          type: array
+          items:
+            type: string
+        pathPattern:
+          description: Path pattern match. * matches any path. {x} matches one or more characters but not slash
+          type: string
+        path:
+          description: Path prefix match
+          type: string
+        rewritePath:
+          description: Rewrite path. e.g. have filter rewrite '/*' to '/events/*'
+          type: string
+        phase:
+          description: If given, may be auth, pre or post
+          type: string
+        level:
+          description: Processing level. Default is 50 (handlers)
+          type: string
+        type:
+          description: 'Proxy handling. One of: request-response, request-only, headers, redirect, system, internal, request-response-1.0. The default is request-response'
+          type: string
+        redirectPath:
+          description: If given, path that we internally redirect to
+          type: string
+        unit:
+          description: Delay unit
+          type: string
+        delay:
+          description: Delay between calls; a value of zero disables timer
+          type: string
+        schedule:
+          title: RoutingEntrySchedule
+          description: Timer schedule using cron-utils
+          type: object
+          additionalProperties: false
+          properties:
+            cron:
+              description: crontab specification
+              type: string
+            zone:
+              description: time zone (UTC is the default); See https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/ZoneId.html
+              type: string
+        permissionsRequired:
+          description: Required permissions for this entry
+          type: array
+          items:
+            type: string
+        permissionsDesired:
+          description: Desired permissions for this entry
+          type: array
+          items:
+            type: string
+        modulePermissions:
+          description: Module permissions for this entry
+          type: array
+          items:
+            type: string
+        permissionsRequiredTenant:
+          description: Required permissions that replace permissionsRequired when the user is authenticated and either the tenant matches each {tenantId} in pathPattern or pathPattern doesn't contain {tenantId}
+          type: array
+          items:
+            type: string
+        delegateCORS:
+          description: Okapi handles CORS by default. Set to true to delegate CORS handling to the module. This only applies to calls made via /_/invoke/tenant/<tid>/<path>. No OPTIONS entry in the methods array is needed for this.
+          type: boolean
+    EnvEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: EnvEntry.json
+      title: EnvEntry
+      description: Environment Variable
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          description: Key
+          type: string
+        value:
+          description: Value
+          type: string
+        description:
+          description: Description
+          type: string
+      required:
+      - name
+x-refined-from:
+- folio-mod-okapi-facade-openapi.json
+- folio-mod-okapi-facade-openapi.yml

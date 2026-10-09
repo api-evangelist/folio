@@ -1,0 +1,426 @@
+openapi: 3.2.0
+info:
+  title: Folio Workflow Entity Controller API
+  version: v0
+  description: 'Operations tagged workflow-entity-controller across 2 of this provider''s published API definitions: folio-mod-workflow-openapi-openapi.json, folio-mod-workflow-openapi-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:9000
+  description: Generated server url
+tags:
+- name: workflow-entity-controller
+paths:
+  /workflows:
+    get:
+      tags:
+      - workflow-entity-controller
+      description: get-workflow
+      operationId: getCollectionResource-workflow-get
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+      - name: sort
+        in: query
+        description: 'Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.'
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PagedModelEntityModelWorkflow'
+            application/x-spring-data-compact+json:
+              schema:
+                $ref: '#/components/schemas/PagedModelEntityModelWorkflow'
+            text/uri-list:
+              schema:
+                type: string
+      summary: Get collection resource workflow get
+      x-summary-source: derived
+    post:
+      tags:
+      - workflow-entity-controller
+      description: create-workflow
+      operationId: postCollectionResource-workflow-post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRequestBody'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelWorkflow'
+      summary: Post collection resource workflow post
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:9000
+      description: Generated server url
+  /workflows/{id}:
+    get:
+      tags:
+      - workflow-entity-controller
+      description: get-workflow
+      operationId: getItemResource-workflow-get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: token
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelWorkflow'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '204':
+          description: No Content
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+        '400':
+          description: Bad Request
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ResponseErrors'
+      summary: Get item resource workflow get
+      x-summary-source: derived
+    put:
+      tags:
+      - workflow-entity-controller
+      description: update-workflow
+      operationId: putItemResource-workflow-put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRequestBody'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelWorkflow'
+        '201':
+          description: Created
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelWorkflow'
+        '204':
+          description: No Content
+      summary: Put item resource workflow put
+      x-summary-source: derived
+    patch:
+      tags:
+      - workflow-entity-controller
+      description: patch-workflow
+      operationId: patchItemResource-workflow-patch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRequestBody'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/EntityModelWorkflow'
+        '204':
+          description: No Content
+      summary: Patch item resource workflow patch
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:9000
+      description: Generated server url
+components:
+  schemas:
+    PageMetadata:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        number:
+          type: integer
+          format: int64
+    PagedModelEntityModelWorkflow:
+      type: object
+      properties:
+        _embedded:
+          type: object
+          properties:
+            workflows:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntityModelWorkflow'
+        _links:
+          $ref: '#/components/schemas/Links'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+        code:
+          type: string
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parameter'
+      required:
+      - message
+    Workflow:
+      type: object
+      properties:
+        id:
+          type: string
+        active:
+          type: boolean
+        deploymentId:
+          type: string
+        description:
+          type: string
+          maxLength: 512
+          minLength: 0
+        historyTimeToLive:
+          type: integer
+          format: int32
+          minimum: 0
+        initialContext:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/JsonNode'
+        name:
+          type: string
+          maxLength: 64
+          minLength: 4
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Node'
+        setup:
+          $ref: '#/components/schemas/Setup'
+        versionTag:
+          type: string
+          maxLength: 64
+          minLength: 1
+      required:
+      - name
+      - versionTag
+    ResponseErrors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        total_records:
+          type: integer
+          format: int32
+    Setup:
+      type: object
+      properties:
+        asyncAfter:
+          type: boolean
+        asyncBefore:
+          type: boolean
+    WorkflowRequestBody:
+      type: object
+      properties:
+        id:
+          type: string
+        active:
+          type: boolean
+        deploymentId:
+          type: string
+        description:
+          type: string
+          maxLength: 512
+          minLength: 0
+        historyTimeToLive:
+          type: integer
+          format: int32
+          minimum: 0
+        initialContext:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/JsonNode'
+        name:
+          type: string
+          maxLength: 64
+          minLength: 4
+        nodes:
+          type: array
+          items:
+            type: string
+        setup:
+          $ref: '#/components/schemas/Setup'
+        versionTag:
+          type: string
+          maxLength: 64
+          minLength: 1
+      required:
+      - name
+      - versionTag
+    Links:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Link'
+    Parameter:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    Node:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          maxLength: 64
+          minLength: 3
+        description:
+          type: string
+          maxLength: 512
+          minLength: 0
+        deserializeAs:
+          type: string
+          readOnly: true
+        identifier:
+          type: string
+      required:
+      - name
+    JsonNode: {}
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        hreflang:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        deprecation:
+          type: string
+        profile:
+          type: string
+        name:
+          type: string
+        templated:
+          type: boolean
+    EntityModelWorkflow:
+      type: object
+      properties:
+        active:
+          type: boolean
+        deploymentId:
+          type: string
+        description:
+          type: string
+          maxLength: 512
+          minLength: 0
+        historyTimeToLive:
+          type: integer
+          format: int32
+          minimum: 0
+        initialContext:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/JsonNode'
+        name:
+          type: string
+          maxLength: 64
+          minLength: 4
+        setup:
+          $ref: '#/components/schemas/Setup'
+        versionTag:
+          type: string
+          maxLength: 64
+          minLength: 1
+        _links:
+          $ref: '#/components/schemas/Links'
+      required:
+      - name
+      - versionTag
+x-refined-from:
+- folio-mod-workflow-openapi-openapi.json
+- folio-mod-workflow-openapi-openapi.yml

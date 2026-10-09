@@ -1,0 +1,2018 @@
+# x-archived-from: folio-mod-bulk-operations-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Bulk operations API
+  version: v1
+  description: Bulk operations API
+paths:
+  /bulk-operations/upload:
+    post:
+      description: Upload csv file with identifiers list (barcodes, UUIDs, HRIDs, etc.) or csv-file with already updated entities
+      operationId: uploadCsvFile
+      parameters:
+      - name: entityType
+        in: query
+        required: true
+        description: Entity type (USER, ITEM, HOLDINGS_RECORD)
+        schema:
+          $ref: '#/components/schemas/EntityType'
+      - name: identifierType
+        in: query
+        required: true
+        description: Identifier type (ID, BARCODE, etc.)
+        schema:
+          $ref: '#/components/schemas/IdentifierType'
+      - name: manual
+        in: query
+        required: false
+        description: Key if manual approach is used
+        schema:
+          default: false
+          type: boolean
+      - name: operationId
+        in: query
+        required: false
+        description: UUID of the Bulk Operation (applicable for (manual = true) case)
+        schema:
+          $ref: '#/components/schemas/UUID'
+      - name: X-Okapi-User-Id
+        in: header
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationDto'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryRequest'
+  /bulk-operations/query:
+    post:
+      description: Trigger bulk edit by query
+      operationId: triggerBulkEditByQuery
+      parameters:
+      - name: X-Okapi-User-Id
+        in: header
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+      responses:
+        '201':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationDto'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+  /bulk-operations/{operationId}/content-update:
+    post:
+      description: Upload content updates
+      operationId: postContentUpdates
+      parameters:
+      - name: operationId
+        in: path
+        required: true
+        description: UUID of the Bulk Operation
+        schema:
+          $ref: '#/components/schemas/UUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkOperationRuleCollection'
+      responses:
+        '200':
+          description: Rules are saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationRuleCollection'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+  /bulk-operations/{operationId}/marc-content-update:
+    post:
+      description: Upload MARC content updates
+      operationId: postMarcContentUpdates
+      parameters:
+      - name: operationId
+        in: path
+        required: true
+        description: UUID of the Bulk Operation
+        schema:
+          $ref: '#/components/schemas/UUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkOperationMarcRuleCollection'
+      responses:
+        '200':
+          description: Rules are saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationMarcRuleCollection'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+  /bulk-operations/{operationId}/preview:
+    get:
+      description: Get preview
+      operationId: getPreviewByOperationId
+      parameters:
+      - name: operationId
+        in: path
+        required: true
+        description: UUID of the Bulk Operation
+        schema:
+          $ref: '#/components/schemas/UUID'
+      - name: step
+        in: query
+        required: true
+        description: Key if manual approach is used
+        schema:
+          $ref: '#/components/schemas/BulkOperationStep'
+      - in: query
+        name: limit
+        required: true
+        schema:
+          type: integer
+        description: The numbers of records to return
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          type: integer
+        description: Query offset
+      responses:
+        '200':
+          description: Collection of records for preview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unified_table'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+  /bulk-operations/{operationId}/start:
+    post:
+      description: Start Bulk Operation
+      operationId: startBulkOperation
+      parameters:
+      - name: operationId
+        in: path
+        required: true
+        description: UUID of the Bulk Operation
+        schema:
+          $ref: '#/components/schemas/UUID'
+      - name: X-Okapi-User-Id
+        in: header
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Start'
+      responses:
+        '200':
+          description: Bulk Operation is started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationDto'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '404':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bulk Operation not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+  /bulk-operations/{operationId}/errors:
+    get:
+      description: Get a list of errors for preview
+      operationId: getErrorsPreviewByOperationId
+      parameters:
+      - name: operationId
+        in: path
+        required: true
+        description: UUID of the Bulk Operation
+        schema:
+          $ref: '#/components/schemas/UUID'
+      - in: query
+        name: limit
+        required: true
+        schema:
+          type: integer
+          default: 10
+          minimum: 0
+        description: The numbers of errors to return
+      - in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+        description: Query offset
+      - in: query
+        name: errorType
+        required: false
+        schema:
+          $ref: '#/components/schemas/ErrorType'
+        description: The error type
+      responses:
+        '200':
+          description: Collection of errors for preview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '404':
+          description: No found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bulk Operation not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+  /bulk-operations:
+    get:
+      description: Get a list of operations
+      operationId: getBulkOperationCollection
+      parameters:
+      - in: query
+        name: query
+        required: true
+        schema:
+          type: string
+        description: Request query
+      - in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+        description: Query offset
+      - in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        description: Query limit
+      responses:
+        '200':
+          description: Collection of operations for preview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationCollection'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+  /bulk-operations/{operationId}/download:
+    get:
+      description: Download file by operation id
+      operationId: downloadFileByOperationId
+      parameters:
+      - name: operationId
+        in: path
+        required: true
+        description: UUID of the Bulk Operation
+        schema:
+          $ref: '#/components/schemas/UUID'
+      - in: query
+        name: fileContentType
+        required: true
+        schema:
+          $ref: '#/components/schemas/FileContentType'
+        description: The file content type
+      responses:
+        '200':
+          description: Preview of updated items to download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+  /bulk-operations/{operationId}:
+    get:
+      description: Get bulk operation by id
+      operationId: getBulkOperationById
+      parameters:
+      - name: operationId
+        in: path
+        required: true
+        description: UUID of the Bulk Operation
+        schema:
+          $ref: '#/components/schemas/UUID'
+      responses:
+        '200':
+          description: Bulk operation DTO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkOperationDto'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+  /bulk-operations/clean-up-log-files:
+    post:
+      description: Removed all files older than 30 days
+      operationId: cleanUpLogFiles
+      responses:
+        '201':
+          description: No content
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+  /bulk-operations/list-users:
+    get:
+      description: Get a list of users
+      operationId: getListUsers
+      parameters:
+      - in: query
+        name: query
+        required: true
+        schema:
+          type: string
+        description: Request query
+      - in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+        description: Query offset
+      - in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        description: Query limit
+      responses:
+        '200':
+          description: Collection of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/users'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+  /bulk-operations/{operationId}/files/{fileName}:
+    delete:
+      description: Delete file by name and bulk operation id
+      operationId: deleteFileByNameAndOperationId
+      parameters:
+      - in: path
+        name: operationId
+        required: true
+        schema:
+          $ref: '#/components/schemas/UUID'
+        description: UUID of the Bulk Operation
+      - in: path
+        name: fileName
+        required: true
+        schema:
+          type: string
+        description: File name
+      responses:
+        '204':
+          description: File deleted successfully
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+  /bulk-operations/{operationId}/cancel:
+    post:
+      description: Cancel bulk operation by id
+      operationId: cancelOperationById
+      parameters:
+      - in: path
+        name: operationId
+        required: true
+        schema:
+          $ref: '#/components/schemas/UUID'
+        description: UUID of the Bulk Operation
+      responses:
+        '200':
+          description: Operation cancelled
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+  /bulk-operations/used-tenants/{operationId}:
+    get:
+      description: Get a list of used tenants
+      operationId: getListUsedTenants
+      parameters:
+      - in: path
+        name: operationId
+        required: true
+        schema:
+          $ref: '#/components/schemas/UUID'
+        description: UUID of the Bulk Operation
+      responses:
+        '200':
+          description: Collection of used tenants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+  /bulk-operations/profiles:
+    get:
+      description: Get a list of Profiles
+      operationId: getProfiles
+      parameters:
+      - in: query
+        name: query
+        required: false
+        schema:
+          type: string
+        description: Request query
+      - in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+        description: Query offset
+      - in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+        description: Query limit
+      responses:
+        '200':
+          description: returns list of profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/profiles_dto'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+    post:
+      description: Create a new Profile
+      operationId: createProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/profile_request'
+      responses:
+        '201':
+          description: Profile created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/profile_dto'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+  /bulk-operations/profiles/{id}:
+    delete:
+      description: Delete a Profile by ID
+      operationId: deleteProfile
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/UUID'
+      responses:
+        '204':
+          description: Profile deleted successfully
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+    put:
+      summary: Update a profile
+      operationId: updateProfile
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/UUID'
+      requestBody:
+        description: Profile object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/profile_request'
+      responses:
+        '200':
+          description: returns if a profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/profile_dto'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+components:
+  schemas:
+    bulkOperationCollection:
+      $ref: '#/components/schemas/BulkOperationCollection'
+    bulkOperationDto:
+      $ref: '#/components/schemas/BulkOperationDto'
+    bulkOperationRuleCollection:
+      $ref: '#/components/schemas/BulkOperationRuleCollection'
+    unifiedTable:
+      $ref: '#/components/schemas/unified_table'
+    entityType:
+      $ref: '#/components/schemas/EntityType'
+    identifierType:
+      $ref: '#/components/schemas/IdentifierType'
+    fileContentType:
+      $ref: '#/components/schemas/FileContentType'
+    profileRequest:
+      $ref: '#/components/schemas/profile_request'
+    profileDto:
+      $ref: '#/components/schemas/profile_dto'
+    profilesDto:
+      $ref: '#/components/schemas/profiles_dto'
+    approachType:
+      $ref: '#/components/schemas/ApproachType'
+    bulkOperationStep:
+      $ref: '#/components/schemas/BulkOperationStep'
+    bulkOperationStart:
+      $ref: '#/components/schemas/Start'
+    queryRequest:
+      $ref: '#/components/schemas/QueryRequest'
+    bulkOperationMarcRuleCollection:
+      $ref: '#/components/schemas/BulkOperationMarcRuleCollection'
+    dataImportJobExecutionCollection:
+      $ref: '#/components/schemas/DataImportJobExecutionCollection'
+    batchIdsDto:
+      $ref: '#/components/schemas/BatchIdsDto'
+    consortiumHoldingCollection:
+      $ref: '#/components/schemas/ConsortiumHoldingCollection'
+    consortiumItemCollection:
+      $ref: '#/components/schemas/ConsortiumItemCollection'
+    UUID:
+      type: string
+      format: uuid
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        totalRecords:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    users:
+      description: A set of users
+      type: object
+      properties:
+        users:
+          description: Set of users
+          id: users
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/user'
+        total_records:
+          description: Total number of users
+          type: integer
+      additionalProperties: false
+    instanceNoteTypeCollection:
+      $ref: '#/components/schemas/instance_note_type_collection'
+    contributorTypeCollection:
+      $ref: '#/components/schemas/contributor_types'
+    openTransactions:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: User Transactions Schema
+      description: Schema describing open transactions of a user
+      type: object
+      properties:
+        userId:
+          type: string
+          description: User's id
+        userBarcode:
+          type: string
+          description: User's barcode
+        hasOpenTransactions:
+          type: boolean
+          description: Specifies if the user has any open transactions (loans, requests, fees/fines, proxies, manual-blocks)
+        loans:
+          type: integer
+          description: Number of open loans
+        requests:
+          type: integer
+          description: Number of open requests
+        feesFines:
+          type: integer
+          description: Number of open fees/fines
+        proxies:
+          type: integer
+          description: Number of open proxies
+        blocks:
+          type: integer
+          description: Number of open blocks
+      additionalProperties: false
+      required:
+      - userId
+      - hasOpenTransactions
+      - loans
+      - requests
+      - feesFines
+      - proxies
+      - blocks
+    searchResult:
+      type: object
+      properties:
+        record:
+          type: object
+          description: Example response
+    errorType:
+      $ref: '#/components/schemas/ErrorType'
+    EntityType:
+      type: string
+      enum:
+      - USER
+      - ITEM
+      - HOLDINGS_RECORD
+      - INSTANCE
+      - INSTANCE_MARC
+    IdentifierType:
+      type: string
+      enum:
+      - ID
+      - BARCODE
+      - HRID
+      - FORMER_IDS
+      - ACCESSION_NUMBER
+      - HOLDINGS_RECORD_ID
+      - USER_NAME
+      - EXTERNAL_SYSTEM_ID
+      - INSTANCE_HRID
+      - ITEM_BARCODE
+      - ISBN
+      - ISSN
+    OperationType:
+      type: string
+      enum:
+      - UPDATE
+      - DELETE
+    OperationStatusType:
+      type: string
+      enum:
+      - NEW
+      - RETRIEVING_RECORDS
+      - SAVING_RECORDS_LOCALLY
+      - DATA_MODIFICATION
+      - DATA_MODIFICATION_IN_PROGRESS
+      - REVIEW_CHANGES
+      - APPLY_CHANGES
+      - APPLY_MARC_CHANGES
+      - SUSPENDED
+      - COMPLETED
+      - COMPLETED_WITH_ERRORS
+      - CANCELLED
+      - SCHEDULED
+      - FAILED
+      - EXECUTING_QUERY
+      - RETRIEVING_IDENTIFIERS
+      - SAVED_IDENTIFIERS
+      - REVIEWED_NO_MARC_RECORDS
+      - DELETING_RECORDS
+    ApproachType:
+      type: string
+      enum:
+      - MANUAL
+      - IN_APP
+      - QUERY
+    tenantNotePair:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: NoteType name for which (tenantId)
+      type: object
+      properties:
+        tenantId:
+          description: ID of tenant required to show after Note type name
+          type: string
+        noteTypeName:
+          description: Note type name for which tenant ID is required to show
+          type: string
+        noteTypeId:
+          description: Note type id for which tenant ID is required to show
+          type: string
+      additionalProperties: false
+      required:
+      - tenantId
+      - noteTypeName
+      - noteTypeId
+    BulkOperationDto:
+      type: object
+      properties:
+        id:
+          description: Bulk Operation UUID
+          type: string
+          format: uuid
+        hrId:
+          description: Bulk Operation human readable ID
+          type: integer
+          format: int64
+        userId:
+          description: User UUID
+          type: string
+          format: uuid
+        operationType:
+          description: Bulk Operation type
+          $ref: '#/components/schemas/OperationType'
+        entityType:
+          description: Entity type
+          $ref: '#/components/schemas/EntityType'
+        entityCustomIdentifierType:
+          description: Entity custom identifier type
+          $ref: '#/components/schemas/IdentifierType'
+        status:
+          description: Bulk Operation status
+          $ref: '#/components/schemas/OperationStatusType'
+        approach:
+          description: Bulk Operation approach type
+          $ref: '#/components/schemas/ApproachType'
+        dataExportJobId:
+          description: Data export Job UUID
+          type: string
+          format: uuid
+        linkToTriggeringCsvFile:
+          description: Path to the bulk operation triggering file
+          type: string
+        linkToTriggeringQueryFile:
+          description: Path to the triggering query file
+          type: string
+        linkToMatchedRecordsJsonFile:
+          description: Path to the matched (origin) json file
+          type: string
+        linkToMatchedRecordsCsvFile:
+          description: Path to the matched (origin) csv file
+          type: string
+        linkToMatchedRecordsMarcFile:
+          description: Path to the matched (origin) mrc file
+          type: string
+        linkToMatchedRecordsErrorsCsvFile:
+          description: Path to the matching errors csv file
+          type: string
+        linkToModifiedRecordsJsonFile:
+          description: Path to the modified (updated) json file
+          type: string
+        linkToModifiedRecordsCsvFile:
+          description: Path to the modified (updated) csv file
+          type: string
+        linkToModifiedRecordsMarcFile:
+          description: Path to the modified (updated) mrc file
+          type: string
+        linkToCommittedRecordsJsonFile:
+          description: Path to the committed (result) json file
+          type: string
+        linkToCommittedRecordsCsvFile:
+          description: Path to the committed (result) csv file
+          type: string
+        linkToCommittedRecordsMarcFile:
+          description: Path to the committed (result) mrc file
+          type: string
+        linkToCommittedRecordsErrorsCsvFile:
+          description: Path to the committing errors csv file
+          type: string
+        totalNumOfRecords:
+          description: Total number of records
+          type: integer
+          format: int64
+          default: 0
+        processedNumOfRecords:
+          description: Number of processed records
+          type: integer
+          format: int64
+          default: 0
+        matchedNumOfRecords:
+          description: Number of matched records
+          type: integer
+          format: int64
+          default: 0
+        committedNumOfRecords:
+          description: Number of committed records
+          type: integer
+          format: int64
+          default: 0
+        matchedNumOfErrors:
+          description: Number of matching errors
+          type: integer
+          format: int64
+          default: 0
+        matchedNumOfWarnings:
+          description: Number of matching warnings
+          type: integer
+          format: int64
+          default: 0
+        committedNumOfErrors:
+          description: Number of committing errors
+          type: integer
+          format: int64
+          default: 0
+        committedNumOfWarnings:
+          description: Number of committing warnings
+          type: integer
+          format: int64
+          default: 0
+        executionChunkSize:
+          description: Size of chunk
+          type: integer
+          format: int64
+          default: 0
+        startTime:
+          description: Bulk Operation start time
+          type: string
+          format: date-time
+        endTime:
+          description: Bulk Operation end time
+          type: string
+          format: date-time
+        errorMessage:
+          description: Error message
+          type: string
+        expired:
+          description: Were logs expired
+          type: boolean
+          default: false
+        fqlQueryId:
+          description: FQL query identifier
+          type: string
+          format: uuid
+        fqlQuery:
+          description: FQL query string
+          type: string
+        userFriendlyQuery:
+          description: User-friendly FQL query string
+          type: string
+        tenantNotePairs:
+          description: NoteType name for which (tenantId)
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/tenantNotePair'
+        usedTenants:
+          description: Used tenants
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+      required:
+      - type
+    ErrorType:
+      type: string
+      enum:
+      - ERROR
+      - WARNING
+    parameter:
+      description: List of key/value parameters
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    parameters:
+      description: List of key/value parameters
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          description: Error message type
+          $ref: '#/components/schemas/ErrorType'
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+        field:
+          type: string
+          description: Name of failed field
+      additionalProperties: false
+      required:
+      - message
+    QueryRequest:
+      description: Query request body
+      type: object
+      properties:
+        queryId:
+          description: FQL query identifier
+          type: string
+          format: uuid
+        fqlQuery:
+          description: FQL string
+          type: string
+        userFriendlyQuery:
+          description: User-friendly representation of FQL query
+          type: string
+        entityTypeId:
+          description: Entity type identifier
+          type: string
+          format: uuid
+      required:
+      - queryId
+      - entityTypeId
+      additionalProperties: false
+    UpdateOptionType:
+      type: string
+      enum:
+      - ADMINISTRATIVE_NOTE
+      - CHECK_IN_NOTE
+      - CHECK_OUT_NOTE
+      - ELECTRONIC_ACCESS_LINK_TEXT
+      - ELECTRONIC_ACCESS_MATERIALS_SPECIFIED
+      - ELECTRONIC_ACCESS_URI
+      - ELECTRONIC_ACCESS_URL_PUBLIC_NOTE
+      - ELECTRONIC_ACCESS_URL_RELATIONSHIP
+      - EMAIL_ADDRESS
+      - EXPIRATION_DATE
+      - HOLDINGS_NOTE
+      - INSTANCE_NOTE
+      - ITEM_NOTE
+      - MATERIAL_TYPE
+      - PATRON_GROUP
+      - PERMANENT_LOAN_TYPE
+      - PERMANENT_LOCATION
+      - SET_RECORDS_FOR_DELETE
+      - STAFF_SUPPRESS
+      - STATISTICAL_CODE
+      - STATUS
+      - SUPPRESS_FROM_DISCOVERY
+      - TEMPORARY_LOAN_TYPE
+      - TEMPORARY_LOCATION
+    UpdateActionType:
+      type: string
+      enum:
+      - ADD_TO_EXISTING
+      - CLEAR_FIELD
+      - FIND
+      - FIND_AND_REMOVE_THESE
+      - REPLACE_WITH
+      - FIND_AND_REPLACE
+      - SET_TO_TRUE
+      - SET_TO_FALSE
+      - SET_TO_TRUE_INCLUDING_ITEMS
+      - SET_TO_FALSE_INCLUDING_ITEMS
+      - MARK_AS_STAFF_ONLY
+      - REMOVE_MARK_AS_STAFF_ONLY
+      - REMOVE_ALL
+      - CHANGE_TYPE
+      - DUPLICATE
+      - APPEND
+      - ADDITIONAL_SUBFIELD
+      - REMOVE_FIELD
+      - REMOVE_SUBFIELD
+      - ''
+      - REMOVE_SOME
+    Parameter:
+      description: Parameter for action
+      type: object
+      properties:
+        key:
+          description: Key of parameter
+          type: string
+        value:
+          description: Value of parameter
+          type: string
+      required:
+      - key
+      - value
+      additionalProperties: false
+    Action:
+      description: Rule action
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/UpdateActionType'
+        initial:
+          description: Initial value
+          type: string
+        updated:
+          description: Updated value
+          type: string
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parameter'
+        tenants:
+          type: array
+          items:
+            type: string
+        updated_tenants:
+          type: array
+          items:
+            type: string
+      required:
+      - type
+      additionalProperties: false
+    RuleDetails:
+      properties:
+        option:
+          description: Option to change
+          $ref: '#/components/schemas/UpdateOptionType'
+        tenants:
+          type: array
+          items:
+            type: string
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+          minItems: 1
+      additionalProperties: false
+    BulkOperationRule:
+      type: object
+      properties:
+        id:
+          description: Bulk operation rule ID
+          type: string
+          format: uuid
+        bulkOperationId:
+          description: Bulk operation ID
+          type: string
+          format: uuid
+        rule_details:
+          description: Rule details
+          $ref: '#/components/schemas/RuleDetails'
+      required:
+      - bulkOperationId
+      - rule_details
+      additionalProperties: false
+    BulkOperationRuleCollection:
+      type: object
+      properties:
+        bulkOperationRules:
+          description: List of bulk operation rules
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkOperationRule'
+        totalRecords:
+          type: integer
+      required:
+      - bulkOperationRules
+      - totalRecords
+      additionalProperties: false
+    MarcDataType:
+      type: string
+      enum:
+      - VALUE
+      - SUBFIELD
+    MarcAction:
+      description: MARC record bulk edit rule action
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/UpdateActionType'
+        data:
+          type: array
+          items:
+            description: MARC rule action data
+            type: object
+            properties:
+              key:
+                $ref: '#/components/schemas/MarcDataType'
+              value:
+                description: Action value
+                type: string
+      required:
+      - name
+      additionalProperties: false
+    MarcParameterType:
+      type: string
+      enum:
+      - OVERRIDE_PROTECTED
+    MarcParameter:
+      description: MARC rule parameter data
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/MarcParameterType'
+        value:
+          description: MARC rule parameter value
+          type: string
+      required:
+      - key
+      additionalProperties: false
+    MarcSubfieldAction:
+      description: MARC record subfield rule action
+      type: object
+      properties:
+        subfield:
+          description: MARC subfield code
+          type: string
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcAction'
+          minItems: 1
+      required:
+      - subfield
+      - actions
+      additionalProperties: false
+    MarcRuleDetails:
+      type: object
+      properties:
+        tag:
+          description: MARC field tag
+          type: string
+        ind1:
+          description: MARC field indicator 1
+          type: string
+          pattern: '[a-z0-9#\\]'
+        ind2:
+          description: MARC field indicator 2
+          type: string
+          pattern: '[a-z0-9#\\]'
+        subfield:
+          description: MARC subfield code
+          type: string
+          pattern: '[a-z0-9]*'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcAction'
+          minItems: 1
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcParameter'
+        subfields:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcSubfieldAction'
+        updateOption:
+          description: Option to change
+          $ref: '#/components/schemas/UpdateOptionType'
+      required:
+      - tag
+      - ind1
+      - ind2
+      - actions
+      additionalProperties: false
+    BulkOperationMarcRule:
+      allOf:
+      - $ref: '#/components/schemas/MarcRuleDetails'
+      - type: object
+        properties:
+          bulkOperationId:
+            description: Bulk operation ID
+            type: string
+            format: uuid
+        required:
+        - bulkOperationId
+        additionalProperties: false
+    BulkOperationMarcRuleCollection:
+      type: object
+      properties:
+        bulkOperationMarcRules:
+          description: List of bulk operation MARC rules
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkOperationMarcRule'
+        totalRecords:
+          type: integer
+      required:
+      - bulkOperationMarcRules
+      - totalRecords
+      additionalProperties: false
+    BulkOperationStep:
+      type: string
+      enum:
+      - UPLOAD
+      - EDIT
+      - COMMIT
+      - DELETE
+    DataType:
+      type: string
+      enum:
+      - NUMERIC
+      - DATE_TIME
+      - STRING
+    cell:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Data cell representation
+      type: object
+      properties:
+        value:
+          description: Cell value
+          type: string
+        dataType:
+          description: Data type
+          $ref: '#/components/schemas/DataType'
+        visible:
+          description: Column visibility
+          type: boolean
+          default: 'true'
+        forceVisible:
+          description: Column visibility (forced to display in preview)
+          type: boolean
+          default: 'false'
+        ignoreTranslation:
+          description: Ignore translation
+          type: boolean
+          default: 'false'
+      additionalProperties: false
+      required:
+      - value
+      - dataType
+    row:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Row representation
+      type: object
+      properties:
+        row:
+          description: Row value
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+      required:
+      - row
+    unified_table:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Unified table representation of data
+      type: object
+      properties:
+        header:
+          description: Header
+          type: array
+          items:
+            $ref: '#/components/schemas/cell'
+        rows:
+          description: Rows
+          type: array
+          items:
+            $ref: '#/components/schemas/row'
+      additionalProperties: false
+      required:
+      - header
+      - rows
+    Start:
+      type: object
+      properties:
+        step:
+          description: Bulk operation step
+          $ref: '#/components/schemas/BulkOperationStep'
+        approach:
+          description: Bulk Operation approach type
+          $ref: '#/components/schemas/ApproachType'
+        entityType:
+          description: Entity type
+          $ref: '#/components/schemas/EntityType'
+        entityCustomIdentifierType:
+          description: Entity custom identifier type
+          $ref: '#/components/schemas/IdentifierType'
+        query:
+          description: CQL query for
+          type: string
+    BulkOperationCollection:
+      type: object
+      properties:
+        bulkOperations:
+          description: List of bulk operations
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkOperationDto'
+          minItems: 1
+        totalRecords:
+          type: integer
+      required:
+      - bulkOperations
+      - totalRecords
+      additionalProperties: false
+    FileContentType:
+      type: string
+      enum:
+      - TRIGGERING_FILE
+      - TRIGGERING_QUERY_FILE
+      - MATCHED_RECORDS_FILE
+      - RECORD_MATCHING_ERROR_FILE
+      - PROPOSED_CHANGES_FILE
+      - PROPOSED_CHANGES_MARC_FILE
+      - COMMITTED_RECORDS_FILE
+      - COMMITTED_RECORDS_MARC_FILE
+      - COMMITTING_CHANGES_ERROR_FILE
+    user:
+      description: User who runs bulk edit
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User's ID
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        preferredFirstName:
+          type: string
+          description: User's preferred first name
+        middleName:
+          type: string
+          description: User's middle name
+      additionalProperties: false
+      required:
+      - id
+    profile_dto:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: Profile DTO
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+        name:
+          description: The name of the profile, used for identification and display.
+          type: string
+        description:
+          description: Indicates description of the profile.
+          type: string
+        locked:
+          description: Indicates whether the profile is locked and cannot be modified.
+          type: boolean
+        entityType:
+          description: Entity type
+          $ref: '#/components/schemas/EntityType'
+        ruleDetails:
+          description: Rule Collection
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleDetails'
+        marcRuleDetails:
+          description: Bulk Operation Marc Rule Collection
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcRuleDetails'
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdBy:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: UUID
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedBy:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: UUID
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - entityType
+    profiles_dto:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List summary results for profiles
+      type: object
+      properties:
+        content:
+          description: Array of profile summary DTOs
+          type: array
+          items:
+            $ref: '#/components/schemas/profile_dto'
+        totalRecords:
+          description: Total number of profile records
+          type: integer
+          format: int64
+      additionalProperties: false
+      required:
+      - content
+      - totalRecords
+    profile_request:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: Profile Entity
+      type: object
+      properties:
+        name:
+          description: The name of the profile, used for identification and display.
+          type: string
+        description:
+          description: Indicates description of the profile.
+          type: string
+        locked:
+          description: Indicates whether the profile is locked and cannot be modified.
+          type: boolean
+        entityType:
+          description: Entity type
+          $ref: '#/components/schemas/EntityType'
+        ruleDetails:
+          description: Rule Collection
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleDetails'
+        marcRuleDetails:
+          description: Bulk Operation Marc Rule Collection
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcRuleDetails'
+      additionalProperties: false
+      required:
+      - name
+      - entityType
+      - locked
+    data_import_data_type:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Data Types Enum
+      type: string
+      additionalProperties: false
+      enum:
+      - Delimited
+      - EDIFACT
+      - MARC
+    ProfileInfo:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Unique JobProfile identifier
+          type: string
+          format: uuid
+        name:
+          description: Job Profile name
+          type: string
+        dataType:
+          description: Data type
+          type: string
+          $ref: '#/components/schemas/data_import_data_type'
+        hidden:
+          description: Indicates that job should be hidden in data-import log
+          type: boolean
+          default: false
+      required:
+      - id
+    DataImportProgress:
+      type: object
+      properties:
+        jobExecutionId:
+          description: Corresponding jobExecution id
+          type: string
+        current:
+          description: Currently processing record
+          type: integer
+        total:
+          description: Total number of records to be processed
+          type: integer
+    data_import_status:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: JobExecution status Enum
+      type: string
+      additionalProperties: false
+      enum:
+      - PARENT
+      - NEW
+      - FILE_UPLOADED
+      - PARSING_IN_PROGRESS
+      - PARSING_FINISHED
+      - PROCESSING_IN_PROGRESS
+      - PROCESSING_FINISHED
+      - COMMIT_IN_PROGRESS
+      - COMMITTED
+      - ERROR
+      - DISCARDED
+      - CANCELLED
+    data_import_error_status:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: JobExecution error status Enum
+      type: string
+      additionalProperties: false
+      enum:
+      - SNAPSHOT_UPDATE_ERROR
+      - RECORD_UPDATE_ERROR
+      - FILE_PROCESSING_ERROR
+      - INSTANCE_CREATING_ERROR
+      - PROFILE_SNAPSHOT_CREATING_ERROR
+    DataImportJobExecution:
+      type: object
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          format: uuid
+        hrId:
+          description: Human readable id
+          type: integer
+        parentJobId:
+          description: Id of the parent JobExecution entity
+          type: string
+          format: uuid
+        subordinationType:
+          description: Type of subordination to another JobExecution entities
+          type: string
+          enum:
+          - CHILD
+          - PARENT_SINGLE
+          - PARENT_MULTIPLE
+          - COMPOSITE_PARENT
+          - COMPOSITE_CHILD
+        jobProfileInfo:
+          description: Related JobProfile information
+          type: object
+          $ref: '#/components/schemas/ProfileInfo'
+        sourcePath:
+          description: Path to the file
+          type: string
+        fileName:
+          description: File name
+          type: string
+        runBy:
+          description: First and last name of the user that triggered the job execution
+          type: object
+          properties:
+            firstName:
+              description: First name
+              type: string
+            lastName:
+              description: Last name
+              type: string
+        progress:
+          description: Execution progress of the job
+          type: object
+          $ref: '#/components/schemas/DataImportProgress'
+        startedDate:
+          description: Date and time when the job execution started
+          type: string
+          format: date-time
+        completedDate:
+          description: Date and time when the job execution completed
+          type: string
+          format: date-time
+        status:
+          description: Current status of the job execution
+          type: string
+          $ref: '#/components/schemas/data_import_status'
+        errorStatus:
+          description: Status that describe error state of job execution
+          type: string
+          $ref: '#/components/schemas/data_import_error_status'
+        userId:
+          description: ID of the user who created the JobExecution
+          type: string
+          format: uuid
+        jobPartNumber:
+          description: The order number of the chunk job for COMPOSITE jobs
+          type: integer
+          default: 1
+        totalJobParts:
+          description: The total number of chunk jobs for COMPOSITE jobs
+          type: integer
+          default: 1
+        totalRecordsInFile:
+          description: The total number of records in the source file for COMPOSITE_PARENT jobs
+          type: integer
+          default: 0
+      required:
+      - id
+      - parentJobId
+      - subordinationType
+      - status
+      - uiStatus
+      - userId
+    DataImportJobExecutionCollection:
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutions:
+          description: List of execution jobs
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/DataImportJobExecution'
+        totalRecords:
+          type: integer
+      required:
+      - jobExecutions
+      - totalRecords
+    BatchIdsDto:
+      type: object
+      properties:
+        identifierValues:
+          description: Entity IDs
+          type: array
+          items:
+            description: UUIDs
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        identifierType:
+          description: Identifier types
+          type: string
+          enum:
+          - id
+          - hrid
+          - accessionNumber
+          - formerIds
+          - barcode
+          - holdingsRecordId
+          - instanceHrid
+          - itemBarcode
+    ConsortiumHolding:
+      type: object
+      properties:
+        id:
+          description: Holdings ID
+          type: string
+        hrid:
+          type: string
+          description: Holdings HRID
+        tenantId:
+          type: string
+          description: Tenant ID of the Holding
+        instanceId:
+          description: Related Instance Id
+          type: string
+        discoverySuppress:
+          description: Discovery suppress flag
+          type: boolean
+        callNumberPrefix:
+          description: Call number prefix
+          type: string
+        callNumber:
+          description: Call number
+          type: string
+        callNumberSuffix:
+          description: Call number suffix
+          type: string
+        copyNumber:
+          description: Copy number
+          type: string
+        permanentLocationId:
+          description: Permanent Location ID
+          type: string
+    ConsortiumHoldingCollection:
+      type: object
+      properties:
+        holdings:
+          description: List of brief holdings records
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsortiumHolding'
+        totalRecords:
+          type: integer
+    ConsortiumItem:
+      type: object
+      properties:
+        id:
+          description: Item id
+          type: string
+        hrid:
+          type: string
+          description: Item HRID
+        tenantId:
+          type: string
+          description: Tenant ID of the Item
+        instanceId:
+          description: Related Instance Id
+          type: string
+        holdingsRecordId:
+          description: Related Holding Record Id
+          type: string
+        barcode:
+          description: Item barcode
+          type: string
+    ConsortiumItemCollection:
+      type: object
+      properties:
+        items:
+          description: List of brief holdings records
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsortiumItem'
+        totalRecords:
+          type: integer
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      Metadata:
+        type: object
+        properties:
+          createdDate:
+            description: Date and time when the record was created
+            type: string
+            format: date-time
+          createdByUserId:
+            description: ID of the user who created the record (when available)
+            type: string
+            pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+          createdByUsername:
+            description: Username of the user who created the record (when available)
+            type: string
+          updatedDate:
+            description: Date and time when the record was last updated
+            type: string
+            format: date-time
+          updatedByUserId:
+            description: ID of the user who last updated the record (when available)
+            type: string
+            pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+          updatedByUsername:
+            description: Username of the user who last updated the record (when available)
+            type: string
+        additionalProperties: false
+        required:
+        - createdDate
+    instance_note_type:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An Instance note type
+      type: object
+      properties:
+        id:
+          description: unique ID of the Instance note type; a UUID
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: name of the Instance note type
+        source:
+          type: string
+          description: label indicating where the Instance note type entry originates from, i.e. 'folio' or 'local'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      additionalProperties: false
+      required:
+      - name
+      - source
+    instance_note_type_collection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of Instance note types
+      type: object
+      properties:
+        instanceNoteTypes:
+          description: List of Instance note types
+          id: instanceNoteType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/instance_note_type'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - instanceNoteTypes
+      - totalRecords
+    contributor_type:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A contributor type
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the contributor type
+          type: string
+        code:
+          description: distinct code for the contributor type
+          type: string
+        source:
+          description: origin of the contributor type record
+          source: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      required:
+      - name
+      - code
+      - source
+    contributor_types:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of contributor types
+      type: object
+      properties:
+        contributorTypes:
+          description: List of contributor types
+          id: contributorType
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/contributor_type'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - contributorTypes
+      - totalRecords

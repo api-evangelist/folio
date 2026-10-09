@@ -1,0 +1,4274 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Linked Data API",
+  "version": "v1",
+  "description": "Linked Data service API"
+ },
+ "paths": {
+  "/linked-data/reindex/full": {
+   "post": {
+    "operationId": "fullReindex",
+    "tags": [
+     "batchJob"
+    ],
+    "description": "Start the process of full reindexing of all resources in the database. All resources will be reindexed regardless of their current index state.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/resourceType"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "ID of Reindex job execution",
+      "content": {
+       "text/plain": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/reindex/incremental": {
+   "post": {
+    "operationId": "incrementalReindex",
+    "tags": [
+     "batchJob"
+    ],
+    "description": "Start the process of incremental reindexing of resources in the database. Only resources that have not been indexed yet (indexDate is null) will be reindexed.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/resourceType"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "ID of Reindex job execution",
+      "content": {
+       "text/plain": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/graphCleaning": {
+   "post": {
+    "operationId": "graphCleaning",
+    "tags": [
+     "batchJob"
+    ],
+    "description": "Start the process of cleaning the graph from orphaned nodes.",
+    "responses": {
+     "200": {
+      "description": "ID of GraphCleaning job execution",
+      "content": {
+       "text/plain": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/batch/status": {
+   "get": {
+    "operationId": "getBatchJobStatus",
+    "tags": [
+     "batchJob"
+    ],
+    "description": "Get the status of a batch job by its execution ID.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/jobExecutionId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Batch job status",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/batchJobStatusDto"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "description": "No batch job found for the given ID"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/resource": {
+   "post": {
+    "operationId": "createResource",
+    "tags": [
+     "resource"
+    ],
+    "description": "Create a Resource",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/resourceRequestDto"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Created resource",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourceResponseDto"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/resource/{id}": {
+   "get": {
+    "operationId": "getResourceById",
+    "tags": [
+     "resource"
+    ],
+    "description": "Get a resource by id",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Resource as json string",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourceResponseDto"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "description": "No Resource is found by id"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "operationId": "updateResource",
+    "tags": [
+     "resource"
+    ],
+    "description": "Update a resource by id",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "example": "example/resourceRequest.sample",
+       "schema": {
+        "$ref": "#/components/schemas/resourceRequestDto"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Updated resource",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourceResponseDto"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "description": "No resource is found by id"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "operationId": "deleteResource",
+    "tags": [
+     "resource"
+    ],
+    "description": "Delete a resource by id",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Resource deleted"
+     },
+     "404": {
+      "description": "No resource is found by id"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/resource/{id}/marc": {
+   "get": {
+    "operationId": "getResourceMarcViewById",
+    "tags": [
+     "resource"
+    ],
+    "description": "Get a marc view of resource by id",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Marc view of resource as json string",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourceMarcViewDto"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "description": "No Resource is found by id"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/resource/{id}/rdf": {
+   "get": {
+    "operationId": "exportInstanceToRdf",
+    "tags": [
+     "resource"
+    ],
+    "description": "Export Instance resource to RDF by id",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Exported RDF resource as json string",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Resource is found by id but it is not an Instance"
+     },
+     "404": {
+      "description": "No Instance is found by id"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/resource/metadata/{inventoryId}/id": {
+   "get": {
+    "operationId": "getResourceIdByResourceInventoryId",
+    "tags": [
+     "resource"
+    ],
+    "description": "Get id of a resource by its inventory id",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/inventoryId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Json object with id of a resource",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourceIdDto"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No resource id is found by its inventory id"
+     }
+    }
+   }
+  },
+  "/linked-data/inventory-instance/{inventoryId}/import-supported": {
+   "get": {
+    "operationId": "checkMarcBibImportableToGraph",
+    "tags": [
+     "resource"
+    ],
+    "description": "Check if marc bibliographic record can be imported into linked data graph.",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/inventoryId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "true if marc bibliographic record can be imported into linked data graph, false otherwise.",
+      "content": {
+       "text/plain": {
+        "schema": {
+         "type": "string",
+         "example": "true|false"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No Record is found by inventory id"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/inventory-instance/{inventoryId}/preview": {
+   "get": {
+    "operationId": "getResourcePreviewByInventoryId",
+    "tags": [
+     "resource"
+    ],
+    "description": "Get the preview of a resource",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/inventoryId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Resource as json string",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourceResponseDto"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No Record is found by inventory id"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/inventory-instance/{inventoryId}/import": {
+   "post": {
+    "operationId": "importMarcRecord",
+    "tags": [
+     "resource"
+    ],
+    "description": "Create a Resource derived from MARC record",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/inventoryId"
+     },
+     {
+      "$ref": "#/components/parameters/profileIdQuery"
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Json object with id of a resource",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourceIdDto"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "description": "No Record is found by inventory id"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/profile/{profileId}": {
+   "get": {
+    "operationId": "getProfileById",
+    "tags": [
+     "profile"
+    ],
+    "description": "Get a profile by profileId",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/profileId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Profile with a given profileId",
+      "content": {
+       "text/plain;charset=utf-8": {
+        "schema": {
+         "type": "string",
+         "example": "example/profile.sample"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No profile is found with a given profileId"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/profile/metadata": {
+   "get": {
+    "operationId": "getProfileMetadataByResourceType",
+    "tags": [
+     "profile"
+    ],
+    "description": "Get profiles metadata for a resource type",
+    "parameters": [
+     {
+      "name": "resourceType",
+      "in": "query",
+      "required": true,
+      "description": "The type of resource for which metadata are requested",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Array of profile metadata for the specified resource type",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/profileMetadataArray"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/profile/preferred": {
+   "get": {
+    "operationId": "getPreferredProfileByResourceType",
+    "tags": [
+     "profile"
+    ],
+    "description": "Get the preferred profile for a resource type for the current user",
+    "parameters": [
+     {
+      "name": "resourceType",
+      "in": "query",
+      "required": false,
+      "description": "The type of resource for which preferred profile is requested. If not specified, profiles for all resource types will be returned",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Preferred profile(s) for the current user and specified resource type",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/profileMetadataArray"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "operationId": "setPreferredProfile",
+    "tags": [
+     "profile"
+    ],
+    "description": "Create or update the preferred profile for a resource type for the current user",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/preferredProfileRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Preferred profile created or updated successfully"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "operationId": "deletePreferredProfile",
+    "tags": [
+     "profile"
+    ],
+    "description": "Delete preferred profile for current user",
+    "parameters": [
+     {
+      "name": "resourceType",
+      "in": "query",
+      "required": true,
+      "description": "The type of resource for which preferred profile has to be deleted.",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Preferred profile deleted successfully"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/profile/{profileId}/settings": {
+   "get": {
+    "operationId": "getAllProfileSettings",
+    "tags": [
+     "profile"
+    ],
+    "description": "Get the workspace profile settings metadata list for a profile for the current user",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/profileId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Workspace profile settings metadata list for the current user",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/customProfileSettingsMetadataArray"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No profile found with a given profileId"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "post": {
+    "operationId": "createProfileSettings",
+    "tags": [
+     "profile"
+    ],
+    "description": "Create the workspace profile settings for a profile for the current user",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/profileId"
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/customProfileSettingsRequestDto"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Workspace profile settings created successfully",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/customProfileSettingsMetadata"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "description": "No profile found with a given profileId"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/profile/{profileId}/settings/{profileSettingsId}": {
+   "get": {
+    "operationId": "getProfileSettings",
+    "tags": [
+     "profile"
+    ],
+    "description": "Get the workspace profile settings for a profile for the current user",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/profileId"
+     },
+     {
+      "$ref": "#/components/parameters/profileSettingsId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Workspace profile settings for the current user",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/customProfileSettingsResponseDto"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No profile found with a given profileId"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "put": {
+    "operationId": "setProfileSettings",
+    "tags": [
+     "profile"
+    ],
+    "description": "Update the workspace profile settings for a profile for the current user",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/profileId"
+     },
+     {
+      "$ref": "#/components/parameters/profileSettingsId"
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/customProfileSettingsRequestDto"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Workspace profile settings created or updated successfully"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "description": "No profile found with a given profileId"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "operationId": "deleteProfileSettings",
+    "tags": [
+     "profile"
+    ],
+    "description": "Delete a saved workspace profile settings for a profile for the current user",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/profileId"
+     },
+     {
+      "$ref": "#/components/parameters/profileSettingsId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Saved workspace profile settings deleted successfully"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/profile/{profileId}/preferred": {
+   "get": {
+    "operationId": "getPreferredProfileSettings",
+    "tags": [
+     "profile"
+    ],
+    "description": "Get the preferred profile settings for the profile",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/profileId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Preferred profile settings for the profile and current user",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/customProfileSettingsMetadataArray"
+        }
+       }
+      }
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "post": {
+    "operationId": "setPreferredProfileSettings",
+    "tags": [
+     "profile"
+    ],
+    "description": "Set the preferred profile settings for the profile",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/profileId"
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/preferredProfileSettingsRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Preferred profile settings created or updated successfully"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "delete": {
+    "operationId": "deletePreferredProfileSettings",
+    "tags": [
+     "profile"
+    ],
+    "description": "Delete the preferred profile settings for the profile",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/profileId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Preferred profile settings deleted successfully"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/resource/{id}/graph": {
+   "get": {
+    "operationId": "getResourceGraphById",
+    "tags": [
+     "graph"
+    ],
+    "description": "Get a resource graph by id",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/id"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Resource graph as json string",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourcePlaceholder"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "description": "No Resource graph is found by id"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/authority-assignment-check": {
+   "post": {
+    "operationId": "authority-assignment-check",
+    "tags": [
+     "authority"
+    ],
+    "description": "Checks if authority can be assigned to work",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/assignmentCheckDto"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Returns the result of the assignment check, including whether the assignment is valid and, if not, the reason for invalidity",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/assignmentCheckResponseDto"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/import/file": {
+   "post": {
+    "operationId": "import-file",
+    "tags": [
+     "import"
+    ],
+    "description": "Imports an uploaded JSON file containing at least one resource",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "type": "object",
+        "properties": {
+         "fileName": {
+          "type": "string",
+          "format": "binary"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Returns a list of resource IDs and an import activity log",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/importResponseDto"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/import/url": {
+   "post": {
+    "operationId": "import-url",
+    "tags": [
+     "import"
+    ],
+    "description": "Imports from a URL containing at least one resource",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/importUrl"
+     },
+     {
+      "$ref": "#/components/parameters/defaultWorkType"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Returns a list of resource IDs and an import activity log",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/importResponseDto"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/hub": {
+   "get": {
+    "operationId": "getHubPreviewByUri",
+    "tags": [
+     "hub"
+    ],
+    "description": "Get the preview of a remote Hub resource",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/hubUri"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Resource as json string",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourceResponseDto"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No Hub resource is found by Hub URI"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   },
+   "post": {
+    "operationId": "saveHubByUri",
+    "tags": [
+     "hub"
+    ],
+    "description": "Save a remote Hub resource",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/hubUri"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Saved resource as json string",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/resourceResponseDto"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No Hub resource is found by Hub URI"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/vocabularies/{vocabularyName}": {
+   "get": {
+    "operationId": "getVocabularyByName",
+    "tags": [
+     "vocabulary"
+    ],
+    "description": "Get vocabulary JSON by vocabulary name",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/vocabularyName"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Vocabulary as json string",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No vocabulary is found by vocabulary name"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/linked-data/admin/caches": {
+   "delete": {
+    "operationId": "clearCaches",
+    "tags": [
+     "admin"
+    ],
+    "description": "Clear all application caches",
+    "responses": {
+     "204": {
+      "description": "Application caches cleared"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "parameters": {
+   "id": {
+    "name": "id",
+    "in": "path",
+    "required": true,
+    "description": "Linked Data resource id",
+    "schema": {
+     "type": "integer",
+     "format": "int64"
+    }
+   },
+   "inventoryId": {
+    "name": "inventoryId",
+    "in": "path",
+    "required": true,
+    "description": "Inventory ID (999 $i) of the MARC record in SRS",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "resourceType": {
+    "name": "resourceType",
+    "in": "query",
+    "required": false,
+    "description": "The specified resource type to be re-indexed. Available options: HUB, WORK",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "profileId": {
+    "name": "profileId",
+    "in": "path",
+    "required": true,
+    "description": "ID of the profile",
+    "schema": {
+     "type": "integer",
+     "format": "int16"
+    }
+   },
+   "profileSettingsId": {
+    "name": "profileSettingsId",
+    "in": "path",
+    "required": true,
+    "description": "ID of the profile settings",
+    "schema": {
+     "type": "integer",
+     "format": "int16"
+    }
+   },
+   "profileIdQuery": {
+    "name": "profileId",
+    "in": "query",
+    "required": false,
+    "description": "ID of the profile",
+    "schema": {
+     "type": "integer",
+     "format": "int16"
+    }
+   },
+   "hubUri": {
+    "name": "hubUri",
+    "in": "query",
+    "required": true,
+    "description": "URI of a remote Hub resource",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "importUrl": {
+    "name": "url",
+    "in": "query",
+    "required": true,
+    "description": "URL of a remote Instance resource",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "defaultWorkType": {
+    "name": "defaultWorkType",
+    "in": "query",
+    "required": true,
+    "description": "URI for the default Work type to use when no further Work typing is available",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "jobExecutionId": {
+    "name": "jobExecutionId",
+    "in": "query",
+    "required": true,
+    "description": "The ID of the job execution",
+    "schema": {
+     "type": "integer",
+     "format": "int64"
+    }
+   },
+   "vocabularyName": {
+    "name": "vocabularyName",
+    "in": "path",
+    "required": true,
+    "description": "Vocabulary name",
+    "schema": {
+     "type": "string"
+    }
+   }
+  },
+  "schemas": {
+   "errorResponse": {
+    "$ref": "#/components/schemas/errors"
+   },
+   "parameter": {
+    "description": "List of key/value parameters of an error",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+     "key": {
+      "description": "Parameter key",
+      "type": "string"
+     },
+     "value": {
+      "description": "Parameter value",
+      "type": "string"
+     }
+    }
+   },
+   "parameters": {
+    "description": "List of key/value parameters of an error",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "items": {
+     "type": "object",
+     "$ref": "#/components/schemas/parameter"
+    }
+   },
+   "error": {
+    "description": "An error",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "type": "object",
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/parameters"
+     }
+    }
+   },
+   "errors": {
+    "description": "A set of errors",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "id": "errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    }
+   },
+   "batchJobStatusDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Batch job status DTO",
+    "type": "object",
+    "properties": {
+     "jobName": {
+      "type": "string",
+      "description": "Spring Batch Job name - ReindexJob or GraphCleaningJob"
+     },
+     "startDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time when the batch job was started"
+     },
+     "endDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time when the batch job finished"
+     },
+     "startedBy": {
+      "type": "string",
+      "description": "ID of the user who started the batch job"
+     },
+     "reindexType": {
+      "type": "string",
+      "enum": [
+       "FULL",
+       "INCREMENTAL"
+      ],
+      "description": "Type of reindex: full or incremental"
+     },
+     "executionRound": {
+      "type": "integer",
+      "format": "int32",
+      "description": "Job execution round"
+     },
+     "linesRead": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Total number of resources read during job execution"
+     },
+     "linesSent": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Total number of resources written during job execution"
+     },
+     "status": {
+      "type": "string",
+      "description": "Current status of the batch job (e.g. STARTED, COMPLETED, FAILED)"
+     }
+    }
+   },
+   "ProfileIdField": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Schema for the profile ID field used in request and response",
+    "type": "object",
+    "properties": {
+     "profileId": {
+      "type": "integer",
+      "format": "int16",
+      "description": "ID of the profile"
+     }
+    },
+    "required": [
+     "profileId"
+    ]
+   },
+   "BaseTitle": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Base Title Fields",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "partName": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/partName"
+       },
+       "partNumber": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/partNumber"
+       },
+       "mainTitle": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/mainTitle"
+       },
+       "subTitle": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/subTitle"
+       }
+      }
+     }
+    ]
+   },
+   "PrimaryTitle": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Primary Title Info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/BaseTitle"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "nonSortNum": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/bflc/nonSortNum"
+       }
+      }
+     }
+    ]
+   },
+   "VariantTitle": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Variant Title Info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/BaseTitle"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "note": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/note"
+       },
+       "date": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/date"
+       },
+       "variantType": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/variantType"
+       }
+      }
+     }
+    ]
+   },
+   "ParallelTitle": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Parallel Title Info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/BaseTitle"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "note": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/note"
+       },
+       "date": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/date"
+       }
+      }
+     }
+    ]
+   },
+   "TitleFieldRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Title of the Work or Instance resource",
+    "properties": {
+     "title": {
+      "type": "array",
+      "description": "The title of the work or instance",
+      "items": {
+       "type": "object",
+       "oneOf": [
+        {
+         "type": "object",
+         "title": "PrimaryTitleField",
+         "properties": {
+          "PrimaryTitle": {
+           "type": "object",
+           "$ref": "#/components/schemas/PrimaryTitle",
+           "x-json-property": "http://bibfra.me/vocab/library/Title",
+           "description": "The primary title of the work or instance"
+          }
+         }
+        },
+        {
+         "type": "object",
+         "title": "VariantTitleField",
+         "properties": {
+          "VariantTitle": {
+           "type": "object",
+           "$ref": "#/components/schemas/VariantTitle",
+           "x-json-property": "http://bibfra.me/vocab/library/VariantTitle",
+           "description": "The variant title of the work or instance"
+          }
+         }
+        },
+        {
+         "type": "object",
+         "title": "ParallelTitleField",
+         "properties": {
+          "ParallelTitle": {
+           "type": "object",
+           "$ref": "#/components/schemas/ParallelTitle",
+           "x-json-property": "http://bibfra.me/vocab/library/ParallelTitle",
+           "description": "The parallel title of the work or instance"
+          }
+         }
+        }
+       ]
+      },
+      "x-json-property": "http://bibfra.me/vocab/library/title",
+      "x-field-extra-annotation": "@org.folio.linked.data.validation.PrimaryTitleConstraint"
+     }
+    }
+   },
+   "ProviderEventBase": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Provider Event",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "date": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/date"
+       },
+       "name": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/name"
+       },
+       "providerDate": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/providerDate"
+       },
+       "simplePlace": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/place"
+       }
+      }
+     }
+    ]
+   },
+   "Place": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Place",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "name": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/name"
+       },
+       "code": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/code"
+       },
+       "label": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/label"
+       },
+       "link": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/link"
+       }
+      }
+     }
+    ]
+   },
+   "ProviderEventRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Provider Event",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/ProviderEventBase"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "providerPlace": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Place"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/providerPlace"
+       }
+      }
+     }
+    ]
+   },
+   "Status": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Status Info",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "link": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/link"
+       },
+       "value": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/label"
+       }
+      }
+     }
+    ]
+   },
+   "IdentifierRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Identifier request DTO",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "value": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/name"
+       },
+       "status": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Status"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/status"
+       },
+       "qualifier": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/qualifier"
+       }
+      }
+     }
+    ]
+   },
+   "MapRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Identifier field discriminated union",
+    "title": "IdentifierField",
+    "oneOf": [
+     {
+      "type": "object",
+      "title": "LccnField",
+      "properties": {
+       "Lccn": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierRequest",
+        "x-json-property": "http://library.link/identifier/LCCN",
+        "x-field-extra-annotation": "@org.folio.linked.data.validation.LccnPatternConstraint"
+       }
+      }
+     },
+     {
+      "type": "object",
+      "title": "IssnField",
+      "properties": {
+       "Issn": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierRequest",
+        "x-json-property": "http://library.link/identifier/ISSN"
+       }
+      }
+     },
+     {
+      "type": "object",
+      "title": "IsbnField",
+      "properties": {
+       "Isbn": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierRequest",
+        "x-json-property": "http://library.link/identifier/ISBN"
+       }
+      }
+     },
+     {
+      "type": "object",
+      "title": "IanField",
+      "properties": {
+       "Ian": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierRequest",
+        "x-json-property": "http://library.link/identifier/IAN"
+       }
+      }
+     },
+     {
+      "type": "object",
+      "title": "OtherIdField",
+      "properties": {
+       "Identifier": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierRequest",
+        "x-json-property": "http://library.link/identifier/UNKNOWN"
+       }
+      }
+     }
+    ]
+   },
+   "SupplementaryContent": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "SupplementaryContent",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "link": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/link"
+       },
+       "name": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/name"
+       }
+      }
+     }
+    ]
+   },
+   "AccessLocation": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "AccessLocation",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "link": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/link"
+       },
+       "note": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/note"
+       }
+      }
+     }
+    ]
+   },
+   "Category": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Category object",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "code": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/code"
+       },
+       "term": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/term"
+       },
+       "link": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/link"
+       },
+       "source": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/source"
+       }
+      }
+     }
+    ]
+   },
+   "CopyrightEvent": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Copyright event object",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "date": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/date"
+       }
+      }
+     }
+    ]
+   },
+   "Extent": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Extent",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "label": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/label"
+       },
+       "materialsSpec": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/materialsSpecified"
+       },
+       "note": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/note"
+       }
+      }
+     }
+    ]
+   },
+   "PublicationFrequency": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Publication frequency DTO",
+    "type": "object",
+    "properties": {
+     "label": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Publication frequency label",
+      "x-json-property": "http://bibfra.me/vocab/lite/label"
+     },
+     "link": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "Publication frequency link",
+      "x-json-property": "http://bibfra.me/vocab/lite/link"
+     }
+    }
+   },
+   "IdField": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Schema representing the ID of a resource in the graph",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Hash / ID of the resource"
+     }
+    }
+   },
+   "Language": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Language object",
+    "type": "object",
+    "x-from-string-field": "term",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "properties": {
+       "code": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/code"
+       },
+       "term": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/term"
+       },
+       "link": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/link"
+       }
+      }
+     }
+    ]
+   },
+   "AdminMetadata": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Administrative metadata for an Instance",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "transcribingAgency": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/transcribingAgency"
+       },
+       "catalogingAgency": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/catalogingAgency"
+       },
+       "modifyingAgency": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/modifyingAgency"
+       },
+       "createdDate": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/createdDate"
+       },
+       "controlNumber": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/controlNumber"
+       },
+       "catalogingLanguage": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Language"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/catalogingLanguage"
+       }
+      }
+     }
+    ]
+   },
+   "Note": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Note DTO",
+    "type": "object",
+    "properties": {
+     "value": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "The note text"
+     },
+     "type": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "description": "The note type"
+     }
+    }
+   },
+   "InstanceRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Instance request DTO",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/ProfileIdField"
+     },
+     {
+      "$ref": "#/components/schemas/TitleFieldRequest"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "production": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ProviderEventRequest"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/production"
+       },
+       "publication": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ProviderEventRequest"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/publication"
+       },
+       "distribution": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ProviderEventRequest"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/distribution"
+       },
+       "manufacture": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ProviderEventRequest"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/manufacture"
+       },
+       "map": {
+        "type": "array",
+        "items": {
+         "$ref": "#/components/schemas/MapRequest"
+        },
+        "x-json-property": "http://library.link/vocab/map"
+       },
+       "supplementaryContent": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/SupplementaryContent"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/supplementaryContent"
+       },
+       "accessLocation": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/AccessLocation"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/accessLocation"
+       },
+       "media": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Category"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/media"
+       },
+       "carrier": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Category"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/carrier"
+       },
+       "edition": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/edition"
+       },
+       "copyright": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CopyrightEvent"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/copyright"
+       },
+       "extent": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Extent"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/extent"
+       },
+       "dimensions": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/dimensions"
+       },
+       "projectProvisionDate": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/bflc/projectedProvisionDate",
+        "description": "Projected publication date (YYMM)"
+       },
+       "issuance": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/issuance"
+       },
+       "statementOfResponsibility": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/statementOfResponsibility"
+       },
+       "bookFormat": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Category"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/bookFormat"
+       },
+       "publicationFrequency": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/PublicationFrequency"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/publicationFrequency"
+       },
+       "adminMetadata": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/AdminMetadata"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/adminMetadata"
+       },
+       "_notes": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Note"
+        },
+        "x-json-property": "_notes"
+       },
+       "_workReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/IdField"
+        },
+        "x-field-extra-annotation": "@org.folio.linked.data.validation.InstanceSingleWorkConstraint"
+       }
+      }
+     }
+    ]
+   },
+   "LanguageWithType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Language object with corresponding types",
+    "type": "object",
+    "properties": {
+     "types": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "x-json-property": "_types",
+      "description": "The list of language types"
+     },
+     "codes": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/Language"
+      },
+      "x-json-property": "_codes",
+      "description": "List of language objects corresponding to the specified types."
+     }
+    }
+   },
+   "Reference": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Schema representing reference to a resource in the FOLIO graph or an external source from where the resource can be imported into FOLIO graph",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "label": {
+        "type": "string"
+       },
+       "srsId": {
+        "type": "string",
+        "description": "ID of the MARC record in FOLIO's SRS system"
+       },
+       "rdfLink": {
+        "type": "string",
+        "description": "Hyperlink to an RDF resource in Bibframe 2 ontology (https://id.loc.gov/ontologies/bibframe.html)"
+       }
+      }
+     }
+    ]
+   },
+   "ClassificationBase": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Classification base object",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "code": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/code"
+       },
+       "source": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/source"
+       },
+       "itemNumber": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/itemNumber"
+       },
+       "editionNumber": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/editionNumber"
+       },
+       "edition": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/edition"
+       }
+      }
+     }
+    ]
+   },
+   "Classification": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Classification object",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/ClassificationBase"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "status": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Status"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/status"
+       },
+       "_assigningSourceReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Reference"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "Agent": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Schema representing an agent, including their type and roles.",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/Reference"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "type": {
+        "type": "string"
+       },
+       "roles": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "DissertationBase": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Dissertation base object",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "note": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/note"
+       },
+       "degree": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/degree"
+       },
+       "date": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/date"
+       },
+       "miscInfo": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/miscInfo"
+       },
+       "dissertationID": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/dissertationID"
+       }
+      }
+     }
+    ]
+   },
+   "Dissertation": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Dissertation object",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/DissertationBase"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "_grantingInstitutionReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Reference"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "PartOfSeries": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Schema for a 'part of series' object which indicates if a work is part of a series.",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "name": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/name"
+       },
+       "issn": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/issn"
+       },
+       "volume": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/volume"
+       }
+      }
+     }
+    ]
+   },
+   "HubReferenceWithType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Hub reference with relation type",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "_relation": {
+        "type": "string"
+       },
+       "_hub": {
+        "$ref": "#/components/schemas/Reference"
+       }
+      }
+     }
+    ]
+   },
+   "WorkRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Work request DTO",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/ProfileIdField"
+     },
+     {
+      "$ref": "#/components/schemas/TitleFieldRequest"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "targetAudience": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Category"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/targetAudience"
+       },
+       "tableOfContents": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/tableOfContents"
+       },
+       "summary": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/summary"
+       },
+       "_languages": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/LanguageWithType"
+        },
+        "x-json-property": "_languages"
+       },
+       "_notes": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Note"
+        },
+        "x-json-property": "_notes"
+       },
+       "subjects": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Reference"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/subject"
+       },
+       "classification": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Classification"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/classification"
+       },
+       "_creatorReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Agent"
+        }
+       },
+       "_contributorReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Agent"
+        }
+       },
+       "content": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Category"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/content"
+       },
+       "_geographicCoverageReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Reference"
+        }
+       },
+       "_genreReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Reference"
+        }
+       },
+       "dateStart": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/dateStart"
+       },
+       "dateEnd": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/dateEnd"
+       },
+       "governmentPublication": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Category"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/governmentPublication"
+       },
+       "originPlace": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Place"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/originPlace"
+       },
+       "dissertation": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Dissertation"
+        },
+        "x-json-property": "http://bibfra.me/vocab/scholar/dissertation"
+       },
+       "illustrations": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Category"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/illustrations"
+       },
+       "supplementaryContent": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Category"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/supplementaryContent"
+       },
+       "partOfSeries": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/PartOfSeries"
+        },
+        "x-json-property": "http://bibfra.me/vocab/relation/isPartOf",
+        "x-field-extra-annotation": "@org.folio.linked.data.validation.PartOfSeriesTitleConstraint"
+       },
+       "characteristic": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Category"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/characteristic"
+       },
+       "_hubs": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/HubReferenceWithType"
+        }
+       },
+       "_instanceReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/IdField"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "HubRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Hub request DTO",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/ProfileIdField"
+     },
+     {
+      "$ref": "#/components/schemas/TitleFieldRequest"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "languages": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Language"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/language"
+       },
+       "_creatorReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Agent"
+        }
+       },
+       "_contributorReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Agent"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "Authority": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Authority object",
+    "allOf": [
+     {
+      "type": "object",
+      "properties": {
+       "name": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/name",
+        "x-field-extra-annotation": "@org.folio.linked.data.validation.AuthorityNameConstraint"
+       },
+       "numeration": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/numeration"
+       },
+       "titles": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/titles"
+       },
+       "date": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/date"
+       },
+       "miscInfo": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/miscInfo"
+       },
+       "attribution": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/attribution"
+       },
+       "nameAlternative": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/nameAlternative"
+       },
+       "affiliation": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/scholar/affiliation"
+       },
+       "numberOfParts": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/numberOfParts"
+       },
+       "subordinateUnit": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/subordinateUnit"
+       },
+       "place": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/place"
+       },
+       "geographicCoverage": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/geographicCoverage"
+       }
+      }
+     }
+    ]
+   },
+   "AuthorityRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Authority request DTO",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/ProfileIdField"
+     },
+     {
+      "$ref": "#/components/schemas/Authority"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "map": {
+        "type": "array",
+        "items": {
+         "$ref": "#/components/schemas/MapRequest"
+        },
+        "x-json-property": "http://library.link/vocab/map"
+       }
+      }
+     }
+    ]
+   },
+   "resourceRequestDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Resource request DTO",
+    "x-class-extra-annotation": "@org.folio.linked.data.validation.LccnUniqueConstraint",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "integer",
+      "format": "int64",
+      "description": "ID of the resource"
+     },
+     "resource": {
+      "type": "object",
+      "title": "resourceRequestField",
+      "description": "Resource request. Contains either an Instance or a Work request.",
+      "oneOf": [
+       {
+        "title": "InstanceField",
+        "properties": {
+         "Instance": {
+          "type": "object",
+          "$ref": "#/components/schemas/InstanceRequest",
+          "x-json-property": "http://bibfra.me/vocab/lite/Instance",
+          "description": "Instance request DTO"
+         }
+        }
+       },
+       {
+        "title": "WorkField",
+        "properties": {
+         "Work": {
+          "type": "object",
+          "$ref": "#/components/schemas/WorkRequest",
+          "x-json-property": "http://bibfra.me/vocab/lite/Work",
+          "description": "Work request DTO"
+         }
+        }
+       },
+       {
+        "title": "HubField",
+        "properties": {
+         "Hub": {
+          "type": "object",
+          "$ref": "#/components/schemas/HubRequest",
+          "x-json-property": "http://bibfra.me/vocab/lite/Hub",
+          "description": "Hub request DTO"
+         }
+        }
+       },
+       {
+        "title": "AuthorityField",
+        "properties": {
+         "Authority": {
+          "type": "object",
+          "$ref": "#/components/schemas/AuthorityRequest",
+          "x-json-property": "_authority",
+          "description": "Authority request DTO"
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   "BaseTitleResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Base Title Fields",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/BaseTitle"
+     }
+    ]
+   },
+   "PrimaryTitleResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Primary Title Info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/BaseTitleResponse"
+     },
+     {
+      "$ref": "#/components/schemas/PrimaryTitle"
+     }
+    ]
+   },
+   "VariantTitleResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Variant Title Info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/BaseTitleResponse"
+     },
+     {
+      "$ref": "#/components/schemas/VariantTitle"
+     }
+    ]
+   },
+   "ParallelTitleResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Parallel Title Info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/BaseTitleResponse"
+     },
+     {
+      "$ref": "#/components/schemas/ParallelTitle"
+     }
+    ]
+   },
+   "TitleFieldResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Title of the Work or Instance resource",
+    "properties": {
+     "title": {
+      "type": "array",
+      "description": "The title of the work or instance",
+      "items": {
+       "type": "object",
+       "oneOf": [
+        {
+         "type": "object",
+         "title": "PrimaryTitleFieldResponse",
+         "properties": {
+          "PrimaryTitle": {
+           "type": "object",
+           "$ref": "#/components/schemas/PrimaryTitleResponse",
+           "x-json-property": "http://bibfra.me/vocab/library/Title",
+           "description": "The primary title of the work or instance"
+          }
+         }
+        },
+        {
+         "type": "object",
+         "title": "VariantTitleFieldResponse",
+         "properties": {
+          "VariantTitle": {
+           "type": "object",
+           "$ref": "#/components/schemas/VariantTitleResponse",
+           "x-json-property": "http://bibfra.me/vocab/library/VariantTitle",
+           "description": "The variant title of the work or instance"
+          }
+         }
+        },
+        {
+         "type": "object",
+         "title": "ParallelTitleFieldResponse",
+         "properties": {
+          "ParallelTitle": {
+           "type": "object",
+           "$ref": "#/components/schemas/ParallelTitleResponse",
+           "x-json-property": "http://bibfra.me/vocab/library/ParallelTitle",
+           "description": "The parallel title of the work or instance"
+          }
+         }
+        }
+       ]
+      },
+      "x-json-property": "http://bibfra.me/vocab/library/title"
+     }
+    }
+   },
+   "PlaceResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Place",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/Place"
+     }
+    ]
+   },
+   "ProviderEventResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Provider Event",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/ProviderEventBase"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "providerPlace": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/PlaceResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/providerPlace"
+       }
+      }
+     }
+    ]
+   },
+   "StatusResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Status Info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/Status"
+     }
+    ]
+   },
+   "IdentifierResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Identifier response DTO",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "value": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/name"
+       },
+       "status": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/StatusResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/status"
+       },
+       "qualifier": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/qualifier"
+       }
+      }
+     }
+    ]
+   },
+   "MapResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Identifier field response discriminated union",
+    "title": "MapResponse",
+    "oneOf": [
+     {
+      "type": "object",
+      "title": "LccnFieldResponse",
+      "properties": {
+       "Lccn": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierResponse",
+        "x-json-property": "http://library.link/identifier/LCCN"
+       }
+      }
+     },
+     {
+      "type": "object",
+      "title": "IssnFieldResponse",
+      "properties": {
+       "Issn": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierResponse",
+        "x-json-property": "http://library.link/identifier/ISSN"
+       }
+      }
+     },
+     {
+      "type": "object",
+      "title": "IsbnFieldResponse",
+      "properties": {
+       "Isbn": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierResponse",
+        "x-json-property": "http://library.link/identifier/ISBN"
+       }
+      }
+     },
+     {
+      "type": "object",
+      "title": "IanFieldResponse",
+      "properties": {
+       "Ian": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierResponse",
+        "x-json-property": "http://library.link/identifier/IAN"
+       }
+      }
+     },
+     {
+      "type": "object",
+      "title": "OtherIdFieldResponse",
+      "properties": {
+       "Identifier": {
+        "type": "object",
+        "$ref": "#/components/schemas/IdentifierResponse",
+        "x-json-property": "http://library.link/identifier/UNKNOWN"
+       }
+      }
+     }
+    ]
+   },
+   "SupplementaryContentResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "SupplementaryContent",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/SupplementaryContent"
+     }
+    ]
+   },
+   "AccessLocationResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "AccessLocation",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/AccessLocation"
+     }
+    ]
+   },
+   "CategoryResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Category object",
+    "x-from-string-field": "term",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/Category"
+     }
+    ]
+   },
+   "CopyrightEventResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Copyright event object",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/CopyrightEvent"
+     }
+    ]
+   },
+   "ExtentResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Extent",
+    "x-from-string-field": "label",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/Extent"
+     }
+    ]
+   },
+   "PublicationFrequencyResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Publication frequency DTO",
+    "x-from-string-field": "label",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/PublicationFrequency"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "code": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "description": "Publication frequency code",
+        "x-json-property": "http://bibfra.me/vocab/library/code"
+       }
+      }
+     }
+    ]
+   },
+   "ReferenceResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Response schema for a reference, extending the Reference definition with additional properties such as reference types and isPreferred flag.",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/Reference"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "types": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       },
+       "isPreferred": {
+        "type": "boolean",
+        "description": "Indicates whether resource is controlled or not"
+       }
+      }
+     }
+    ]
+   },
+   "ClassificationResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Dewey decimal classification object",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/ClassificationBase"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "status": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/StatusResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/status"
+       },
+       "_assigningSourceReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ReferenceResponse"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "AgentResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Response schema for an agent, extending the Agent definition with additional properties such as agent types and isPreferred flag.",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/Agent"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "types": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       },
+       "isPreferred": {
+        "type": "boolean",
+        "description": "Indicates whether resource is controlled or not"
+       }
+      }
+     }
+    ]
+   },
+   "InstanceResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Instance resource info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/ProfileIdField"
+     },
+     {
+      "$ref": "#/components/schemas/TitleFieldResponse"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "production": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ProviderEventResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/production"
+       },
+       "publication": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ProviderEventResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/publication"
+       },
+       "distribution": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ProviderEventResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/distribution"
+       },
+       "manufacture": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ProviderEventResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/manufacture"
+       },
+       "map": {
+        "type": "array",
+        "items": {
+         "$ref": "#/components/schemas/MapResponse"
+        },
+        "x-json-property": "http://library.link/vocab/map"
+       },
+       "supplementaryContent": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/SupplementaryContentResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/supplementaryContent"
+       },
+       "accessLocation": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/AccessLocationResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/accessLocation"
+       },
+       "media": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/media"
+       },
+       "carrier": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/carrier"
+       },
+       "edition": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/edition"
+       },
+       "copyright": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CopyrightEventResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/copyright"
+       },
+       "extent": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ExtentResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/extent"
+       },
+       "dimensions": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/dimensions"
+       },
+       "projectProvisionDate": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/bflc/projectedProvisionDate",
+        "description": "Projected publication date (YYMM)"
+       },
+       "issuance": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/issuance"
+       },
+       "statementOfResponsibility": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/statementOfResponsibility"
+       },
+       "bookFormat": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/bookFormat"
+       },
+       "publicationFrequency": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/PublicationFrequencyResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/publicationFrequency"
+       },
+       "adminMetadata": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/AdminMetadata"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/adminMetadata"
+       },
+       "_notes": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Note"
+        },
+        "x-json-property": "_notes"
+       },
+       "_workReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/WorkResponse"
+        }
+       },
+       "folioMetadata": {
+        "$ref": "#/components/schemas/FolioMetadata"
+       }
+      }
+     }
+    ],
+    "x-implements": "org.folio.linked.data.model.dto.HasTitle"
+   },
+   "DissertationResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Dissertation object",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/DissertationBase"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "_grantingInstitutionReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ReferenceResponse"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "LightWork": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Light Work",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "label": {
+        "type": "string"
+       },
+       "_relation": {
+        "type": "string"
+       }
+      }
+     }
+    ]
+   },
+   "WorkResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Work Info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/ProfileIdField"
+     },
+     {
+      "$ref": "#/components/schemas/TitleFieldResponse"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "targetAudience": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/targetAudience"
+       },
+       "tableOfContents": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/tableOfContents"
+       },
+       "summary": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/summary"
+       },
+       "_languages": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/LanguageWithType"
+        },
+        "x-json-property": "_languages"
+       },
+       "_notes": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Note"
+        },
+        "x-json-property": "_notes"
+       },
+       "subjects": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ReferenceResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/subject"
+       },
+       "classification": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ClassificationResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/classification"
+       },
+       "_creatorReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/AgentResponse"
+        }
+       },
+       "_contributorReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/AgentResponse"
+        }
+       },
+       "content": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/content"
+       },
+       "_instanceReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/InstanceResponse"
+        }
+       },
+       "_geographicCoverageReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ReferenceResponse"
+        }
+       },
+       "_genreReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/ReferenceResponse"
+        }
+       },
+       "dateStart": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/dateStart"
+       },
+       "dateEnd": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/dateEnd"
+       },
+       "governmentPublication": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/governmentPublication"
+       },
+       "originPlace": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/PlaceResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/originPlace"
+       },
+       "dissertation": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/DissertationResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/scholar/dissertation"
+       },
+       "illustrations": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/illustrations"
+       },
+       "supplementaryContent": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/supplementaryContent"
+       },
+       "partOfSeries": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/PartOfSeries"
+        },
+        "x-json-property": "http://bibfra.me/vocab/relation/isPartOf"
+       },
+       "characteristic": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "x-json-property": "http://bibfra.me/vocab/library/characteristic"
+       },
+       "_hubs": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/HubReferenceWithType"
+        }
+       },
+       "_analyticalEntry": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/LightWork"
+        }
+       }
+      }
+     }
+    ],
+    "x-implements": [
+     "org.folio.linked.data.model.dto.HasTitle",
+     "org.folio.linked.data.model.dto.HasCreator"
+    ]
+   },
+   "FolioMetadata": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Metadata of the instance resource",
+    "properties": {
+     "source": {
+      "type": "string",
+      "enum": [
+       "MARC",
+       "LINKED_DATA"
+      ],
+      "description": "The source of the instance"
+     },
+     "inventoryId": {
+      "type": "string",
+      "description": "ID of the instance in the Inventory application"
+     },
+     "srsId": {
+      "type": "string",
+      "description": "ID of the MARC bib record in the SRS application"
+     }
+    }
+   },
+   "HubResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Work Info",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/ProfileIdField"
+     },
+     {
+      "$ref": "#/components/schemas/TitleFieldResponse"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "languages": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/Language"
+        },
+        "x-json-property": "http://bibfra.me/vocab/lite/language"
+       },
+       "_creatorReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/AgentResponse"
+        }
+       },
+       "_contributorReference": {
+        "type": "array",
+        "items": {
+         "type": "object",
+         "$ref": "#/components/schemas/AgentResponse"
+        }
+       }
+      }
+     }
+    ],
+    "x-implements": [
+     "org.folio.linked.data.model.dto.HasTitle",
+     "org.folio.linked.data.model.dto.HasCreator"
+    ]
+   },
+   "AuthorityResponse": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Authority response DTO",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     },
+     {
+      "$ref": "#/components/schemas/ProfileIdField"
+     },
+     {
+      "$ref": "#/components/schemas/Authority"
+     },
+     {
+      "type": "object",
+      "properties": {
+       "map": {
+        "type": "array",
+        "items": {
+         "$ref": "#/components/schemas/MapResponse"
+        },
+        "x-json-property": "http://library.link/vocab/map"
+       }
+      }
+     }
+    ]
+   },
+   "resourceResponseDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Resource response DTO",
+    "type": "object",
+    "properties": {
+     "resource": {
+      "type": "object",
+      "title": "resourceResponseField",
+      "description": "Resource response. Contains either an Instance or a Work",
+      "oneOf": [
+       {
+        "title": "InstanceResponseField",
+        "properties": {
+         "Instance": {
+          "type": "object",
+          "$ref": "#/components/schemas/InstanceResponse",
+          "x-json-property": "http://bibfra.me/vocab/lite/Instance",
+          "description": "Instance response DTO."
+         }
+        }
+       },
+       {
+        "title": "WorkResponseField",
+        "properties": {
+         "Work": {
+          "type": "object",
+          "$ref": "#/components/schemas/WorkResponse",
+          "x-json-property": "http://bibfra.me/vocab/lite/Work",
+          "description": "Work response DTO."
+         }
+        }
+       },
+       {
+        "title": "HubResponseField",
+        "properties": {
+         "Hub": {
+          "type": "object",
+          "$ref": "#/components/schemas/HubResponse",
+          "x-json-property": "http://bibfra.me/vocab/lite/Hub",
+          "description": "Hub response DTO."
+         }
+        }
+       },
+       {
+        "title": "AuthorityResponseField",
+        "properties": {
+         "Authority": {
+          "type": "object",
+          "$ref": "#/components/schemas/AuthorityResponse",
+          "x-json-property": "_authority",
+          "description": "Authority response DTO"
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   "marcRecord": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "MARC view container",
+    "type": "object",
+    "properties": {
+     "content": {
+      "type": "string",
+      "description": "MARC view of resource in json"
+     }
+    }
+   },
+   "resourceMarcViewDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Resource marc view DTO",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "ID of the resource"
+     },
+     "recordType": {
+      "type": "string",
+      "description": "view format of the resource"
+     },
+     "parsedRecord": {
+      "type": "object",
+      "$ref": "#/components/schemas/marcRecord",
+      "description": "MARC record"
+     }
+    }
+   },
+   "resourceIdDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Resource id DTO",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/IdField"
+     }
+    ]
+   },
+   "profileMetadata": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Profile metadata",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "integer",
+      "format": "int16",
+      "description": "ID of the profile"
+     },
+     "name": {
+      "type": "string",
+      "description": "Name of the profile"
+     },
+     "resourceType": {
+      "type": "string",
+      "description": "Type of the resource to which the profile applies"
+     }
+    },
+    "required": [
+     "id",
+     "name",
+     "resourceType"
+    ]
+   },
+   "profileMetadataArray": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Array of profile metadata",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/profileMetadata"
+    }
+   },
+   "preferredProfileRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Preferred profile request schema",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "integer",
+      "format": "int16",
+      "description": "ID of the profile"
+     },
+     "resourceType": {
+      "type": "string",
+      "description": "Type of the resource to which the profile applies"
+     }
+    },
+    "required": [
+     "id",
+     "resourceType"
+    ]
+   },
+   "customProfileSettingsLabel": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Custom profile settings label",
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "Name of the workspace custom profile settings",
+      "x-field-extra-annotation": "@jakarta.validation.constraints.NotBlank"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "customProfileSettingsMetadata": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Custom profile settings metadata",
+    "type": "object",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/customProfileSettingsLabel"
+     },
+     {
+      "properties": {
+       "id": {
+        "type": "integer",
+        "format": "int16",
+        "description": "ID of the custom profile settings"
+       },
+       "profileId": {
+        "type": "integer",
+        "format": "int16",
+        "description": "ID of the profile"
+       }
+      },
+      "required": [
+       "id",
+       "profileId"
+      ]
+     }
+    ]
+   },
+   "customProfileSettingsMetadataArray": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Array of custom profile settings metadata",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/customProfileSettingsMetadata"
+    }
+   },
+   "customProfileSettingsChild": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Workspace custom profile settings",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "The child profile component's ID, from its id attribute"
+     },
+     "visible": {
+      "type": "boolean",
+      "description": "True if this profile component should be visible to the user"
+     },
+     "order": {
+      "type": "integer",
+      "description": "The rank order of the component, starting from 1 at the top"
+     }
+    },
+    "required": [
+     "id",
+     "visible",
+     "order"
+    ]
+   },
+   "customProfileSettingsValues": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Workspace custom profile settings",
+    "type": "object",
+    "properties": {
+     "active": {
+      "type": "boolean",
+      "description": "True if settings are intended to be applied, false if intended to be ignored"
+     },
+     "children": {
+      "type": "array",
+      "description": "Profile block children",
+      "items": {
+       "$ref": "#/components/schemas/customProfileSettingsChild"
+      }
+     }
+    },
+    "required": [
+     "active",
+     "children"
+    ]
+   },
+   "customProfileSettings": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Workspace custom profile settings",
+    "type": "object",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/customProfileSettingsLabel"
+     },
+     {
+      "$ref": "#/components/schemas/customProfileSettingsValues"
+     }
+    ]
+   },
+   "customProfileSettingsRequestDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Workspace custom profile settings request DTO",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/customProfileSettings"
+     }
+    ]
+   },
+   "customProfileSettingsResponseDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Workspace custom profile settings response DTO",
+    "type": "object",
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/customProfileSettingsValues"
+     },
+     {
+      "$ref": "#/components/schemas/customProfileSettingsMetadata"
+     }
+    ]
+   },
+   "preferredProfileSettingsRequest": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Preferred profile settings request schema",
+    "type": "object",
+    "properties": {
+     "profileSettingsId": {
+      "type": "integer",
+      "format": "int16",
+      "description": "ID of the profile settings"
+     }
+    },
+    "required": [
+     "profileSettingsId"
+    ]
+   },
+   "resourcePlaceholder": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Resource placeholder",
+    "type": "object",
+    "format": "Resource"
+   },
+   "assignmentCheckDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Container for raw marc and target type",
+    "type": "object",
+    "properties": {
+     "rawMarc": {
+      "type": "string",
+      "description": "Raw MARC json"
+     },
+     "target": {
+      "type": "string",
+      "enum": [
+       "CREATOR_OF_WORK",
+       "SUBJECT_OF_WORK",
+       "DEGREE_GRANTING_INSTITUTION"
+      ],
+      "description": "Target type"
+     }
+    },
+    "required": [
+     "rawMarc",
+     "target"
+    ]
+   },
+   "assignmentCheckResponseDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "MARC authority assignment check response",
+    "type": "object",
+    "properties": {
+     "validAssignment": {
+      "type": "boolean",
+      "description": "Indicates if the assignment is valid"
+     },
+     "invalidAssignmentReason": {
+      "type": "string",
+      "enum": [
+       "UNSUPPORTED_MARC",
+       "NOT_VALID_FOR_TARGET"
+      ],
+      "description": "Indicates the reason why the assignment is not valid. Only present if 'validAssignment' is false."
+     }
+    },
+    "required": [
+     "validAssignment"
+    ]
+   },
+   "importResponseDto": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Responds to an import with a list of imported resources and an activity log",
+    "type": "object",
+    "properties": {
+     "resources": {
+      "type": "array",
+      "description": "A list of resource identifiers successfully imported",
+      "items": {
+       "type": "string"
+      }
+     },
+     "log": {
+      "type": "string",
+      "description": "An activity log generated during import"
+     }
+    },
+    "required": [
+     "resources",
+     "log"
+    ]
+   }
+  },
+  "responses": {
+   "badRequestResponse": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "example": "examples/validationErrorResponse.sample",
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   },
+   "internalServerErrorResponse": {
+    "description": "When unhandled exception occurred during code execution, e.g. NullPointerException",
+    "content": {
+     "application/json": {
+      "example": "example/unknownError.sample",
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   }
+  }
+ }
+}

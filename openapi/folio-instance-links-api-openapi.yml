@@ -1,0 +1,219 @@
+openapi: 3.2.0
+info:
+  title: Folio Instance Links API
+  version: v1.0
+  description: 'Operations tagged instance-links across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://localhost:8081
+tags:
+- name: instance-links
+paths:
+  /links/instances/{instanceId}:
+    get:
+      description: Get links collection related to Instance
+      operationId: getInstanceLinks
+      parameters:
+      - description: UUID of the Instance that is related to the MARC record
+        explode: false
+        in: path
+        name: instanceId
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+        style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/instanceLinkDtoCollection'
+          description: The links collection related to Instance
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - instance-links
+      summary: Get instance links
+      x-summary-source: derived
+    put:
+      description: Update links collection related to Instance
+      operationId: updateInstanceLinks
+      parameters:
+      - description: UUID of the Instance that is related to the MARC record
+        explode: false
+        in: path
+        name: instanceId
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/instanceLinkDtoCollection'
+        required: true
+      responses:
+        '202':
+          description: The links were updated
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - instance-links
+      summary: Update instance links
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+components:
+  schemas:
+    instanceLinkDto:
+      description: Collection of instance links
+      example:
+        id: 0
+        authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        authorityNaturalId: authorityNaturalId
+        instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        linkingRuleId: 6
+        status: status
+        errorCause: errorCause
+      properties:
+        id:
+          description: Unique generated identifier for the link
+          type: integer
+        authorityId:
+          format: uuid
+          type: string
+        authorityNaturalId:
+          description: Natural ID of the Authority record
+          type: string
+        instanceId:
+          format: uuid
+          type: string
+        linkingRuleId:
+          description: ID of linking rule by which link should be created
+          type: integer
+        status:
+          description: Status of the link
+          readOnly: true
+          type: string
+        errorCause:
+          description: Link update error cause (if present)
+          readOnly: true
+          type: string
+      required:
+      - authorityId
+      - authorityNaturalId
+      - instanceId
+      - linkingRuleId
+      - status
+      title: Collection of instance links
+      type: object
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    uuid:
+      format: uuid
+      type: string
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/error_parameters_inner'
+          type: array
+      type: object
+    instanceLinkDtoCollection:
+      description: Collection of instance links
+      example:
+        links:
+        - id: 0
+          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          authorityNaturalId: authorityNaturalId
+          instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          linkingRuleId: 6
+          status: status
+          errorCause: errorCause
+        - id: 0
+          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          authorityNaturalId: authorityNaturalId
+          instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          linkingRuleId: 6
+          status: status
+          errorCause: errorCause
+        totalRecords: 1
+      properties:
+        links:
+          items:
+            $ref: '#/components/schemas/instanceLinkDto'
+          type: array
+        totalRecords:
+          description: Total amount of notes
+          readOnly: true
+          type: integer
+      required:
+      - links
+      title: Collection of instance links
+      type: object
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object
+x-refined-from:
+- folio-mod-entities-links-openapi.json
+- folio-mod-entities-links-openapi.yml

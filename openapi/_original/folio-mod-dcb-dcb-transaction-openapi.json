@@ -1,0 +1,2328 @@
+{
+ "openapi": "3.0.3",
+ "info": {
+  "title": "mod DCB FOLIO API",
+  "description": "mod DCB FOLIO API",
+  "version": "1.0.0"
+ },
+ "paths": {
+  "/transactions/{dcbTransactionId}": {
+   "description": "DCB Circulation Transaction endpoint",
+   "post": {
+    "description": "Create circulation request",
+    "operationId": "createCirculationRequest",
+    "tags": [
+     "transactions"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/dcbTransactionId"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/DCBTransaction"
+    },
+    "responses": {
+     "201": {
+      "$ref": "#/components/responses/TransactionStatusResponse"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "409": {
+      "$ref": "#/components/responses/Conflict"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "put": {
+    "description": "Update the details of a transaction",
+    "operationId": "updateTransactionDetails",
+    "tags": [
+     "transactions"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/dcbTransactionId"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/DcbUpdateTransaction"
+    },
+    "responses": {
+     "204": {
+      "description": "Transaction updated successfully"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/transactions/{dcbTransactionId}/status": {
+   "parameters": [
+    {
+     "$ref": "#/components/parameters/dcbTransactionId"
+    }
+   ],
+   "get": {
+    "description": "Get transaction status across circulation institutions",
+    "operationId": "getTransactionStatusById",
+    "tags": [
+     "transactions"
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/TransactionStatusResponse"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "put": {
+    "description": "Update transaction status across circulation institutions",
+    "operationId": "updateTransactionStatus",
+    "tags": [
+     "transactions"
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/TransactionStatusBody"
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/TransactionStatusResponse"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/transactions/status": {
+   "parameters": [
+    {
+     "$ref": "#/components/parameters/fromDate"
+    },
+    {
+     "$ref": "#/components/parameters/toDate"
+    },
+    {
+     "$ref": "#/components/parameters/pageNumber"
+    },
+    {
+     "$ref": "#/components/parameters/pageSize"
+    }
+   ],
+   "get": {
+    "description": "Get a list of updated transactions between from date and to date with optional filtering and pagination",
+    "operationId": "getTransactionStatusList",
+    "tags": [
+     "transactions"
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/TransactionStatusResponseCollection"
+     },
+     "422": {
+      "$ref": "#/components/responses/UnprocessableEntity"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/ecs-request-transactions/{ecsRequestTransactionId}": {
+   "description": "ECS TLR Transaction endpoint",
+   "post": {
+    "description": "Create transaction for existing circulation TLR",
+    "operationId": "createEcsRequestTransactions",
+    "tags": [
+     "ecs-request-transactions"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/ecsRequestTransactionId"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/DCBTransaction"
+    },
+    "responses": {
+     "201": {
+      "$ref": "#/components/responses/TransactionStatusResponse"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "409": {
+      "$ref": "#/components/responses/Conflict"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "patch": {
+    "description": "Update ECS request transaction",
+    "operationId": "updateEcsRequestTransaction",
+    "tags": [
+     "ecs-request-transactions"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/ecsRequestTransactionId"
+     }
+    ],
+    "requestBody": {
+     "$ref": "#/components/requestBodies/DCBTransaction"
+    },
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/TransactionStatusResponse"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/transactions/{dcbTransactionId}/renew": {
+   "parameters": [
+    {
+     "$ref": "#/components/parameters/dcbTransactionId"
+    }
+   ],
+   "put": {
+    "description": "Increment the renew loan count and returned transaction status with renewal details",
+    "operationId": "renewItemLoanByTransactionId",
+    "tags": [
+     "transactions"
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/TransactionStatusResponse"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/transactions/{dcbTransactionId}/block-renewal": {
+   "parameters": [
+    {
+     "$ref": "#/components/parameters/dcbTransactionId"
+    }
+   ],
+   "put": {
+    "description": "Set the renewal count for the item in DCB transaction to maximum allowed renewals",
+    "operationId": "blockItemRenewalByTransactionId",
+    "tags": [
+     "transactions"
+    ],
+    "responses": {
+     "204": {
+      "description": "Block renewal for the item in dcb transaction"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/transactions/{dcbTransactionId}/unblock-renewal": {
+   "parameters": [
+    {
+     "$ref": "#/components/parameters/dcbTransactionId"
+    }
+   ],
+   "put": {
+    "description": "Set the renewal count for the item in DCB transaction to zero",
+    "operationId": "unblockItemRenewalByTransactionId",
+    "tags": [
+     "transactions"
+    ],
+    "responses": {
+     "204": {
+      "description": "Unblock renewal for the item in DCB transaction"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/dcb/shadow-locations/refresh": {
+   "description": "dcb hub shadow location refresh endpoint",
+   "post": {
+    "requestBody": {
+     "$ref": "#/components/requestBodies/ShadowLocationRefreshBody"
+    },
+    "tags": [
+     "RefreshShadowLocations"
+    ],
+    "description": "Refresh shadow location",
+    "operationId": "refreshShadowLocation",
+    "responses": {
+     "201": {
+      "$ref": "#/components/responses/RefreshShadowLocationResponse"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/dcb/settings": {
+   "description": "DCB settings endpoint",
+   "get": {
+    "description": "Search DCB settings by CQL query with pagination",
+    "operationId": "findDcbSettings",
+    "tags": [
+     "setting"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query"
+     },
+     {
+      "$ref": "#/components/parameters/limit"
+     },
+     {
+      "$ref": "#/components/parameters/offset"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "List of DCB settings matching the query",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SettingsCollection"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "post": {
+    "description": "Create DCB setting",
+    "operationId": "createDcbSetting",
+    "tags": [
+     "setting"
+    ],
+    "requestBody": {
+     "description": "DCB setting to create",
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Setting"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "created DCB setting",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Setting"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  },
+  "/dcb/settings/{id}": {
+   "get": {
+    "description": "Get DCB setting by id",
+    "operationId": "getDcbSettingById",
+    "tags": [
+     "setting"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "DCB setting with the given id",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Setting"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "put": {
+    "description": "Update DCB setting by id",
+    "operationId": "updateDcbSettingById",
+    "tags": [
+     "setting"
+    ],
+    "requestBody": {
+     "description": "DCB setting to update",
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Setting"
+       }
+      }
+     }
+    },
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "DCB setting updated successfully"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "delete": {
+    "description": "Delete DCB setting by id",
+    "operationId": "deleteDcbSettingById",
+    "tags": [
+     "setting"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/pathId"
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "DCB setting deleted successfully"
+     },
+     "404": {
+      "$ref": "#/components/responses/NotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "requestBodies": {
+   "TransactionStatusBody": {
+    "description": "TransactionStatus object",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/TransactionStatus"
+      }
+     }
+    }
+   },
+   "DCBTransaction": {
+    "description": "DCB transaction object",
+    "required": true,
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/DcbTransaction"
+      }
+     }
+    }
+   },
+   "DcbUpdateTransaction": {
+    "description": "DCB transaction update object",
+    "required": true,
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/DcbUpdateTransaction"
+      }
+     }
+    }
+   },
+   "ShadowLocationRefreshBody": {
+    "description": "DCB hub shadow location refresh request body",
+    "required": true,
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/ShadowLocationRefreshBody"
+      }
+     }
+    }
+   }
+  },
+  "responses": {
+   "TransactionStatus": {
+    "description": "Transaction Status object",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/TransactionStatus"
+      }
+     }
+    }
+   },
+   "TransactionStatusResponse": {
+    "description": "TransactionStatusResponse object",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/TransactionStatusResponse"
+      }
+     }
+    }
+   },
+   "TransactionStatusResponseCollection": {
+    "description": "List of TransactionResponse object",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/TransactionStatusResponseCollection"
+      }
+     }
+    }
+   },
+   "RefreshShadowLocationResponse": {
+    "description": "DCB hub shadow location refresh response",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/RefreshShadowLocationResponse"
+      }
+     }
+    }
+   },
+   "NotFound": {
+    "description": "Resource not found",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "BadRequest": {
+    "description": "Bad request",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "Conflict": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "Unauthorized": {
+    "description": "Not authorized to perform requested action",
+    "content": {
+     "text/plain": {
+      "example": "unable to perform action -- unauthorized"
+     }
+    }
+   },
+   "UnprocessableEntity": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "InternalServerError": {
+    "description": "Internal server error",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   }
+  },
+  "parameters": {
+   "dcbTransactionId": {
+    "in": "path",
+    "name": "dcbTransactionId",
+    "schema": {
+     "type": "string"
+    },
+    "required": true
+   },
+   "ecsRequestTransactionId": {
+    "in": "path",
+    "name": "ecsRequestTransactionId",
+    "schema": {
+     "type": "string"
+    },
+    "required": true
+   },
+   "fromDate": {
+    "in": "query",
+    "name": "fromDate",
+    "description": "Start date for filtering transactions",
+    "schema": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "required": true
+   },
+   "toDate": {
+    "in": "query",
+    "name": "toDate",
+    "description": "End date for filtering transactions",
+    "schema": {
+     "type": "string",
+     "format": "date-time"
+    },
+    "required": true
+   },
+   "pageNumber": {
+    "in": "query",
+    "name": "pageNumber",
+    "description": "Page number for pagination (optional)",
+    "schema": {
+     "type": "integer",
+     "default": 0,
+     "minimum": 0,
+     "maximum": 2147483647
+    },
+    "required": false
+   },
+   "pageSize": {
+    "in": "query",
+    "name": "pageSize",
+    "description": "Number of items per page (optional)",
+    "schema": {
+     "type": "integer",
+     "default": 1000,
+     "minimum": 1,
+     "maximum": 2147483647
+    },
+    "required": false
+   },
+   "query": {
+    "in": "query",
+    "name": "query",
+    "description": "A query string to filter records based on matching criteria in fields.",
+    "required": false,
+    "schema": {
+     "type": "string",
+     "default": "cql.allRecords=1"
+    },
+    "example": "role"
+   },
+   "limit": {
+    "in": "query",
+    "name": "limit",
+    "description": "Limit the number of elements returned in the response.",
+    "required": false,
+    "schema": {
+     "type": "integer",
+     "default": 50,
+     "minimum": 0
+    },
+    "example": 100
+   },
+   "offset": {
+    "in": "query",
+    "name": "offset",
+    "description": "Skip over a number of elements by specifying an offset value for the query.",
+    "required": false,
+    "schema": {
+     "type": "integer",
+     "default": 0,
+     "minimum": 0
+    },
+    "example": 0
+   },
+   "pathId": {
+    "in": "path",
+    "required": true,
+    "name": "id",
+    "description": "Record identifier",
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    },
+    "example": "1e111e76-1111-401c-ad8e-0d121a11111e"
+   }
+  },
+  "schemas": {
+   "RenewByIdRequest": {
+    "type": "object",
+    "description": "Request to renew an existing loan, found by the IDs of item and user",
+    "properties": {
+     "itemId": {
+      "description": "ID of the item to be renewed",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "userId": {
+      "description": "ID of the user (representing the patron) the item has been loaned to",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     }
+    },
+    "required": [
+     "itemId",
+     "userId"
+    ],
+    "additionalProperties": false
+   },
+   "RenewByIdResponse": {
+    "type": "object",
+    "title": "Loan",
+    "description": "Links the item with the patron and applies certain conditions based on policies",
+    "properties": {
+     "id": {
+      "description": "Unique ID (generated UUID) of the loan",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "userId": {
+      "description": "ID of the patron the item was lent to. Required for open loans, not required for closed loans (for anonymization).",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "borrower": {
+      "description": "Additional information about the borrower of the item, taken from the user referred to by the userId",
+      "readonly": true,
+      "type": "object",
+      "properties": {
+       "firstName": {
+        "description": "first name of the borrower (read only, defined by the server)",
+        "type": "string",
+        "readonly": true
+       },
+       "lastName": {
+        "description": "last name of the borrower (read only, defined by the server)",
+        "type": "string",
+        "readonly": true
+       },
+       "middleName": {
+        "description": "middle name of the borrower (read only, defined by the server)",
+        "type": "string",
+        "readonly": true
+       },
+       "barcode": {
+        "description": "barcode used to identify the borrower (read only, defined by the server)",
+        "type": "string",
+        "readonly": true
+       },
+       "preferredFirstName": {
+        "description": "preferred first name of the borrower (read only, defined by the server)",
+        "type": "string",
+        "readonly": true
+       },
+       "patronGroup": {
+        "description": "current patron group of the borrower (read only, defined by the server)",
+        "type": "string",
+        "readonly": true
+       }
+      },
+      "additionalProperties": false
+     },
+     "proxyUserId": {
+      "description": "ID of the user representing a proxy for the patron",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "itemId": {
+      "description": "ID of the item lent to the patron",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "loanPolicyId": {
+      "description": "ID of last policy used in relation to this loan",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "loanPolicy": {
+      "description": "Additional information about the loan policy of the item, taken from the loan loanPolicyId",
+      "readonly": true,
+      "type": "object",
+      "properties": {
+       "name": {
+        "readonly": true,
+        "description": "Name of last policy used in relation to this loan (read only, defined by the server)",
+        "type": "string"
+       }
+      }
+     },
+     "overdueFinePolicyId": {
+      "description": "ID of last overdue fine policy used in relation to this loan",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "overdueFinePolicy": {
+      "description": "Additional information about the overdue fine policy of the item, taken from the loan overdueFinePolicyId",
+      "readonly": true,
+      "type": "object",
+      "properties": {
+       "name": {
+        "readonly": true,
+        "description": "Name of last overdue fine policy used in relation to this loan (read only, defined by the server)",
+        "type": "string"
+       }
+      }
+     },
+     "lostItemPolicyId": {
+      "description": "ID of last lost item policy used in relation to this loan",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "lostItemPolicy": {
+      "description": "Additional information about the lost item policy of the item, taken from the loan lostItemPolicyId",
+      "readonly": true,
+      "type": "object",
+      "properties": {
+       "name": {
+        "readonly": true,
+        "description": "Name of last lost item policy used in relation to this loan (read only, defined by the server)",
+        "type": "string"
+       }
+      }
+     },
+     "itemEffectiveLocationIdAtCheckOut": {
+      "description": "The effective location, at the time of checkout, of the item loaned to the patron.",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "status": {
+      "description": "Overall status of the loan",
+      "type": "object",
+      "properties": {
+       "name": {
+        "description": "Name of the status (currently can be any value, values commonly used are Open and Closed)",
+        "type": "string"
+       }
+      }
+     },
+     "loanDate": {
+      "description": "Date and time when the loan began",
+      "type": "string",
+      "format": "date-time"
+     },
+     "dueDate": {
+      "description": "Date and time when the item is due to be returned",
+      "type": "string",
+      "format": "date-time"
+     },
+     "returnDate": {
+      "description": "Date and time when the item was returned",
+      "type": "string",
+      "format": "date-time"
+     },
+     "systemReturnDate": {
+      "description": "Date and time when return was processed",
+      "type": "string",
+      "format": "date-time"
+     },
+     "action": {
+      "description": "Last action performed on a loan (currently can be any value, values commonly used are checkedout and checkedin)",
+      "type": "string"
+     },
+     "actionComment": {
+      "description": "Last action performed on a loan comments",
+      "type": "string"
+     },
+     "renewalCount": {
+      "description": "Count of how many times a loan has been renewed (incremented by the client)",
+      "type": "integer",
+      "minimum": 0
+     },
+     "dueDateChangedByRecall": {
+      "description": "Is due date changed by recall request",
+      "type": "boolean",
+      "readonly": true
+     }
+    }
+   },
+   "InventoryItem": {
+    "description": "Item object provided by inventory",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Item id",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "barcode": {
+      "description": "Barcode of the item",
+      "type": "string"
+     },
+     "holdingsRecordId": {
+      "description": "ID of the holdings record the item is a member of",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "status": {
+      "$ref": "#/components/schemas/ItemStatus"
+     },
+     "lastCheckIn": {
+      "$ref": "#/components/schemas/itemLastCheckIn"
+     }
+    }
+   },
+   "InventoryHolding": {
+    "description": "A holdings record",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "the system assigned unique ID of the holdings record",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "holdingsTypeId": {
+      "description": "unique ID for the type of this holdings record",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "instanceId": {
+      "description": "Instance id",
+      "$ref": "#/components/schemas/uuid"
+     }
+    }
+   },
+   "UserGroupCollection": {
+    "type": "object",
+    "properties": {
+     "usergroups": {
+      "type": "array",
+      "description": "User Group collection",
+      "items": {
+       "$ref": "#/components/schemas/UserGroup"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "users",
+     "totalRecords"
+    ]
+   },
+   "UserCollection": {
+    "type": "object",
+    "properties": {
+     "users": {
+      "type": "array",
+      "description": "User collection",
+      "items": {
+       "$ref": "#/components/schemas/User"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "users",
+     "totalRecords"
+    ]
+   },
+   "LoanCollection": {
+    "type": "object",
+    "properties": {
+     "loans": {
+      "type": "array",
+      "description": "Loan collection",
+      "items": {
+       "$ref": "#/components/schemas/Loan"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "loans",
+     "totalRecords"
+    ]
+   },
+   "LoanPolicyCollection": {
+    "type": "object",
+    "properties": {
+     "loanPolicies": {
+      "type": "array",
+      "description": "LoanPolicy collection",
+      "items": {
+       "$ref": "#/components/schemas/LoanPolicy"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "loanPolicies",
+     "totalRecords"
+    ]
+   },
+   "CirculationRequest": {
+    "description": "Request for an item that might be at a different location or already checked out to another patron",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "the system assigned unique ID of the holdings record",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "requestType": {
+      "description": "Whether the item should be held upon return, recalled or paged for",
+      "type": "string",
+      "enum": [
+       "Hold",
+       "Recall",
+       "Page"
+      ]
+     },
+     "ecsRequestPhase": {
+      "description": "Stage in ECS request process, absence of this field means this is a single-tenant request",
+      "type": "string",
+      "enum": [
+       "Primary",
+       "Secondary",
+       "Intermediate"
+      ]
+     },
+     "requestLevel": {
+      "description": "Level of the request - Item or Title",
+      "type": "string",
+      "enum": [
+       "Item",
+       "Title"
+      ]
+     },
+     "requestDate": {
+      "description": "Date the request was made",
+      "type": "string",
+      "format": "date-time"
+     },
+     "requestExpirationDate": {
+      "description": "Date and time the request expires",
+      "type": "string",
+      "format": "date-time"
+     },
+     "patronComments": {
+      "description": "Comments made by the patron",
+      "type": "string"
+     },
+     "requesterId": {
+      "description": "ID of the user who made the request",
+      "type": "string",
+      "format": "uuid"
+     },
+     "instanceId": {
+      "description": "ID of the instance being requested",
+      "type": "string",
+      "format": "uuid"
+     },
+     "holdingsRecordId": {
+      "description": "ID of the holdings record being requested",
+      "type": "string",
+      "format": "uuid"
+     },
+     "itemId": {
+      "description": "ID of the item being requested",
+      "type": "string",
+      "format": "uuid"
+     },
+     "status": {
+      "description": "Status of the request",
+      "type": "string"
+     },
+     "position": {
+      "description": "Position of the request in the queue",
+      "type": "integer"
+     },
+     "cancellationReasonId": {
+      "description": "The id of the request reason",
+      "type": "string",
+      "format": "uuid"
+     },
+     "cancelledByUserId": {
+      "description": "The id of the user that cancelled the request",
+      "type": "string",
+      "format": "uuid"
+     },
+     "cancellationAdditionalInformation": {
+      "description": "Additional information about a cancellation",
+      "type": "string"
+     },
+     "cancelledDate": {
+      "description": "Date the request was cancelled",
+      "type": "string",
+      "format": "date-time"
+     },
+     "fulfillmentPreference": {
+      "description": "How should the request be fulfilled",
+      "type": "string",
+      "enum": [
+       "Delivery",
+       "Hold Shelf"
+      ]
+     },
+     "pickupServicePointId": {
+      "description": "The ID of the Service Point where this request can be picked up",
+      "type": "string"
+     },
+     "isDcbReRequestCancellation": {
+      "description": "Indicates whether the request was cancelled during a DCB transaction update",
+      "type": "boolean"
+     },
+     "item": {
+      "$ref": "#/components/schemas/item"
+     },
+     "requester": {
+      "$ref": "#/components/schemas/requester"
+     }
+    }
+   },
+   "CheckInRequest": {
+    "description": "Request to automatic check in an item",
+    "type": "object",
+    "properties": {
+     "itemBarcode": {
+      "description": "Barcode of the item to be checked in",
+      "type": "string"
+     },
+     "servicePointId": {
+      "description": "Service point where the item is being processed",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "checkInDate": {
+      "description": "When the item was checked in",
+      "type": "string",
+      "format": "date-type"
+     },
+     "claimedReturnedResolution": {
+      "$ref": "#/components/schemas/ClaimedReturnedResolution"
+     }
+    }
+   },
+   "ClaimedReturnedResolution": {
+    "type": "string",
+    "description": "Claimed returned resolution",
+    "enum": [
+     "Found by library",
+     "Returned by patron"
+    ]
+   },
+   "CheckOutRequest": {
+    "description": "Request to check out an item to a loanee using barcodes",
+    "type": "object",
+    "properties": {
+     "itemBarcode": {
+      "description": "Barcode of the item to be lent to the patron",
+      "type": "string"
+     },
+     "userBarcode": {
+      "description": "Barcode of the user (representing the patron) the item is to be lent to",
+      "type": "string"
+     },
+     "servicePointId": {
+      "description": "Service point where the item has been checked out",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid"
+     }
+    }
+   },
+   "ServicePointRequest": {
+    "description": "Request to create Pickup Service Point",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "ID of the service point",
+      "type": "string"
+     },
+     "name": {
+      "description": "Name of the service point",
+      "type": "string"
+     },
+     "code": {
+      "description": "Code of the service point",
+      "type": "string"
+     },
+     "discoveryDisplayName": {
+      "description": "Display name of the service point",
+      "type": "string"
+     },
+     "pickupLocation": {
+      "description": "Is service point Pickup service point",
+      "type": "boolean"
+     },
+     "holdShelfClosedLibraryDateManagement": {
+      "description": "Hold Shelf Closed Library Date",
+      "type": "string"
+     },
+     "holdShelfExpiryPeriod": {
+      "$ref": "#/components/schemas/HoldShelfExpiryPeriod"
+     }
+    }
+   },
+   "CirculationItemCollection": {
+    "type": "object",
+    "properties": {
+     "items": {
+      "type": "array",
+      "description": "Circulation Item collection",
+      "items": {
+       "$ref": "#/components/schemas/CirculationItem"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "circulationItems",
+     "totalRecords"
+    ]
+   },
+   "MaterialTypeCollection": {
+    "type": "object",
+    "properties": {
+     "mtypes": {
+      "type": "array",
+      "description": "List of material types",
+      "items": {
+       "$ref": "#/components/schemas/MaterialType"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   },
+   "CalendarCollection": {
+    "description": "Collection of calendars",
+    "type": "object",
+    "properties": {
+     "calendars": {
+      "type": "array",
+      "description": "Each calendar returned in the response",
+      "items": {
+       "$ref": "#/components/schemas/Calendar"
+      }
+     },
+     "totalRecords": {
+      "type": "integer",
+      "description": "Number of calendars in the response"
+     }
+    }
+   },
+   "Setting": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Setting",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Setting Identifier",
+      "type": "string",
+      "format": "uuid"
+     },
+     "scope": {
+      "$ref": "#/components/schemas/SettingScope"
+     },
+     "key": {
+      "type": "string",
+      "description": "Key within scope for this setting"
+     },
+     "value": {
+      "type": "object",
+      "description": "Settings value (any type)"
+     },
+     "_version": {
+      "type": "integer",
+      "description": "Record version for optimistic locking"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "id",
+     "scope",
+     "key",
+     "value"
+    ]
+   },
+   "SettingsCollection": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Collection of settings",
+    "type": "object",
+    "properties": {
+     "items": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Setting"
+      }
+     },
+     "totalRecords": {
+      "description": "The number of setting records returned in this collection",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "items",
+     "totalRecords"
+    ]
+   },
+   "DcbUpdateItem": {
+    "description": "Item metadata required for updating the existing transaction",
+    "type": "object",
+    "properties": {
+     "barcode": {
+      "description": "The barcode of the item as specified in the lending library",
+      "type": "string"
+     },
+     "materialType": {
+      "description": "The \u201chub-normalized\u201d form of the item item type, used in the circulation rules for determining the correct loan policy.",
+      "type": "string"
+     },
+     "lendingLibraryCode": {
+      "description": "The code which identifies the lending library",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "barcode",
+     "materialType",
+     "lendingLibraryCode"
+    ]
+   },
+   "DcbUpdateTransaction": {
+    "type": "object",
+    "properties": {
+     "item": {
+      "$ref": "#/components/schemas/DcbUpdateItem"
+     }
+    }
+   },
+   "Parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "type": "string",
+      "minLength": 1
+     },
+     "value": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "Parameters": {
+    "description": "List of key/value parameters of an error",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/Parameter"
+    },
+    "additionalProperties": false
+   },
+   "Error": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/Parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message"
+    ]
+   },
+   "uuid": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/",
+    "type": "string",
+    "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
+   },
+   "renewalInfo": {
+    "type": "object",
+    "properties": {
+     "renewalCount": {
+      "description": "renewalCount of the loan",
+      "type": "integer"
+     },
+     "renewalMaxCount": {
+      "description": "renewalMaxCount of loan as per the loan policy configuration",
+      "type": "integer"
+     },
+     "renewable": {
+      "description": "renewable",
+      "type": "boolean"
+     }
+    }
+   },
+   "DcbItem": {
+    "description": "Item metadata required for the transaction",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "The unique item identifier",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "title": {
+      "description": "The title of the item that has been requested",
+      "type": "string"
+     },
+     "barcode": {
+      "description": "The barcode of the item as specified in the lending library",
+      "type": "string"
+     },
+     "materialType": {
+      "description": "The \u201chub-normalized\u201d form of the item item type, used in the circulation rules for determining the correct loan policy.",
+      "type": "string"
+     },
+     "lendingLibraryCode": {
+      "description": "The code which identifies the lending library",
+      "type": "string"
+     },
+     "locationCode": {
+      "description": "The location code of the item, representing the library agency code used for determining loan policy flexibility.",
+      "type": "string"
+     },
+     "renewalInfo": {
+      "$ref": "#/components/schemas/renewalInfo"
+     },
+     "holdCount": {
+      "description": "The number of holds on the item (Will be returned only for Lender role)",
+      "type": "integer"
+     }
+    }
+   },
+   "DcbPatron": {
+    "description": "Patron metadata required for the transaction",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "The unique identifier for the patron making the request as known in the requesting library",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "group": {
+      "description": "The patron group associated with the requesting patron",
+      "type": "string"
+     },
+     "barcode": {
+      "description": "The barcode of the patron",
+      "type": "string"
+     },
+     "localNames": {
+      "description": "The local names for the patron, for example: \"[John, Johnny, Doe]\"",
+      "type": "string"
+     }
+    }
+   },
+   "DcbPickup": {
+    "description": "Pickup Location metadata required for the pickup service point",
+    "type": "object",
+    "properties": {
+     "libraryCode": {
+      "description": "The code which identifies the pickup library",
+      "type": "string"
+     },
+     "servicePointId": {
+      "description": "UUID of the pickup service point",
+      "type": "string"
+     },
+     "servicePointName": {
+      "description": "The name of the pickup service point",
+      "type": "string"
+     }
+    }
+   },
+   "DcbTransaction": {
+    "type": "object",
+    "properties": {
+     "item": {
+      "$ref": "#/components/schemas/DcbItem"
+     },
+     "patron": {
+      "$ref": "#/components/schemas/DcbPatron"
+     },
+     "pickup": {
+      "$ref": "#/components/schemas/DcbPickup"
+     },
+     "requestId": {
+      "description": "ID of the existing circulation TLR",
+      "type": "string"
+     },
+     "selfBorrowing": {
+      "description": "selfBorrowing flag for BORROWING_PICKUP role to allow patrons to request items from own library via DCB",
+      "type": "boolean"
+     },
+     "role": {
+      "type": "string",
+      "enum": [
+       "LENDER",
+       "BORROWER",
+       "PICKUP",
+       "BORROWING-PICKUP"
+      ]
+     }
+    }
+   },
+   "TransactionStatus": {
+    "type": "object",
+    "properties": {
+     "status": {
+      "type": "string",
+      "enum": [
+       "CREATED",
+       "OPEN",
+       "AWAITING_PICKUP",
+       "ITEM_CHECKED_OUT",
+       "ITEM_CHECKED_IN",
+       "EXPIRED",
+       "CLOSED",
+       "CANCELLED",
+       "ERROR"
+      ]
+     },
+     "message": {
+      "type": "string"
+     },
+     "context": {
+      "type": "object",
+      "description": "Optional context for the transaction status update",
+      "properties": {
+       "claimedReturnedResolution": {
+        "$ref": "#/components/schemas/ClaimedReturnedResolution"
+       }
+      }
+     }
+    }
+   },
+   "TransactionStatusResponse": {
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/TransactionStatus"
+     },
+     {
+      "$ref": "#/components/schemas/DcbTransaction"
+     }
+    ]
+   },
+   "Errors": {
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/Error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   },
+   "TransactionStatusResponseList": {
+    "properties": {
+     "id": {
+      "description": "Unique identifier of a transaction",
+      "$ref": "#/components/schemas/uuid"
+     }
+    },
+    "allOf": [
+     {
+      "$ref": "#/components/schemas/TransactionStatusResponse"
+     }
+    ]
+   },
+   "TransactionStatusResponseCollection": {
+    "type": "object",
+    "properties": {
+     "transactions": {
+      "type": "array",
+      "description": "transaction collection",
+      "items": {
+       "$ref": "#/components/schemas/TransactionStatusResponseList"
+      }
+     },
+     "currentPageNumber": {
+      "type": "integer",
+      "description": "Page Number of the current request"
+     },
+     "currentPageSize": {
+      "type": "integer",
+      "description": "Number of items fetched"
+     },
+     "maximumPageNumber": {
+      "type": "integer",
+      "description": "maximum page Number to fetch total records with current page size"
+     },
+     "totalRecords": {
+      "description": "total number of records which are matched to the current search",
+      "type": "integer"
+     }
+    }
+   },
+   "DcbAgency": {
+    "type": "object",
+    "description": "DCB Agency object",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "Name of the agency"
+     },
+     "code": {
+      "type": "string",
+      "description": "Code of the agency"
+     }
+    },
+    "required": [
+     "name",
+     "code"
+    ]
+   },
+   "DcbLocation": {
+    "type": "object",
+    "description": "DCB Location object",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "Name of the location"
+     },
+     "code": {
+      "type": "string",
+      "description": "Code of the location"
+     },
+     "agency": {
+      "$ref": "#/components/schemas/DcbAgency"
+     }
+    },
+    "required": [
+     "name",
+     "code",
+     "agency"
+    ]
+   },
+   "ShadowLocationRefreshBody": {
+    "type": "object",
+    "properties": {
+     "agencies": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/DcbAgency"
+      }
+     },
+     "locations": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/DcbLocation"
+      }
+     }
+    }
+   },
+   "RefreshLocationStatusType": {
+    "type": "string",
+    "description": "Status of refresh shadow location",
+    "enum": [
+     "SUCCESS",
+     "ERROR",
+     "SKIPPED"
+    ]
+   },
+   "RefreshLocationStatus": {
+    "type": "object",
+    "description": "LocationEntity",
+    "properties": {
+     "code": {
+      "type": "string"
+     },
+     "status": {
+      "$ref": "#/components/schemas/RefreshLocationStatusType"
+     },
+     "cause": {
+      "type": "string"
+     }
+    }
+   },
+   "RefreshLocationUnitsStatus": {
+    "type": "object",
+    "properties": {
+     "institutions": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/RefreshLocationStatus"
+      }
+     },
+     "campuses": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/RefreshLocationStatus"
+      }
+     },
+     "libraries": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/RefreshLocationStatus"
+      }
+     }
+    }
+   },
+   "RefreshShadowLocationResponse": {
+    "type": "object",
+    "description": "Response for shadow location refresh",
+    "properties": {
+     "locations": {
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/RefreshLocationStatus"
+      }
+     },
+     "location-units": {
+      "type": "object",
+      "$ref": "#/components/schemas/RefreshLocationUnitsStatus"
+     }
+    }
+   },
+   "SettingScope": {
+    "type": "string",
+    "description": "Scope for this entry (normally a module)",
+    "enum": [
+     "mod-dcb"
+    ]
+   },
+   "metadata": {
+    "title": "Metadata Schema",
+    "description": "Metadata about creation and changes to records, provided by the server (client should not provide)",
+    "type": "object",
+    "properties": {
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdByUserId": {
+      "description": "ID of the user who created the record (when available)",
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+     },
+     "createdByUsername": {
+      "description": "Username of the user who created the record (when available)",
+      "type": "string"
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedByUserId": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+     },
+     "updatedByUsername": {
+      "description": "Username of the user who last updated the record (when available)",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "createdDate"
+    ]
+   },
+   "ItemStatus": {
+    "type": "object",
+    "description": "status of the Item",
+    "properties": {
+     "name": {
+      "type": "string",
+      "enum": [
+       "Aged to lost",
+       "Available",
+       "Awaiting delivery",
+       "Awaiting pickup",
+       "Checked out",
+       "Claimed returned",
+       "Declared lost",
+       "Lost and paid",
+       "Long missing",
+       "Missing",
+       "In process",
+       "In process (non-requestable)",
+       "In transit",
+       "Intellectual item",
+       "On order",
+       "Order closed",
+       "Paged",
+       "Restricted",
+       "Unavailable",
+       "Unknown",
+       "Withdrawn"
+      ]
+     },
+     "date": {
+      "description": "Date of the current item state. E.g. date set when item state was changed by the Check out app",
+      "type": "string",
+      "format": "date-time"
+     }
+    }
+   },
+   "itemLastCheckIn": {
+    "description": "Information about when an item was last scanned in the Inventory app.",
+    "type": "object",
+    "properties": {
+     "dateTime": {
+      "type": "string",
+      "description": "Date and time of the last check in of the item.",
+      "format": "date-time"
+     },
+     "servicePointId": {
+      "description": "Service point ID being used by a staff member when item was scanned in Check in app.",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "staffMemberId": {
+      "description": "ID a staff member who scanned the item",
+      "$ref": "#/components/schemas/uuid"
+     }
+    }
+   },
+   "UserGroup": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Item id",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "group": {
+      "description": "name of the group",
+      "type": "string"
+     },
+     "desc": {
+      "description": "description of the group",
+      "type": "string"
+     }
+    }
+   },
+   "Personal": {
+    "type": "object",
+    "properties": {
+     "lastName": {
+      "description": "The user's surname",
+      "type": "string"
+     },
+     "firstName": {
+      "description": "The user's given name",
+      "type": "string"
+     },
+     "middleName": {
+      "description": "The user's middle name (if any)",
+      "type": "string"
+     },
+     "preferredFirstName": {
+      "description": "The user's preferred name",
+      "type": "string"
+     },
+     "email": {
+      "description": "The user's email address",
+      "type": "string"
+     },
+     "phone": {
+      "description": "The user's primary phone number",
+      "type": "string"
+     },
+     "mobilePhone": {
+      "description": "The user's mobile phone number",
+      "type": "string"
+     },
+     "dateOfBirth": {
+      "type": "string",
+      "description": "The user's birth date",
+      "format": "date-time"
+     },
+     "preferredContactTypeId": {
+      "description": "Id of user's preferred contact type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "lastName"
+    ]
+   },
+   "User": {
+    "type": "object",
+    "title": "User",
+    "properties": {
+     "username": {
+      "description": "A unique name belonging to a user. Typically used for login",
+      "type": "string"
+     },
+     "id": {
+      "description": "A globally unique (UUID) identifier for the user",
+      "type": "string"
+     },
+     "barcode": {
+      "description": "The library barcode for this user",
+      "type": "string"
+     },
+     "active": {
+      "description": "A flag to determine if a user can log in, take out loans, etc.",
+      "type": "boolean"
+     },
+     "type": {
+      "description": "The class of user",
+      "type": "string"
+     },
+     "patronGroup": {
+      "description": "A UUID corresponding to the group the user belongs to",
+      "type": "string"
+     },
+     "personal": {
+      "$ref": "#/components/schemas/Personal"
+     }
+    }
+   },
+   "status": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "description": "loan status",
+      "type": "string"
+     }
+    }
+   },
+   "Loan": {
+    "type": "object",
+    "title": "Loan",
+    "additionalProperties": true,
+    "properties": {
+     "id": {
+      "description": "A globally unique (UUID) identifier for the Loan",
+      "type": "string"
+     },
+     "userId": {
+      "description": "A globally unique (UUID) identifier for the user",
+      "type": "string"
+     },
+     "itemId": {
+      "description": "A globally unique (UUID) identifier for the item",
+      "type": "string"
+     },
+     "renewalCount": {
+      "description": "renewalCount of the loan",
+      "type": "string"
+     },
+     "loanPolicyId": {
+      "description": "A globally unique (UUID) identifier for the loanPolicy",
+      "type": "string"
+     },
+     "status": {
+      "$ref": "#/components/schemas/status"
+     }
+    }
+   },
+   "renewalsPolicy": {
+    "type": "object",
+    "properties": {
+     "unlimited": {
+      "description": "unlimited",
+      "type": "boolean"
+     },
+     "numberAllowed": {
+      "description": "numberAllowed",
+      "type": "integer"
+     }
+    }
+   },
+   "LoanPolicy": {
+    "type": "object",
+    "title": "LoanPolicy",
+    "properties": {
+     "id": {
+      "description": "A globally unique (UUID) identifier for the LoanPolicy",
+      "type": "string"
+     },
+     "name": {
+      "description": "Policy Name",
+      "type": "string"
+     },
+     "renewable": {
+      "description": "renewable",
+      "type": "boolean"
+     },
+     "renewalsPolicy": {
+      "$ref": "#/components/schemas/renewalsPolicy"
+     }
+    }
+   },
+   "item": {
+    "type": "object",
+    "properties": {
+     "barcode": {
+      "description": "barcode of the item",
+      "type": "string"
+     }
+    }
+   },
+   "requester": {
+    "type": "object",
+    "properties": {
+     "barcode": {
+      "description": "barcode of the item",
+      "type": "string"
+     },
+     "personal": {
+      "$ref": "#/components/schemas/Personal"
+     }
+    }
+   },
+   "IntervalIdEnum": {
+    "type": "string",
+    "enum": [
+     "Minutes",
+     "Hours",
+     "Days",
+     "Weeks",
+     "Months"
+    ]
+   },
+   "HoldShelfExpiryPeriod": {
+    "description": "Hold Shelf Expiry Period",
+    "type": "object",
+    "properties": {
+     "duration": {
+      "description": "Duration Hold Shelf Expiry Period",
+      "type": "integer"
+     },
+     "intervalId": {
+      "description": "Interval Hold Shelf Expiry Period",
+      "$ref": "#/components/schemas/IntervalIdEnum"
+     }
+    }
+   },
+   "CirculationItem": {
+    "type": "object",
+    "description": "CirculationItem",
+    "properties": {
+     "id": {
+      "description": "the system assigned unique ID of the circulation item record",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "holdingsRecordId": {
+      "description": "the system assigned unique ID of the holdings record",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "status": {
+      "$ref": "#/components/schemas/ItemStatus"
+     },
+     "materialTypeId": {
+      "type": "string"
+     },
+     "permanentLoanTypeId": {
+      "type": "string"
+     },
+     "instanceTitle": {
+      "type": "string"
+     },
+     "barcode": {
+      "type": "string"
+     },
+     "pickupLocation": {
+      "type": "string"
+     },
+     "lendingLibraryCode": {
+      "description": "5 digit agency code which identifies the lending library",
+      "type": "string"
+     },
+     "effectiveLocationId": {
+      "description": "the effective location of the item",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   },
+   "MaterialType": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "Item id",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "name": {
+      "description": "label for the material type",
+      "type": "string"
+     },
+     "source": {
+      "description": "origin of the material type record",
+      "type": "string"
+     }
+    }
+   },
+   "Weekday": {
+    "description": "A day of the week.  Either SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, or SATURDAY",
+    "type": "string",
+    "format": "Weekday"
+   },
+   "NormalHours": {
+    "description": "A range of hours when a calendar is open",
+    "type": "object",
+    "properties": {
+     "calendarId": {
+      "description": "The UUID of the calendar which these hours are for",
+      "type": "string",
+      "format": "uuid"
+     },
+     "startDay": {
+      "description": "The first weekday (inclusive) of this range",
+      "$ref": "#/components/schemas/Weekday"
+     },
+     "startTime": {
+      "description": "The time when this opening starts, inclusive",
+      "type": "string",
+      "format": "time"
+     },
+     "endDay": {
+      "description": "The last weekday (inclusive) of this range",
+      "$ref": "#/components/schemas/Weekday"
+     },
+     "endTime": {
+      "description": "The last minute of this opening, inclusive (11:59 if it should be open at 11:59 and closed at 12:00)",
+      "type": "string",
+      "format": "time"
+     }
+    }
+   },
+   "ExceptionalOpening": {
+    "description": "An opening as part of an exception",
+    "type": "object",
+    "properties": {
+     "exceptionId": {
+      "description": "The UUID of the exception which this opening is for",
+      "type": "string",
+      "format": "uuid"
+     },
+     "startDate": {
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this opening",
+      "type": "string",
+      "format": "date"
+     },
+     "startTime": {
+      "description": "The first opening time (inclusive) of this opening",
+      "type": "string",
+      "format": "time"
+     },
+     "endDate": {
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this opening",
+      "type": "string",
+      "format": "date"
+     },
+     "endTime": {
+      "description": "The last open time (inclusive) of this opening",
+      "type": "string",
+      "format": "time"
+     }
+    }
+   },
+   "ExceptionRange": {
+    "description": "An exception to a calendar, consisting of a set of openings (or none if a closure)",
+    "type": "object",
+    "properties": {
+     "calendarId": {
+      "description": "The UUID of the calendar which this exception is for",
+      "type": "string",
+      "format": "uuid"
+     },
+     "name": {
+      "description": "A user-provided label for this exception",
+      "type": "string"
+     },
+     "startDate": {
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this exception range",
+      "type": "string",
+      "format": "date"
+     },
+     "endDate": {
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this exception range",
+      "type": "string",
+      "format": "date"
+     },
+     "openings": {
+      "description": "The openings during this exception",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ExceptionalOpening"
+      }
+     }
+    }
+   },
+   "Calendar": {
+    "description": "A single calendar",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "A unique UUID identifying this calendar",
+      "type": "string",
+      "format": "uuid"
+     },
+     "name": {
+      "description": "A user-provided name used to label this calendar",
+      "type": "string"
+     },
+     "startDate": {
+      "type": "string",
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this calendar"
+     },
+     "endDate": {
+      "type": "string",
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this calendar"
+     },
+     "assignments": {
+      "description": "A list of all service points that this calendar is assigned to",
+      "type": "array",
+      "items": {
+       "type": "string",
+       "format": "uuid",
+       "description": "A UUID uniquely identifying a service point"
+      }
+     },
+     "normalHours": {
+      "description": "A list of objects describing when the calendar is normally open",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/NormalHours"
+      }
+     },
+     "exceptions": {
+      "description": "A list of objects describing exceptions to the normal hours",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/ExceptionRange"
+      }
+     }
+    }
+   }
+  }
+ }
+}

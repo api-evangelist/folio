@@ -1,0 +1,1468 @@
+openapi: 3.2.0
+info:
+  title: Folio Search Consortium API
+  version: v4.1.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged search-consortium across 2 of this provider''s published API definitions: folio-mod-search-openapi.json, folio-mod-search-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://{environment}-okapi.ci.folio.org
+  variables:
+    environment:
+      default: folio-dev-spitfire
+      enum:
+      - folio-dev-spitfire
+      - folio-perf-spitfire
+- description: Reference environments.
+  url: https://folio-{environment}-okapi.dev.folio.org
+  variables:
+    environment:
+      default: snapshot
+      enum:
+      - snapshot
+      - snapshot-2
+tags:
+- description: Provides endpoints to search for consolidated records (e.g., holdings, items) across multiple institutions or libraries within a consortium.
+  name: search-consortium
+paths:
+  /search/consortium/holdings:
+    get:
+      description: Get a list of holdings (only for consortium environment)
+      operationId: getConsortiumHoldings
+      parameters:
+      - description: UUID of the instance
+        in: query
+        name: instanceId
+        required: false
+        schema:
+          type: string
+      - description: Tenant ID to filter by
+        in: query
+        name: tenantId
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        schema:
+          default: 100
+          maximum: 1000
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        schema:
+          default: 0
+          maximum: 9999
+          minimum: 0
+          type: integer
+      - description: "Defines a field to sort by.\nPossible values:\n  - id\n  - hrid\n  - tenantId\n  - instanceId\n  - callNumberPrefix\n  - callNumber\n  - copyNumber\n  - permanentLocationId\n"
+        in: query
+        name: sortBy
+        required: false
+        schema:
+          type: string
+      - description: Defines sorting order
+        in: query
+        name: sortOrder
+        required: false
+        schema:
+          $ref: '#/components/schemas/sortOrder'
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                consortiumHoldingsCollectionResponse:
+                  $ref: '#/components/examples/consortiumHoldingsCollectionResponse'
+              schema:
+                $ref: '#/components/schemas/consortiumHoldingCollection'
+          description: List of holdings
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Consolidated Holdings
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/consortium/items:
+    get:
+      description: Get a list of items (only for consortium environment)
+      operationId: getConsortiumItems
+      parameters:
+      - description: UUID of the instance
+        in: query
+        name: instanceId
+        required: false
+        schema:
+          type: string
+      - description: UUID of the holdings record
+        in: query
+        name: holdingsRecordId
+        required: false
+        schema:
+          type: string
+      - description: Tenant ID to filter by
+        in: query
+        name: tenantId
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        schema:
+          default: 100
+          maximum: 1000
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        schema:
+          default: 0
+          maximum: 9999
+          minimum: 0
+          type: integer
+      - description: "Defines a field to sort by.\nPossible values:\n  - id\n  - hrid\n  - tenantId\n  - instanceId\n  - holdingsRecordId\n  - barcode\n"
+        in: query
+        name: sortBy
+        required: false
+        schema:
+          type: string
+      - description: Defines sorting order
+        in: query
+        name: sortOrder
+        required: false
+        schema:
+          $ref: '#/components/schemas/sortOrder'
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                consortiumItemCollection:
+                  $ref: '#/components/examples/consortiumItemCollectionResponse'
+              schema:
+                $ref: '#/components/schemas/consortiumItemCollection'
+          description: List of items
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Consolidated Items
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/consortium/locations:
+    get:
+      description: Get a list of locations (only for consortium environment)
+      operationId: getConsortiumLocations
+      parameters:
+      - description: Tenant ID to filter by
+        in: query
+        name: tenantId
+        required: false
+        schema:
+          type: string
+      - description: ID to filter by
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        schema:
+          default: 10000
+          maximum: 10000
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        schema:
+          default: 0
+          maximum: 9999
+          minimum: 0
+          type: integer
+      - description: "Defines a field to sort by.\nPossible values:\n  - id\n  - tenantId\n  - name\n"
+        in: query
+        name: sortBy
+        required: false
+        schema:
+          default: name
+          type: string
+      - description: Defines sorting order
+        in: query
+        name: sortOrder
+        required: false
+        schema:
+          $ref: '#/components/schemas/sortOrder'
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumLocationCollection'
+          description: List of locations
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Consortium Locations
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/consortium/campuses:
+    get:
+      description: Get a list of campuses (only for consortium environment)
+      operationId: getConsortiumCampuses
+      parameters:
+      - description: Tenant ID to filter by
+        in: query
+        name: tenantId
+        required: false
+        schema:
+          type: string
+      - description: ID to filter by
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        schema:
+          default: 1000
+          maximum: 1000
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        schema:
+          default: 0
+          maximum: 9999
+          minimum: 0
+          type: integer
+      - description: "Defines a field to sort by.\nPossible values:\n  - id\n  - tenantId\n  - institutionId\n  - name\n"
+        in: query
+        name: sortBy
+        required: false
+        schema:
+          default: name
+          type: string
+      - description: Defines sorting order
+        in: query
+        name: sortOrder
+        required: false
+        schema:
+          $ref: '#/components/schemas/sortOrder'
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumCampusCollection'
+          description: List of campuses
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Consortium Campuses
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/consortium/libraries:
+    get:
+      description: Get a list of libraries (only for consortium environment)
+      operationId: getConsortiumLibraries
+      parameters:
+      - description: Tenant ID to filter by
+        in: query
+        name: tenantId
+        required: false
+        schema:
+          type: string
+      - description: ID to filter by
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        schema:
+          default: 1000
+          maximum: 1000
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        schema:
+          default: 0
+          maximum: 9999
+          minimum: 0
+          type: integer
+      - description: "Defines a field to sort by.\nPossible values:\n  - id\n  - tenantId\n  - campusId\n  - name\n"
+        in: query
+        name: sortBy
+        required: false
+        schema:
+          default: name
+          type: string
+      - description: Defines sorting order
+        in: query
+        name: sortOrder
+        required: false
+        schema:
+          $ref: '#/components/schemas/sortOrder'
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumLibraryCollection'
+          description: List of libraries
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Consortium Libraries
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/consortium/institutions:
+    get:
+      description: Get a list of institutions (only for consortium environment)
+      operationId: getConsortiumInstitutions
+      parameters:
+      - description: Tenant ID to filter by
+        in: query
+        name: tenantId
+        required: false
+        schema:
+          type: string
+      - description: ID to filter by
+        in: query
+        name: id
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        schema:
+          default: 1000
+          maximum: 1000
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        schema:
+          default: 0
+          maximum: 9999
+          minimum: 0
+          type: integer
+      - description: "Defines a field to sort by.\nPossible values:\n  - id\n  - tenantId\n  - name\n"
+        in: query
+        name: sortBy
+        required: false
+        schema:
+          default: name
+          type: string
+      - description: Defines sorting order
+        in: query
+        name: sortOrder
+        required: false
+        schema:
+          $ref: '#/components/schemas/sortOrder'
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumInstitutionCollection'
+          description: List of institutions
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Get Consortium Institutions
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/consortium/batch/items:
+    post:
+      description: Fetch a list of items (only for consortium environment)
+      operationId: fetchConsortiumBatchItems
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/batchIdsDto'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                consortiumItemCollection:
+                  $ref: '#/components/examples/consortiumItemCollectionResponse'
+              schema:
+                $ref: '#/components/schemas/consortiumItemCollection'
+          description: List of items
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Fetch Consolidated Items
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/consortium/batch/holdings:
+    post:
+      description: Fetch a list of holdings (only for consortium environment)
+      operationId: fetchConsortiumBatchHoldings
+      parameters:
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/batchIdsDto'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                consortiumItemCollection:
+                  $ref: '#/components/examples/consortiumHoldingsCollectionResponse'
+              schema:
+                $ref: '#/components/schemas/consortiumHoldingCollection'
+          description: List of holdings
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Fetch Consolidated Holdings
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/consortium/holding/{id}:
+    get:
+      description: Get holding by id (only for consortium environment)
+      operationId: getConsortiumHolding
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumHolding'
+          description: An instance holding
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Fetch consolidated holding by id
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+  /search/consortium/item/{id}:
+    get:
+      description: Get an item (only for consortium environment)
+      operationId: getConsortiumItem
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: X-Okapi-Tenant header value
+        in: header
+        name: x-okapi-tenant
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/consortiumItem'
+          description: An instance item
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownError'
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Fetch consolidated item by id
+      tags:
+      - search-consortium
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: 'null'
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    consortiumLibraryCollection:
+      example:
+        libraries:
+        - id: id
+          tenantId: tenantId
+          name: name
+          campusId: campusId
+          code: code
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+        - id: id
+          tenantId: tenantId
+          name: name
+          campusId: campusId
+          code: code
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+        totalRecords: 0
+      properties:
+        libraries:
+          items:
+            $ref: '#/components/schemas/consortiumLibrary'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          type: integer
+      type: object
+    sortOrder:
+      enum:
+      - asc
+      - desc
+      type: string
+    batchIdsDto:
+      description: Batch IDs DTO
+      properties:
+        identifierType:
+          description: Type of entity identifier
+          enum:
+          - id
+          - hrid
+          - accessionNumber
+          - formerIds
+          - barcode
+          - holdingsRecordId
+          - instanceId
+          - instanceHrid
+          - itemBarcode
+          type: string
+        identifierValues:
+          description: Entity identifier values
+          items:
+            type: string
+          type: array
+      required:
+      - identifierType
+      - identifierValues
+      type: object
+    consortiumInstitutionCollection:
+      example:
+        institutions:
+        - id: id
+          tenantId: tenantId
+          name: name
+          code: code
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+        - id: id
+          tenantId: tenantId
+          name: name
+          code: code
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+        totalRecords: 0
+      properties:
+        institutions:
+          items:
+            $ref: '#/components/schemas/consortiumInstitution'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          type: integer
+      type: object
+    consortiumLibrary:
+      example:
+        id: id
+        tenantId: tenantId
+        name: name
+        campusId: campusId
+        code: code
+        metadata:
+          createdDate: createdDate
+          createdByUserId: createdByUserId
+          updatedDate: updatedDate
+          updatedByUserId: updatedByUserId
+      properties:
+        id:
+          description: Library ID
+          type: string
+        tenantId:
+          description: Tenant ID of the Library
+          type: string
+        name:
+          description: Library name
+          type: string
+        campusId:
+          description: The UUID of the campus, the second-level location unit, this (shelf) library belongs to.
+          type: string
+        code:
+          description: Library code
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      type: object
+    metadata:
+      additionalProperties: false
+      description: Record metadata
+      example:
+        createdDate: createdDate
+        createdByUserId: createdByUserId
+        updatedDate: updatedDate
+        updatedByUserId: updatedByUserId
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+      type: object
+    consortiumLocationCollection:
+      example:
+        locations:
+        - id: id
+          name: name
+          tenantId: tenantId
+          code: code
+          description: description
+          discoveryDisplayName: discoveryDisplayName
+          isActive: isActive
+          institutionId: institutionId
+          campusId: campusId
+          libraryId: libraryId
+          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          servicePointIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+        - id: id
+          name: name
+          tenantId: tenantId
+          code: code
+          description: description
+          discoveryDisplayName: discoveryDisplayName
+          isActive: isActive
+          institutionId: institutionId
+          campusId: campusId
+          libraryId: libraryId
+          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          servicePointIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+        totalRecords: 0
+      properties:
+        locations:
+          items:
+            $ref: '#/components/schemas/consortiumLocation'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          type: integer
+      type: object
+    errorResponse:
+      description: A set of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        total_records:
+          description: Total number of errors
+          type: integer
+      type: object
+    consortiumHoldingCollection:
+      example:
+        holdings:
+        - id: id
+          hrid: hrid
+          tenantId: tenantId
+          instanceId: instanceId
+          discoverySuppress: true
+          callNumberPrefix: callNumberPrefix
+          callNumber: callNumber
+          callNumberSuffix: callNumberSuffix
+          copyNumber: copyNumber
+          permanentLocationId: permanentLocationId
+        - id: id
+          hrid: hrid
+          tenantId: tenantId
+          instanceId: instanceId
+          discoverySuppress: true
+          callNumberPrefix: callNumberPrefix
+          callNumber: callNumber
+          callNumberSuffix: callNumberSuffix
+          copyNumber: copyNumber
+          permanentLocationId: permanentLocationId
+        totalRecords: 0
+      properties:
+        holdings:
+          items:
+            $ref: '#/components/schemas/consortiumHolding'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          type: integer
+      type: object
+    consortiumCampus:
+      example:
+        id: id
+        tenantId: tenantId
+        name: name
+        code: code
+        institutionId: institutionId
+        metadata:
+          createdDate: createdDate
+          createdByUserId: createdByUserId
+          updatedDate: updatedDate
+          updatedByUserId: updatedByUserId
+      properties:
+        id:
+          description: Campus ID
+          type: string
+        tenantId:
+          description: Tenant ID of the Campus
+          type: string
+        name:
+          description: Campus name
+          type: string
+        code:
+          description: Campus code
+          type: string
+        institutionId:
+          description: The UUID of the institution, the first-level location unit, this (shelf) campus belongs to.
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      type: object
+    consortiumLocation:
+      example:
+        id: id
+        name: name
+        tenantId: tenantId
+        code: code
+        description: description
+        discoveryDisplayName: discoveryDisplayName
+        isActive: isActive
+        institutionId: institutionId
+        campusId: campusId
+        libraryId: libraryId
+        primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        servicePointIds:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        metadata:
+          createdDate: createdDate
+          createdByUserId: createdByUserId
+          updatedDate: updatedDate
+          updatedByUserId: updatedByUserId
+      properties:
+        id:
+          description: Location ID
+          type: string
+        name:
+          description: Location name
+          type: string
+        tenantId:
+          description: Tenant ID of the Location
+          type: string
+        code:
+          description: Code of the (shelf) location, usually an abbreviation of the name.
+          type: string
+        description:
+          description: Description of the (shelf) location.
+          type: string
+        discoveryDisplayName:
+          description: Name of the (shelf) location to be shown in the discovery.
+          type: string
+        isActive:
+          description: Whether this (shelf) location is active. Inactive (shelf) locations can no longer been used.
+          type: string
+        institutionId:
+          description: The UUID of the institution, the first-level location unit, this (shelf) location belongs to.
+          type: string
+        campusId:
+          description: The UUID of the campus, the second-level location unit, this (shelf) location belongs to.
+          type: string
+        libraryId:
+          description: The UUID of the library, the third-level location unit, this (shelf) location belongs to.
+          type: string
+        primaryServicePoint:
+          description: The UUID of the primary service point of this (shelf) location.
+          format: uuid
+          type: string
+        servicePointIds:
+          description: All service points that this (shelf) location has.
+          items:
+            format: uuid
+            type: string
+          type: array
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      type: object
+    consortiumInstitution:
+      example:
+        id: id
+        tenantId: tenantId
+        name: name
+        code: code
+        metadata:
+          createdDate: createdDate
+          createdByUserId: createdByUserId
+          updatedDate: updatedDate
+          updatedByUserId: updatedByUserId
+      properties:
+        id:
+          description: Institution ID
+          type: string
+        tenantId:
+          description: Tenant ID of the Institution
+          type: string
+        name:
+          description: Institution name
+          type: string
+        code:
+          description: Institution code
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      type: object
+    consortiumItemCollection:
+      example:
+        items:
+        - id: id
+          hrid: hrid
+          tenantId: tenantId
+          instanceId: instanceId
+          holdingsRecordId: holdingsRecordId
+          barcode: barcode
+        - id: id
+          hrid: hrid
+          tenantId: tenantId
+          instanceId: instanceId
+          holdingsRecordId: holdingsRecordId
+          barcode: barcode
+        totalRecords: 0
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/consortiumItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          type: integer
+      type: object
+    consortiumItem:
+      example:
+        id: id
+        hrid: hrid
+        tenantId: tenantId
+        instanceId: instanceId
+        holdingsRecordId: holdingsRecordId
+        barcode: barcode
+      properties:
+        id:
+          description: Item ID
+          type: string
+        hrid:
+          description: Item HRID
+          type: string
+        tenantId:
+          description: Tenant ID of the Item
+          type: string
+        instanceId:
+          description: Related Instance Id
+          type: string
+        holdingsRecordId:
+          description: Related Holding Record Id
+          type: string
+        barcode:
+          description: Item barcode
+          type: string
+      type: object
+    consortiumHolding:
+      example:
+        id: id
+        hrid: hrid
+        tenantId: tenantId
+        instanceId: instanceId
+        discoverySuppress: true
+        callNumberPrefix: callNumberPrefix
+        callNumber: callNumber
+        callNumberSuffix: callNumberSuffix
+        copyNumber: copyNumber
+        permanentLocationId: permanentLocationId
+      properties:
+        id:
+          description: Holdings ID
+          type: string
+        hrid:
+          description: Holdings HRID
+          type: string
+        tenantId:
+          description: Tenant ID of the Holding
+          type: string
+        instanceId:
+          description: Related Instance Id
+          type: string
+        discoverySuppress:
+          description: Discovery suppress flag
+          type: boolean
+        callNumberPrefix:
+          description: Call number prefix
+          type: string
+        callNumber:
+          description: Call number
+          type: string
+        callNumberSuffix:
+          description: Call number suffix
+          type: string
+        copyNumber:
+          description: Copy number
+          type: string
+        permanentLocationId:
+          description: Permanent Location ID
+          type: string
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      type: object
+    consortiumCampusCollection:
+      example:
+        campuses:
+        - id: id
+          tenantId: tenantId
+          name: name
+          code: code
+          institutionId: institutionId
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+        - id: id
+          tenantId: tenantId
+          name: name
+          code: code
+          institutionId: institutionId
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+        totalRecords: 0
+      properties:
+        campuses:
+          items:
+            $ref: '#/components/schemas/consortiumCampus'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          type: integer
+      type: object
+  examples:
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    consortiumHoldingsCollectionResponse:
+      value:
+        holdings:
+        - id: 68ec4438-8b93-46df-8c36-232db4f7862e
+          hrid: ho00231
+          tenantId: college
+          instanceId: 1af42087-458d-4777-a797-a7717020ab18
+          discoverySuppress: false
+          callNumberPrefix: int
+          callNumber: MS 33.123
+          callNumberSuffix: pro
+          copyNumber: c10
+          permanentLocationId: e18610eb-0842-4dac-bd6a-23e6ef962230
+        - id: b6993450-25c1-4c23-a1d1-98abb67fb506
+          hrid: ho00333
+          tenantId: university
+          instanceId: 1af42087-458d-4777-a797-a7717020ab18
+          discoverySuppress: true
+          permanentLocationId: e18610eb-0842-4dac-bd6a-23e6ef962230
+        totalRecords: 1203
+    consortiumItemCollectionResponse:
+      value:
+        items:
+        - id: 68ec4438-8b93-46df-8c36-232db4f7862e
+          hrid: it00231
+          tenantId: college
+          instanceId: 1af42087-458d-4777-a797-a7717020ab18
+          holdingsRecordId: 2ec87381-cfc6-4cd7-8368-9398410a64c4
+          barcode: '1233322'
+        - id: dab66210-5038-424a-a31e-cda18b4d4061
+          hrid: it00033321
+          tenantId: university
+          instanceId: 1af42087-458d-4777-a797-a7717020ab18
+          holdingsRecordId: 2ec87381-cfc6-4cd7-8368-9398410a64c4
+          barcode: '7873426'
+        totalRecords: 1203
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+x-refined-from:
+- folio-mod-search-openapi.json
+- folio-mod-search-openapi.yml

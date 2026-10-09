@@ -1,0 +1,251 @@
+openapi: 3.2.0
+info:
+  title: Folio Test Document Delivery API
+  version: 1.0.0
+  description: 'Operations tagged TestDocumentDelivery across 2 of this provider''s published API definitions: folio-edge-ill-openapi.json, folio-edge-ill-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /
+tags:
+- name: TestDocumentDelivery
+paths:
+  /illService/tenants/{tenantId}/testDocumentDelivery/offer:
+    post:
+      tags:
+      - TestDocumentDelivery
+      description: Test document delivery offer
+      operationId: offer
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TestDocumentDeliveryOffer'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Offer
+      x-summary-source: derived
+    servers:
+    - url: /
+  /illService/tenants/{tenantId}/testDocumentDelivery/register:
+    post:
+      tags:
+      - TestDocumentDelivery
+      description: Test document delivery registration
+      operationId: register
+      parameters:
+      - $ref: '#/components/parameters/tenant-id'
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TestDocumentDeliveryRegister'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Register
+      x-summary-source: derived
+    servers:
+    - url: /
+components:
+  parameters:
+    tenant-id:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+      example: diku
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        name: field
+        value: must not be empty
+    TestDocumentDeliveryRegister:
+      type: object
+      properties:
+        systemCode:
+          type: string
+          description: The code of the institution we want to register
+        url:
+          type: string
+          description: The url of the document delivery system
+        name:
+          type: string
+          description: The name of the institution we are registering for
+        attestationLevel:
+          type: string
+          description: The attestation level
+          enum:
+          - SIMPLE
+      required:
+      - systemCode
+      - url
+      - name
+      - attestationLevel
+    TestDocumentDeliveryOffer:
+      type: object
+      properties:
+        systemId:
+          type: string
+          description: The id of the institution an order is to be placed for
+        url:
+          type: string
+          description: The url of the document delivery system
+        privateKey:
+          type: string
+          description: The private key to use
+        offerReference:
+          type: string
+          description: The reference for this document
+        documentTitle:
+          type: string
+          description: The title for this offer
+        pin:
+          type: string
+          description: The pin the user has to use to access the document
+        documentSecurityLevel:
+          type: string
+          description: The document security level
+          enum:
+          - DRM
+          - MARKED
+          - NONE
+          - SECURE
+        offerType:
+          type: string
+          description: The type of offer being made
+          enum:
+          - DOCUMENT_STREAM
+          - URL
+        attestationLevel:
+          type: string
+          description: The attestation level
+          enum:
+          - SIMPLE
+        patronEmail:
+          type: string
+          description: The patron's email
+        rawSourceMimeType:
+          type: string
+          description: The mime type for the document
+        workflow:
+          type: string
+          description: The workflow we want this offer to follow
+        file:
+          type: string
+          description: The file to be uploaded, either this property of the rawSourceUrl property must be specified
+          format: binary
+      required:
+      - systemId
+      - url
+      - privateKey
+      - offerReference
+      - pin
+      - documentSecurityLevel
+      - attestationLevel
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+      example:
+        message: Entity already exists.
+        type: EntityExistsException
+        code: entity_exists
+        parameters:
+        - name: id
+          value: 5ac63bf6-20e4-4449-9efd-01dbca051acf
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Error Message Text
+          type: ServiceException
+          code: error_code
+          parameters:
+          - name: cause
+            value: Service exception cause
+        total_records: 1
+  responses:
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            errors:
+            - code: service
+              type: InternalServerErrorException
+              message: Unknown Service Exception
+            total_records: 1
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            errors:
+            - code: validation
+              type: BadRequest
+              message: The input provided is invalid.
+              parameters:
+              - name: field
+                value: must not be empty
+            total_records: 1
+x-refined-from:
+- folio-edge-ill-openapi.json
+- folio-edge-ill-openapi.yml

@@ -1,0 +1,64 @@
+openapi: 3.2.0
+info:
+  title: Folio Validate API
+  version: 0.0.1
+  description: 'Operations tagged Validate across 4 of this provider''s published API definitions: folio-mod-ebsconet-openapi.json, folio-mod-mosaic-openapi.json, folio-mod-ebsconet-openapi.yml, folio-mod-mosaic-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /ebsconet/
+- url: /mosaic
+tags:
+- name: Validate
+paths:
+  /validate:
+    description: Validation API
+    get:
+      summary: Validate
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_response'
+      operationId: getValidation
+      tags:
+      - Validate
+    servers:
+    - url: /ebsconet/
+components:
+  schemas:
+    validation_response:
+      id: validation_response
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Validation response
+      type: object
+      properties:
+        status:
+          type: string
+          description: Validation status
+          enum:
+          - Success
+          - Failed
+          default: Success
+    MosaicValidation:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - SUCCESS
+          - FAILED
+      required:
+      - status
+  responses:
+    MosaicValidationResponse:
+      description: Mosaic validation object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MosaicValidation'
+x-refined-from:
+- folio-mod-ebsconet-openapi.json
+- folio-mod-mosaic-openapi.json
+- folio-mod-ebsconet-openapi.yml
+- folio-mod-mosaic-openapi.yml

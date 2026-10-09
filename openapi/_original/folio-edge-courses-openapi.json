@@ -1,0 +1,990 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Courses API",
+  "version": "v1"
+ },
+ "servers": [
+  {
+   "url": "/courses/"
+  }
+ ],
+ "paths": {
+  "/courses/courses": {
+   "get": {
+    "operationId": "getCoursesByQuery",
+    "summary": "Retrieve courses associated with the keyword query from folio mod-courses",
+    "description": "Retrieve courses associated with the keyword query",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/x-okapi-tenant-header"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-token-header"
+     },
+     {
+      "$ref": "#/components/parameters/request-query-parameters"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Calls the mod-courses GET /coursereserves/courses API and returns the result as-is. \\\nThe example of response: https://github.com/folio-org/mod-courses/blob/master/ramls/examples/reserves.json\n",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/courses/reserves": {
+   "get": {
+    "operationId": "getReservesByQuery",
+    "summary": "Retrieve reserves associated with the keyword query from folio mod-courses",
+    "description": "Retrieve reserves associated with the keyword query",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/x-okapi-tenant-header"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-token-header"
+     },
+     {
+      "$ref": "#/components/parameters/request-query-parameters"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Calls the mod-courses GET /coursereserves/reserves API and returns the result as-is. \\\nThe example of response: https://github.com/folio-org/mod-courses/blob/master/ramls/examples/reserves.json\n",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/courses/departments": {
+   "get": {
+    "operationId": "getDepartments",
+    "summary": "Retrieve course departments",
+    "description": "Retrieve course departments",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/x-okapi-tenant-header"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-token-header"
+     },
+     {
+      "$ref": "#/components/parameters/request-query-parameters"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Calls the mod-courses GET /coursereserves/departments API and returns the result as-is. \\\nThe example of response: https://github.com/folio-org/mod-courses/blob/master/ramls/examples/departments.json\n",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/courses/instructors": {
+   "get": {
+    "operationId": "getInstructors",
+    "summary": "Retrieve course instructors",
+    "description": "Retrieve course  instructors",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/x-okapi-tenant-header"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-token-header"
+     },
+     {
+      "$ref": "#/components/parameters/request-query-parameters"
+     },
+     {
+      "$ref": "#/components/parameters/sort-by"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Calls the mod-courses GET /coursereserves/courselistings API and returns instructorObjects",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/instructors"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/courses/courselistings/{instanceId}/reserves": {
+   "get": {
+    "operationId": "getReservesByInstanceId",
+    "summary": "Retrieve reserves associated with the course instance id from folio mod-courses",
+    "description": "Retrieve reserves associated with course instance id",
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/instance-id-path"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-tenant-header"
+     },
+     {
+      "$ref": "#/components/parameters/x-okapi-token-header"
+     },
+     {
+      "$ref": "#/components/parameters/request-query-parameters"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Calls the mod-courses GET /coursereserves/courselistings/{listing_id}/courses API and returns the result as-is. \\\nThe example of response: https://github.com/folio-org/mod-courses/blob/master/ramls/examples/reserves.json\n",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "errorResponse": {
+    "$ref": "#/components/schemas/Error"
+   },
+   "requestQueryParameters": {
+    "$ref": "#/components/schemas/RequestQueryParameters"
+   },
+   "courses": {
+    "description": "A collection of course records",
+    "type": "object",
+    "properties": {
+     "courses": {
+      "description": "List of course records",
+      "id": "courses",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/course"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "required": [
+     "courses",
+     "totalRecords"
+    ]
+   },
+   "RequestQueryParameters": {
+    "type": "object",
+    "properties": {
+     "query": {
+      "type": "string",
+      "description": "A CQL query string with search conditions.",
+      "minLength": 1
+     },
+     "limit": {
+      "type": "integer",
+      "description": "Limit the number of elements returned in the response",
+      "maximum": 2147483647,
+      "minimum": 0,
+      "default": 10
+     },
+     "offset": {
+      "type": "integer",
+      "description": "Skip over a number of elements by specifying an offset value for the query",
+      "maximum": 2147483647,
+      "minimum": 0,
+      "default": 0
+     },
+     "lang": {
+      "type": "string",
+      "description": "Requested language",
+      "default": "en",
+      "pattern": "[a-zA-Z]{2}"
+     },
+     "expand": {
+      "type": "string",
+      "description": "Whether or not to expand the id fields"
+     }
+    }
+   },
+   "Error": {
+    "type": "object",
+    "properties": {
+     "code": {
+      "description": "Error status code",
+      "type": "integer"
+     },
+     "errorMessage": {
+      "description": "Error message text",
+      "type": "string"
+     }
+    }
+   },
+   "uuid": {
+    "description": "UUID",
+    "type": "string",
+    "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+   },
+   "instructor_minimal": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Describes an instructor for a given section",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "UUID for this instructor",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "name": {
+      "type": "string",
+      "description": "The name of this instructor"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "instructors": {
+    "description": "A collection of records",
+    "type": "object",
+    "properties": {
+     "instructors": {
+      "description": "List of instructors",
+      "id": "instructors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/instructor_minimal"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    },
+    "required": [
+     "instructors",
+     "totalRecords"
+    ]
+   },
+   "metadata": {
+    "title": "Metadata Schema",
+    "description": "Metadata about creation and changes to records, provided by the server (client should not provide)",
+    "type": "object",
+    "properties": {
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdByUserId": {
+      "description": "ID of the user who created the record (when available)",
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+     },
+     "createdByUsername": {
+      "description": "Username of the user who created the record (when available)",
+      "type": "string"
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedByUserId": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+     },
+     "updatedByUsername": {
+      "description": "Username of the user who last updated the record (when available)",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "createdDate"
+    ]
+   },
+   "department": {
+    "type": "object",
+    "description": "The department a course belongs to",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "The UUID of this department",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "name": {
+      "type": "string",
+      "description": "The name of the department"
+     },
+     "description": {
+      "type": "string",
+      "description": "A description of this department"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "time-period": {
+    "type": "object",
+    "description": "schema for time-period, which contains time interval 'duration' and the time unit",
+    "properties": {
+     "duration": {
+      "type": "integer",
+      "description": "Duration interval"
+     },
+     "intervalId": {
+      "type": "string",
+      "description": "Unit of time for the duration",
+      "enum": [
+       "Minutes",
+       "Hours",
+       "Days",
+       "Weeks",
+       "Months"
+      ],
+      "default": "Days"
+     }
+    },
+    "required": [
+     "duration",
+     "intervalId"
+    ],
+    "additionalProperties": false
+   },
+   "term": {
+    "type": "object",
+    "description": "Temporal periods that listings exist in",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "UUID to identify this schedule",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "name": {
+      "type": "string",
+      "description": "The name of period"
+     },
+     "startDate": {
+      "type": "string",
+      "description": "The beginning of the time period"
+     },
+     "endDate": {
+      "type": "string",
+      "description": "The ending of the time period"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "name",
+     "startDate",
+     "endDate"
+    ]
+   },
+   "coursetype": {
+    "type": "object",
+    "description": "The type of course a listing is",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "The UUID of this type",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "name": {
+      "type": "string",
+      "description": "The name of the type"
+     },
+     "description": {
+      "type": "string",
+      "description": "A description of this type"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "instructor": {
+    "type": "object",
+    "description": "Describes an instructor for a given section",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "UUID for this instructor",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "userId": {
+      "type": "string",
+      "description": "ID of associated FOLIO user (if exists)",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "name": {
+      "type": "string",
+      "description": "The name of this instructor"
+     },
+     "barcode": {
+      "type": "string",
+      "description": "The instructor's user barcode"
+     },
+     "patronGroup": {
+      "type": "string",
+      "description": "The id of the patrongroup associated with the user"
+     },
+     "patronGroupObject": {
+      "type": "object",
+      "description": "The instructor's user patrongroup",
+      "properties": {
+       "id": {
+        "type": "string",
+        "description": "UUID for the group",
+        "$ref": "#/components/schemas/uuid"
+       },
+       "desc": {
+        "type": "string",
+        "description": "description of the group"
+       },
+       "group": {
+        "type": "string",
+        "description": "the unique name of the group"
+       }
+      }
+     },
+     "courseListingId": {
+      "type": "string",
+      "description": "The course listing this instructor teaches",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "courseListingId",
+     "name"
+    ]
+   },
+   "courselisting": {
+    "type": "object",
+    "description": "An actual instantiation in time and space of a course",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "UUID for this listing",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "registrarId": {
+      "type": "string",
+      "description": "The registration id"
+     },
+     "externalId": {
+      "type": "string",
+      "description": "An external identifier associated with this listing"
+     },
+     "servicepointId": {
+      "type": "string",
+      "description": "The ID of the service point associated with this listing's reserves",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "servicepointObject": {
+      "type": "object",
+      "description": "The service point associated with this listing's reserves",
+      "properties": {
+       "id": {
+        "type": "string",
+        "description": "Id of service-point object"
+       },
+       "name": {
+        "type": "string",
+        "description": "service-point name, a required field"
+       },
+       "code": {
+        "type": "string",
+        "description": "service-point code, a required field"
+       },
+       "discoveryDisplayName": {
+        "type": "string",
+        "description": "display name, a required field"
+       },
+       "description": {
+        "type": "string",
+        "description": "description of the service-point"
+       },
+       "shelvingLagTime": {
+        "type": "integer",
+        "description": "shelving lag time"
+       },
+       "pickupLocation": {
+        "type": "boolean",
+        "description": "indicates whether or not the service point is a pickup location"
+       },
+       "holdShelfExpiryPeriod": {
+        "type": "object",
+        "$ref": "#/components/schemas/time-period",
+        "description": "expiration period for items on the hold shelf at the service point"
+       },
+       "staffSlips": {
+        "type": "array",
+        "description": "List of staff slips for this service point",
+        "items": {
+         "type": "object",
+         "properties": {
+          "id": {
+           "type": "string",
+           "description": "The ID of the staff slip"
+          },
+          "printByDefault": {
+           "type": "boolean",
+           "description": "Whether or not to print the staff slip by default"
+          }
+         },
+         "additionalProperties": false,
+         "required": [
+          "id",
+          "printByDefault"
+         ]
+        }
+       }
+      }
+     },
+     "locationId": {
+      "type": "string",
+      "description": "The ID of the location associated with this listing's reserves",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "locationObject": {
+      "type": "object",
+      "description": "The location associated with this listing's reserves",
+      "properties": {
+       "id": {
+        "description": "id of this (shelf) location record as UUID.",
+        "type": "string"
+       },
+       "name": {
+        "description": "Name of the (shelf) location",
+        "type": "string"
+       },
+       "code": {
+        "description": "Code of the (shelf) location, usually an abbreviation of the name.",
+        "type": "string"
+       },
+       "description": {
+        "description": "Description of the (shelf) location.",
+        "type": "string"
+       },
+       "discoveryDisplayName": {
+        "description": "Name of the (shelf) location to be shown in the discovery.",
+        "type": "string"
+       },
+       "isActive": {
+        "description": "Whether this (shelf) location is active. Inactive (shelf) locations can no longer been used.",
+        "type": "boolean"
+       },
+       "institutionId": {
+        "description": "The UUID of the institution, the first-level location unit, this (shelf) location belongs to.",
+        "type": "string"
+       },
+       "campusId": {
+        "description": "The UUID of the campus, the second-level location unit, this (shelf) location belongs to.",
+        "type": "string"
+       },
+       "libraryId": {
+        "description": "The UUID of the library, the third-level location unit, this (shelf) location belongs to.",
+        "type": "string"
+       },
+       "details": {
+        "description": "Details about this (shelf) location.",
+        "type": "object"
+       },
+       "primaryServicePoint": {
+        "description": "The UUID of the primary service point of this (shelf) location.",
+        "type": "string"
+       },
+       "servicePointIds": {
+        "description": "All service points that this (shelf) location has.",
+        "type": "array",
+        "items": {
+         "description": "The UUID of a service point that belongs to this (shelf) location.",
+         "type": "string",
+         "not": {
+          "type": "null"
+         }
+        }
+       }
+      }
+     },
+     "termId": {
+      "type": "string",
+      "description": "The ID of the term for this listing",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "termObject": {
+      "type": "object",
+      "description": "The term associated with this listing",
+      "$ref": "#/components/schemas/term"
+     },
+     "courseTypeId": {
+      "type": "string",
+      "description": "The ID of the course type for this listing",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "courseTypeObject": {
+      "type": "object",
+      "description": "The course type associated with this listing",
+      "$ref": "#/components/schemas/coursetype"
+     },
+     "instructorObjects": {
+      "type": "array",
+      "description": "A listing of associated instructor objects",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/instructor"
+      }
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "termId"
+    ]
+   },
+   "course": {
+    "type": "object",
+    "description": "A course offered by the institution",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "UUID to identify this course",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "name": {
+      "type": "string",
+      "description": "The name of course"
+     },
+     "description": {
+      "type": "string",
+      "description": "A description of the course"
+     },
+     "departmentId": {
+      "type": "string",
+      "description": "The department that this course belongs to",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "departmentObject": {
+      "type": "object",
+      "description": "The department associated with this course",
+      "$ref": "#/components/schemas/department"
+     },
+     "courseListingId": {
+      "type": "string",
+      "description": "The id for the course listing this course belongs to",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "courseListingObject": {
+      "type": "object",
+      "description": "The course listing associated with this course",
+      "$ref": "#/components/schemas/courselisting"
+     },
+     "courseNumber": {
+      "type": "string",
+      "description": "A unique code identifying this course"
+     },
+     "sectionName": {
+      "type": "string",
+      "description": "A text field denoting this course's section"
+     },
+     "numberOfStudents": {
+      "type": "integer",
+      "description": "The number of students enrolled in this course"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "required": [
+     "name",
+     "departmentId",
+     "courseListingId"
+    ]
+   }
+  },
+  "parameters": {
+   "request-query-parameters": {
+    "name": "requestQueryParameters",
+    "in": "query",
+    "description": "Request query parameters(query, limit, offset and etc.) as object.",
+    "schema": {
+     "$ref": "#/components/schemas/RequestQueryParameters"
+    }
+   },
+   "query-parameter": {
+    "name": "query",
+    "in": "query",
+    "description": "The keyword query in CQL format",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "lang": {
+    "name": "lang",
+    "in": "query",
+    "description": "Requested language",
+    "required": false,
+    "example": "en",
+    "schema": {
+     "pattern": "[a-zA-Z]{2}",
+     "default": "en",
+     "type": "string"
+    }
+   },
+   "type": {
+    "name": "type",
+    "in": "query",
+    "description": "Indicates how to route the request",
+    "required": true,
+    "schema": {
+     "type": "string"
+    }
+   },
+   "x-okapi-tenant-header": {
+    "name": "x-okapi-tenant",
+    "in": "header",
+    "description": "x-okapi-tenant header value",
+    "required": false,
+    "schema": {
+     "type": "string"
+    }
+   },
+   "x-okapi-url-header": {
+    "name": "x-okapi-url",
+    "in": "header",
+    "description": "x-okapi-url header value",
+    "required": false,
+    "schema": {
+     "type": "string"
+    }
+   },
+   "x-okapi-token-header": {
+    "name": "x-okapi-token",
+    "in": "header",
+    "description": "x-okapi-token header value",
+    "required": false,
+    "schema": {
+     "type": "string"
+    }
+   },
+   "authorization": {
+    "name": "authorization",
+    "in": "header",
+    "description": "apikey for authorization",
+    "required": false,
+    "schema": {
+     "type": "string"
+    }
+   },
+   "apiKey": {
+    "name": "apiKey",
+    "in": "query",
+    "description": "apikey for authorization",
+    "required": false,
+    "schema": {
+     "type": "string"
+    }
+   },
+   "instance-id-path": {
+    "name": "instanceId",
+    "in": "path",
+    "description": "Course Instance's UUID",
+    "required": true,
+    "schema": {
+     "type": "string",
+     "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    }
+   },
+   "sort-by": {
+    "name": "sortBy",
+    "in": "query",
+    "description": "Param to sort collection results by a specific field",
+    "required": false,
+    "example": "sortBy=name/sort.descending",
+    "schema": {
+     "type": "string",
+     "pattern": "^(name|id)\\/sort\\.(ascending|descending)$"
+    }
+   }
+  },
+  "responses": {
+   "badRequestResponse": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "example": {
+       "code": 400,
+       "errorMessage": "Validation error"
+      },
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "internalServerErrorResponse": {
+    "description": "When unhandled exception occurred during code execution, e.g. NullPointerException",
+    "content": {
+     "application/json": {
+      "example": {
+       "code": 500,
+       "errorMessage": "internal error"
+      },
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "notAuthorizedResponse": {
+    "description": "Not authorized to perform requested action",
+    "content": {
+     "application/json": {
+      "example": {
+       "code": 401,
+       "errorMessage": "Unauthorized request"
+      },
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "accessDeniedResponse": {
+    "description": "Access Denied",
+    "content": {
+     "application/json": {
+      "example": {
+       "code": 403,
+       "errorMessage": "Access denied"
+      },
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "notFoundResponse": {
+    "description": "Item with a given ID not found",
+    "content": {
+     "application/json": {
+      "example": {
+       "code": 404,
+       "errorMessage": "Record by given id not found"
+      },
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "unprocessableEntityErrorResponse": {
+    "description": "Item with a given ID not found",
+    "content": {
+     "application/json": {
+      "example": {
+       "code": 422,
+       "errorMessage": "Unable to be process entity"
+      },
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "notImplementedResponse": {
+    "description": "The server does not support the functionality required to fulfill the request",
+    "content": {
+     "application/json": {
+      "example": "the method that is unavailable",
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   }
+  }
+ }
+}

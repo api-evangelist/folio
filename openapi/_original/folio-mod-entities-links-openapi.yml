@@ -1,0 +1,4047 @@
+# x-archived-from: folio-mod-entities-links-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  description: Entity Links API
+  title: Entities Links API
+  version: v1.0
+servers:
+- url: https://localhost:8081
+paths:
+  /links/instances/{instanceId}:
+    get:
+      description: Get links collection related to Instance
+      operationId: getInstanceLinks
+      parameters:
+      - description: UUID of the Instance that is related to the MARC record
+        explode: false
+        in: path
+        name: instanceId
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+        style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/instanceLinkDtoCollection'
+          description: The links collection related to Instance
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - instance-links
+    put:
+      description: Update links collection related to Instance
+      operationId: updateInstanceLinks
+      parameters:
+      - description: UUID of the Instance that is related to the MARC record
+        explode: false
+        in: path
+        name: instanceId
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/instanceLinkDtoCollection'
+        required: true
+      responses:
+        '202':
+          description: The links were updated
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - instance-links
+  /linking-rules/instance-authority:
+    get:
+      description: Retrieve instance-authority linking rules
+      operationId: getInstanceAuthorityLinkingRules
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Collection of linking rules
+                items:
+                  $ref: '#/components/schemas/linkingRuleDto'
+                title: Collection of linking rules
+                type: array
+          description: The authority linking rules collection
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - linking-rules
+  /linking-rules/instance-authority/{ruleId}:
+    get:
+      description: Retrieve instance-authority linking rule by ID
+      operationId: getInstanceAuthorityLinkingRuleById
+      parameters:
+      - description: ID of the instance-authority linking rule
+        explode: false
+        in: path
+        name: ruleId
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/linkingRuleDto'
+          description: The authority linking rule
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - linking-rules
+    patch:
+      description: Partially update instance-authority linking rule by ID
+      operationId: patchInstanceAuthorityLinkingRuleById
+      parameters:
+      - description: ID of the instance-authority linking rule
+        explode: false
+        in: path
+        name: ruleId
+        required: true
+        schema:
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/linkingRulePatchRequest'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/linkingRuleDto'
+          description: The authority linking rule
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - linking-rules
+  /links-suggestions/marc:
+    post:
+      description: Retrieve links suggestions for marc records
+      operationId: suggestLinksForMarcRecord
+      parameters:
+      - description: Authority field to search by
+        explode: true
+        in: query
+        name: authoritySearchParameter
+        required: false
+        schema:
+          $ref: '#/components/schemas/AuthoritySearchParameter'
+        style: form
+      - description: Indicates if we need to ignore autoLinkingEnabled flag when filtering the fields for suggestions
+        explode: true
+        in: query
+        name: ignoreAutoLinkingEnabled
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/parsedRecordContentCollection'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/parsedRecordContentCollection'
+          description: The marc records with links suggestion
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - links-suggestions
+  /links/stats/authority:
+    get:
+      description: Retrieve authority updates (related to links) statistics
+      operationId: getAuthorityLinksStats
+      parameters:
+      - description: Start date to seek from
+        explode: true
+        in: query
+        name: fromDate
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: End date to seek from
+        explode: true
+        in: query
+        name: toDate
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Action to filter by
+        explode: true
+        in: query
+        name: action
+        required: false
+        schema:
+          $ref: '#/components/schemas/linkAction'
+        style: form
+      - description: Max number of items in collection
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authorityStatsDtoCollection'
+          description: The authority updates statistics collection
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - instance-authority-links-statistics
+  /links/stats/instance:
+    get:
+      description: Retrieve linked bib update statistics
+      operationId: getLinkedBibUpdateStats
+      parameters:
+      - description: Start date to seek from
+        explode: true
+        in: query
+        name: fromDate
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: End date to seek to
+        explode: true
+        in: query
+        name: toDate
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Status to filter by
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          $ref: '#/components/schemas/linkStatus'
+        style: form
+      - description: Max number of items in collection
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bibStatsDtoCollection'
+          description: The linked bib update statistics collection
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - instance-authority-links-statistics
+  /authority-storage/authorities:
+    get:
+      operationId: retrieveAuthorities
+      parameters:
+      - description: Indicates if only deleted authority records should be retrieved
+        in: query
+        name: deleted
+        required: false
+        schema:
+          default: false
+          type: boolean
+      - description: Indicates if only IDs of authority records should be retrieved
+        in: query
+        name: idOnly
+        required: false
+        schema:
+          default: false
+          type: boolean
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 2000
+          minimum: 1
+          type: integer
+      - description: 'A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. Authorities can be queried using the following fields: headingType, authoritySourceFile.id, authoritySourceFile.name, createdDate, updatedDate. Example: headingType=personalName & authoritySourceFile.name=LC Genre/Form Terms & createdDate>2021-10-25T12:00:00.0'
+        in: query
+        name: query
+        required: false
+        schema:
+          default: cql.allRecords=1
+          type: string
+      - description: Specifies accepting media-types for the response
+        in: header
+        name: Accept
+        required: false
+        schema:
+          default: application/json
+          items:
+            description: identifies media-type
+            type: string
+          type: array
+      responses:
+        '200':
+          content:
+            application/json:
+              example: examples/authorities.sample
+              schema:
+                $ref: '#/components/schemas/authorityFullDtoCollection'
+            text/plain;charset=utf-8:
+              example: examples/authorities_ids.sample
+              schema:
+                type: string
+          description: Returns a list of authorities
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage
+    post:
+      operationId: createAuthority
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authorityDto'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authorityDto'
+          description: Record successfully created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage
+  /authority-storage/authorities/bulk:
+    post:
+      operationId: createAuthorityBulk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authorityBulkRequest'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authorityBulkResponse'
+          description: Record successfully created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage
+  /authority-storage/authorities/{id}:
+    delete:
+      operationId: deleteAuthority
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Record successfully deleted
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage
+    get:
+      operationId: getAuthority
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authorityDto'
+          description: Retrieved record
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage
+    put:
+      operationId: updateAuthority
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authorityDto'
+      responses:
+        '204':
+          description: Record successfully updated
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage
+  /authority-storage/reindex:
+    description: Reindex authorities
+    get:
+      operationId: getReindexJobs
+      parameters:
+      - description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+        in: query
+        name: query
+        required: false
+        schema:
+          default: cql.allRecords=1
+          type: string
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 2000
+          minimum: 1
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              example: examples/authorities.sample
+              schema:
+                $ref: '#/components/schemas/reindexJobDtoCollection'
+          description: Returns a list of authorities
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage-reindex
+    post:
+      operationId: submitReindexJob
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reindexJobDto'
+          description: Reindex job has been submitted
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage-reindex
+  /authority-storage/reindex/{id}:
+    delete:
+      operationId: deleteReindexJob
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Record successfully deleted
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage-reindex
+    get:
+      operationId: getReindexJob
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reindexJobDto'
+          description: Retrieved record
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-storage-reindex
+  /authority-note-types:
+    get:
+      operationId: retrieveAuthorityNoteTypes
+      parameters:
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 2000
+          minimum: 1
+          type: integer
+      - description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+        in: query
+        name: query
+        required: false
+        schema:
+          default: cql.allRecords=1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              example: examples/authorities.sample
+              schema:
+                $ref: '#/components/schemas/authorityNoteTypeDtoCollection'
+          description: Returns a list of authority note types
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-note-type
+    post:
+      operationId: createAuthorityNoteType
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authorityNoteTypeDto'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authorityNoteTypeDto'
+          description: Record successfully created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-note-type
+  /authority-note-types/{id}:
+    delete:
+      operationId: deleteAuthorityNoteType
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Record successfully deleted
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-note-type
+    get:
+      operationId: getAuthorityNoteType
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authorityNoteTypeDto'
+          description: Retrieved record
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-note-type
+    put:
+      operationId: updateAuthorityNoteType
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authorityNoteTypeDto'
+      responses:
+        '204':
+          description: Record successfully updated
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-note-type
+  /authority-identifier-types:
+    get:
+      operationId: retrieveAuthorityIdentifierTypes
+      parameters:
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 2000
+          minimum: 1
+          type: integer
+      - description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+        in: query
+        name: query
+        required: false
+        schema:
+          default: cql.allRecords=1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authorityIdentifierTypeDtoCollection'
+          description: Returns a list of authority identifier types
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-identifier-type
+  /authority-heading-types:
+    get:
+      operationId: retrieveAuthorityHeadingTypes
+      parameters:
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 2000
+          minimum: 1
+          type: integer
+      - description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+        in: query
+        name: query
+        required: false
+        schema:
+          default: cql.allRecords=1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authorityHeadingTypeDtoCollection'
+          description: Returns a list of authority heading types
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-heading-type
+  /authority-source-files:
+    get:
+      operationId: retrieveAuthoritySourceFiles
+      parameters:
+      - description: Skip over a number of elements by specifying an offset value for the query.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          maximum: 2147483647
+          minimum: 0
+          type: integer
+      - description: Limit the number of elements returned in the response.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 2000
+          minimum: 1
+          type: integer
+      - description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+        in: query
+        name: query
+        required: false
+        schema:
+          default: cql.allRecords=1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              example: examples/authorities.sample
+              schema:
+                $ref: '#/components/schemas/authoritySourceFileDtoCollection'
+          description: Returns a list of authority source files
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+    post:
+      operationId: createAuthoritySourceFile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authoritySourceFilePostDto'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authoritySourceFileDto'
+          description: Record successfully created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+  /authority-source-files/{id}:
+    delete:
+      operationId: deleteAuthoritySourceFile
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Record successfully deleted
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+    get:
+      operationId: getAuthoritySourceFile
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/authoritySourceFileDto'
+          description: Retrieved record
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+    patch:
+      operationId: patchAuthoritySourceFile
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/authoritySourceFilePatchDto'
+      responses:
+        '204':
+          description: Record successfully updated
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+  /authority-source-files/{id}/hrid:
+    post:
+      operationId: newAuthoritySourceFileNextHrid
+      parameters:
+      - description: The UUID of a record
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '201':
+          content:
+            application/json:
+              example:
+                HridResponse:
+                  value:
+                    id: 13ddfa1a-e711-4608-ba33-565c787a5daa
+                    hrid: fst123
+              schema:
+                $ref: '#/components/schemas/authoritySourceFileHridDto'
+          description: Provide next HRID for the authority source file
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Record was not found.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation error for the request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - authority-source-file
+components:
+  parameters:
+    cql-query:
+      description: A query expressed as a CQL string (see [dev.folio.org/reference/glossary#cql](https://dev.folio.org/reference/glossary#cql)) using valid searchable fields. The first example below shows the general form of a full CQL query, but those fields might not be relevant in this context.
+      in: query
+      name: query
+      required: false
+      schema:
+        default: cql.allRecords=1
+        type: string
+    offset-param:
+      description: Skip over a number of elements by specifying an offset value for the query.
+      in: query
+      name: offset
+      required: false
+      schema:
+        default: 0
+        maximum: 2147483647
+        minimum: 0
+        type: integer
+    limit-param:
+      description: Limit the number of elements returned in the response.
+      in: query
+      name: limit
+      required: false
+      schema:
+        default: 100
+        maximum: 2000
+        minimum: 1
+        type: integer
+    record-id-param:
+      description: The UUID of a record
+      in: path
+      name: id
+      required: true
+      schema:
+        format: uuid
+        type: string
+  responses:
+    badRequestResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+      description: Validation errors.
+    unprocessableEntityResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+      description: Validation error for the request.
+    notFoundResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+      description: Record was not found.
+    serverErrorResponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+      description: Internal server error.
+  schemas:
+    instanceLinkDtoCollection:
+      description: Collection of instance links
+      example:
+        links:
+        - id: 0
+          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          authorityNaturalId: authorityNaturalId
+          instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          linkingRuleId: 6
+          status: status
+          errorCause: errorCause
+        - id: 0
+          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          authorityNaturalId: authorityNaturalId
+          instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          linkingRuleId: 6
+          status: status
+          errorCause: errorCause
+        totalRecords: 1
+      properties:
+        links:
+          items:
+            $ref: '#/components/schemas/instanceLinkDto'
+          type: array
+        totalRecords:
+          description: Total amount of notes
+          readOnly: true
+          type: integer
+      required:
+      - links
+      title: Collection of instance links
+      type: object
+    instanceLinkDto:
+      description: Collection of instance links
+      example:
+        id: 0
+        authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        authorityNaturalId: authorityNaturalId
+        instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        linkingRuleId: 6
+        status: status
+        errorCause: errorCause
+      properties:
+        id:
+          description: Unique generated identifier for the link
+          type: integer
+        authorityId:
+          format: uuid
+          type: string
+        authorityNaturalId:
+          description: Natural ID of the Authority record
+          type: string
+        instanceId:
+          format: uuid
+          type: string
+        linkingRuleId:
+          description: ID of linking rule by which link should be created
+          type: integer
+        status:
+          description: Status of the link
+          readOnly: true
+          type: string
+        errorCause:
+          description: Link update error cause (if present)
+          readOnly: true
+          type: string
+      required:
+      - authorityId
+      - authorityNaturalId
+      - instanceId
+      - linkingRuleId
+      - status
+      title: Collection of instance links
+      type: object
+    uuidCollection:
+      description: Collection of UUIDs
+      properties:
+        ids:
+          items:
+            $ref: '#/components/schemas/uuid'
+          type: array
+      required:
+      - ids
+      title: Collection of UUIDs
+      type: object
+    linkingRuleDto:
+      description: Field to filed linking rule
+      example:
+        id: 0
+        bibField: bibField
+        authorityField: authorityField
+        authoritySubfields:
+        - null
+        - null
+        subfieldModifications:
+        - source: source
+          target: target
+        - source: source
+          target: target
+        validation:
+          existence:
+          - key: true
+          - key: true
+        autoLinkingEnabled: true
+      properties:
+        id:
+          type: integer
+        bibField:
+          type: string
+        authorityField:
+          type: string
+        authoritySubfields:
+          items:
+            $ref: '#/components/schemas/charString'
+          type: array
+        subfieldModifications:
+          items:
+            $ref: '#/components/schemas/subfieldModification'
+          type: array
+        validation:
+          $ref: '#/components/schemas/subfieldValidation'
+        autoLinkingEnabled:
+          type: boolean
+      title: Field to filed linking rule
+      type: object
+    subfieldModification:
+      description: Subfield modification to link source and target subfields.
+      example:
+        source: source
+        target: target
+      properties:
+        source:
+          description: A string that must contain one character
+          type: string
+        target:
+          description: A string that must contain one character
+          type: string
+      title: Subfield modification.
+      type: object
+    subfieldValidation:
+      description: Subfield validation before linking.
+      example:
+        existence:
+        - key: true
+        - key: true
+      properties:
+        existence:
+          description: Specify if subfield should exist or not.
+          items:
+            additionalProperties:
+              type: boolean
+            type: object
+          type: array
+      title: Subfield validation.
+      type: object
+    linkingRulePatchRequest:
+      description: Linking rule PATCH request
+      properties:
+        id:
+          type: integer
+        autoLinkingEnabled:
+          type: boolean
+        authoritySubfields:
+          items:
+            $ref: '#/components/schemas/charString'
+          type: array
+          uniqueItems: true
+      title: Linking rule PATCH request
+      type: object
+    uuid:
+      format: uuid
+      type: string
+    charString:
+      description: A string that must contain one character
+      type: string
+    errorResponse:
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      type: object
+    sourceRecord:
+      additionalProperties: false
+      description: Source record DTO Schema
+      properties:
+        recordId:
+          description: UUID
+          format: uuid
+          type: string
+        snapshotId:
+          description: UUID
+          format: uuid
+          type: string
+        parsedRecord:
+          $ref: '#/components/schemas/SourceParsedRecord'
+      type: object
+    strippedParsedRecordCollection:
+      additionalProperties: false
+      description: Collection of stripped parsed record DTO
+      properties:
+        records:
+          description: List of stripped parsed records
+          items:
+            $ref: '#/components/schemas/strippedParsedRecord'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - records
+      - totalRecords
+      type: object
+    fetchParsedRecordsBatchRequest:
+      additionalProperties: false
+      description: Describes entity to fetch exact fields of parsed records by external IDs
+      properties:
+        conditions:
+          $ref: '#/components/schemas/FetchConditions'
+        data:
+          description: Array of requested fields
+          items:
+            $ref: '#/components/schemas/FieldRange'
+          type: array
+        recordType:
+          allOf:
+          - $ref: '#/components/schemas/recordType'
+          description: Type of record, e.g. MARC
+      required:
+      - conditions
+      - data
+      - recordType
+      type: object
+    parsedRecordContentCollection:
+      description: Collection of SRS records content
+      example:
+        records:
+        - fields:
+          - key:
+              ind1: ind1
+              ind2: ind2
+              subfields:
+              - key: subfields
+              - key: subfields
+              linkDetails:
+                authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                authorityNaturalId: authorityNaturalId
+                status: ACTUAL
+                linkingRuleId: 0
+                errorCause: errorCause
+          - key:
+              ind1: ind1
+              ind2: ind2
+              subfields:
+              - key: subfields
+              - key: subfields
+              linkDetails:
+                authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                authorityNaturalId: authorityNaturalId
+                status: ACTUAL
+                linkingRuleId: 0
+                errorCause: errorCause
+          leader: leader
+        - fields:
+          - key:
+              ind1: ind1
+              ind2: ind2
+              subfields:
+              - key: subfields
+              - key: subfields
+              linkDetails:
+                authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                authorityNaturalId: authorityNaturalId
+                status: ACTUAL
+                linkingRuleId: 0
+                errorCause: errorCause
+          - key:
+              ind1: ind1
+              ind2: ind2
+              subfields:
+              - key: subfields
+              - key: subfields
+              linkDetails:
+                authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                authorityNaturalId: authorityNaturalId
+                status: ACTUAL
+                linkingRuleId: 0
+                errorCause: errorCause
+          leader: leader
+      properties:
+        records:
+          description: List of records content
+          items:
+            $ref: '#/components/schemas/parsedRecordContent'
+          type: array
+      type: object
+    parsedRecordContent:
+      additionalProperties: false
+      description: Parsed record content, e.g. MARC record
+      example:
+        fields:
+        - key:
+            ind1: ind1
+            ind2: ind2
+            subfields:
+            - key: subfields
+            - key: subfields
+            linkDetails:
+              authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              authorityNaturalId: authorityNaturalId
+              status: ACTUAL
+              linkingRuleId: 0
+              errorCause: errorCause
+        - key:
+            ind1: ind1
+            ind2: ind2
+            subfields:
+            - key: subfields
+            - key: subfields
+            linkDetails:
+              authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              authorityNaturalId: authorityNaturalId
+              status: ACTUAL
+              linkingRuleId: 0
+              errorCause: errorCause
+        leader: leader
+      properties:
+        fields:
+          description: List of fields
+          items:
+            additionalProperties:
+              $ref: '#/components/schemas/FieldContent_value'
+            description: Map of marc fields
+            maxProperties: 1
+            title: FieldContent
+            type: object
+          type: array
+        leader:
+          description: Parsed record content, e.g. MARC record
+          type: string
+      required:
+      - fields
+      - leader
+      type: object
+    linkAction:
+      description: Type of change
+      enum:
+      - DELETE
+      - UPDATE_NATURAL_ID
+      - UPDATE_HEADING
+      type: string
+    linkStatus:
+      description: Link status
+      enum:
+      - ACTUAL
+      - ERROR
+      - NEW
+      type: string
+    authorityRelatedHeading:
+      description: An authority related heading for BroaderTerm/NarrowerTerm/LaterHeading/EarlierHeading
+      example:
+        headingRef: headingRef
+        headingType: headingType
+      properties:
+        headingRef:
+          description: HeadingRef value
+          type: string
+        headingType:
+          description: Heading type
+          type: string
+      required:
+      - headingRef
+      - headingType
+      type: object
+    authorityDto:
+      description: An authority record
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        _version: 0
+        source: source
+        personalName: personalName
+        sftPersonalName:
+        - sftPersonalName
+        - sftPersonalName
+        saftPersonalName:
+        - saftPersonalName
+        - saftPersonalName
+        personalNameTitle: personalNameTitle
+        sftPersonalNameTitle:
+        - sftPersonalNameTitle
+        - sftPersonalNameTitle
+        saftPersonalNameTitle:
+        - saftPersonalNameTitle
+        - saftPersonalNameTitle
+        corporateName: corporateName
+        sftCorporateName:
+        - sftCorporateName
+        - sftCorporateName
+        saftCorporateName:
+        - saftCorporateName
+        - saftCorporateName
+        corporateNameTitle: corporateNameTitle
+        sftCorporateNameTitle:
+        - sftCorporateNameTitle
+        - sftCorporateNameTitle
+        saftCorporateNameTitle:
+        - saftCorporateNameTitle
+        - saftCorporateNameTitle
+        meetingName: meetingName
+        sftMeetingName:
+        - sftMeetingName
+        - sftMeetingName
+        saftMeetingName:
+        - saftMeetingName
+        - saftMeetingName
+        meetingNameTitle: meetingNameTitle
+        sftMeetingNameTitle:
+        - sftMeetingNameTitle
+        - sftMeetingNameTitle
+        saftMeetingNameTitle:
+        - saftMeetingNameTitle
+        - saftMeetingNameTitle
+        uniformTitle: uniformTitle
+        sftUniformTitle:
+        - sftUniformTitle
+        - sftUniformTitle
+        saftUniformTitle:
+        - saftUniformTitle
+        - saftUniformTitle
+        namedEvent: namedEvent
+        sftNamedEvent:
+        - sftNamedEvent
+        - sftNamedEvent
+        saftNamedEvent:
+        - saftNamedEvent
+        - saftNamedEvent
+        topicalTerm: topicalTerm
+        sftTopicalTerm:
+        - sftTopicalTerm
+        - sftTopicalTerm
+        saftTopicalTerm:
+        - saftTopicalTerm
+        - saftTopicalTerm
+        subjectHeadings: subjectHeadings
+        geographicName: geographicName
+        sftGeographicName:
+        - sftGeographicName
+        - sftGeographicName
+        saftGeographicName:
+        - saftGeographicName
+        - saftGeographicName
+        genreTerm: genreTerm
+        sftGenreTerm:
+        - sftGenreTerm
+        - sftGenreTerm
+        saftGenreTerm:
+        - saftGenreTerm
+        - saftGenreTerm
+        chronTerm: chronTerm
+        sftChronTerm:
+        - sftChronTerm
+        - sftChronTerm
+        saftChronTerm:
+        - saftChronTerm
+        - saftChronTerm
+        mediumPerfTerm: mediumPerfTerm
+        sftMediumPerfTerm:
+        - sftMediumPerfTerm
+        - sftMediumPerfTerm
+        saftMediumPerfTerm:
+        - saftMediumPerfTerm
+        - saftMediumPerfTerm
+        generalSubdivision: generalSubdivision
+        sftGeneralSubdivision:
+        - sftGeneralSubdivision
+        - sftGeneralSubdivision
+        saftGeneralSubdivision:
+        - saftGeneralSubdivision
+        - saftGeneralSubdivision
+        geographicSubdivision: geographicSubdivision
+        sftGeographicSubdivision:
+        - sftGeographicSubdivision
+        - sftGeographicSubdivision
+        saftGeographicSubdivision:
+        - saftGeographicSubdivision
+        - saftGeographicSubdivision
+        chronSubdivision: chronSubdivision
+        sftChronSubdivision:
+        - sftChronSubdivision
+        - sftChronSubdivision
+        saftChronSubdivision:
+        - saftChronSubdivision
+        - saftChronSubdivision
+        formSubdivision: formSubdivision
+        sftFormSubdivision:
+        - sftFormSubdivision
+        - sftFormSubdivision
+        saftFormSubdivision:
+        - saftFormSubdivision
+        - saftFormSubdivision
+        saftBroaderTerm:
+        - headingRef: headingRef
+          headingType: headingType
+        - headingRef: headingRef
+          headingType: headingType
+        saftNarrowerTerm:
+        - headingRef: headingRef
+          headingType: headingType
+        - headingRef: headingRef
+          headingType: headingType
+        saftEarlierHeading:
+        - headingRef: headingRef
+          headingType: headingType
+        - headingRef: headingRef
+          headingType: headingType
+        saftLaterHeading:
+        - headingRef: headingRef
+          headingType: headingType
+        - headingRef: headingRef
+          headingType: headingType
+        saftPersonalNameTrunc:
+        - saftPersonalNameTrunc
+        - saftPersonalNameTrunc
+        saftPersonalNameTitleTrunc:
+        - saftPersonalNameTitleTrunc
+        - saftPersonalNameTitleTrunc
+        saftCorporateNameTrunc:
+        - saftCorporateNameTrunc
+        - saftCorporateNameTrunc
+        saftCorporateNameTitleTrunc:
+        - saftCorporateNameTitleTrunc
+        - saftCorporateNameTitleTrunc
+        saftMeetingNameTrunc:
+        - saftMeetingNameTrunc
+        - saftMeetingNameTrunc
+        saftMeetingNameTitleTrunc:
+        - saftMeetingNameTitleTrunc
+        - saftMeetingNameTitleTrunc
+        saftUniformTitleTrunc:
+        - saftUniformTitleTrunc
+        - saftUniformTitleTrunc
+        saftTopicalTermTrunc:
+        - saftTopicalTermTrunc
+        - saftTopicalTermTrunc
+        saftGenreTermTrunc:
+        - saftGenreTermTrunc
+        - saftGenreTermTrunc
+        saftGeographicNameTrunc:
+        - saftGeographicNameTrunc
+        - saftGeographicNameTrunc
+        saftNamedEventTrunc:
+        - saftNamedEventTrunc
+        - saftNamedEventTrunc
+        saftChronTermTrunc:
+        - saftChronTermTrunc
+        - saftChronTermTrunc
+        saftMediumPerfTermTrunc:
+        - saftMediumPerfTermTrunc
+        - saftMediumPerfTermTrunc
+        saftGeneralSubdivisionTrunc:
+        - saftGeneralSubdivisionTrunc
+        - saftGeneralSubdivisionTrunc
+        saftGeographicSubdivisionTrunc:
+        - saftGeographicSubdivisionTrunc
+        - saftGeographicSubdivisionTrunc
+        saftChronSubdivisionTrunc:
+        - saftChronSubdivisionTrunc
+        - saftChronSubdivisionTrunc
+        saftFormSubdivisionTrunc:
+        - saftFormSubdivisionTrunc
+        - saftFormSubdivisionTrunc
+        identifiers:
+        - value: value
+          identifierTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          identifierType: identifierType
+        - value: value
+          identifierTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          identifierType: identifierType
+        notes:
+        - noteTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          noteType: noteType
+          note: note
+          staffOnly: true
+        - noteTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          noteType: noteType
+          note: note
+          staffOnly: true
+        sourceFileId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        naturalId: naturalId
+        metadata:
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: Authority UUID
+          format: uuid
+          type: string
+        _version:
+          description: Record version for optimistic locking
+          type: integer
+        source:
+          description: The metadata source of the underlying record to the authority record. (e.g. FOLIO if it's a record created in Inventory;  MARC if it's a MARC record created in data-import)
+          type: string
+        personalName:
+          description: Heading personal name
+          type: string
+        sftPersonalName:
+          description: See from tracing personal name
+          items:
+            type: string
+          type: array
+        saftPersonalName:
+          description: See also from tracing personal name
+          items:
+            type: string
+          type: array
+        personalNameTitle:
+          description: Heading personal name title
+          type: string
+        sftPersonalNameTitle:
+          description: See from tracing personal name title
+          items:
+            type: string
+          type: array
+        saftPersonalNameTitle:
+          description: See also from tracing personal name title
+          items:
+            type: string
+          type: array
+        corporateName:
+          description: Heading corporate name
+          type: string
+        sftCorporateName:
+          description: See from tracing corporate name
+          items:
+            type: string
+          type: array
+        saftCorporateName:
+          description: See also from tracing corporate name
+          items:
+            type: string
+          type: array
+        corporateNameTitle:
+          description: Heading corporate name title
+          type: string
+        sftCorporateNameTitle:
+          description: See from tracing corporate name title
+          items:
+            type: string
+          type: array
+        saftCorporateNameTitle:
+          description: See also from tracing corporate name title
+          items:
+            type: string
+          type: array
+        meetingName:
+          description: Heading meeting name
+          type: string
+        sftMeetingName:
+          description: See from tracing meeting name
+          items:
+            type: string
+          type: array
+        saftMeetingName:
+          description: See also from tracing meeting name
+          items:
+            type: string
+          type: array
+        meetingNameTitle:
+          description: Heading meeting name title
+          type: string
+        sftMeetingNameTitle:
+          description: See from tracing meeting name title
+          items:
+            type: string
+          type: array
+        saftMeetingNameTitle:
+          description: See also from tracing meeting name title
+          items:
+            type: string
+          type: array
+        uniformTitle:
+          description: Heading uniform title
+          type: string
+        sftUniformTitle:
+          description: See from tracing uniform title
+          items:
+            type: string
+          type: array
+        saftUniformTitle:
+          description: See also from tracing uniform title
+          items:
+            type: string
+          type: array
+        namedEvent:
+          description: Heading named event
+          type: string
+        sftNamedEvent:
+          description: See from tracing named event
+          items:
+            type: string
+          type: array
+        saftNamedEvent:
+          description: See also from tracing named event
+          items:
+            type: string
+          type: array
+        topicalTerm:
+          description: Heading topical term
+          type: string
+        sftTopicalTerm:
+          description: See from tracing topical term
+          items:
+            type: string
+          type: array
+        saftTopicalTerm:
+          description: See also from tracing topical term
+          items:
+            type: string
+          type: array
+        subjectHeadings:
+          description: Children's subject headings
+          type: string
+        geographicName:
+          description: Heading geographic name
+          type: string
+        sftGeographicName:
+          description: See from tracing geographic name
+          items:
+            type: string
+          type: array
+        saftGeographicName:
+          description: See also from tracing geographic name
+          items:
+            type: string
+          type: array
+        genreTerm:
+          description: Heading genre/form term
+          type: string
+        sftGenreTerm:
+          description: See from tracing genre/form term
+          items:
+            type: string
+          type: array
+        saftGenreTerm:
+          description: See also from tracing genre/form term
+          items:
+            type: string
+          type: array
+        chronTerm:
+          description: Heading chronological term
+          type: string
+        sftChronTerm:
+          description: See from tracing chronological term
+          items:
+            type: string
+          type: array
+        saftChronTerm:
+          description: See also from tracing chronological term
+          items:
+            type: string
+          type: array
+        mediumPerfTerm:
+          description: Heading medium of performance term
+          type: string
+        sftMediumPerfTerm:
+          description: See from tracing medium of performance term
+          items:
+            type: string
+          type: array
+        saftMediumPerfTerm:
+          description: See also from tracing medium of performance term
+          items:
+            type: string
+          type: array
+        generalSubdivision:
+          description: Heading general subdivision term
+          type: string
+        sftGeneralSubdivision:
+          description: See from tracing general subdivision term
+          items:
+            type: string
+          type: array
+        saftGeneralSubdivision:
+          description: See also from tracing general subdivision term
+          items:
+            type: string
+          type: array
+        geographicSubdivision:
+          description: Heading geographic subdivision term
+          type: string
+        sftGeographicSubdivision:
+          description: See from tracing geographic subdivision term
+          items:
+            type: string
+          type: array
+        saftGeographicSubdivision:
+          description: See also from tracing geographic subdivision term
+          items:
+            type: string
+          type: array
+        chronSubdivision:
+          description: Heading chronological subdivision term
+          type: string
+        sftChronSubdivision:
+          description: See from tracing chronological subdivision term
+          items:
+            type: string
+          type: array
+        saftChronSubdivision:
+          description: See also from tracing chronological subdivision term
+          items:
+            type: string
+          type: array
+        formSubdivision:
+          description: Heading form subdivision term
+          type: string
+        sftFormSubdivision:
+          description: See from tracing form subdivision term
+          items:
+            type: string
+          type: array
+        saftFormSubdivision:
+          description: See also from tracing form subdivision term
+          items:
+            type: string
+          type: array
+        saftBroaderTerm:
+          description: See also from tracing term that represents broader, more general concepts related to the authority record
+          items:
+            $ref: '#/components/schemas/relatedHeading'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftNarrowerTerm:
+          description: See also from tracing term that that represents narrower, more specific concepts derived from the authority record
+          items:
+            $ref: '#/components/schemas/relatedHeading'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftEarlierHeading:
+          description: See also from tracing heading that was previously used to represent the concept or entity described by the authority record. This field is used to track the evolution of terms or headings over time, facilitating the linking of historical and current data.
+          items:
+            $ref: '#/components/schemas/relatedHeading'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftLaterHeading:
+          description: See also from tracing heading that replaced the current heading used in the authority record. This field helps in maintaining the continuity of catalog records by linking past headings to their more current versions.
+          items:
+            $ref: '#/components/schemas/relatedHeading'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftPersonalNameTrunc:
+          description: See also from tracing personal name
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftPersonalNameTitleTrunc:
+          description: See also from tracing personal name title
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftCorporateNameTrunc:
+          description: See also from tracing corporate name
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftCorporateNameTitleTrunc:
+          description: See also from tracing corporate name title
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftMeetingNameTrunc:
+          description: See also from tracing meeting name
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftMeetingNameTitleTrunc:
+          description: See also from tracing meeting name title
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftUniformTitleTrunc:
+          description: See also from tracing uniform title
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftTopicalTermTrunc:
+          description: See also from tracing topical term
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftGenreTermTrunc:
+          description: See also from tracing genre/form term
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftGeographicNameTrunc:
+          description: See also from tracing geographic name
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftNamedEventTrunc:
+          description: See also from tracing named event
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftChronTermTrunc:
+          description: See also from tracing chronological term
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftMediumPerfTermTrunc:
+          description: See also from tracing medium of performance term
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftGeneralSubdivisionTrunc:
+          description: See also from tracing general subdivision term
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftGeographicSubdivisionTrunc:
+          description: See also from tracing geographic subdivision term
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftChronSubdivisionTrunc:
+          description: See also from tracing chronological subdivision term
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        saftFormSubdivisionTrunc:
+          description: See also from tracing form subdivision term
+          items:
+            type: string
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)'
+        identifiers:
+          description: An extensible set of name-value pairs of identifiers associated with the resource
+          items:
+            $ref: '#/components/schemas/authorityDtoIdentifier'
+          type: array
+        notes:
+          description: Notes (e.g. nonpublic general note)
+          items:
+            $ref: '#/components/schemas/authorityDtoNote'
+          type: array
+        sourceFileId:
+          description: Authority source file id; UUID
+          format: uuid
+          type: string
+        naturalId:
+          description: Authority Natural ID
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - naturalId
+      - source
+      type: object
+    authorityDtoCollection:
+      description: A collection of authority records
+      example:
+        authorities:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          _version: 0
+          source: source
+          personalName: personalName
+          sftPersonalName:
+          - sftPersonalName
+          - sftPersonalName
+          saftPersonalName:
+          - saftPersonalName
+          - saftPersonalName
+          personalNameTitle: personalNameTitle
+          sftPersonalNameTitle:
+          - sftPersonalNameTitle
+          - sftPersonalNameTitle
+          saftPersonalNameTitle:
+          - saftPersonalNameTitle
+          - saftPersonalNameTitle
+          corporateName: corporateName
+          sftCorporateName:
+          - sftCorporateName
+          - sftCorporateName
+          saftCorporateName:
+          - saftCorporateName
+          - saftCorporateName
+          corporateNameTitle: corporateNameTitle
+          sftCorporateNameTitle:
+          - sftCorporateNameTitle
+          - sftCorporateNameTitle
+          saftCorporateNameTitle:
+          - saftCorporateNameTitle
+          - saftCorporateNameTitle
+          meetingName: meetingName
+          sftMeetingName:
+          - sftMeetingName
+          - sftMeetingName
+          saftMeetingName:
+          - saftMeetingName
+          - saftMeetingName
+          meetingNameTitle: meetingNameTitle
+          sftMeetingNameTitle:
+          - sftMeetingNameTitle
+          - sftMeetingNameTitle
+          saftMeetingNameTitle:
+          - saftMeetingNameTitle
+          - saftMeetingNameTitle
+          uniformTitle: uniformTitle
+          sftUniformTitle:
+          - sftUniformTitle
+          - sftUniformTitle
+          saftUniformTitle:
+          - saftUniformTitle
+          - saftUniformTitle
+          namedEvent: namedEvent
+          sftNamedEvent:
+          - sftNamedEvent
+          - sftNamedEvent
+          saftNamedEvent:
+          - saftNamedEvent
+          - saftNamedEvent
+          topicalTerm: topicalTerm
+          sftTopicalTerm:
+          - sftTopicalTerm
+          - sftTopicalTerm
+          saftTopicalTerm:
+          - saftTopicalTerm
+          - saftTopicalTerm
+          subjectHeadings: subjectHeadings
+          geographicName: geographicName
+          sftGeographicName:
+          - sftGeographicName
+          - sftGeographicName
+          saftGeographicName:
+          - saftGeographicName
+          - saftGeographicName
+          genreTerm: genreTerm
+          sftGenreTerm:
+          - sftGenreTerm
+          - sftGenreTerm
+          saftGenreTerm:
+          - saftGenreTerm
+          - saftGenreTerm
+          chronTerm: chronTerm
+          sftChronTerm:
+          - sftChronTerm
+          - sftChronTerm
+          saftChronTerm:
+          - saftChronTerm
+          - saftChronTerm
+          mediumPerfTerm: mediumPerfTerm
+          sftMediumPerfTerm:
+          - sftMediumPerfTerm
+          - sftMediumPerfTerm
+          saftMediumPerfTerm:
+          - saftMediumPerfTerm
+          - saftMediumPerfTerm
+          generalSubdivision: generalSubdivision
+          sftGeneralSubdivision:
+          - sftGeneralSubdivision
+          - sftGeneralSubdivision
+          saftGeneralSubdivision:
+          - saftGeneralSubdivision
+          - saftGeneralSubdivision
+          geographicSubdivision: geographicSubdivision
+          sftGeographicSubdivision:
+          - sftGeographicSubdivision
+          - sftGeographicSubdivision
+          saftGeographicSubdivision:
+          - saftGeographicSubdivision
+          - saftGeographicSubdivision
+          chronSubdivision: chronSubdivision
+          sftChronSubdivision:
+          - sftChronSubdivision
+          - sftChronSubdivision
+          saftChronSubdivision:
+          - saftChronSubdivision
+          - saftChronSubdivision
+          formSubdivision: formSubdivision
+          sftFormSubdivision:
+          - sftFormSubdivision
+          - sftFormSubdivision
+          saftFormSubdivision:
+          - saftFormSubdivision
+          - saftFormSubdivision
+          saftBroaderTerm:
+          - headingRef: headingRef
+            headingType: headingType
+          - headingRef: headingRef
+            headingType: headingType
+          saftNarrowerTerm:
+          - headingRef: headingRef
+            headingType: headingType
+          - headingRef: headingRef
+            headingType: headingType
+          saftEarlierHeading:
+          - headingRef: headingRef
+            headingType: headingType
+          - headingRef: headingRef
+            headingType: headingType
+          saftLaterHeading:
+          - headingRef: headingRef
+            headingType: headingType
+          - headingRef: headingRef
+            headingType: headingType
+          saftPersonalNameTrunc:
+          - saftPersonalNameTrunc
+          - saftPersonalNameTrunc
+          saftPersonalNameTitleTrunc:
+          - saftPersonalNameTitleTrunc
+          - saftPersonalNameTitleTrunc
+          saftCorporateNameTrunc:
+          - saftCorporateNameTrunc
+          - saftCorporateNameTrunc
+          saftCorporateNameTitleTrunc:
+          - saftCorporateNameTitleTrunc
+          - saftCorporateNameTitleTrunc
+          saftMeetingNameTrunc:
+          - saftMeetingNameTrunc
+          - saftMeetingNameTrunc
+          saftMeetingNameTitleTrunc:
+          - saftMeetingNameTitleTrunc
+          - saftMeetingNameTitleTrunc
+          saftUniformTitleTrunc:
+          - saftUniformTitleTrunc
+          - saftUniformTitleTrunc
+          saftTopicalTermTrunc:
+          - saftTopicalTermTrunc
+          - saftTopicalTermTrunc
+          saftGenreTermTrunc:
+          - saftGenreTermTrunc
+          - saftGenreTermTrunc
+          saftGeographicNameTrunc:
+          - saftGeographicNameTrunc
+          - saftGeographicNameTrunc
+          saftNamedEventTrunc:
+          - saftNamedEventTrunc
+          - saftNamedEventTrunc
+          saftChronTermTrunc:
+          - saftChronTermTrunc
+          - saftChronTermTrunc
+          saftMediumPerfTermTrunc:
+          - saftMediumPerfTermTrunc
+          - saftMediumPerfTermTrunc
+          saftGeneralSubdivisionTrunc:
+          - saftGeneralSubdivisionTrunc
+          - saftGeneralSubdivisionTrunc
+          saftGeographicSubdivisionTrunc:
+          - saftGeographicSubdivisionTrunc
+          - saftGeographicSubdivisionTrunc
+          saftChronSubdivisionTrunc:
+          - saftChronSubdivisionTrunc
+          - saftChronSubdivisionTrunc
+          saftFormSubdivisionTrunc:
+          - saftFormSubdivisionTrunc
+          - saftFormSubdivisionTrunc
+          identifiers:
+          - value: value
+            identifierTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            identifierType: identifierType
+          - value: value
+            identifierTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            identifierType: identifierType
+          notes:
+          - noteTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            noteType: noteType
+            note: note
+            staffOnly: true
+          - noteTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            noteType: noteType
+            note: note
+            staffOnly: true
+          sourceFileId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          naturalId: naturalId
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          _version: 0
+          source: source
+          personalName: personalName
+          sftPersonalName:
+          - sftPersonalName
+          - sftPersonalName
+          saftPersonalName:
+          - saftPersonalName
+          - saftPersonalName
+          personalNameTitle: personalNameTitle
+          sftPersonalNameTitle:
+          - sftPersonalNameTitle
+          - sftPersonalNameTitle
+          saftPersonalNameTitle:
+          - saftPersonalNameTitle
+          - saftPersonalNameTitle
+          corporateName: corporateName
+          sftCorporateName:
+          - sftCorporateName
+          - sftCorporateName
+          saftCorporateName:
+          - saftCorporateName
+          - saftCorporateName
+          corporateNameTitle: corporateNameTitle
+          sftCorporateNameTitle:
+          - sftCorporateNameTitle
+          - sftCorporateNameTitle
+          saftCorporateNameTitle:
+          - saftCorporateNameTitle
+          - saftCorporateNameTitle
+          meetingName: meetingName
+          sftMeetingName:
+          - sftMeetingName
+          - sftMeetingName
+          saftMeetingName:
+          - saftMeetingName
+          - saftMeetingName
+          meetingNameTitle: meetingNameTitle
+          sftMeetingNameTitle:
+          - sftMeetingNameTitle
+          - sftMeetingNameTitle
+          saftMeetingNameTitle:
+          - saftMeetingNameTitle
+          - saftMeetingNameTitle
+          uniformTitle: uniformTitle
+          sftUniformTitle:
+          - sftUniformTitle
+          - sftUniformTitle
+          saftUniformTitle:
+          - saftUniformTitle
+          - saftUniformTitle
+          namedEvent: namedEvent
+          sftNamedEvent:
+          - sftNamedEvent
+          - sftNamedEvent
+          saftNamedEvent:
+          - saftNamedEvent
+          - saftNamedEvent
+          topicalTerm: topicalTerm
+          sftTopicalTerm:
+          - sftTopicalTerm
+          - sftTopicalTerm
+          saftTopicalTerm:
+          - saftTopicalTerm
+          - saftTopicalTerm
+          subjectHeadings: subjectHeadings
+          geographicName: geographicName
+          sftGeographicName:
+          - sftGeographicName
+          - sftGeographicName
+          saftGeographicName:
+          - saftGeographicName
+          - saftGeographicName
+          genreTerm: genreTerm
+          sftGenreTerm:
+          - sftGenreTerm
+          - sftGenreTerm
+          saftGenreTerm:
+          - saftGenreTerm
+          - saftGenreTerm
+          chronTerm: chronTerm
+          sftChronTerm:
+          - sftChronTerm
+          - sftChronTerm
+          saftChronTerm:
+          - saftChronTerm
+          - saftChronTerm
+          mediumPerfTerm: mediumPerfTerm
+          sftMediumPerfTerm:
+          - sftMediumPerfTerm
+          - sftMediumPerfTerm
+          saftMediumPerfTerm:
+          - saftMediumPerfTerm
+          - saftMediumPerfTerm
+          generalSubdivision: generalSubdivision
+          sftGeneralSubdivision:
+          - sftGeneralSubdivision
+          - sftGeneralSubdivision
+          saftGeneralSubdivision:
+          - saftGeneralSubdivision
+          - saftGeneralSubdivision
+          geographicSubdivision: geographicSubdivision
+          sftGeographicSubdivision:
+          - sftGeographicSubdivision
+          - sftGeographicSubdivision
+          saftGeographicSubdivision:
+          - saftGeographicSubdivision
+          - saftGeographicSubdivision
+          chronSubdivision: chronSubdivision
+          sftChronSubdivision:
+          - sftChronSubdivision
+          - sftChronSubdivision
+          saftChronSubdivision:
+          - saftChronSubdivision
+          - saftChronSubdivision
+          formSubdivision: formSubdivision
+          sftFormSubdivision:
+          - sftFormSubdivision
+          - sftFormSubdivision
+          saftFormSubdivision:
+          - saftFormSubdivision
+          - saftFormSubdivision
+          saftBroaderTerm:
+          - headingRef: headingRef
+            headingType: headingType
+          - headingRef: headingRef
+            headingType: headingType
+          saftNarrowerTerm:
+          - headingRef: headingRef
+            headingType: headingType
+          - headingRef: headingRef
+            headingType: headingType
+          saftEarlierHeading:
+          - headingRef: headingRef
+            headingType: headingType
+          - headingRef: headingRef
+            headingType: headingType
+          saftLaterHeading:
+          - headingRef: headingRef
+            headingType: headingType
+          - headingRef: headingRef
+            headingType: headingType
+          saftPersonalNameTrunc:
+          - saftPersonalNameTrunc
+          - saftPersonalNameTrunc
+          saftPersonalNameTitleTrunc:
+          - saftPersonalNameTitleTrunc
+          - saftPersonalNameTitleTrunc
+          saftCorporateNameTrunc:
+          - saftCorporateNameTrunc
+          - saftCorporateNameTrunc
+          saftCorporateNameTitleTrunc:
+          - saftCorporateNameTitleTrunc
+          - saftCorporateNameTitleTrunc
+          saftMeetingNameTrunc:
+          - saftMeetingNameTrunc
+          - saftMeetingNameTrunc
+          saftMeetingNameTitleTrunc:
+          - saftMeetingNameTitleTrunc
+          - saftMeetingNameTitleTrunc
+          saftUniformTitleTrunc:
+          - saftUniformTitleTrunc
+          - saftUniformTitleTrunc
+          saftTopicalTermTrunc:
+          - saftTopicalTermTrunc
+          - saftTopicalTermTrunc
+          saftGenreTermTrunc:
+          - saftGenreTermTrunc
+          - saftGenreTermTrunc
+          saftGeographicNameTrunc:
+          - saftGeographicNameTrunc
+          - saftGeographicNameTrunc
+          saftNamedEventTrunc:
+          - saftNamedEventTrunc
+          - saftNamedEventTrunc
+          saftChronTermTrunc:
+          - saftChronTermTrunc
+          - saftChronTermTrunc
+          saftMediumPerfTermTrunc:
+          - saftMediumPerfTermTrunc
+          - saftMediumPerfTermTrunc
+          saftGeneralSubdivisionTrunc:
+          - saftGeneralSubdivisionTrunc
+          - saftGeneralSubdivisionTrunc
+          saftGeographicSubdivisionTrunc:
+          - saftGeographicSubdivisionTrunc
+          - saftGeographicSubdivisionTrunc
+          saftChronSubdivisionTrunc:
+          - saftChronSubdivisionTrunc
+          - saftChronSubdivisionTrunc
+          saftFormSubdivisionTrunc:
+          - saftFormSubdivisionTrunc
+          - saftFormSubdivisionTrunc
+          identifiers:
+          - value: value
+            identifierTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            identifierType: identifierType
+          - value: value
+            identifierTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            identifierType: identifierType
+          notes:
+          - noteTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            noteType: noteType
+            note: note
+            staffOnly: true
+          - noteTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            noteType: noteType
+            note: note
+            staffOnly: true
+          sourceFileId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          naturalId: naturalId
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        totalRecords: 6
+      properties:
+        authorities:
+          description: List of authority records
+          items:
+            $ref: '#/components/schemas/authorityDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - authorities
+      - totalRecords
+      type: object
+    authorityNoteTypeDto:
+      description: An Authority note type
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        source: source
+        metadata:
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: Unique ID of the Authority note type; a UUID
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.id
+          x-fqm-essential: true
+        name:
+          description: Name of the Authority note type
+          type: string
+          x-fqm-essential: true
+          x-fqm-id-column-name: id
+          x-fqm-visible-by-default: true
+          x-fqm-value-getter: :sourceAlias.name
+          x-fqm-value-source-api:
+            path: authority-note-types
+            valueJsonPath: $.authorityNoteTypes.*.id
+            labelJsonPath: $.authorityNoteTypes.*.name
+        source:
+          description: label indicating where the Authority note type entry originates from, i.e. 'folio' or 'local'
+          type: string
+          x-fqm-ignore: true
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+      - source
+      type: object
+    authorityNoteTypeDtoCollection:
+      description: A collection of authority note types
+      example:
+        authorityNoteTypes:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          source: source
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          source: source
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        totalRecords: 0
+      properties:
+        authorityNoteTypes:
+          description: List of authority note types
+          items:
+            $ref: '#/components/schemas/authorityNoteTypeDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - authorityNoteTypes
+      - totalRecords
+      type: object
+    authorityIdentifierTypeDto:
+      description: An authority identifier type
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        code: code
+        source: source
+        metadata:
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: Unique ID of the authority identifier type; a UUID
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.id
+          x-fqm-essential: true
+        name:
+          description: Name of the authority identifier type
+          type: string
+          x-fqm-essential: true
+          x-fqm-id-column-name: id
+          x-fqm-visible-by-default: true
+          x-fqm-value-getter: :sourceAlias.name
+          x-fqm-value-source-api:
+            path: authority-identifier-types
+            valueJsonPath: $.identifierTypes.*.id
+            labelJsonPath: $.identifierTypes.*.name
+        code:
+          description: Stable human-readable code of the authority identifier type
+          type: string
+          x-fqm-value-getter: :sourceAlias.code
+        source:
+          description: Label indicating where the authority identifier type entry originates from, i.e. 'folio' or 'local'
+          type: string
+          x-fqm-ignore: true
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - code
+      - name
+      - source
+      type: object
+    authorityIdentifierTypeDtoCollection:
+      description: A collection of authority identifier types
+      example:
+        identifierTypes:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          code: code
+          source: source
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          code: code
+          source: source
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        totalRecords: 0
+      properties:
+        identifierTypes:
+          description: List of authority identifier types
+          items:
+            $ref: '#/components/schemas/authorityIdentifierTypeDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - identifierTypes
+      - totalRecords
+      type: object
+    authorityHeadingTypeDto:
+      description: An authority heading type
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        code: code
+        queryable: true
+      properties:
+        id:
+          description: Unique ID of the authority heading type; a UUID
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.id
+        name:
+          description: Name of the authority heading type
+          type: string
+          x-fqm-essential: true
+          x-fqm-id-column-name: code
+          x-fqm-visible-by-default: true
+          x-fqm-value-getter: :sourceAlias.name
+          x-fqm-value-source-api:
+            path: authority-heading-types
+            valueJsonPath: $.headingTypes[?(@.queryable == true)].code
+            labelJsonPath: $.headingTypes[?(@.queryable == true)].name
+        code:
+          description: Code of the authority heading type
+          type: string
+          x-fqm-value-getter: :sourceAlias.code
+          x-fqm-essential: true
+        queryable:
+          description: Whether this heading type is queryable
+          type: boolean
+          x-fqm-value-getter: :sourceAlias.queryable
+      required:
+      - code
+      - name
+      type: object
+    authorityHeadingTypeDtoCollection:
+      description: A collection of authority heading types
+      example:
+        headingTypes:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          code: code
+          queryable: true
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          code: code
+          queryable: true
+        totalRecords: 0
+      properties:
+        headingTypes:
+          description: List of authority heading types
+          items:
+            $ref: '#/components/schemas/authorityHeadingTypeDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - headingTypes
+      - totalRecords
+      type: object
+    authoritySourceFileDto:
+      description: An Authority source file
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        codes:
+        - codes
+        - codes
+        type: type
+        baseUrl: http://example.com/aeiou
+        source: folio
+        selectable: true
+        hridManagement:
+          startNumber: 0
+        _version: 6
+        metadata:
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: Unique ID of the Authority source file; a UUID
+          format: uuid
+          type: string
+          x-fqm-essential: true
+          x-fqm-visibility: hidden
+          x-fqm-value-getter: :sourceAlias.id
+        name:
+          description: Authority source file name
+          type: string
+          x-fqm-essential: true
+          x-fqm-id-column-name: id
+          x-fqm-visible-by-default: true
+          x-fqm-value-getter: :sourceAlias.name
+          x-fqm-value-source-api:
+            path: authority-source-files
+            valueJsonPath: $.authoritySourceFiles.*.id
+            labelJsonPath: $.authoritySourceFiles.*.name
+        codes:
+          description: List of identifying prefix
+          items:
+            description: identifying prefix, i.e. 'n', 'D', 'fst'
+            type: string
+          type: array
+          x-fqm-ignore: true
+        type:
+          description: Type of authority records stored in source file
+          type: string
+          x-fqm-ignore: true
+        baseUrl:
+          description: Base URL of the source file origin
+          format: url
+          type: string
+          x-fqm-ignore: true
+        source:
+          description: label indicating where the authority source file entry originates from, i.e. 'folio' or 'local'
+          enum:
+          - folio
+          - local
+          type: string
+          x-fqm-ignore: true
+        selectable:
+          type: boolean
+          x-fqm-ignore: true
+        hridManagement:
+          $ref: '#/components/schemas/authoritySourceFileDto_hridManagement'
+        _version:
+          description: Record version for optimistic locking
+          type: integer
+          x-fqm-ignore: true
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - codes
+      - name
+      - source
+      type: object
+    authoritySourceFileDtoCollection:
+      description: A collection of authority source files
+      example:
+        authoritySourceFiles:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          codes:
+          - codes
+          - codes
+          type: type
+          baseUrl: http://example.com/aeiou
+          source: folio
+          selectable: true
+          hridManagement:
+            startNumber: 0
+          _version: 6
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          codes:
+          - codes
+          - codes
+          type: type
+          baseUrl: http://example.com/aeiou
+          source: folio
+          selectable: true
+          hridManagement:
+            startNumber: 0
+          _version: 6
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        totalRecords: 1
+      properties:
+        authoritySourceFiles:
+          description: List of authority source files
+          items:
+            $ref: '#/components/schemas/authoritySourceFileDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - totalRecords
+      type: object
+    reindexJobDto:
+      description: Get job by id response
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        published: 0
+        jobStatus: In progress
+        resourceName: Authority
+        submittedDate: '2000-01-23T04:56:07.000+00:00'
+      properties:
+        id:
+          description: Job id
+          format: uuid
+          type: string
+        published:
+          description: Number of records that was published so far
+          type: integer
+        jobStatus:
+          description: Overall job status
+          enum:
+          - In progress
+          - Id publishing failed
+          - Ids published
+          - Pending cancel
+          - Id publishing cancelled
+          type: string
+        resourceName:
+          description: Reindex resource name
+          enum:
+          - Authority
+          type: string
+        submittedDate:
+          description: Timestamp when the job has been submitted
+          format: date-time
+          type: string
+      type: object
+    reindexJobDtoCollection:
+      description: A collection of reindex jobs
+      example:
+        reindexJobs:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          published: 0
+          jobStatus: In progress
+          resourceName: Authority
+          submittedDate: '2000-01-23T04:56:07.000+00:00'
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          published: 0
+          jobStatus: In progress
+          resourceName: Authority
+          submittedDate: '2000-01-23T04:56:07.000+00:00'
+        totalRecords: 6
+      properties:
+        reindexJobs:
+          description: List of reindex jobs
+          items:
+            $ref: '#/components/schemas/reindexJobDto'
+          type: array
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - reindexJobs
+      - totalRecords
+      type: object
+    linksChangeEvent:
+      description: Links change event body
+      properties:
+        jobId:
+          description: Links change job ID
+          format: uuid
+          type: string
+        authorityId:
+          description: Authority ID
+          format: uuid
+          type: string
+        type:
+          description: Event operation type
+          enum:
+          - UPDATE
+          - DELETE
+          type: string
+        updateTargets:
+          description: MARC Bibs' related instance IDs that are required change grouped by MARC Bib's linked field
+          items:
+            $ref: '#/components/schemas/changeTarget'
+          type: array
+        subfieldsChanges:
+          description: Subfields to change in MARC bib fields
+          items:
+            $ref: '#/components/schemas/fieldChange'
+          type: array
+        tenant:
+          description: Tenant id
+          type: string
+        ts:
+          description: Timestamp
+          type: string
+      type: object
+      x-implements:
+      - org.folio.entlinks.integration.dto.event.BaseEvent
+    changeTarget:
+      description: MARC Bibs' related instance IDs that are required change and MARC Bib's linked field
+      properties:
+        field:
+          description: MARC Bib's field that required change
+          type: string
+        links:
+          description: Instance-authority links
+          items:
+            $ref: '#/components/schemas/changeTargetLink'
+          type: array
+      type: object
+    changeTargetLink:
+      description: Instance-authority target link
+      properties:
+        linkId:
+          description: Link ID
+          format: int64
+          type: integer
+        instanceId:
+          description: Instance ID
+          format: uuid
+          type: string
+      type: object
+    fieldChange:
+      description: Change that should be applied to MARC field
+      properties:
+        field:
+          description: MARC bib field
+          type: string
+        subfields:
+          description: MARC bib field's subfield that should be changed
+          items:
+            $ref: '#/components/schemas/subfieldChange'
+          type: array
+      type: object
+    subfieldChange:
+      description: Change that should be applied to MARC subfield
+      properties:
+        code:
+          description: Subfield code
+          type: string
+        value:
+          description: Subfield value. If empty - then remove
+          type: string
+      type: object
+    bibStatsDtoCollection:
+      description: Collection of changes statistic. For local bibs when consortium member; shared when consortium central
+      example:
+        stats:
+        - instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          instanceTitle: instanceTitle
+          bibRecordTag: bibRecordTag
+          authorityNaturalId: authorityNaturalId
+          updatedAt: '2000-01-23T04:56:07.000+00:00'
+          errorCause: errorCause
+        - instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          instanceTitle: instanceTitle
+          bibRecordTag: bibRecordTag
+          authorityNaturalId: authorityNaturalId
+          updatedAt: '2000-01-23T04:56:07.000+00:00'
+          errorCause: errorCause
+        next: '2000-01-23T04:56:07.000+00:00'
+      properties:
+        stats:
+          description: Changes statistic
+          items:
+            $ref: '#/components/schemas/bibStatsDto'
+          type: array
+        next:
+          description: Next response item date to seek by
+          format: date-time
+          type: string
+      type: object
+    authorityStatsDtoCollection:
+      description: Collection of authority changes statistic. Shared and local when consortium member; shared when consortium central
+      example:
+        stats:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          action: DELETE
+          naturalIdOld: naturalIdOld
+          naturalIdNew: naturalIdNew
+          headingOld: headingOld
+          headingNew: headingNew
+          headingTypeOld: headingTypeOld
+          headingTypeNew: headingTypeNew
+          sourceFileOld: sourceFileOld
+          sourceFileNew: sourceFileNew
+          metadata:
+            startedAt: '2000-01-23T04:56:07.000+00:00'
+            startedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            startedByUserFirstName: startedByUserFirstName
+            startedByUserLastName: startedByUserLastName
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          action: DELETE
+          naturalIdOld: naturalIdOld
+          naturalIdNew: naturalIdNew
+          headingOld: headingOld
+          headingNew: headingNew
+          headingTypeOld: headingTypeOld
+          headingTypeNew: headingTypeNew
+          sourceFileOld: sourceFileOld
+          sourceFileNew: sourceFileNew
+          metadata:
+            startedAt: '2000-01-23T04:56:07.000+00:00'
+            startedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            startedByUserFirstName: startedByUserFirstName
+            startedByUserLastName: startedByUserLastName
+        next: '2000-01-23T04:56:07.000+00:00'
+      properties:
+        stats:
+          description: Authority changes statistic
+          items:
+            $ref: '#/components/schemas/authorityStatsDto'
+          type: array
+        next:
+          description: Next response item date to seek by
+          format: date-time
+          type: string
+      type: object
+    linkUpdateReport:
+      description: Link update report
+      properties:
+        jobId:
+          description: Linked bibs update job id, UUID
+          format: uuid
+          type: string
+        instanceId:
+          description: Instance id, UUID
+          format: uuid
+          type: string
+        linkIds:
+          description: All bib-related link ids
+          items:
+            type: integer
+          type: array
+        failCause:
+          description: Failure message
+          type: string
+        status:
+          description: Link update status
+          enum:
+          - SUCCESS
+          - FAIL
+          type: string
+        tenant:
+          description: Tenant id
+          type: string
+        ts:
+          description: Timestamp
+          type: string
+      type: object
+      x-implements:
+      - org.folio.entlinks.integration.dto.event.BaseEvent
+    AuthoritySearchParameter:
+      default: NATURAL_ID
+      description: Authority search parameter for link suggestions
+      enum:
+      - ID
+      - NATURAL_ID
+      type: string
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object
+    authorityIdDtoCollection:
+      description: A collection of authority ID records
+      properties:
+        authorities:
+          description: List of authority records
+          items:
+            $ref: '#/components/schemas/authorityIdDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - authorities
+      - totalRecords
+      type: object
+    authorityBulkRequest:
+      description: Bulk authorities create request
+      properties:
+        recordsFileName:
+          description: File name of authority records
+          type: string
+      required:
+      - recordsFileName
+      type: object
+    authorityBulkResponse:
+      description: Bulk authorities create response
+      example:
+        errorRecordsFileName: errorRecordsFileName
+        errorsFileName: errorsFileName
+        errorsNumber: 0
+      properties:
+        errorRecordsFileName:
+          description: File name of error authorities
+          type: string
+        errorsFileName:
+          description: File name of error details
+          type: string
+        errorsNumber:
+          description: Total number of errors
+          type: integer
+      type: object
+    authoritySourceFilePostDto:
+      description: An Authority source file
+      properties:
+        id:
+          description: Unique ID of the Authority source file; a UUID
+          format: uuid
+          type: string
+        name:
+          description: Authority source file name
+          type: string
+        code:
+          description: Label identifying prefix, i.e. 'n', 'D', 'fst'
+          maxLength: 25
+          minLength: 1
+          type: string
+        type:
+          description: Type of authority records stored in source file
+          type: string
+        baseUrl:
+          description: Base URL of the source file origin
+          format: url
+          type: string
+        selectable:
+          default: true
+          type: boolean
+        hridManagement:
+          $ref: '#/components/schemas/authoritySourceFilePostDto_hridManagement'
+      required:
+      - code
+      - name
+      type: object
+    authoritySourceFilePatchDto:
+      description: An Authority source file DTO for partial update operation
+      properties:
+        name:
+          description: Authority source file name
+          type: string
+        code:
+          description: identifying prefix, i.e. 'n', 'D', 'fst'
+          maxLength: 25
+          minLength: 1
+          type: string
+        type:
+          description: Type of authority records stored in source file
+          type: string
+        baseUrl:
+          description: Base URL of the source file origin
+          format: url
+          type: string
+        selectable:
+          type: boolean
+        hridManagement:
+          $ref: '#/components/schemas/authoritySourceFilePatchDto_hridManagement'
+        _version:
+          description: Record version for optimistic locking
+          type: integer
+      required:
+      - _version
+      type: object
+    authoritySourceFileHridDto:
+      description: An Authority source file HRID response
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        hrid: hrid
+      properties:
+        id:
+          description: Unique ID of the Authority source file
+          format: uuid
+          type: string
+        hrid:
+          description: Next available Authority source file HRID
+          type: string
+      type: object
+    relatedHeading:
+      description: An authority related heading for BroaderTerm/NarrowerTerm/LaterHeading/EarlierHeading
+      example:
+        headingRef: headingRef
+        headingType: headingType
+      properties:
+        headingRef:
+          description: HeadingRef value
+          type: string
+        headingType:
+          description: Heading type
+          type: string
+      required:
+      - headingRef
+      - headingType
+      type: object
+    authorityDtoIdentifier:
+      description: Identifier associated with the authority
+      example:
+        value: value
+        identifierTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        identifierType: identifierType
+      properties:
+        value:
+          description: Resource identifier value
+          type: string
+          x-fqm-value-getter: (SELECT array_agg(elems.value->>'value') FROM jsonb_array_elements(:sourceAlias.identifiers) AS elems)
+          x-fqm-filter-value-getter: (SELECT array_agg(lower(elems.value->>'value')) FROM jsonb_array_elements(:sourceAlias.identifiers) AS elems)
+        identifierTypeId:
+          description: Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)
+          format: uuid
+          type: string
+          x-fqm-visibility: hidden
+          x-fqm-value-getter: (SELECT array_agg(elems.value->>'identifierTypeId') FROM jsonb_array_elements(:sourceAlias.identifiers) AS elems)
+        identifierType:
+          description: Resource identifier type. Used only for FQM queries
+          readOnly: true
+          type: string
+          x-fqm-value-function: :value
+          x-fqm-value-getter: (SELECT array_agg(elems.value->>'identifierTypeId') FROM jsonb_array_elements(:sourceAlias.identifiers) AS elems)
+          x-fqm-filter-value-getter: (SELECT array_agg(elems.value->>'identifierTypeId') FROM jsonb_array_elements(:sourceAlias.identifiers) AS elems)
+          x-fqm-source:
+            entityTypeId: e1d77962-f469-5a9c-a0e0-30987c1bae99
+            columnName: name
+      required:
+      - identifierTypeId
+      - value
+      type: object
+    authorityDtoNote:
+      description: Authority note
+      example:
+        noteTypeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        noteType: noteType
+        note: note
+        staffOnly: true
+      properties:
+        noteTypeId:
+          description: Note type id
+          format: uuid
+          type: string
+          x-fqm-visibility: hidden
+          x-fqm-value-getter: (SELECT array_agg(elems.value->>'noteTypeId') FROM jsonb_array_elements(:sourceAlias.notes) AS elems)
+        noteType:
+          description: Note type. Used only for FQM queries
+          readOnly: true
+          type: string
+          x-fqm-value-function: :value
+          x-fqm-value-getter: (SELECT array_agg(elems.value->>'noteTypeId') FROM jsonb_array_elements(:sourceAlias.notes) AS elems)
+          x-fqm-filter-value-getter: (SELECT array_agg(elems.value->>'noteTypeId') FROM jsonb_array_elements(:sourceAlias.notes) AS elems)
+          x-fqm-source:
+            entityTypeId: 369af782-637c-5ab7-af1f-f66a3e45acad
+            columnName: name
+        note:
+          description: Text content of the note
+          type: string
+          x-fqm-value-getter: (SELECT array_agg(elems.value->>'note') FROM jsonb_array_elements(:sourceAlias.notes) AS elems)
+          x-fqm-filter-value-getter: (SELECT array_agg(lower(elems.value->>'note')) FROM jsonb_array_elements(:sourceAlias.notes) AS elems)
+        staffOnly:
+          description: Whether the note is visible to staff only
+          type: boolean
+          x-fqm-visibility: hidden
+          x-fqm-value-getter: (SELECT array_agg(elems.value->>'staffOnly') FROM jsonb_array_elements(:sourceAlias.notes) AS elems)
+          x-fqm-filter-value-getter: (SELECT array_agg(lower(elems.value->>'staffOnly')) FROM jsonb_array_elements(:sourceAlias.notes) AS elems)
+      required:
+      - note
+      - noteTypeId
+      type: object
+    metadata:
+      description: Creater, updater, creation date, last updated date
+      example:
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+          x-fqm-value-getter: :sourceAlias.created_date
+          x-fqm-value-function: (:value)::timestamp
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.created_by_user_id
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+          x-fqm-value-getter: :sourceAlias.updated_date
+          x-fqm-value-function: (:value)::timestamp
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.updated_by_user_id
+      type: object
+    bibStatsDto:
+      description: Linked bib statistics
+      example:
+        instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        instanceTitle: instanceTitle
+        bibRecordTag: bibRecordTag
+        authorityNaturalId: authorityNaturalId
+        updatedAt: '2000-01-23T04:56:07.000+00:00'
+        errorCause: errorCause
+      properties:
+        instanceId:
+          description: Linked instance id, UUID
+          format: uuid
+          type: string
+        instanceTitle:
+          description: Instance title
+          type: string
+        bibRecordTag:
+          description: Bib record tag
+          type: string
+        authorityNaturalId:
+          description: Linked authority natural id
+          type: string
+        updatedAt:
+          description: Link last updated at
+          format: date-time
+          type: string
+        errorCause:
+          description: Cause of error for updating linked bib
+          type: string
+      type: object
+    authorityStatsDto:
+      description: Describe changes to authority that are related to links
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        action: DELETE
+        naturalIdOld: naturalIdOld
+        naturalIdNew: naturalIdNew
+        headingOld: headingOld
+        headingNew: headingNew
+        headingTypeOld: headingTypeOld
+        headingTypeNew: headingTypeNew
+        sourceFileOld: sourceFileOld
+        sourceFileNew: sourceFileNew
+        metadata:
+          startedAt: '2000-01-23T04:56:07.000+00:00'
+          startedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          startedByUserFirstName: startedByUserFirstName
+          startedByUserLastName: startedByUserLastName
+      properties:
+        id:
+          description: Stat ID
+          format: uuid
+          type: string
+        authorityId:
+          description: Authority ID
+          format: uuid
+          type: string
+        action:
+          $ref: '#/components/schemas/linkAction'
+        naturalIdOld:
+          description: Old natural ID
+          type: string
+        naturalIdNew:
+          description: New natural ID
+          type: string
+        headingOld:
+          description: Old heading
+          type: string
+        headingNew:
+          description: New heading
+          type: string
+        headingTypeOld:
+          description: Old heading type
+          type: string
+        headingTypeNew:
+          description: New heading type
+          type: string
+        sourceFileOld:
+          description: Old source file ID
+          type: string
+        sourceFileNew:
+          description: New source file ID
+          type: string
+        metadata:
+          $ref: '#/components/schemas/authorityControlMetadata'
+      type: object
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/error_parameters_inner'
+          type: array
+      type: object
+    authorityIdDto:
+      description: An authority ID record
+      properties:
+        id:
+          description: Authority UUID
+          format: uuid
+          type: string
+      type: object
+    uuid_1:
+      description: UUID
+      format: uuid
+      type: string
+    externalIdType:
+      description: External Id Type Enum
+      enum:
+      - INSTANCE
+      - HOLDINGS
+      - AUTHORITY
+      - EXTERNAL
+      - RECORD
+      type: string
+    recordType:
+      description: Record Type Enum
+      enum:
+      - MARC_BIB
+      - MARC_AUTHORITY
+      - MARC_HOLDING
+      - EDIFACT
+      type: string
+    strippedParsedRecord:
+      additionalProperties: false
+      description: Stripped parsed record DTO Schema
+      properties:
+        id:
+          description: UUID
+          format: uuid
+          type: string
+        externalIdsHolder:
+          $ref: '#/components/schemas/externalIdsHolder'
+        recordType:
+          allOf:
+          - $ref: '#/components/schemas/recordType'
+          description: Type of record, e.g. MARC
+        recordState:
+          default: ACTUAL
+          description: State of source record in QM workflow
+          enum:
+          - ACTUAL
+          - IN_PROGRESS
+          - ERROR
+          type: string
+        parsedRecord:
+          $ref: '#/components/schemas/strippedParsedRecord_parsedRecord'
+      required:
+      - id
+      - parsedRecord
+      - recordType
+      type: object
+    linkDetails:
+      description: Collection of SRS records content
+      example:
+        authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        authorityNaturalId: authorityNaturalId
+        status: ACTUAL
+        linkingRuleId: 0
+        errorCause: errorCause
+      properties:
+        authorityId:
+          description: Authority ID
+          format: uuid
+          type: string
+        authorityNaturalId:
+          description: Authority Natural ID
+          type: string
+        status:
+          $ref: '#/components/schemas/linkStatus'
+        linkingRuleId:
+          description: Linking rule ID
+          type: integer
+        errorCause:
+          description: Error status code
+          type: string
+      type: object
+    authorityControlMetadata:
+      description: Meta data for authority control
+      example:
+        startedAt: '2000-01-23T04:56:07.000+00:00'
+        startedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        startedByUserFirstName: startedByUserFirstName
+        startedByUserLastName: startedByUserLastName
+      properties:
+        startedAt:
+          description: Date-time when authority update was registered
+          format: date-time
+          type: string
+        startedByUserId:
+          description: User's ID that triggers record
+          format: uuid
+          type: string
+        startedByUserFirstName:
+          description: User's first name that triggers record
+          type: string
+        startedByUserLastName:
+          description: User's last name that triggers record
+          type: string
+      type: object
+    externalIdsHolder:
+      additionalProperties: false
+      description: Contains identifiers of external entities (instance, holdings, authority)
+      properties:
+        instanceId:
+          description: UUID
+          format: uuid
+          type: string
+        instanceHrid:
+          description: instance hrid
+          type: string
+        holdingsId:
+          description: UUID
+          format: uuid
+          type: string
+        holdingsHrid:
+          description: holdings hrid
+          type: string
+        authorityId:
+          description: UUID
+          format: uuid
+          type: string
+        authorityHrid:
+          description: authority hrid
+          type: string
+      type: object
+    authorityFullDtoCollection:
+      oneOf:
+      - $ref: '#/components/schemas/authorityDtoCollection'
+      - $ref: '#/components/schemas/authorityIdDtoCollection'
+      title: authorityFullDtoCollection
+    SourceParsedRecord:
+      additionalProperties: false
+      description: Parsed record
+      properties:
+        id:
+          description: UUID
+          format: uuid
+          type: string
+        content:
+          description: Parsed record content, e.g. MARC record
+          type: object
+      required:
+      - content
+      title: SourceParsedRecord
+      type: object
+    FetchConditions:
+      additionalProperties: false
+      description: Conditions for fetching records by external IDs
+      properties:
+        idType:
+          $ref: '#/components/schemas/externalIdType'
+        ids:
+          description: List of external ids
+          items:
+            $ref: '#/components/schemas/uuid_1'
+          type: array
+          uniqueItems: true
+      title: FetchConditions
+      type: object
+    FieldRange:
+      additionalProperties: false
+      description: Field range to provide
+      properties:
+        from:
+          description: Segment tag to range from
+          type: string
+        to:
+          description: Segment tag to range to
+          type: string
+      required:
+      - from
+      - to
+      title: FieldRange
+      type: object
+    FieldContent_value:
+      example:
+        ind1: ind1
+        ind2: ind2
+        subfields:
+        - key: subfields
+        - key: subfields
+        linkDetails:
+          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          authorityNaturalId: authorityNaturalId
+          status: ACTUAL
+          linkingRuleId: 0
+          errorCause: errorCause
+      properties:
+        ind1:
+          description: Identifier 1
+          type: string
+        ind2:
+          description: Identifier 2
+          type: string
+        subfields:
+          description: List of subfields
+          items:
+            additionalProperties:
+              type: string
+            description: Map of subfields
+            type: object
+          type: array
+        linkDetails:
+          $ref: '#/components/schemas/linkDetails'
+      type: object
+    authoritySourceFileDto_hridManagement:
+      description: Identifies HRID management properties
+      example:
+        startNumber: 0
+      properties:
+        startNumber:
+          type: integer
+      type: object
+      x-fqm-ignore: true
+    authoritySourceFilePostDto_hridManagement:
+      description: Identifies HRID management properties
+      properties:
+        startNumber:
+          default: 1
+          minimum: 0
+          type: integer
+      type: object
+    authoritySourceFilePatchDto_hridManagement:
+      description: Identifies HRID management properties
+      properties:
+        startNumber:
+          description: Start number for HRID generation
+          minimum: 0
+          type: integer
+      type: object
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    strippedParsedRecord_parsedRecord:
+      additionalProperties: false
+      description: Parsed record
+      properties:
+        id:
+          description: UUID
+          format: uuid
+          type: string
+        content:
+          $ref: '#/components/schemas/parsedRecordContent'
+      required:
+      - content
+      type: object

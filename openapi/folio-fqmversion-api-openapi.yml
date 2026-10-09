@@ -1,0 +1,120 @@
+openapi: 3.2.0
+info:
+  title: Folio Fqm Version API
+  version: v1
+  description: 'Operations tagged fqmVersion across 2 of this provider''s published API definitions: folio-mod-fqm-manager-openapi.json, folio-mod-fqm-manager-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-etesting-snapshot-kong.ci.folio.org/
+tags:
+- name: fqmVersion
+paths:
+  /fqm/version:
+    get:
+      operationId: getFqmVersion
+      tags:
+      - fqmVersion
+      description: Get version of the fqm.
+      responses:
+        '200':
+          description: Version of the fqm
+          content:
+            text/plain:
+              schema:
+                type: string
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+      summary: Get fqm version
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+  /fqm/migrate:
+    post:
+      summary: fqm migrate request
+      operationId: fqmMigrate
+      tags:
+      - fqmVersion
+      requestBody:
+        description: Request for FQM version submitted successfully
+        required: true
+        content:
+          application/json:
+            schema:
+              description: Mapped to schema in folio-query-tool-metadata
+              type: object
+              format: FqmMigrateRequest
+      responses:
+        '200':
+          description: FQM version updated successfully
+          content:
+            application/json:
+              schema:
+                description: Mapped to schemas in folio-query-tool-metadata
+                type: object
+                format: FqmMigrateResponse
+        4XX:
+          $ref: '#/components/responses/badRequestResponse'
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+components:
+  responses:
+    badRequestResponse:
+      description: Invalid request
+      content:
+        application/json:
+          example:
+            message: Entity type ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
+            code: entity.type.not.found
+          schema:
+            $ref: '#/components/schemas/error'
+  schemas:
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        code:
+          type: string
+          description: Error message code
+          enum:
+          - entity.type.access.denied
+          - entity.type.in.use
+          - entity.type.invalid
+          - entity.type.not.found
+          - entity.type.source.missing
+          - field.not.found
+          - migration.query.changed
+          - permissions.missing
+          - query.invalid
+          - query.not.found
+          - query.too.large
+          - unknown.error
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+      - code
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+x-refined-from:
+- folio-mod-fqm-manager-openapi.json
+- folio-mod-fqm-manager-openapi.yml

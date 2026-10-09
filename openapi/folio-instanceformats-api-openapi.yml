@@ -1,0 +1,129 @@
+openapi: 3.2.0
+info:
+  title: Folio Instance Formats API
+  version: v1
+  description: 'Operations tagged instanceFormats across 2 of this provider''s published API definitions: folio-edge-inventory-openapi.json, folio-edge-inventory-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inventory
+tags:
+- name: instanceFormats
+paths:
+  /inventory/instance-formats:
+    get:
+      tags:
+      - instanceFormats
+      operationId: getInstanceFormats
+      summary: Return a list of instance formats
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      - $ref: '#/components/parameters/request-query-parameters'
+      responses:
+        '200':
+          description: 'Calls the mod-inventory-storage GET /instance-formats API and returns the result as-is. \
+
+            The example of response: https://github.com/folio-org/mod-inventory-storage/blob/master/ramls/examples/instanceformats.json
+
+            '
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    servers:
+    - url: /inventory
+components:
+  schemas:
+    RequestQueryParameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: A CQL query string with search conditions.
+          minLength: 1
+        limit:
+          type: integer
+          description: Limit the number of elements returned in the response
+          maximum: 2147483647
+          minimum: 0
+          default: 10
+        offset:
+          type: integer
+          description: Skip over a number of elements by specifying an offset value for the query
+          maximum: 2147483647
+          minimum: 0
+          default: 0
+        lang:
+          type: string
+          description: Requested language
+          default: en
+          pattern: '[a-zA-Z]{2}'
+        expand:
+          type: string
+          description: Whether or not to expand the id fields
+    Error:
+      type: object
+      properties:
+        code:
+          description: Error status code
+          type: integer
+        errorMessage:
+          description: Error message text
+          type: string
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    request-query-parameters:
+      name: requestQueryParameters
+      in: query
+      description: Request query parameters(query, limit, offset and etc.) as object.
+      schema:
+        $ref: '#/components/schemas/RequestQueryParameters'
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+x-refined-from:
+- folio-edge-inventory-openapi.json
+- folio-edge-inventory-openapi.yml

@@ -1,0 +1,1126 @@
+openapi: 3.2.0
+info:
+  title: Folio Access Control API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Access Control across 2 of this provider''s published API definitions: folio-mod-licenses-openapi.json, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Access Control
+paths:
+  /licenses/licenses/{licenseId}/claim:
+    post:
+      tags:
+      - Access Control
+      summary: Claim the specified license record with a set of access policies
+      operationId: postLicenseClaim
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimBody'
+        required: true
+      responses:
+        '200':
+          description: OK, no changes were made
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '201':
+          description: Created, access policies were updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '400':
+          description: Bad request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '404':
+          description: Not found error
+        '405':
+          description: Claiming is not supported on this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/{licenseId}/policies:
+    get:
+      tags:
+      - Access Control
+      summary: Get the access policies for the specified license record, across its ownership…
+      operationId: getLicensePolicies
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OwnerPolicyLinkList'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/{licenseId}/canRead:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can read the specified license record
+      operationId: getLicenseCanRead
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/{licenseId}/canUpdate:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can update the specified license record
+      operationId: getLicenseCanUpdate
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/{licenseId}/canDelete:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can delete the specified license record
+      operationId: getLicenseCanDelete
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/{licenseId}/canApplyPolicies:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can apply access policies to the specified…
+      operationId: getLicenseCanApplyPolicies
+      parameters:
+      - $ref: '#/components/parameters/licenseId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/licenses/canCreate:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can create license records
+      operationId: getLicenseCanCreate
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/amendments/{amendmentId}/claim:
+    post:
+      tags:
+      - Access Control
+      summary: Claim the specified amendment record with a set of access policies
+      operationId: postAmendmentClaim
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimBody'
+        required: true
+      responses:
+        '200':
+          description: OK, no changes were made
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '201':
+          description: Created, access policies were updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '400':
+          description: Bad request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '404':
+          description: Not found error
+        '405':
+          description: Claiming is not supported on this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicyClaimResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/amendments/{amendmentId}/policies:
+    get:
+      tags:
+      - Access Control
+      summary: Get the access policies for the specified amendment record, across its…
+      operationId: getAmendmentPolicies
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OwnerPolicyLinkList'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/amendments/{amendmentId}/canRead:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can read the specified amendment record
+      operationId: getAmendmentCanRead
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/amendments/{amendmentId}/canUpdate:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can update the specified amendment record
+      operationId: getAmendmentCanUpdate
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/amendments/{amendmentId}/canDelete:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can delete the specified amendment record
+      operationId: getAmendmentCanDelete
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/amendments/{amendmentId}/canApplyPolicies:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can apply access policies to the specified…
+      operationId: getAmendmentCanApplyPolicies
+      parameters:
+      - $ref: '#/components/parameters/amendmentId'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/amendments/canCreate:
+    get:
+      tags:
+      - Access Control
+      summary: Check whether the current user can create amendment records
+      operationId: getAmendmentCanCreate
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanAccessResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/accessControl:
+    description: Supports search of access policy records. Access policies cannot be created, updated or deleted directly here — use the claim endpoints on the owning resource instead.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Access Control
+      summary: Get a set of access policy records
+      operationId: getAccessControls
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/AccessPolicyResults'
+                - $ref: '#/components/schemas/AccessPolicyResultsArray'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/accessControl/{accessControlId}:
+    get:
+      tags:
+      - Access Control
+      summary: Get a specified access policy record
+      operationId: getAccessControl
+      parameters:
+      - in: path
+        name: accessControlId
+        description: UUID for an access policy
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessPolicy'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/accessControl/readPolicies:
+    get:
+      tags:
+      - Access Control
+      summary: Get the policies valid for READ operations
+      operationId: getAccessControlReadPolicies
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliciesResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/accessControl/deletePolicies:
+    get:
+      tags:
+      - Access Control
+      summary: Get the policies valid for DELETE operations
+      operationId: getAccessControlDeletePolicies
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliciesResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/accessControl/updatePolicies:
+    get:
+      tags:
+      - Access Control
+      summary: Get the policies valid for UPDATE operations
+      operationId: getAccessControlUpdatePolicies
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliciesResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/accessControl/createPolicies:
+    get:
+      tags:
+      - Access Control
+      summary: Get the policies valid for CREATE operations
+      operationId: getAccessControlCreatePolicies
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliciesResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/accessControl/claimPolicies:
+    get:
+      tags:
+      - Access Control
+      summary: Get the policies valid for CLAIM operations
+      operationId: getAccessControlClaimPolicies
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliciesResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/accessControl/applyPolicies:
+    get:
+      tags:
+      - Access Control
+      summary: Get the policies valid for APPLY_POLICIES operations
+      operationId: getAccessControlApplyPolicies
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliciesResponse'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /licenses/accessControl/enabledEngines:
+    get:
+      tags:
+      - Access Control
+      summary: Get the enabled policy engines, keyed by access policy type
+      operationId: getAccessControlEnabledEngines
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnabledEngines'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  schemas:
+    PoliciesResponse:
+      type: object
+      properties:
+        readPolicies:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupedExternalPolicies'
+        updatePolicies:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupedExternalPolicies'
+        createPolicies:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupedExternalPolicies'
+        deletePolicies:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupedExternalPolicies'
+        claimPolicies:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupedExternalPolicies'
+        applyPolicies:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupedExternalPolicies'
+    AccessPolicyResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/AccessPolicy'
+    ClaimBody:
+      type: object
+      required:
+      - claims
+      properties:
+        claims:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyLink'
+    AccessPolicyClaimResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    GroupedExternalPolicies:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/AccessPolicyType'
+        policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/BasicPolicy'
+        name:
+          type: string
+          description: A descriptive name for this group of policies
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    AccessPolicyResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/AccessPolicyResultsArray'
+    PolicyLink:
+      type: object
+      required:
+      - policy
+      - type
+      properties:
+        id:
+          type: string
+          description: Identifier of this policy link. Supply an existing link's id to update it, or omit to add a new one
+        policy:
+          $ref: '#/components/schemas/BasicPolicy'
+        type:
+          $ref: '#/components/schemas/AccessPolicyType'
+        description:
+          type: string
+    AccessPolicy:
+      type: object
+      required:
+      - id
+      - type
+      - policyId
+      - resourceClass
+      - resourceId
+      properties:
+        id:
+          type: string
+          readOnly: true
+        description:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/AccessPolicyType'
+        policyId:
+          type: string
+        resourceClass:
+          type: string
+          readOnly: true
+        resourceId:
+          type: string
+          readOnly: true
+    EnabledEngines:
+      type: object
+      description: Map of access policy type to whether that policy engine is enabled
+      additionalProperties:
+        type: boolean
+    OwnerPolicyLinkList:
+      type: object
+      properties:
+        ownerLevel:
+          type: integer
+          description: The ownership depth these policies apply at (0 = the resource itself, higher = ancestor owners)
+        resourceClass:
+          type: string
+        ownerId:
+          type: string
+        hasStandalonePolicies:
+          type: boolean
+        policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyLink'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    CanAccessResponse:
+      type: object
+      properties:
+        canRead:
+          type: boolean
+        canUpdate:
+          type: boolean
+        canDelete:
+          type: boolean
+        canCreate:
+          type: boolean
+        canClaim:
+          type: boolean
+        canApplyPolicies:
+          type: boolean
+    AccessPolicyType:
+      type: string
+      description: The mechanism used to enforce this access policy
+      enum:
+      - ACQ_UNIT
+    BasicPolicy:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          description: Identifier of the policy in the external system that owns it (e.g. an acquisition unit id)
+  parameters:
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    amendmentId:
+      in: path
+      name: amendmentId
+      description: UUID for an amendment
+      required: true
+      schema:
+        type: string
+        format: uuid
+    licenseId:
+      in: path
+      name: licenseId
+      description: UUID for a license
+      required: true
+      schema:
+        type: string
+        format: uuid
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-licenses-openapi.json
+- folio-mod-licenses-openapi.yml

@@ -1,0 +1,81 @@
+openapi: 3.2.0
+info:
+  title: Folio List Related Users API
+  version: 1.0.0
+  description: 'Operations tagged listRelatedUsers across 2 of this provider''s published API definitions: folio-mod-lists-list-openapi.json, folio-mod-lists-list-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-etesting-snapshot-kong.ci.folio.org/
+tags:
+- name: listRelatedUsers
+paths:
+  /lists/related-users:
+    get:
+      operationId: getRelatedUsers
+      tags:
+      - listRelatedUsers
+      description: Get users related to the list
+      parameters:
+      - $ref: '#/components/parameters/role'
+      responses:
+        '200':
+          description: Related user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/relatedUserCollection'
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              example: Related users not found
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      summary: Get related users
+      x-summary-source: derived
+    servers:
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
+components:
+  schemas:
+    relatedUser:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Related user who have ever started export
+      properties:
+        fullName:
+          description: User full name
+          type: string
+        id:
+          description: User id
+          type: string
+    relatedUserCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of related users
+      type: object
+      additionalProperties: false
+      properties:
+        relatedUsers:
+          description: List of related users
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/relatedUser'
+        totalRecords:
+          type: integer
+          default: 0
+  parameters:
+    role:
+      name: role
+      in: query
+      required: true
+      description: User role (create/update)
+      schema:
+        type: string
+        enum:
+        - create
+        - update
+x-refined-from:
+- folio-mod-lists-list-openapi.json
+- folio-mod-lists-list-openapi.yml

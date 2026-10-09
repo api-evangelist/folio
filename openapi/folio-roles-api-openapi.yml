@@ -1,0 +1,559 @@
+openapi: 3.2.0
+info:
+  title: Folio Roles API
+  version: '1.0'
+  description: 'Operations tagged roles across 4 of this provider''s published API definitions: folio-mod-consortia-keycloak-sharing-roles-openapi.json, folio-mod-roles-keycloak-openapi.json, folio-mod-consortia-keycloak-sharing-roles-openapi.yml, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /consortia/{consortiumId}/sharing
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: Roles
+paths:
+  /roles:
+    post:
+      summary: start sharing role
+      operationId: startSharingRole
+      tags:
+      - Roles
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      requestBody:
+        $ref: '#/components/requestBodies/SharingRoleBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/SharingRoleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      description: Get roles by query
+      operationId: findRoles
+      tags:
+      - Roles
+      parameters:
+      - $ref: '#/components/parameters/query'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '201':
+          description: Array of roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/roles'
+              example:
+                $ref: '#/components/examples/roleResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find roles
+      x-summary-source: derived
+    servers:
+    - url: /consortia/{consortiumId}/sharing
+  /roles/{roleId}:
+    delete:
+      summary: delete sharing role
+      operationId: deleteSharingRole
+      tags:
+      - Roles
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/roleId'
+      requestBody:
+        $ref: '#/components/requestBodies/SharingRoleBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/SharingRoleDeleteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    servers:
+    - url: /consortia/{consortiumId}/sharing
+  /roles/{id}:
+    get:
+      description: Get role by ID
+      operationId: getRole
+      tags:
+      - Roles
+      parameters:
+      - $ref: '#/components/parameters/pathRoleId'
+      responses:
+        '200':
+          description: Retrieve a role by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/role'
+              example:
+                $ref: '#/components/examples/roleResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get role
+      x-summary-source: derived
+    put:
+      description: Update a role
+      operationId: updateRole
+      tags:
+      - Roles
+      parameters:
+      - $ref: '#/components/parameters/pathRoleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/role'
+            example:
+              $ref: '#/components/examples/roleRequest'
+      responses:
+        '204':
+          description: Update existing role
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Update role
+      x-summary-source: derived
+    delete:
+      description: Delete a role
+      operationId: deleteRole
+      tags:
+      - Roles
+      parameters:
+      - $ref: '#/components/parameters/pathRoleId'
+      responses:
+        '204':
+          description: Delete a role
+      summary: Delete role
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /roles/batch:
+    post:
+      description: Create one or more roles
+      operationId: createRoles
+      tags:
+      - Roles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rolesRequest'
+            example:
+              $ref: '#/components/examples/rolesRequest'
+      responses:
+        '201':
+          description: Array of created role or roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/roles'
+              example:
+                $ref: '#/components/examples/rolesResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Create roles
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  responses:
+    SharingRoleDeleteResponse:
+      description: Returns a sharing role response for delete operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingRoleDeleteResponse'
+          example:
+            pcIds:
+            - 44a7e57b-c535-4ad1-bdb4-099d48f3fd37
+            - cf8fc598-fa4f-4a7d-9d1a-fdd3fac3cbd4
+    SharingRoleResponse:
+      description: Returns a sharing role object response for post operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingRoleResponse'
+          example:
+            createPCIds:
+            - 44a7e57b-c535-4ad1-bdb4-099d48f3fd37
+            - cf8fc598-fa4f-4a7d-9d1a-fdd3fac3cbd4
+            updatePCIds:
+            - f3b1b1b4-4b1b-4b1b-4b1b-4b1b4b1b4b1b
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
+    notFoundResponse:
+      description: Not found error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/notFoundResponse'
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/badRequestResponse'
+  parameters:
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+    roleId:
+      in: path
+      name: roleId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of role
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 2
+    query:
+      in: query
+      name: query
+      description: A query string to filter users based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+      example: role
+    pathRoleId:
+      in: path
+      required: true
+      name: id
+      description: Role identifier
+      schema:
+        type: string
+        format: uuid
+      example: 1e985e76-e9ca-401c-ad8e-0d121a11111e
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+      example: 20
+  schemas:
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    SharingRoleResponse:
+      description: A JSON schema for the Sharing roles object response for post request
+      type: object
+      properties:
+        createPCIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        updatePCIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+      required:
+      - createPCIds
+      - updatePCIds
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    SharingRoleDeleteResponse:
+      description: A JSON schema for the Sharing roles object response for delete request
+      type: object
+      properties:
+        pcIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+      required:
+      - pcId
+    SharingRoleRequest:
+      description: A JSON schema for the Sharing roles object
+      type: object
+      properties:
+        roleId:
+          description: id of sharing role record
+          type: string
+          format: uuid
+        roleName:
+          description: name of sharing role
+          type: string
+        url:
+          description: URL for publishing requests for consortia tenants
+          type: string
+        payload:
+          description: Http request body
+          type: object
+      additionalProperties: false
+      required:
+      - roleId
+      - roleName
+      - url
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    uuid:
+      type: string
+      format: uuid
+    rolesRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: roles.json
+      title: Roles schema
+      description: Roles
+      type: object
+      properties:
+        roles:
+          description: Collection of roles
+          type: array
+          items:
+            $ref: '#/components/schemas/role'
+          minItems: 1
+          maxItems: 255
+      required:
+      - roles
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    role:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Role schema
+      description: Role
+      type: object
+      properties:
+        id:
+          description: Role identifier
+          type: string
+          format: uuid
+        name:
+          description: A human-readable name/label for this role. Must not contain a '/' character
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: ^[^/]+$
+        description:
+          description: Free form description of the role
+          type: string
+        type:
+          description: Role type
+          $ref: '#/components/schemas/roleType'
+        metadata:
+          readOnly: true
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+    roleType:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: string
+      description: Role type
+      enum:
+      - DEFAULT
+      - REGULAR
+      - CONSORTIUM
+    roles:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: roles.json
+      title: Roles schema
+      description: Roles
+      type: object
+      properties:
+        roles:
+          description: Role identifier
+          type: array
+          items:
+            $ref: '#/components/schemas/role'
+        totalRecords:
+          description: The total number of roles matching the provided criteria
+          type: integer
+          format: int64
+      required:
+      - roles
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+      additionalProperties: false
+  requestBodies:
+    SharingRoleBody:
+      description: Sharing roles object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingRoleRequest'
+          example:
+            roleId: 3844767a-8367-4926-9999-514c35840399
+            roleName: role name
+            url: /roles
+            payload:
+              id: 3844767a-8367-4926-9999-514c35840399
+              name: role name
+              type: local
+  examples:
+    roleRequest:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    rolesRequest:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    notFoundResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    internalServerErrorResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    badRequestResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    rolesResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    roleResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+x-refined-from:
+- folio-mod-consortia-keycloak-sharing-roles-openapi.json
+- folio-mod-roles-keycloak-openapi.json
+- folio-mod-consortia-keycloak-sharing-roles-openapi.yml
+- folio-mod-roles-keycloak-openapi.yml

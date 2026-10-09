@@ -1,0 +1,223 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Consortia Configuration integration API",
+  "description": "Consortia Configuration integration API",
+  "version": "0.0.1"
+ },
+ "paths": {
+  "/consortia-configuration": {
+   "get": {
+    "summary": "Get consortium configuration",
+    "operationId": "getConfiguration",
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/ConsortiaConfiguration"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    }
+   },
+   "post": {
+    "summary": "Save consortia configuration",
+    "operationId": "saveConfiguration",
+    "responses": {
+     "201": {
+      "$ref": "#/components/responses/ConsortiaConfiguration"
+     },
+     "400": {
+      "$ref": "#/components/responses/BadRequest"
+     },
+     "409": {
+      "$ref": "#/components/responses/Conflict"
+     },
+     "500": {
+      "$ref": "#/components/responses/InternalServerError"
+     }
+    },
+    "requestBody": {
+     "$ref": "#/components/requestBodies/ConfigurationBody"
+    }
+   }
+  }
+ },
+ "components": {
+  "requestBodies": {
+   "ConfigurationBody": {
+    "description": "Consortia configuration object",
+    "required": true,
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/ConsortiaConfiguration"
+      }
+     }
+    }
+   }
+  },
+  "responses": {
+   "ConsortiaConfiguration": {
+    "description": "Consortia configuration object",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/ConsortiaConfiguration"
+      }
+     }
+    }
+   },
+   "NotFound": {
+    "description": "Resource not found",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "BadRequest": {
+    "description": "Bad request",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   },
+   "Conflict": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "Unauthorized": {
+    "description": "Not authorized to perform requested action",
+    "content": {
+     "text/plain": {
+      "example": "unable to perform action -- unauthorized"
+     }
+    }
+   },
+   "UnprocessableEntity": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Errors"
+      }
+     }
+    }
+   },
+   "InternalServerError": {
+    "description": "Internal server error",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/Error"
+      }
+     }
+    }
+   }
+  },
+  "schemas": {
+   "ConsortiaConfiguration": {
+    "type": "object",
+    "description": "Consortia Configuration",
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid"
+     },
+     "centralTenantId": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "centralTenantId"
+    ]
+   },
+   "Parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "type": "string",
+      "minLength": 1
+     },
+     "value": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "Parameters": {
+    "description": "List of key/value parameters of an error",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/Parameter"
+    },
+    "additionalProperties": false
+   },
+   "Error": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/Parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message"
+    ]
+   },
+   "Errors": {
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/Error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   }
+  }
+ }
+}

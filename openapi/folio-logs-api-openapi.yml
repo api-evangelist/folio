@@ -1,0 +1,235 @@
+openapi: 3.2.0
+info:
+  title: Folio Logs API
+  version: v1
+  description: 'Operations tagged Logs across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+tags:
+- name: Logs
+paths:
+  /logs:
+    get:
+      description: APIs supporting Error logs
+      operationId: getErrorLogsByQuery
+      parameters:
+      - $ref: '#/components/parameters/trait_queryable'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      responses:
+        '200':
+          description: Collection error logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorLogCollection'
+              example:
+                errorLogs:
+                - id: de55d20e-4daf-49bf-8bf0-ae7eada8b80c
+                  jobExecutionId: 67dfac11-1caf-4470-9ad1-d533f6360bdd
+                  createdDate: '2019-07-22T11:22:07Z'
+                  logLevel: ERROR
+                  reason: 200
+                  affectedRecords:
+                  - id: 57c79d87-6510-4354-b212-96832fbf3fa1
+                    hrid: '200'
+                    title: Record title
+                    recordType: INSTANCE
+                  metadata:
+                    createdDate: '2019-09-15T11:22:07Z'
+                    createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                    createdByUsername: janedoeuser
+                    updatedDate: '2019-09-15T13:28:54Z'
+                    updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                    updatedByUsername: ''
+                totalRecords: '1'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '401':
+          description: Not authorized to perform requested action
+          content:
+            text/plain:
+              example: unauthorized
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Logs
+      summary: Get error logs by query
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+components:
+  schemas:
+    errorLog:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Error log with all details
+      type: object
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          format: uuid
+        jobExecutionId:
+          description: UUID of the related job execution
+          type: string
+          format: uuid
+        createdDate:
+          description: Creation datetime
+          type: string
+          format: date-time
+        logLevel:
+          description: Log level
+          type: string
+          enum:
+          - DEBUG
+          - INFO
+          - WARNING
+          - ERROR
+          default: ERROR
+        errorMessageCode:
+          description: Code of error message
+          type: string
+        errorMessageValues:
+          description: Values should be used to replace placeholders in error messages
+          type: array
+          items:
+            type: string
+        affectedRecord:
+          type: object
+          description: Affected record log
+          $ref: '#/components/schemas/affectedRecord'
+        metadata:
+          description: Metadata provided by the server
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      required:
+      - createdDate
+      - logLevel
+      - affectedRecord
+    errorLogCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of Error Logs
+      type: object
+      additionalProperties: false
+      properties:
+        errorLogs:
+          description: List of Error Logs
+          type: array
+          id: errorLogList
+          items:
+            type: object
+            $ref: '#/components/schemas/errorLog'
+        totalRecords:
+          description: Total number of Error Logs
+          type: integer
+      required:
+      - errorLogs
+      - totalRecords
+    affectedRecord:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: File that should be exported
+      type: object
+      properties:
+        id:
+          description: Record UUID
+          type: string
+        hrid:
+          description: Record HRID
+          type: string
+        title:
+          description: Record title
+          type: string
+        recordType:
+          description: Record type
+          type: object
+          $ref: '#/components/schemas/recordTypes'
+        inventoryRecordLink:
+          description: Link to the affected inventory record
+          type: string
+        affectedRecords:
+          description: Affected record
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/affectedRecord'
+      required:
+      - hrid
+      - recordType
+    recordTypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Enum of entity (record) types
+      type: string
+      additionalProperties: false
+      enum:
+      - INSTANCE
+      - HOLDINGS
+      - ITEM
+      - AUTHORITY
+      - SRS
+      - LINKED_DATA
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  parameters:
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_queryable:
+      name: query
+      in: query
+      description: A query string to filter rules based on matching criteria in fields.
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-data-export-openapi.yml

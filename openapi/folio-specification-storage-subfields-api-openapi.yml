@@ -1,0 +1,334 @@
+openapi: 3.2.0
+info:
+  title: Folio Specification Storage Subfields API
+  version: 1.0.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged specification-storage-subfields across 2 of this provider''s published API definitions: folio-mod-record-specifications-openapi.json, folio-mod-record-specifications-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://{environment}-okapi.ci.folio.org
+  variables:
+    environment:
+      default: folio-dev-spitfire
+      enum:
+      - folio-dev-spitfire
+      - folio-perf-spitfire
+- description: Reference environments.
+  url: https://folio-{environment}-okapi.dev.folio.org
+  variables:
+    environment:
+      default: snapshot
+      enum:
+      - snapshot
+      - snapshot-2
+tags:
+- description: Provides API for managing specification field subfields.
+  name: specification-storage-subfields
+paths:
+  /specification-storage/subfields/{subfieldId}:
+    delete:
+      description: Delete subfield definition
+      operationId: deleteSubfield
+      parameters:
+      - description: Subfield ID
+        in: path
+        name: subfieldId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Subfield definition was deleted
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Delete Subfield Definition
+      tags:
+      - specification-storage-subfields
+    put:
+      description: Update an subfield definition.
+      operationId: updateSubfield
+      parameters:
+      - description: Subfield ID
+        in: path
+        name: subfieldId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              RequestExample:
+                $ref: '#/components/examples/subfieldChangeDto'
+            schema:
+              $ref: '#/components/schemas/subfieldChangeDto'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              examples:
+                ResponseExample:
+                  $ref: '#/components/examples/subfieldDto'
+              schema:
+                $ref: '#/components/schemas/subfieldDto'
+          description: Indicator code definition was updated
+        '400':
+          content:
+            application/json:
+              examples:
+                validationErrorResponse:
+                  $ref: '#/components/examples/validationErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Validation errors
+        '500':
+          content:
+            application/json:
+              examples:
+                unknownError:
+                  $ref: '#/components/examples/unknownErrorResponse'
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      summary: Update Subfield
+      tags:
+      - specification-storage-subfields
+    servers:
+    - description: Development environments.
+      url: https://{environment}-okapi.ci.folio.org
+      variables:
+        environment:
+          default: folio-dev-spitfire
+          enum:
+          - folio-dev-spitfire
+          - folio-perf-spitfire
+    - description: Reference environments.
+      url: https://folio-{environment}-okapi.dev.folio.org
+      variables:
+        environment:
+          default: snapshot
+          enum:
+          - snapshot
+          - snapshot-2
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: invalid
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      title: Error parameter
+      type: object
+    errorCollection:
+      description: Collection of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+        totalRecords:
+          description: Total number of errors
+          type: integer
+      title: Error Collection
+      type: object
+    metadataDto:
+      description: Creator, updater, creation date, last updated date
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: createdDate
+        updatedDate: updatedDate
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      title: Metadata
+      type: object
+    subfieldDto:
+      description: Describe field subfield definition that will be used for record validation
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: createdDate
+          updatedDate: updatedDate
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        repeatable: true
+        deprecated: false
+        scope: null
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        label: label
+        required: false
+        fieldId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: Subfield ID
+          format: uuid
+          type: string
+        fieldId:
+          description: Field ID
+          format: uuid
+          type: string
+        code:
+          description: Subfield code
+          type: string
+        label:
+          description: Subfield description
+          type: string
+        repeatable:
+          default: true
+          description: Define if subfield is repeatable
+          type: boolean
+        required:
+          default: false
+          description: Define if subfield is required
+          type: boolean
+        deprecated:
+          default: false
+          description: Define if subfield is deprecated
+          type: boolean
+        scope:
+          $ref: '#/components/schemas/scope'
+        metadata:
+          $ref: '#/components/schemas/metadataDto'
+      title: Subfield definition DTO
+      type: object
+    scope:
+      description: Scope of the specification definition
+      enum:
+      - system
+      - standard
+      - local
+      type: string
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      title: Error
+      type: object
+    subfieldChangeDto:
+      additionalProperties: false
+      description: Describe subfield definition that should be created or change to existed subfield definition
+      properties:
+        code:
+          description: Subfield code
+          pattern: '[0-9a-z]'
+          type: string
+        label:
+          description: Subfield description
+          maxLength: 350
+          type: string
+        repeatable:
+          default: true
+          description: Define if subfield is repeatable
+          type: boolean
+        required:
+          default: false
+          description: Define if subfield is required
+          type: boolean
+        deprecated:
+          default: false
+          description: Define if subfield is deprecated
+          type: boolean
+      required:
+      - code
+      - label
+      title: Subfield definition change DTO
+      type: object
+  examples:
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    unknownErrorResponse:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    subfieldChangeDto:
+      value:
+        code: a
+        label: Subfield A
+        repeatable: true
+        required: true
+    subfieldDto:
+      value:
+        id: 1ee161ba-5d50-4687-95f4-8dc9c52fcd53
+        fieldId: 27ce6b65-f959-4a4b-89b6-a2be7d2e9fc1
+        code: a
+        label: Subfield A
+        scope: local
+        metadata:
+          createdDate: '2024-05-22 14:55:06'
+          createdByUserId: 00000000-0000-0000-0000-000000000000
+          updatedDate: '2024-05-22 15:30:42'
+          updatedByUserId: 00000000-0000-0000-0000-000000000000
+x-refined-from:
+- folio-mod-record-specifications-openapi.json
+- folio-mod-record-specifications-openapi.yml

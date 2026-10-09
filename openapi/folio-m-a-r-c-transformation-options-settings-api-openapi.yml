@@ -1,0 +1,306 @@
+openapi: 3.2.0
+info:
+  title: Folio M A R C Transformation Options Settings API
+  version: v1
+  description: 'Operations tagged M-A-R-C-transformation-options-settings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: M-A-R-C-transformation-options-settings
+paths:
+  /central-servers/{centralServerId}/marc-transformation-options:
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MARCTransformationOptionsSettingsDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Get MARC Transformation Options Settings by id
+      operationId: getMARCTransformationOptionsSettingsById
+      tags:
+      - M-A-R-C-transformation-options-settings
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Get MARC transformation options settings by id
+      x-summary-source: derived
+    put:
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Update MARC Transformation Options Settings
+      operationId: updateMARCTransformationOptionsSettings
+      tags:
+      - M-A-R-C-transformation-options-settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MARCTransformationOptionsSettingsDTO'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Update MARC transformation options settings
+      x-summary-source: derived
+    post:
+      description: Add new MARC Transformation Options Settings associated with the central server
+      operationId: createMARCTransformationOptionsSettings
+      tags:
+      - M-A-R-C-transformation-options-settings
+      responses:
+        '201':
+          description: MARC Transformation Options Settings created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MARCTransformationOptionsSettingsDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MARCTransformationOptionsSettingsDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Create MARC transformation options settings
+      x-summary-source: derived
+    delete:
+      tags:
+      - M-A-R-C-transformation-options-settings
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Delete Marc Transformation Options Settings
+      operationId: deleteMARCTransformationOptionsSettings
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Delete MARC transformation options settings
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /central-servers/marc-transformation-options:
+    get:
+      tags:
+      - M-A-R-C-transformation-options-settings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MARCTransformationOptionsSettingsListDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      description: Get a list of Marc Transformation Options Settings
+      operationId: getAllMARCTransformationOptionsSettings
+      parameters:
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      summary: Get all MARC transformation options settings
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    MARCTransformationOptionsSettingsDTO:
+      description: MARC Transformation Options Settings
+      type: object
+      properties:
+        id:
+          description: MARC Transformation Options Settings id
+          type: string
+          format: UUID
+        configIsActive:
+          description: A Boolean indicating whether the configuration is active
+          type: boolean
+        modifiedFieldsForContributedRecords:
+          description: An ordered array of field configurations
+          type: array
+          items:
+            $ref: '#/components/schemas/fieldConfigurationDTO'
+        excludedMARCFields:
+          description: An array of MARC fields/subfields to exclude from transformed MARC records
+          type: array
+          items:
+            type: string
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+    MARCTransformationOptionsSettingsListDTO:
+      description: MARC Transformation Options Settings collection
+      type: object
+      properties:
+        totalRecords:
+          description: Total records
+          type: integer
+        MARCTransformOptSetList:
+          description: List of MARC Transformation Options Settings
+          type: array
+          items:
+            $ref: '#/components/schemas/MARCTransformationOptionsSettingsDTO'
+      additionalProperties: false
+      required:
+      - MARCTransformOptSetList
+    fieldConfigurationDTO:
+      description: Field Configuration
+      type: object
+      properties:
+        id:
+          description: Field configuration id
+          type: string
+          format: UUID
+        resourceIdentifierTypeId:
+          description: Resource identifier type id
+          type: string
+          format: UUID
+        stripPrefix:
+          description: Strip prefix
+          type: boolean
+        ignorePrefixes:
+          description: Array of strings that if present as prefixes will cause the identifier to be ignored
+          type: array
+          items:
+            type: string
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  responses:
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+x-refined-from:
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-inn-reach-settings-openapi.yml

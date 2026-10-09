@@ -1,0 +1,471 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Linked Data Import API",
+  "version": "v1",
+  "description": "Linked Data Import API"
+ },
+ "paths": {
+  "/linked-data-import/files": {
+   "post": {
+    "operationId": "uploadFile",
+    "tags": [
+     "upload"
+    ],
+    "description": "Uploads a local file into tenant-specific folder in configured S3 bucket",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "type": "object",
+        "required": [
+         "file"
+        ],
+        "properties": {
+         "file": {
+          "type": "string",
+          "format": "binary"
+         }
+        }
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Uploaded file name in S3",
+      "content": {
+       "text/plain": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Invalid upload request"
+     },
+     "500": {
+      "description": "Internal Server Error"
+     }
+    }
+   }
+  },
+  "/linked-data-import/start": {
+   "post": {
+    "operationId": "startImport",
+    "tags": [
+     "import, start"
+    ],
+    "description": "Starts the process of Linked Data Import and returns ID of Import Job Instance",
+    "parameters": [
+     {
+      "name": "fileName",
+      "in": "query",
+      "required": true,
+      "description": "The name of a file to be imported from S3. Should be located in Tenant's folder",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "contentType",
+      "in": "query",
+      "required": false,
+      "description": "Content type of the file to be imported (e.g., application/ld+json, text/turtle). JSON by default.",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "defaultWorkType",
+      "in": "query",
+      "required": false,
+      "description": "Default Work extra type - MONOGRAPH or SERIAL",
+      "schema": {
+       "$ref": "#/components/schemas/defaultWorkType"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "ID of Linked Data Import job instance started",
+      "content": {
+       "text/plain": {
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "No file is found in S3"
+     },
+     "500": {
+      "description": "Internal Server Error"
+     }
+    }
+   }
+  },
+  "/linked-data-import/jobs/{jobExecutionId}": {
+   "get": {
+    "operationId": "getJobInfo",
+    "tags": [
+     "import, job"
+    ],
+    "description": "Returns information about Import Job by ID",
+    "parameters": [
+     {
+      "name": "jobExecutionId",
+      "in": "path",
+      "required": true,
+      "description": "The ID of the Import Job Execution",
+      "schema": {
+       "type": "integer",
+       "format": "int64"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Import Job information",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/jobInfo"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Job not found"
+     },
+     "500": {
+      "description": "Internal Server Error"
+     }
+    }
+   }
+  },
+  "/linked-data-import/jobs/{jobExecutionId}/failed-lines": {
+   "get": {
+    "operationId": "getFailedLines",
+    "tags": [
+     "import, job"
+    ],
+    "description": "Downloads CSV file with failed RDF lines for the specified job",
+    "parameters": [
+     {
+      "name": "jobExecutionId",
+      "in": "path",
+      "required": true,
+      "description": "The ID of the Import Job Execution",
+      "schema": {
+       "type": "integer",
+       "format": "int64"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "CSV file with failed RDF lines",
+      "headers": {
+       "Content-Disposition": {
+        "description": "Attachment header for file download",
+        "schema": {
+         "type": "string",
+         "example": "attachment; filename=\"failed-lines.csv\""
+        }
+       }
+      },
+      "content": {
+       "text/csv": {
+        "schema": {
+         "type": "string",
+         "format": "binary"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Job not found"
+     },
+     "500": {
+      "description": "Internal Server Error"
+     }
+    }
+   }
+  },
+  "/linked-data-import/jobs/{jobExecutionId}/stop": {
+   "put": {
+    "operationId": "stopJob",
+    "tags": [
+     "import, job"
+    ],
+    "description": "Stops running Import Job by execution ID",
+    "parameters": [
+     {
+      "name": "jobExecutionId",
+      "in": "path",
+      "required": true,
+      "description": "The ID of the Import Job Execution",
+      "schema": {
+       "type": "integer",
+       "format": "int64"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Job has been stopped successfully"
+     },
+     "404": {
+      "description": "Job is not found"
+     },
+     "409": {
+      "description": "Job cannot be stopped because it's not running"
+     },
+     "500": {
+      "description": "Internal Server Error"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "importOutputEventDto": {
+    "$ref": "#/components/schemas/importOutputEvent"
+   },
+   "importResultEventDto": {
+    "$ref": "#/components/schemas/importResultEvent"
+   },
+   "jobInfo": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Import Job Information",
+    "required": [
+     "startDate",
+     "startedBy",
+     "status",
+     "fileName",
+     "latestStep"
+    ],
+    "properties": {
+     "startDate": {
+      "type": "string",
+      "description": "Job start date and time"
+     },
+     "endDate": {
+      "type": "string",
+      "description": "Job end date and time"
+     },
+     "startedBy": {
+      "type": "string",
+      "description": "User who started the job"
+     },
+     "status": {
+      "type": "string",
+      "description": "Current job status from Spring Batch BatchStatus"
+     },
+     "fileName": {
+      "type": "string",
+      "description": "Name of the file being imported"
+     },
+     "latestStep": {
+      "type": "string",
+      "description": "Current step being executed"
+     },
+     "linesRead": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Number of lines read from the file"
+     },
+     "linesMapped": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Number of lines successfully mapped"
+     },
+     "linesFailedMapping": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Number of lines failed during mapping"
+     },
+     "linesCreated": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Number of resources created"
+     },
+     "linesUpdated": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Number of resources updated"
+     },
+     "linesFailedSaving": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Number of lines failed during saving"
+     },
+     "savingComplete": {
+      "type": "boolean",
+      "description": "Indicates if the saving process is complete"
+     }
+    }
+   },
+   "defaultWorkType": {
+    "type": "string",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Default Work extra type - MONOGRAPH or SERIAL",
+    "enum": [
+     "MONOGRAPH",
+     "SERIAL"
+    ]
+   },
+   "resourcePlaceholder": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Resource placeholder",
+    "type": "object",
+    "format": "Resource"
+   },
+   "resourceWithLineNumber": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Resource with its line number from the RDF file",
+    "properties": {
+     "lineNumber": {
+      "description": "Line number from the RDF file",
+      "type": "integer",
+      "format": "int64"
+     },
+     "resource": {
+      "$ref": "#/components/schemas/resourcePlaceholder",
+      "description": "Resource mapped from the RDF line"
+     }
+    },
+    "required": [
+     "lineNumber",
+     "resource"
+    ]
+   },
+   "importOutputEvent": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Linked Data Import output result DTO",
+    "properties": {
+     "resourcesWithLineNumbers": {
+      "description": "Array of mapped resources with their line numbers",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+       "$ref": "#/components/schemas/resourceWithLineNumber"
+      }
+     },
+     "jobExecutionId": {
+      "description": "Import Job Execution ID",
+      "type": "integer",
+      "format": "int64"
+     },
+     "tenant": {
+      "description": "Tenant ID",
+      "type": "string"
+     },
+     "ts": {
+      "description": "Message timestamp",
+      "type": "string"
+     }
+    },
+    "x-implements": "org.folio.spring.tools.kafka.BaseKafkaMessage",
+    "required": [
+     "resourcesWithLineNumbers"
+    ]
+   },
+   "failedResource": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Resource record failed during saving",
+    "properties": {
+     "lineNumber": {
+      "description": "Line number from the RDF file",
+      "type": "integer",
+      "format": "int64"
+     },
+     "description": {
+      "description": "Failure description",
+      "type": "string"
+     }
+    },
+    "required": [
+     "lineNumber",
+     "description"
+    ]
+   },
+   "importResultEvent": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Result of Linked Data Import output event saving",
+    "properties": {
+     "originalEventTs": {
+      "description": "Original Linked Data Import output event timestamp",
+      "type": "string"
+     },
+     "jobExecutionId": {
+      "description": "Import Job Execution ID",
+      "type": "integer",
+      "format": "int64"
+     },
+     "startDate": {
+      "description": "Time of event handling start",
+      "type": "string",
+      "format": "date-time"
+     },
+     "endDate": {
+      "description": "Time of event handling start",
+      "type": "string",
+      "format": "date-time"
+     },
+     "resourcesCount": {
+      "description": "Total number of resources received",
+      "type": "integer",
+      "format": "int32"
+     },
+     "createdCount": {
+      "description": "Number of resources created",
+      "type": "integer",
+      "format": "int32"
+     },
+     "updatedCount": {
+      "description": "Number of resources updated",
+      "type": "integer",
+      "format": "int32"
+     },
+     "failedResources": {
+      "description": "Array of failed resource records",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+       "$ref": "#/components/schemas/failedResource"
+      }
+     },
+     "tenant": {
+      "description": "Tenant ID",
+      "type": "string"
+     },
+     "ts": {
+      "description": "Message timestamp",
+      "type": "string"
+     }
+    },
+    "x-implements": "org.folio.spring.tools.kafka.BaseKafkaMessage",
+    "required": [
+     "originalEventTs",
+     "jobExecutionId",
+     "startDate",
+     "endDate",
+     "resourcesCount",
+     "createdCount",
+     "updatedCount"
+    ]
+   }
+  }
+ }
+}

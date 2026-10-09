@@ -1,0 +1,175 @@
+openapi: 3.2.0
+info:
+  title: Folio License Terms API
+  version: v1
+  description: 'Operations tagged licenseTerms across 2 of this provider''s published API definitions: folio-edge-erm-openapi.json, folio-edge-erm-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /erm/
+tags:
+- name: licenseTerms
+paths:
+  /erm/license-terms/{id}:
+    get:
+      tags:
+      - licenseTerms
+      operationId: getLicenseTerms
+      summary: Retrieve license terms by package/title identifier
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      responses:
+        '200':
+          description: Calls the backend service associated with the type parameter and returns the response as-is
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/license-terms'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '403':
+          $ref: '#/components/responses/accessDeniedResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    servers:
+    - url: /erm/
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          description: Error status code
+          type: integer
+        errorMessage:
+          description: Error message text
+          type: string
+    license-term-item:
+      description: License term item record
+      type: object
+      properties:
+        id:
+          description: License term id
+          type: number
+        name:
+          description: License term name
+          type: string
+        label:
+          description: License term label
+          type: string
+        description:
+          description: License term description
+          type: string
+        visibility:
+          description: License term visibility
+          type: string
+        primary:
+          description: Indicates if this license term is primary
+          type: boolean
+        value:
+          description: Free-form JSON value (can be string, object, array, etc).
+          x-java-type: java.lang.Object
+        weight:
+          description: License term weight for sorting
+          type: number
+        publicNote:
+          description: Public note for this license term
+          type: string
+      required:
+      - id
+      - name
+      - label
+      - description
+      - visibility
+      - primary
+      - value
+      - weight
+      - publicNote
+    license-terms:
+      description: License terms values by id
+      type: object
+      properties:
+        licenseTerms:
+          description: Array of license term objects with found values
+          type: array
+          items:
+            type: object
+            description: license term item object
+            $ref: '#/components/schemas/license-term-item'
+      required:
+      - licenseTerms
+  responses:
+    accessDeniedResponse:
+      description: Access Denied
+      content:
+        application/json:
+          example:
+            code: 403
+            errorMessage: Access denied
+          schema:
+            $ref: '#/components/schemas/Error'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    id:
+      name: id
+      in: path
+      description: The UUID of a FOLIO user
+      required: true
+      schema:
+        type: string
+x-refined-from:
+- folio-edge-erm-openapi.json
+- folio-edge-erm-openapi.yml

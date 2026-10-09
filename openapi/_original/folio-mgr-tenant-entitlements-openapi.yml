@@ -1,0 +1,1010 @@
+# x-archived-from: folio-mgr-tenant-entitlements-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: mgr-tenant-entitlements API
+  version: v1
+  description: Tenant Entitlement Manager API
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+paths:
+  /entitlements:
+    post:
+      operationId: create
+      description: 'Installs/enables application for tenant.
+
+        Basic authorization is required to perform request (e.g. Authorization=Basic dXNlcjp1c2Vy).
+
+        '
+      tags:
+      - entitlement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entitlementRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      - $ref: '#/components/parameters/ignoreErrors'
+      - $ref: '#/components/parameters/async'
+      - $ref: '#/components/parameters/purgeOnRollback'
+      responses:
+        '201':
+          description: A list with successfully created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedEntitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    put:
+      operationId: upgrade
+      description: 'Upgrades application (or install/enables) for tenant.
+
+        Basic authorization is required to perform request (e.g. Authorization=Basic dXNlcjp1c2Vy).
+
+        '
+      tags:
+      - entitlement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entitlementRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      - $ref: '#/components/parameters/async'
+      responses:
+        '200':
+          description: A list with successfully created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedEntitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    get:
+      operationId: findByQueryOrTenantName
+      description: 'Retrieves all the entitlement using query tools (CQL query, limit and offset parameters).
+
+        Basic authorization is required to perform request (e.g. Authorization=Basic dXNlcjp1c2Vy).
+
+        '
+      tags:
+      - entitlement
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-tenant-name'
+      - $ref: '#/components/parameters/query-includeModules'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      - $ref: '#/components/parameters/x-okapi-token'
+      responses:
+        '200':
+          description: A list with created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    delete:
+      operationId: delete
+      description: 'Delete application installation by id, when making request add basic authorization
+
+        for an admin user (e.g. Basic YWRtaW46YWRtaW4=).
+
+        '
+      tags:
+      - entitlement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entitlementRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      - $ref: '#/components/parameters/ignoreErrors'
+      - $ref: '#/components/parameters/purge'
+      - $ref: '#/components/parameters/async'
+      responses:
+        '200':
+          description: List with removed tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedEntitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /entitlements/state:
+    put:
+      summary: Apply a desired state of application entitlements for a tenant
+      description: 'Sets the complete list of applications that should be entitled for a tenant.
+
+
+        This endpoint is declarative and idempotent. It compares the provided list of applications (the "desired state") with the currently entitled applications and automatically calculates the necessary operations (Entitle, Upgrade, Revoke) to align the tenant''s state with the request.
+
+
+        - Any applications in the desired state that are not currently entitled will be **entitled**.
+
+        - Any applications in the desired state with a version different from the currently entitled version will be **upgraded**.
+
+        - Any currently entitled applications that are not present in the desired state list will be **revoked**.
+
+        '
+      operationId: applyState
+      tags:
+      - entitlement
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      - $ref: '#/components/parameters/ignoreErrors'
+      - $ref: '#/components/parameters/async'
+      - $ref: '#/components/parameters/purge'
+      - $ref: '#/components/parameters/purgeOnRollback'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/desiredStateRequestBody'
+      responses:
+        '200':
+          description: A list with successfully application entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedEntitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /entitlements/{tenantName}/applications:
+    get:
+      operationId: findEntitledApplicationsByTenantName
+      description: List of application descriptors entitled for the tenant
+      tags:
+      - entitlement-application
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/x-okapi-tenant'
+      - $ref: '#/components/parameters/path-tenant-name'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      responses:
+        '200':
+          description: A list of application descriptors entitled for the tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applicationDescriptors'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /entitlements/modules/{moduleId}:
+    get:
+      operationId: getModuleEntitlements
+      description: Retrieve a list of module entitlements
+      tags:
+      - entitlement-module
+      parameters:
+      - $ref: '#/components/parameters/path-module-id'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      responses:
+        '200':
+          description: A list with created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/entitlements'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /entitlements/validate:
+    post:
+      operationId: validate
+      description: 'Validates an entitlement request against a set of pre-configured validators
+
+        that are also applied during the entitlement process or a single validator specified as a parameter.
+
+        '
+      tags:
+      - entitlement-validation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entitlementRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/entitlementRequestType'
+      - $ref: '#/components/parameters/entitlementValidator'
+      - $ref: '#/components/parameters/x-okapi-token'
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /entitlement-flows:
+    get:
+      operationId: findFlows
+      description: Retrieves flows by CQL query
+      tags:
+      - flow
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      responses:
+        '200':
+          description: A list with created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flows'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /entitlement-flows/{flowId}:
+    get:
+      operationId: getFlowById
+      description: Retrieves a flow by id
+      tags:
+      - flow
+      parameters:
+      - $ref: '#/components/parameters/path-flow-id'
+      - $ref: '#/components/parameters/include-stages'
+      responses:
+        '200':
+          description: A list with created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flow'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /application-flows:
+    get:
+      operationId: findApplicationFlows
+      description: Retrieves an application entitlement flows by CQL query
+      tags:
+      - flow
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-limit'
+      - $ref: '#/components/parameters/query-offset'
+      responses:
+        '200':
+          description: A list with found application entitlement flows
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applicationFlows'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /application-flows/{applicationFlowId}:
+    get:
+      operationId: getApplicationFlowById
+      description: Retrieves an entitlement flow per applicationId
+      tags:
+      - flow
+      parameters:
+      - $ref: '#/components/parameters/path-application-flow-id'
+      - $ref: '#/components/parameters/include-stages'
+      responses:
+        '200':
+          description: An application entitlement flow by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applicationFlow'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /application-flows/{applicationFlowId}/stages:
+    get:
+      operationId: getApplicationFlowStages
+      description: Retrieves entitlement stages by application id
+      tags:
+      - flow
+      parameters:
+      - $ref: '#/components/parameters/path-application-flow-id'
+      responses:
+        '200':
+          description: A list of entitlement stages for application flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flowStages'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /application-flows/{applicationFlowId}/stages/{stageName}:
+    get:
+      operationId: getApplicationFlowStageByName
+      description: Retrieves entitlement stages by application id
+      tags:
+      - flow
+      parameters:
+      - $ref: '#/components/parameters/path-application-flow-id'
+      - $ref: '#/components/parameters/path-stage-name'
+      responses:
+        '200':
+          description: A specific result of stage for application flow by name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/flowStage'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /reinstall/applications:
+    post:
+      operationId: appReinstall
+      description: 'Redo installation of apps'' modules for tenant, even if they are already installed.
+
+        '
+      tags:
+      - reinstall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/appReinstallRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      responses:
+        '200':
+          description: A list with successfully created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reinstallResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /reinstall/modules:
+    post:
+      operationId: moduleReinstall
+      description: 'Redo installation of modules for tenant, even if they are already installed.
+
+        '
+      tags:
+      - reinstall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/moduleReinstallRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      responses:
+        '200':
+          description: A list with successfully created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reinstallResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+components:
+  schemas:
+    entitlementRequestBody:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: installationRequest.json
+      title: Tenant Entitlement Request Schema
+      description: A collection of application ids to install
+      properties:
+        tenantId:
+          description: Tenant id
+          type: string
+          format: uuid
+        applications:
+          description: List of application ids
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+      required:
+      - applications
+      - tenantId
+    desiredStateRequestBody:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: desiredStateRequest.json
+      title: Tenant Desired State Request Schema
+      description: A collection of application ids which represent the desired state for the tenant
+      properties:
+        tenantId:
+          description: Tenant id
+          type: string
+          format: uuid
+        applications:
+          description: List of application ids
+          type: array
+          minItems: 0
+          maxItems: 150
+          items:
+            type: string
+      required:
+      - applications
+      - tenantId
+    entitlements:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: installations.json
+      title: Tenant Entitlements Schema
+      description: List of tenant entitlements (installations)
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        entitlements:
+          type: array
+          description: Found entitlement records
+          items:
+            $ref: '#/components/schemas/entitlement'
+    applicationDescriptors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Collection of application descriptors
+      properties:
+        applicationDescriptors:
+          description: List of application descriptors
+          type: array
+          id: applicationDescriptor
+          items:
+            $ref: '#/components/schemas/applicationDescriptor'
+        totalRecords:
+          type: integer
+      required:
+      - applicationDescriptors
+      - totalRecords
+    applicationDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Application descriptor
+      type: object
+    extendedEntitlements:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: installation.json
+      title: Tenant Entitlement Result Schema
+      description: Tenant entitlement result descriptor
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        flowId:
+          description: An entitlement flow identifier
+          type: string
+          format: uuid
+        entitlements:
+          type: array
+          description: New, upgraded or revoked entitlement for request
+          items:
+            $ref: '#/components/schemas/entitlement'
+    flowStage:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: flowStage.json
+      title: Flow Stage Schema
+      description: Flow stage descriptor. A stage can be part of global flow or specific application flow.
+      type: object
+      properties:
+        id:
+          description: A unique stage identifier
+          type: string
+          format: uuid
+        flowId:
+          description: A parent flow identifier (global or application flow)
+          type: string
+          format: uuid
+        name:
+          description: A stage name
+          type: string
+        status:
+          description: Stage execution status
+          $ref: '#/components/schemas/executionStatus'
+        errorType:
+          description: A relevant error type caused stage failure or cancellation, nullable if stage is finished
+          type: string
+        errorMessage:
+          description: A relevant error message caused stage failure or cancellation, nullable if stage is finished
+          type: string
+        startedAt:
+          description: Stage execution start timestamp
+          type: string
+          format: date-time
+        finishedAt:
+          description: Stage execution end timestamp
+          type: string
+          format: date-time
+        retriesCount:
+          description: Number of retries performed during flow stage operations
+          type: integer
+        retriesInfo:
+          description: Error information on operations failures that caused retries
+          type: string
+    flowStages:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: entitlementStage.json
+      title: Tenant Entitlement Stage Schema
+      description: Tenant entitlement stage descriptor
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        stages:
+          type: array
+          description: Found flow stages
+          items:
+            $ref: '#/components/schemas/flowStage'
+    flow:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: entitlementFlow.json
+      title: Control Flow Schema
+      description: Control flow that unifies one or more application flow for enable/disable/upgrade operations
+      type: object
+      properties:
+        id:
+          description: A control flow identifier
+          type: string
+          format: uuid
+        status:
+          description: Flow execution status
+          $ref: '#/components/schemas/executionStatus'
+        type:
+          description: Flow entitlement type
+          $ref: '#/components/schemas/entitlementRequestType'
+        tenantId:
+          description: A tenant identifier
+          type: string
+          format: uuid
+        startedAt:
+          description: A control flow start timestamp
+          type: string
+          format: date-time
+        finishedAt:
+          description: A control flow end timestamp
+          type: string
+          format: date-time
+        stages:
+          type: array
+          description: Executed stages for flow
+          items:
+            $ref: '#/components/schemas/flowStage'
+        applicationFlows:
+          type: array
+          description: List with executed application flows
+          items:
+            $ref: '#/components/schemas/applicationFlow'
+    flows:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: entitlementFlows.json
+      title: Control Flows Schema
+      description: List of control flows containing application flows
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        flows:
+          type: array
+          description: Found entitlement flows
+          items:
+            $ref: '#/components/schemas/flow'
+    applicationFlow:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: applicationEntitlement.json
+      title: Application Entitlement Flow Schema
+      description: An entitlement flow result for a single application
+      type: object
+      properties:
+        id:
+          description: An application entitlement flow identifier
+          type: string
+          format: uuid
+        applicationId:
+          description: An application descriptor identifier
+          type: string
+        tenantId:
+          description: A tenant identifier
+          type: string
+          format: uuid
+        flowId:
+          description: An entitlement flow identifier
+          type: string
+          format: uuid
+        type:
+          description: Application flow entitlement type
+          $ref: '#/components/schemas/entitlementType'
+        status:
+          description: Application flow execution status
+          $ref: '#/components/schemas/executionStatus'
+        startedAt:
+          description: An application flow start timestamp
+          type: string
+          format: date-time
+        finishedAt:
+          description: An application flow end timestamp
+          type: string
+          format: date-time
+        stages:
+          description: A list with executed stage results
+          type: array
+          items:
+            $ref: '#/components/schemas/flowStage'
+    applicationFlows:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: entitlementFlows.json
+      title: Application Entitlement Flows Schema
+      description: List of application entitlement flows (installations)
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: A total number of records
+        applicationFlows:
+          type: array
+          description: List with child application flows
+          items:
+            $ref: '#/components/schemas/applicationFlow'
+    errorResponse:
+      $ref: '#/components/schemas/errors'
+    entitlementRequestType:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: types/entitlementRequestType.json
+      title: Tenant Entitlement Request Type Schema
+      description: A tenant entitlement request type
+      type: string
+      enum:
+      - entitle
+      - revoke
+      - upgrade
+      - state
+    entitlementType:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: types/entitlementType.json
+      title: Tenant Entitlement Type Schema
+      description: A tenant entitlement type
+      type: string
+      enum:
+      - entitle
+      - revoke
+      - upgrade
+    appReinstallRequestBody:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: appReinstallRequestBody.json
+      title: Application Reinstall Request Schema
+      description: A collection of application ids to reinstall
+      properties:
+        tenantId:
+          description: Tenant id
+          type: string
+          format: uuid
+        applications:
+          description: List of application ids
+          type: array
+          minItems: 1
+          items:
+            type: string
+      required:
+      - applications
+      - tenantId
+    moduleReinstallRequestBody:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: moduleReinstallRequestBody.json
+      title: Module Reinstall Request Schema
+      description: A collection of module ids to reinstall
+      properties:
+        tenantId:
+          description: Tenant id
+          type: string
+          format: uuid
+        applicationId:
+          description: Application id
+          type: string
+        modules:
+          description: List of module ids
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+      required:
+      - modules
+      - tenantId
+      - applicationId
+    reinstallResult:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Reinstall results
+      properties:
+        entitlements:
+          type: array
+          items:
+            type: string
+          description: Entitled modules list
+        errors:
+          type: array
+          items:
+            type: string
+          description: Errors that occurred during entitlement calls
+    entitlement:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: installation.json
+      title: Tenant Entitlement Schema
+      description: Tenant entitlement descriptor
+      type: object
+      properties:
+        applicationId:
+          description: A Name-Version id of application
+          type: string
+        tenantId:
+          description: A tenant identifier
+          type: string
+          format: uuid
+        modules:
+          description: A list of module identifiers
+          type: array
+          items:
+            type: string
+            description: A module identifier
+      required:
+      - applicationId
+      - tenantId
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    executionStatus:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: types/entitlementFlowStatus.json
+      title: Application/Stage Execution Status Schema
+      description: An application/stage execution status
+      type: string
+      enum:
+      - queued
+      - in_progress
+      - cancelled
+      - cancellation_failed
+      - failed
+      - finished
+  responses:
+    badRequestResponse:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+  parameters:
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity/document id
+      schema:
+        type: string
+    path-tenant-id:
+      in: path
+      required: true
+      name: tenantId
+      description: Tenant id
+      schema:
+        type: string
+    path-module-id:
+      in: path
+      required: true
+      name: moduleId
+      description: Module id
+      schema:
+        type: string
+    path-tenant-name:
+      in: path
+      required: true
+      name: tenantName
+      description: Tenant name
+      schema:
+        type: string
+    path-application-flow-id:
+      in: path
+      required: true
+      name: applicationFlowId
+      description: An application flow identifier
+      schema:
+        type: string
+        format: uuid
+    path-flow-id:
+      in: path
+      required: true
+      name: flowId
+      description: A flow identifier
+      schema:
+        type: string
+        format: uuid
+    path-stage-name:
+      in: path
+      required: true
+      name: stageName
+      description: An application stage name
+      schema:
+        type: string
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    query-includeModules:
+      in: query
+      required: false
+      name: includeModules
+      description: Indicates if list of modules should be loaded for each entitlement.
+      schema:
+        type: boolean
+        default: false
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    query-tenant-name:
+      in: query
+      required: false
+      name: tenant
+      description: Tenant name to filter by.
+      schema:
+        type: string
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: false
+      description: An OKAPI authentication token
+      schema:
+        type: string
+    x-okapi-tenant:
+      name: x-okapi-tenant
+      in: header
+      required: true
+      description: An OKAPI tenant
+      schema:
+        type: string
+    tenantParameters:
+      name: tenantParameters
+      in: query
+      description: Parameters for tenant init
+      required: false
+      schema:
+        type: string
+    purge:
+      name: purge
+      in: query
+      description: "Defines if create by entitlement process resources must be purged, including:\n  - Keycloak authorization resources (if integration is enabled)\n  - Folio modules data (_tenant API request will be performed with parameter: purge=true)\nAPI Gateway routes will be removed in any case.\n"
+      required: false
+      schema:
+        type: boolean
+        default: false
+    purgeOnRollback:
+      name: purgeOnRollback
+      in: query
+      description: Defines if module data must be purged on rollback.
+      required: false
+      schema:
+        type: boolean
+        default: false
+    ignoreErrors:
+      name: ignoreErrors
+      in: query
+      description: "If `ignoreErrors` is set to `false` then the rollback operation is enabled\nif one or more stages failed. If it set to `true` - stage rollbacks are disabled.\nRollback will return the system to initial state:\n  * All installed tenant modules will be uninstalled\n  * All created API Gateway routes will be deleted for the application\n  * All created Keycloak resources will be deleted for the application\n"
+      required: false
+      schema:
+        type: boolean
+        default: false
+    full:
+      name: full
+      in: query
+      required: false
+      description: Show full information in the response including ModuleDescriptors
+      schema:
+        type: boolean
+        default: false
+    async:
+      name: async
+      in: query
+      required: false
+      description: Enables asynchronous install operation
+      schema:
+        type: boolean
+        default: false
+    include-stages:
+      name: includeStages
+      in: query
+      required: false
+      description: Defines if stages must be included in the response for entitlement/application flows
+      schema:
+        type: boolean
+        default: false
+    entitlementType:
+      name: entitlementType
+      in: query
+      required: true
+      description: Entitlement type
+      schema:
+        $ref: '#/components/schemas/entitlementType'
+    entitlementRequestType:
+      name: entitlementRequestType
+      in: query
+      required: true
+      description: Entitlement request type
+      schema:
+        $ref: '#/components/schemas/entitlementRequestType'
+    entitlementValidator:
+      name: validator
+      in: query
+      required: false
+      description: 'Name of entitlement validator to be applied.
+
+        All existing validators will be applied if none specified
+
+        '
+      schema:
+        type: string

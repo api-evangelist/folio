@@ -1,0 +1,206 @@
+openapi: 3.2.0
+info:
+  title: Folio Quick Export API
+  version: v1
+  description: 'Operations tagged Quick Export across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /data-export/
+tags:
+- name: Quick Export
+paths:
+  /quick-export:
+    post:
+      description: Starts quick export process
+      operationId: postDataExportQuickExport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/quickExportRequest'
+            example:
+              jobProfileId: 2fd2bf30-9d03-4f7e-9393-df55eaef2c2f
+              criteria: (source=="MARC" and discoverySuppress=="true")
+              uuids: []
+              type: cql
+              recordType: INSTANCE
+              metadata:
+                createdDate: '2019-07-22T11:22:07Z'
+                createdByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                createdByUsername: janedoeuser
+                updatedDate: '2019-07-27T13:28:54Z'
+                updatedByUserId: dee12548-9cee-45fa-bbae-675c1cc0ce3b
+                updatedByUsername: ''
+      responses:
+        '200':
+          description: Data export started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/quickExportResponse'
+              example:
+                jobExecutionId: 5696d7aa-3bae-11eb-adc1-0242ac120002
+                jobExecutionHrId: 1
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              example: malformed parameter 'query', syntax error at column 6
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            text/plain:
+              example: Internal server error
+      tags:
+      - Quick Export
+      summary: Post data export quick export
+      x-summary-source: derived
+    servers:
+    - url: /data-export/
+components:
+  schemas:
+    quickExportRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Necessary data to start export process from inventory
+      type: object
+      additionalProperties: false
+      properties:
+        jobProfileId:
+          description: Job profile id to be used for export
+          type: string
+          format: uuid
+        criteria:
+          description: CQL query for records search
+          type: string
+        uuids:
+          description: List of UUIDs of records to export
+          type: array
+          items:
+            type: string
+            format: uuid
+        type:
+          description: 'Defines a type of searching the records: by UUIDs or CQL query'
+          type: string
+          enum:
+          - cql
+          - uuid
+        recordType:
+          description: Defines a type of records to search by criteria or UUIDs
+          type: string
+          enum:
+          - INSTANCE
+          - HOLDINGS
+          - ITEM
+          - AUTHORITY
+        fileName:
+          description: Name of the generated marc file
+          type: string
+        metadata:
+          description: 'Meta information '
+          type: object
+          $ref: '#/components/schemas/metadata'
+      required:
+      - type
+      - recordType
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    quickExportResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Quick export response
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutionId:
+          description: UUID of the job execution, that is used for quick export
+          type: string
+          format: uuid
+        jobExecutionHrId:
+          description: HrId of the job execution, that is used for quick export
+          type: integer
+      required:
+      - jobExecutionId
+      - jobExecutionHrId
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+x-refined-from:
+- folio-mod-data-export-openapi.json
+- folio-mod-data-export-openapi.yml

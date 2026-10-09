@@ -1,0 +1,812 @@
+# x-archived-from: folio-mod-tlr-ecs-loans-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: ECS Loans API
+  version: v1
+tags:
+- name: ecsLoans
+paths:
+  /tlr/loans/check-out-by-barcode:
+    post:
+      operationId: checkOutByBarcode
+      description: Checks item out by barcode
+      tags:
+      - ecsLoans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/check-out-request'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/checkOutResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /tlr/loans/declare-item-lost:
+    post:
+      operationId: declareItemLost
+      description: Declare item lost
+      tags:
+      - ecsLoans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/declare-item-lost-request'
+        required: true
+      responses:
+        '204':
+          description: Item successfully declared lost
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /tlr/loans/claim-item-returned:
+    post:
+      operationId: claimItemReturned
+      description: Claim item returned
+      tags:
+      - ecsLoans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/claim-item-returned-request'
+        required: true
+      responses:
+        '204':
+          description: Item successfully claimed returned
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+  /tlr/loans/declare-claimed-returned-item-as-missing:
+    post:
+      operationId: declareClaimedReturnedItemAsMissing
+      description: Declare claimed returned item as missing
+      tags:
+      - ecsLoans
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/declare-claimed-returned-item-as-missing-request'
+        required: true
+      responses:
+        '204':
+          description: Item successfully claimed missing
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '422':
+          $ref: '#/components/responses/unprocessableEntityResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+components:
+  schemas:
+    check-out-request:
+      type: object
+      description: Check-out request
+      properties:
+        itemBarcode:
+          description: Barcode of the item to be lent to the patron
+          type: string
+        userBarcode:
+          description: Barcode of the user (representing the patron) the item is to be lent to
+          type: string
+        proxyUserBarcode:
+          description: Barcode of the user representing a proxy for the patron
+          type: string
+        loanDate:
+          description: When the loan is to begin, defaults to current date and time
+          type: string
+          format: date-time
+        servicePointId:
+          description: Service point where the item has been checked out
+          type: string
+          format: uuid
+        forceLoanPolicyId:
+          description: Force loan policy ID
+          type: string
+          format: uuid
+        overrideBlocks:
+          x-class-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS)'
+          description: Blocks to override
+          type: object
+          properties:
+            itemNotLoanableBlock:
+              description: '''Item not loanable'' block'
+              type: object
+              properties:
+                dueDate:
+                  description: Due date for a new loan
+                  type: string
+                  format: date-time
+              required:
+              - dueDate
+            patronBlock:
+              description: Automated patron block
+              type: object
+            itemLimitBlock:
+              description: Item limit block
+              type: object
+            renewalBlock:
+              description: Renewal block
+              type: object
+            renewalDueDateRequiredBlock:
+              description: Override renewal block which requires due date field
+              type: object
+              properties:
+                dueDate:
+                  description: Due date for a new loan
+                  type: string
+                  format: date-time
+              required:
+              - dueDate
+            comment:
+              description: Reason for override
+              type: string
+      required:
+      - itemBarcode
+      - userBarcode
+      - servicePointId
+    check-out-dry-run-request:
+      type: object
+      description: Request to dry run check out an item to a loanee using barcodes
+      properties:
+        itemBarcode:
+          description: Barcode of the item to be lent to the patron
+          type: string
+        userBarcode:
+          description: Barcode of the user (representing the patron) the item is to be lent to
+          type: string
+        proxyUserBarcode:
+          description: Barcode of the user representing a proxy for the patron
+          type: string
+        overrideBlocks:
+          x-class-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS)'
+          description: Blocks to override
+          type: object
+          properties:
+            itemNotLoanableBlock:
+              description: '''Item not loanable'' block'
+              type: object
+              properties:
+                dueDate:
+                  description: Due date for a new loan
+                  type: string
+                  format: date-time
+              required:
+              - dueDate
+            patronBlock:
+              description: Automated patron block
+              type: object
+            itemLimitBlock:
+              description: Item limit block
+              type: object
+            renewalBlock:
+              description: Renewal block
+              type: object
+            renewalDueDateRequiredBlock:
+              description: Override renewal block which requires due date field
+              type: object
+              properties:
+                dueDate:
+                  description: Due date for a new loan
+                  type: string
+                  format: date-time
+              required:
+              - dueDate
+            comment:
+              description: Reason for override
+              type: string
+      additionalProperties: true
+      required:
+      - itemBarcode
+      - userBarcode
+    check-out-dry-run-response:
+      type: object
+      description: Check out dry run response
+      properties:
+        loanPolicyId:
+          description: ID of the loan policy determined by the circulation rules
+          type: string
+        overdueFinePolicyId:
+          description: ID of the overdue fine policy determined by the circulation rules
+          type: string
+        lostItemPolicyId:
+          description: ID of the lost item policy determined by the circulation rules
+          type: string
+        patronNoticePolicyId:
+          description: ID of the patron notice policy determined by the circulation rules
+          type: string
+      additionalProperties: true
+    loan-policy:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Rules governing loans
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: The name of the policy.
+          type: string
+        description:
+          description: Description of the loan policy
+          type: string
+        loanable:
+          description: Flag that indicates whether this policy allows loans
+          type: boolean
+        loansPolicy:
+          type: object
+          description: Settings for loans
+          additionalProperties: true
+          properties:
+            profileId:
+              type: string
+              description: Loan profile
+            period:
+              type: object
+              $ref: '#/components/schemas/period'
+              description: Loan period
+            closedLibraryDueDateManagementId:
+              type: string
+              description: Closed library due date management
+            gracePeriod:
+              type: object
+              $ref: '#/components/schemas/period'
+              description: Grace period
+            openingTimeOffset:
+              type: object
+              $ref: '#/components/schemas/period'
+              description: Opening offset time period
+            fixedDueDateScheduleId:
+              type: string
+              description: Fixed due date schedule (due date limit)
+            itemLimit:
+              type: integer
+              description: Number of items allowed
+              minimum: 1
+              maximum: 9999
+        renewable:
+          type: boolean
+          description: Is item renewable
+        renewalsPolicy:
+          type: object
+          description: Settings for renewals
+          properties:
+            unlimited:
+              type: boolean
+              description: Unlimited renewals
+            numberAllowed:
+              type: number
+              description: Number of renewals allowed
+            renewFromId:
+              type: string
+              description: Renew from date
+            differentPeriod:
+              type: boolean
+              description: Renewal period different from original loan
+            period:
+              type: object
+              $ref: '#/components/schemas/period'
+              description: Alternate loan period for renewals
+            alternateFixedDueDateScheduleId:
+              type: string
+              description: Alternate fixed due date schedule (due date limit) for renewals
+        requestManagement:
+          type: object
+          description: Settings for various request types
+          additionalProperties: true
+          properties:
+            recalls:
+              type: object
+              description: Settings for recall requests
+              additionalProperties: true
+              properties:
+                alternateGracePeriod:
+                  type: object
+                  $ref: '#/components/schemas/period'
+                  description: Alternate grace period for recalled items
+                minimumGuaranteedLoanPeriod:
+                  type: object
+                  $ref: '#/components/schemas/period'
+                  description: Minimum guaranteed loan period
+                recallReturnInterval:
+                  type: object
+                  $ref: '#/components/schemas/period'
+                  description: Recall return interval
+                allowRecallsToExtendOverdueLoans:
+                  type: boolean
+                  description: Whether recalls are allowed to extend overdue loans
+                  default: false
+                alternateRecallReturnInterval:
+                  type: object
+                  $ref: '#/components/schemas/period'
+                  description: Alternate recall return interval for overdue loans
+            holds:
+              type: object
+              description: Settings for hold requests
+              additionalProperties: true
+              properties:
+                alternateCheckoutLoanPeriod:
+                  type: object
+                  $ref: '#/components/schemas/period'
+                  description: Alternate loan period at checkout for items with active, pending hold request
+                renewItemsWithRequest:
+                  type: boolean
+                  description: Allow renewal of items with active, pending hold request
+                alternateRenewalLoanPeriod:
+                  type: object
+                  $ref: '#/components/schemas/period'
+                  description: Alternate loan period at renewal for items with active, pending hold request
+            pages:
+              type: object
+              description: Settings for page requests
+              additionalProperties: true
+              properties:
+                alternateCheckoutLoanPeriod:
+                  type: object
+                  $ref: '#/components/schemas/period'
+                  description: Alternate loan period at checkout for items with active, pending page request
+                renewItemsWithRequest:
+                  type: boolean
+                  description: Allow renewal of items with active, pending page request
+                alternateRenewalLoanPeriod:
+                  type: object
+                  $ref: '#/components/schemas/period'
+                  description: Alternate loan period at renewal for items with active, pending page request
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      additionalProperties: true
+    errorResponse:
+      $ref: '#/components/schemas/errors'
+    consortiumItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/consortiumItem'
+        totalRecords:
+          type: integer
+    searchBatchIds:
+      $ref: '#/components/schemas/batchIds'
+    declareItemLostRequest:
+      $ref: '#/components/schemas/declare-item-lost-request'
+    claimItemReturnedRequest:
+      $ref: '#/components/schemas/claim-item-returned-request'
+    declareClaimedReturnedItemAsMissingRequest:
+      $ref: '#/components/schemas/declare-claimed-returned-item-as-missing-request'
+    check-out-response:
+      type: object
+      description: Check-out response
+      properties:
+        id:
+          description: Unique ID (generated UUID) of the loan
+          type: string
+        userId:
+          description: ID of the patron the item was lent to. Required for open loans, not required for closed loans (for anonymization).
+          type: string
+        borrower:
+          description: Additional information about the borrower of the item, taken from the user referred to by the userId
+          type: object
+          properties:
+            firstName:
+              description: First name of the borrower (read-only, defined by the server)
+              type: string
+            lastName:
+              description: Last name of the borrower (read-only, defined by the server)
+              type: string
+            middleName:
+              description: Middle name of the borrower (read-only, defined by the server)
+              type: string
+            barcode:
+              description: Barcode used to identify the borrower (read-only, defined by the server)
+              type: string
+            preferredFirstName:
+              description: Preferred first name of the borrower (read-only, defined by the server)
+              type: string
+            patronGroup:
+              description: Current patron group of the borrower (read-only, defined by the server)
+              type: string
+          additionalProperties: true
+        proxyUserId:
+          description: ID of the user representing a proxy for the patron
+          type: string
+        itemId:
+          description: ID of the item lent to the patron
+          type: string
+        loanPolicyId:
+          description: ID of last policy used in relation to this loan
+          type: string
+        loanPolicy:
+          description: Additional information about the loan policy of the item, taken from the loanPolicyId
+          type: object
+          properties:
+            name:
+              description: Name of last policy used in relation to this loan (read-only, defined by the server)
+              type: string
+          additionalProperties: true
+        overdueFinePolicyId:
+          description: ID of last overdue fine policy used in relation to this loan
+          type: string
+        overdueFinePolicy:
+          description: Additional information about the overdue fine policy of the item
+          type: object
+          properties:
+            name:
+              description: Name of last overdue fine policy used (read-only, defined by the server)
+              type: string
+          additionalProperties: true
+        lostItemPolicyId:
+          description: ID of last lost item policy used in relation to this loan
+          type: string
+        lostItemPolicy:
+          description: Additional information about the lost item policy
+          type: object
+          properties:
+            name:
+              description: Name of last lost item policy used (read-only, defined by the server)
+              type: string
+          additionalProperties: true
+        item:
+          description: Additional information about the item
+          type: object
+          properties:
+            id:
+              description: ID of the item
+              type: string
+            title:
+              description: The title of the item lent to the patron
+              type: string
+            barcode:
+              description: The barcode of the item
+              type: string
+            status:
+              description: Overall status of the item
+              type: object
+              properties:
+                name:
+                  description: Name of the item status
+                  type: string
+                date:
+                  description: Date time when status was last changed
+                  type: string
+                  format: date-time
+              additionalProperties: true
+          additionalProperties: true
+        loanDate:
+          description: Date and time when the loan began
+          type: string
+          format: date-time
+        dueDate:
+          description: Date and time when the item is due to be returned
+          type: string
+          format: date-time
+        returnDate:
+          description: Date and time when the item was returned
+          type: string
+          format: date-time
+        action:
+          description: Last action performed on a loan (e.g., checkedout, checkedin)
+          type: string
+        renewalCount:
+          description: Count of how many times a loan has been renewed
+          type: integer
+          minimum: 0
+        feesAndFines:
+          description: Fees and fines associated with loans
+          type: object
+          properties:
+            amountRemainingToPay:
+              description: Total remaining amount due on fees and fines for the loan (read-only, defined by the server)
+              type: number
+          additionalProperties: true
+        metadata:
+          description: Metadata about creation and changes to loan, provided by the server (client should not provide)
+          type: object
+      additionalProperties: true
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    circulation-declare-item-lost-request:
+      type: object
+      description: Declare item lost request
+      properties:
+        servicePointId:
+          description: ID of the service point where item is declared lost
+          type: string
+          format: uuid
+        declaredLostDateTime:
+          description: Date and time of the item loss
+          type: string
+          format: date-time
+        comment:
+          description: Additional information about item loss
+          type: string
+      required:
+      - servicePointId
+    declare-item-lost-request:
+      allOf:
+      - $ref: '#/components/schemas/circulation-declare-item-lost-request'
+      - type: object
+        properties:
+          loanId:
+            description: ID of the loan created for the lost item
+            type: string
+            format: uuid
+          itemId:
+            description: ID of the lost item
+            type: string
+            format: uuid
+          userId:
+            description: ID of the user who had lost item on loan
+            type: string
+            format: uuid
+    circulation-claim-item-returned-request:
+      type: object
+      description: Request body schema for claim item returned API
+      properties:
+        itemClaimedReturnedDateTime:
+          description: The date and time when the item is to be claimed returned
+          type: string
+          format: date-time
+        comment:
+          description: Comment explaining why the item has been claimed returned
+          type: string
+      additionalProperties: false
+      required:
+      - itemClaimedReturnedDateTime
+    claim-item-returned-request:
+      allOf:
+      - $ref: '#/components/schemas/circulation-claim-item-returned-request'
+      - type: object
+        properties:
+          loanId:
+            description: ID of the loan created for the item claimed returned
+            type: string
+            format: uuid
+          itemId:
+            description: ID of the item claimed returned
+            type: string
+            format: uuid
+          userId:
+            description: ID of the user who had claimed item returned
+            type: string
+            format: uuid
+    circulation-declare-claimed-returned-item-as-missing-request:
+      type: object
+      description: Request body schema for for resolving claim as missing API
+      properties:
+        comment:
+          description: Comment explaining why the item is claimed missing
+          type: string
+      additionalProperties: false
+      required:
+      - comment
+    declare-claimed-returned-item-as-missing-request:
+      allOf:
+      - $ref: '#/components/schemas/circulation-declare-claimed-returned-item-as-missing-request'
+      - type: object
+        properties:
+          loanId:
+            description: ID of the loan created for the missing item
+            type: string
+            format: uuid
+          itemId:
+            description: ID of the missing item
+            type: string
+            format: uuid
+          userId:
+            description: ID of the user who claimed the item missing
+            type: string
+            format: uuid
+    period:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Time interval defined by its duration
+      properties:
+        duration:
+          type: integer
+          minimum: 1
+          description: Duration of the period, number of times the interval repeats
+        intervalId:
+          type: string
+          description: Interval for the period, e.g. hours, days or weeks
+          enum:
+          - Minutes
+          - Hours
+          - Days
+          - Weeks
+          - Months
+      additionalProperties: true
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    consortiumItem:
+      type: object
+      properties:
+        id:
+          description: Item ID
+          type: string
+        hrid:
+          description: Item HRID
+          type: string
+        tenantId:
+          description: Tenant ID of the Item
+          type: string
+        instanceId:
+          description: Related Instance Id
+          type: string
+        holdingsRecordId:
+          description: Related Holding Record Id
+          type: string
+        barcode:
+          description: Item barcode
+          type: string
+    batchIds:
+      description: Batch IDs DTO
+      type: object
+      properties:
+        identifierType:
+          description: Type of entity identifier
+          type: string
+          enum:
+          - id
+          - hrid
+          - accessionNumber
+          - formerIds
+          - barcode
+          - holdingsRecordId
+          - instanceId
+          - instanceHrid
+          - itemBarcode
+        identifierValues:
+          description: Entity identifier values
+          type: array
+          items:
+            type: string
+      required:
+      - identifierType
+      - identifierValues
+  responses:
+    checkOutResponse:
+      description: Check out response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/check-out-response'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request is invalid
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    unprocessableEntityResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request is invalid
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Unexpected error
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'

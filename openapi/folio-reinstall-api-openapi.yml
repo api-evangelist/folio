@@ -1,0 +1,170 @@
+openapi: 3.2.0
+info:
+  title: Folio Reinstall API
+  version: v1
+  description: 'Operations tagged reinstall across 2 of this provider''s published API definitions: folio-mgr-tenant-entitlements-openapi.json, folio-mgr-tenant-entitlements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: reinstall
+paths:
+  /reinstall/applications:
+    post:
+      operationId: appReinstall
+      description: Redo installation of apps' modules for tenant, even if they are already installed.
+      tags:
+      - reinstall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/appReinstallRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      responses:
+        '200':
+          description: A list with successfully created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reinstallResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: App reinstall
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /reinstall/modules:
+    post:
+      operationId: moduleReinstall
+      description: Redo installation of modules for tenant, even if they are already installed.
+      tags:
+      - reinstall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/moduleReinstallRequestBody'
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-token'
+      - $ref: '#/components/parameters/tenantParameters'
+      responses:
+        '200':
+          description: A list with successfully created tenant entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/reinstallResult'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Module reinstall
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    moduleReinstallRequestBody:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: moduleReinstallRequestBody.json
+      title: Module Reinstall Request Schema
+      description: A collection of module ids to reinstall
+      properties:
+        tenantId:
+          description: Tenant id
+          type: string
+          format: uuid
+        applicationId:
+          description: Application id
+          type: string
+        modules:
+          description: List of module ids
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+      required:
+      - modules
+      - tenantId
+      - applicationId
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    reinstallResult:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Reinstall results
+      properties:
+        entitlements:
+          type: array
+          items:
+            type: string
+          description: Entitled modules list
+        errors:
+          type: array
+          items:
+            type: string
+          description: Errors that occurred during entitlement calls
+    appReinstallRequestBody:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: appReinstallRequestBody.json
+      title: Application Reinstall Request Schema
+      description: A collection of application ids to reinstall
+      properties:
+        tenantId:
+          description: Tenant id
+          type: string
+          format: uuid
+        applications:
+          description: List of application ids
+          type: array
+          minItems: 1
+          items:
+            type: string
+      required:
+      - applications
+      - tenantId
+  parameters:
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: false
+      description: An OKAPI authentication token
+      schema:
+        type: string
+    tenantParameters:
+      name: tenantParameters
+      in: query
+      description: Parameters for tenant init
+      required: false
+      schema:
+        type: string
+  responses:
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequestResponse:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mgr-tenant-entitlements-openapi.json
+- folio-mgr-tenant-entitlements-openapi.yml

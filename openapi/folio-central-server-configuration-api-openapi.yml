@@ -1,0 +1,259 @@
+openapi: 3.2.0
+info:
+  title: Folio Central Server Configuration API
+  version: v1
+  description: 'Operations tagged central-server-configuration across 2 of this provider''s published API definitions: folio-mod-inn-reach-circulation-openapi.json, folio-mod-inn-reach-circulation-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: central-server-configuration
+paths:
+  /central-servers/agencies:
+    get:
+      operationId: getCentralServerAgencies
+      description: Get a combined list of agencies available from all configured central servers
+      tags:
+      - central-server-configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/centralServerAgenciesDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      summary: Get central server agencies
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /central-servers/item-types:
+    get:
+      operationId: getCentralServerItemTypes
+      description: Get a combined list of item types available from all configured central servers
+      tags:
+      - central-server-configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/centralServerItemTypesDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      summary: Get central server item types
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /central-servers/patron-types:
+    get:
+      operationId: getCentralServerPatronTypes
+      description: Get a combined list of patron types available from all configured central servers
+      tags:
+      - central-server-configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/centralServerPatronTypesDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      summary: Get central server patron types
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    itemType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Item type details
+      type: object
+      properties:
+        centralItemType:
+          description: Item type
+          type: integer
+        description:
+          description: Item type description
+          type: string
+      additionalProperties: false
+      required:
+      - centralItemType
+      - description
+    centralServerItemTypesDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Item types collection from all configured central servers
+      type: object
+      properties:
+        centralServerItemTypes:
+          description: List of item types per central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/itemTypesPerCentralServerDTO'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - centralServerItemTypes
+    agency:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Agency details
+      type: object
+      properties:
+        agencyCode:
+          description: Agency code
+          type: string
+          maxLength: 5
+        description:
+          description: Agency description
+          type: string
+          maxLength: 128
+      additionalProperties: false
+      required:
+      - agencyCode
+      - description
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    patronType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Patron type details
+      type: object
+      properties:
+        centralPatronType:
+          description: Patron type
+          type: integer
+        description:
+          description: Patron type description
+          type: string
+      additionalProperties: false
+      required:
+      - centralPatronType
+      - description
+    itemTypesPerCentralServerDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Central server item types
+      type: object
+      properties:
+        centralServerId:
+          description: Central server id
+          type: string
+          format: uuid
+        centralServerCode:
+          description: Central server code
+          type: string
+          maxLength: 5
+        itemTypes:
+          description: List of item types for this central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/itemType'
+      additionalProperties: false
+      required:
+      - centralServerId
+      - centralServerCode
+      - itemTypes
+    patronTypesPerCentralServerDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Central server patron types
+      type: object
+      properties:
+        centralServerId:
+          description: Central server id
+          type: string
+          format: uuid
+        centralServerCode:
+          description: Central server code
+          type: string
+          maxLength: 5
+        patronTypes:
+          description: List of patron types for this central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/patronType'
+      additionalProperties: false
+      required:
+      - centralServerId
+      - centralServerCode
+      - patronTypes
+    agenciesPerCentralServerDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Central server agencies
+      type: object
+      properties:
+        centralServerId:
+          description: Central server id
+          type: string
+          format: uuid
+        centralServerCode:
+          description: Central server code
+          type: string
+          maxLength: 5
+        agencies:
+          description: List of agencies for this central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/agency'
+      additionalProperties: false
+      required:
+      - centralServerId
+      - centralServerCode
+      - agencies
+    centralServerAgenciesDTO:
+      description: Agency collection from all configured central servers
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+        centralServerAgencies:
+          description: List of agencies per central server
+          type: array
+          items:
+            $ref: '#/components/schemas/agenciesPerCentralServerDTO'
+      required:
+      - centralServerAgencies
+      additionalProperties: false
+    centralServerPatronTypesDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Patron types collection from all configured central servers
+      type: object
+      properties:
+        centralServerPatronTypes:
+          description: List of patron types per central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/patronTypesPerCentralServerDTO'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - centralServerPatronTypes
+  responses:
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+x-refined-from:
+- folio-mod-inn-reach-circulation-openapi.json
+- folio-mod-inn-reach-circulation-openapi.yml

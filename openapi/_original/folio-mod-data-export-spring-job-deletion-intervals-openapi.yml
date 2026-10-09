@@ -1,0 +1,281 @@
+# x-archived-from: folio-mod-data-export-spring-job-deletion-intervals-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Data Export Spring Job Deletion Intervals
+  version: v1
+servers:
+- url: /data-export-spring/
+paths:
+  /job-deletion-intervals:
+    get:
+      description: Get all job deletion intervals
+      operationId: getAllJobDeletionIntervals
+      responses:
+        '200':
+          description: Job deletion intervals successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobDeletionIntervalCollection'
+        '500':
+          description: Internal server errors, e.g. due to misconfiguration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+    post:
+      description: Create a new job deletion interval
+      operationId: createJobDeletionInterval
+      responses:
+        '201':
+          description: Job deletion interval created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobDeletionInterval'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '409':
+          description: Interval for this export type already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Internal server errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobDeletionInterval'
+        required: true
+  /job-deletion-intervals/{exportType}:
+    get:
+      description: Get job deletion interval by export type
+      operationId: getJobDeletionIntervalByExportType
+      parameters:
+      - $ref: '#/components/parameters/exportType'
+      responses:
+        '200':
+          description: Returns job deletion interval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobDeletionInterval'
+        '404':
+          description: Job deletion interval not found
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      description: Update an existing job deletion interval
+      operationId: updateJobDeletionInterval
+      parameters:
+      - $ref: '#/components/parameters/exportType'
+      responses:
+        '200':
+          description: Job deletion interval updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobDeletionInterval'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Job deletion interval not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Internal server errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobDeletionInterval'
+        required: true
+    delete:
+      description: Delete a job deletion interval by export type
+      operationId: deleteJobDeletionInterval
+      parameters:
+      - $ref: '#/components/parameters/exportType'
+      responses:
+        '204':
+          description: Job deletion interval successfully deleted
+        '404':
+          description: Job deletion interval not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '500':
+          description: Internal server errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+components:
+  parameters:
+    exportType:
+      name: exportType
+      in: path
+      required: true
+      description: Export type of the interval
+      schema:
+        $ref: '#/components/schemas/ExportType'
+  schemas:
+    errors:
+      $ref: '#/components/schemas/Errors'
+    jobDeletionInterval:
+      $ref: '#/components/schemas/JobDeletionInterval'
+    jobDeletionIntervalCollection:
+      $ref: '#/components/schemas/JobDeletionIntervalCollection'
+    ExportType:
+      type: string
+      enum:
+      - CIRCULATION_LOG
+      - BURSAR_FEES_FINES
+      - BATCH_VOUCHER_EXPORT
+      - EDIFACT_ORDERS_EXPORT
+      - CLAIMS
+      - ORDERS_EXPORT
+      - INVOICE_EXPORT
+      - BULK_EDIT_IDENTIFIERS
+      - BULK_EDIT_QUERY
+      - BULK_EDIT_UPDATE
+      - E_HOLDINGS
+      - AUTH_HEADINGS_UPDATES
+      - FAILED_LINKED_BIB_UPDATES
+      default: BURSAR_FEES_FINES
+    Metadata:
+      type: object
+      title: Metadata Schema
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+          maxLength: 50
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+          maxLength: 50
+      additionalProperties: false
+    JobDeletionInterval:
+      type: object
+      properties:
+        exportType:
+          $ref: '#/components/schemas/ExportType'
+        retentionDays:
+          type: integer
+          description: Number of days to retain jobs of this type
+          minimum: 1
+        metadata:
+          description: Standard FOLIO metadata
+          $ref: '#/components/schemas/Metadata'
+      required:
+      - exportType
+      - retentionDays
+    JobDeletionIntervalCollection:
+      type: object
+      properties:
+        jobDeletionIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobDeletionInterval'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - jobDeletionIntervals
+      - totalRecords
+    ErrorType:
+      type: string
+      enum:
+      - ERROR
+      - WARNING
+    Parameter:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Parameters:
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          description: Error message type
+          $ref: '#/components/schemas/ErrorType'
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_error_records:
+          description: Total number of errors
+          type: integer
+        total_warning_records:
+          description: Total number of warnings
+          type: integer
+      additionalProperties: false

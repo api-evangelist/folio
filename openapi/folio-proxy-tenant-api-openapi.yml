@@ -1,0 +1,172 @@
+openapi: 3.2.0
+info:
+  title: Folio Proxy Tenant API
+  version: v2.0
+  description: 'Operations tagged proxy-tenant across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: proxy-tenant
+paths:
+  /_/proxy/tenants:
+    post:
+      responses:
+        '201':
+          description: Tenant has been created
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+            Location:
+              description: URI to the created tenant
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantDescriptor'
+        '400':
+          description: Bad Request
+      description: Create a new tenant
+      operationId: createTenant
+      tags:
+      - proxy-tenant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantDescriptor'
+        required: true
+      summary: Create tenant
+      x-summary-source: derived
+    get:
+      responses:
+        '200':
+          description: List of tenants in a brief format
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantList'
+      description: List all tenants
+      operationId: getAllTenants
+      tags:
+      - proxy-tenant
+      summary: Get all tenants
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/proxy/tenants/{tenant_id}:
+    parameters:
+    - name: tenant_id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantDescriptor'
+        '404':
+          description: Not Found
+      description: Retrieve a tenant
+      operationId: getTenant
+      tags:
+      - proxy-tenant
+      summary: Get tenant
+      x-summary-source: derived
+    put:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantDescriptor'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      description: Update a tenant
+      operationId: updateTenant
+      tags:
+      - proxy-tenant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantDescriptor'
+        required: true
+      summary: Update tenant
+      x-summary-source: derived
+    delete:
+      responses:
+        '204':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      description: Remove a tenant
+      operationId: deleteTenant
+      tags:
+      - proxy-tenant
+      summary: Delete tenant
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    TenantList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: TenantList.json
+      title: TenantList
+      description: List of Tenants
+      type: array
+      items:
+        $ref: '#/components/schemas/TenantDescriptor'
+    TenantDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: TenantDescriptor.json
+      title: TenantDescriptor
+      description: Tenant information
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Tenant ID. A new tenant ID created via the POST /_/proxy/tenants API must match the ^[a-z][a-z0-9]{0,30}$ regexp as required by https://folio-org.atlassian.net/wiki/spaces/TC/pages/5053983/DR-000002+-+Tenant+Id+and+Module+Name+Restrictions Technical Council decision. All other APIs also accept a legacy tenant ID that matches ^[a-z0-9_-]+$ regexp and may pose security issues as explained on https://folio-org.atlassian.net/wiki/spaces/DD/pages/1779867/Tenant+Id+and+Module+Name+Restrictions
+          type: string
+        name:
+          description: Tenant name
+          type: string
+        description:
+          description: Tenant description
+          type: string
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-okapi-facade-openapi.json
+- folio-mod-okapi-facade-openapi.yml

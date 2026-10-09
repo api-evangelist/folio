@@ -1,0 +1,765 @@
+openapi: 3.2.0
+info:
+  title: Folio Validation API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Validation across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Validation
+paths:
+  /erm/validate/subscriptionAgreement:
+    description: Validates a full Subscription Agreement record against domain constraints without persisting it.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    post:
+      tags:
+      - Validation
+      summary: Validate a full record against the SubscriptionAgreement domain
+      operationId: postValidateSubscriptionAgreement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agreement'
+      responses:
+        '204':
+          description: No content -- the record is valid.
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/validate/subscriptionAgreement/{prop}:
+    description: 'Validates a single named property on a Subscription Agreement record against domain constraints without persisting it. This is what the FOLIO UI actually uses in practice: ui-agreements posts here with `prop=name` on blur, to asynchronously check a proposed agreement name.'
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/validateProp'
+    post:
+      tags:
+      - Validation
+      summary: Validate a single property on a SubscriptionAgreement record
+      operationId: postValidateSubscriptionAgreementProperty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: 'Should contain at least the property named in the `prop` path parameter, keyed by its field name, e.g. `{ "name": "..." }`.'
+      responses:
+        '204':
+          description: No content -- the property is valid.
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/validate/remoteKB:
+    description: Validates a full Remote Knowledge Base record against domain constraints without persisting it.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    post:
+      tags:
+      - Validation
+      summary: Validate a full record against the RemoteKB domain
+      operationId: postValidateRemoteKB
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Kb'
+      responses:
+        '204':
+          description: No content -- the record is valid.
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/validate/remoteKB/{prop}:
+    description: Validates a single named property on a Remote Knowledge Base record against domain constraints without persisting it.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/validateProp'
+    post:
+      tags:
+      - Validation
+      summary: Validate a single property on a RemoteKB record
+      operationId: postValidateRemoteKBProperty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Should contain at least the property named in the `prop` path parameter, keyed by its field name.
+      responses:
+        '204':
+          description: No content -- the property is valid.
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrailsErrorResponse'
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  schemas:
+    AlternateName:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: Agreements that owns the alternate name
+    UsageDataProvider:
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          type: object
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    CustomPropertyValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        internal:
+          type: boolean
+        note:
+          type: string
+        publicNote:
+          type: string
+        value:
+          oneOf:
+          - type: string
+          - type: integer
+          - $ref: '#/components/schemas/Refdata'
+        type:
+          $ref: '#/components/schemas/CustomPropertyDefinition'
+    InternalContact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        role:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        user:
+          type: string
+          format: uuid
+    Agreement:
+      type: object
+      required:
+      - id
+      - name
+      - agreementStatus
+      - periods
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+          description: GORM optimistic-locking version, incremented on every update.
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+        description:
+          type: string
+        agreementStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        isPerpetual:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        reasonForClosure:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        renewalPriority:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        alternateNames:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternateName'
+        localReference:
+          type: string
+        vendorReference:
+          type: string
+        agreementContentTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementContentType'
+        periods:
+          type: array
+          items:
+            type: object
+            required:
+            - startDate
+            properties:
+              startDate:
+                type: string
+                format: date
+              endDate:
+                type: string
+                format: date
+              cancellationDeadline:
+                type: string
+                format: date
+              periodStatus:
+                type: string
+              note:
+                type: string
+              id:
+                type: string
+                format: uuid
+        startDate:
+          type: string
+          format: date
+          readOnly: true
+        endDate:
+          type:
+          - string
+          - 'null'
+          format: date
+          readOnly: true
+          description: Null if any period on the agreement is open-ended (has no end date)
+        cancellationDeadline:
+          type:
+          - string
+          - 'null'
+          format: date
+          readOnly: true
+          description: Null if no period on the agreement has a cancellation deadline set
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/InternalContact'
+        orgs:
+          type: array
+          description: Organisations associated with the agreement
+          items:
+            $ref: '#/components/schemas/AgreementOrg'
+        externalLicenseDocs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        supplementaryDocs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        linkedLicenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedLicense'
+        usageDataProviders:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsageDataProvider'
+        inwardRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementRelationship'
+        outwardRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementRelationship'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        customProperties:
+          type: object
+          description: Custom properties (agreement supplementary properties) — keys are property names, values are arrays of property value instances
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/CustomPropertyValue'
+    AgreementRelationship:
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        outward:
+          $ref: '#/components/schemas/AgreementRelationshipAgreement'
+        inward:
+          $ref: '#/components/schemas/AgreementRelationshipAgreement'
+    Kb:
+      type: object
+      required:
+      - name
+      - trustedSourceTI
+      properties:
+        activationEnabled:
+          description: If activation is supported, is recording activation in this remote KB enabled. Not currently used
+          type: boolean
+        activationSupported:
+          description: Does this remote KB support content activation. Not currently used
+          type: boolean
+        active:
+          description: If harvesting is supported, is harvesting from this remote KB activated
+          type: boolean
+        credentials:
+          description: Credentials used to authenticate with the remote KB. Not currently used
+          type: string
+        cursor:
+          description: Marks progress through a harvest. May be a timestamp, a transaction id, or another service-specific value depending on `type`
+          type: string
+        fullPrefix:
+          type: string
+        id:
+          type: string
+          format: uuid
+        lastCheck:
+          type: integer
+        listPrefix:
+          type: string
+        name:
+          type: string
+        principal:
+          description: Identity/username used to authenticate with the remote KB. Not currently used
+          type: string
+        readonly:
+          description: Marks the KB as protected/read-only, Used to prevent deletion the "LOCAL" source representing the local KB.
+          type: boolean
+        rectype:
+          description: The kind of record this KB primarily deals in
+          type: integer
+          enum:
+          - 1
+          - 2
+          x-enum-varnames:
+          - PACKAGE
+          - TITLE
+        supportsHarvesting:
+          description: Does this remote KB support harvesting
+          type: boolean
+        syncStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        trustedSourceTI:
+          description: Marks the KB as a trusted source of title instance metadata
+          type: boolean
+        type:
+          description: Name of the Spring bean that implements this KB's adapter
+          type: string
+        uri:
+          type: string
+          format: uri
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    RefdataCategory:
+      type: object
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refdata'
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
+    DocumentAttachment:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        location:
+          type: string
+        url:
+          type: string
+          format: uri
+        note:
+          type: string
+        atType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        fileUpload:
+          $ref: '#/components/schemas/File'
+    File:
+      type: object
+      required:
+      - id
+      - name
+      - size
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          type: string
+          description: MIME type of the uploaded file
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          description: Original filename of the uploaded file
+        size:
+          type: integer
+          description: Size of the uploaded file in bytes
+    CustomPropertyDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        primary:
+          type: boolean
+        defaultInternal:
+          type: boolean
+        retired:
+          type: boolean
+        weight:
+          type: integer
+        type:
+          type: string
+          description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
+        category:
+          $ref: '#/components/schemas/RefdataCategory'
+    AgreementOrg:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: Agreement that owns the organisation
+        org:
+          $ref: '#/components/schemas/Organisation'
+        primaryOrg:
+          type: boolean
+          description: Whether this is the primary organisation for the agreement
+          default: false
+        note:
+          type: string
+          description: A note about this organisation's relationship to the agreement
+        roles:
+          type: array
+          description: The roles this organisation plays in relation to the agreement
+          items:
+            type: object
+            required:
+            - id
+            - role
+            properties:
+              id:
+                type: string
+                format: uuid
+                readOnly: true
+              owner:
+                $ref: '#/components/schemas/AgreementOrg'
+                readOnly: true
+              role:
+                description: The role (e.g. Content provider)
+                oneOf:
+                - type: string
+                - $ref: '#/components/schemas/Refdata'
+              note:
+                type: string
+    AgreementRelationshipAgreement:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        agreementStatus:
+          $ref: '#/components/schemas/Refdata'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+    AgreementContentType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          $ref: '#/components/schemas/Refdata'
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        normValue:
+          type: string
+        value:
+          type: string
+    LinkedLicense:
+      type: object
+      properties:
+        amendments:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedAmendment'
+        id:
+          type: string
+        owner:
+          type: string
+          format: uuid
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          type: object
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    LinkedAmendment:
+      type: object
+      properties:
+        amendmentId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: string
+          format: uuid
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
+  parameters:
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    validateProp:
+      in: path
+      name: prop
+      description: Name of the single property to validate, e.g. `name` on `subscriptionAgreement`. Only this property is checked -- other constraints on the domain class (e.g. other required fields not present in the request body) are not evaluated.
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-agreements-openapi.yml

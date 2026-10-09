@@ -1,0 +1,307 @@
+openapi: 3.2.0
+info:
+  title: Folio Title instances API
+  version: 3.2.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Title instances across 2 of this provider''s published API definitions: folio-mod-oa-openapi.json, folio-mod-oa-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Title instances
+paths:
+  /oa/titleInstances:
+    description: Supports search of title instances.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Title instances
+      summary: Get a set of title instance records
+      operationId: getTitleInstances
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/TitleInstanceResults'
+                - $ref: '#/components/schemas/TitleInstanceResultsArray'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /oa/titleInstances/{id}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/titleInstanceId'
+    get:
+      tags:
+      - Title instances
+      summary: Get a specified title instance record
+      operationId: getTitleInstance
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TitleInstance'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpringBootErrorResponse'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  parameters:
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    titleInstanceId:
+      in: path
+      name: id
+      description: UUID for a title instance
+      required: true
+      schema:
+        type: string
+        format: uuid
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+  schemas:
+    TitleInstance:
+      type: object
+      required:
+      - id
+      - title
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+        work:
+          type: string
+          format: uuid
+          writeOnly: true
+        publicationType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        type:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        subType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifierOccurrence'
+    TitleInstanceResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/TitleInstanceResultsArray'
+    Refdata:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+    SpringBootErrorResponse:
+      type: object
+      description: Spring Boot's default error body. Emitted by the servlet container itself when a request ends in an error status with no response body written by the application, rather than by this app's own error handling - so it does not match the `HttpError` shape used elsewhere in this API.
+      properties:
+        timestamp:
+          type: integer
+          description: Epoch milliseconds
+        status:
+          type: integer
+        error:
+          type: string
+        path:
+          type: string
+    IdentifierOccurrence:
+      type: object
+      required:
+      - identifier
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Present when reached via /oa/publicationRequest or /oa/works; absent via /oa/titleInstances
+        identifier:
+          $ref: '#/components/schemas/Identifier'
+        title:
+          type: object
+          readOnly: true
+          description: Present when reached via /oa/titleInstances; absent via /oa/publicationRequest or /oa/works
+          properties:
+            id:
+              type: string
+              format: uuid
+        status:
+          description: Present when reached via /oa/titleInstances; absent via /oa/publicationRequest or /oa/works
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        selected:
+          type: boolean
+          description: Present when reached via /oa/titleInstances; absent via /oa/publicationRequest or /oa/works
+    Identifier:
+      type: object
+      required:
+      - value
+      - ns
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Present when reached via /oa/publicationRequest or /oa/works; absent via /oa/titleInstances
+        value:
+          type: string
+        ns:
+          type: object
+          required:
+          - value
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+              description: Present when reached via /oa/publicationRequest or /oa/works; absent via /oa/titleInstances
+            value:
+              type: string
+    TitleInstanceResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/TitleInstance'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-oa-openapi.json
+- folio-mod-oa-openapi.yml

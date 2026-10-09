@@ -1,0 +1,485 @@
+openapi: 3.2.0
+info:
+  title: Folio Role Capability API
+  version: v1
+  description: 'Operations tagged role-capability across 2 of this provider''s published API definitions: folio-mod-roles-keycloak-openapi.json, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: role-capability
+paths:
+  /roles/capabilities:
+    post:
+      description: Create a record associating one or more capabilities with the role
+      operationId: createRoleCapabilities
+      tags:
+      - role-capability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/roleCapabilitiesRequest'
+            example:
+              $ref: '#/components/examples/roleCapabilitiesRequest'
+      responses:
+        '201':
+          description: Assigned roles to user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/roleCapabilities'
+              example:
+                $ref: '#/components/examples/roleCapabilitiesResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Create role capabilities
+      x-summary-source: derived
+    get:
+      description: Get role-capability relation items by CQL query and pagination parameters
+      operationId: getRoleCapabilities
+      tags:
+      - role-capability
+      parameters:
+      - $ref: '#/components/parameters/query'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '201':
+          description: Array of roles users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/roleCapabilities'
+              example:
+                $ref: '#/components/examples/roleCapabilitiesResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get role capabilities
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /roles/{id}/capabilities:
+    get:
+      description: Get capabilities assigned to role by role identifier
+      operationId: findCapabilitiesByRoleId
+      tags:
+      - role-capability
+      parameters:
+      - $ref: '#/components/parameters/pathRoleId'
+      - $ref: '#/components/parameters/expand-capabilities'
+      - $ref: '#/components/parameters/dedup-capabilities'
+      - $ref: '#/components/parameters/includeDummy'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: Assigned to a role capabilities in a paginated view
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/capabilities'
+              example:
+                $ref: '#/components/examples/capabilitiesResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find capabilities by role id
+      x-summary-source: derived
+    put:
+      description: Modifies the set of capabilities assigned to the specified role.
+      operationId: updateRoleCapabilities
+      tags:
+      - role-capability
+      parameters:
+      - $ref: '#/components/parameters/pathRoleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/capabilitiesUpdateRequest'
+            example:
+              $ref: '#/components/examples/capabilitiesUpdateRequest'
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Update role capabilities
+      x-summary-source: derived
+    delete:
+      description: Removes all capabilities assignments for the specified role identifier
+      operationId: deleteRoleCapabilities
+      tags:
+      - role-capability
+      parameters:
+      - $ref: '#/components/parameters/pathRoleId'
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Delete role capabilities
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    capabilityAction:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The action this capability is associated with, e.g. create
+      type: string
+      enum:
+      - view
+      - create
+      - edit
+      - delete
+      - manage
+      - execute
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+      additionalProperties: false
+    roleCapabilitiesRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Role-Capability Request Schema
+      description: Request body to assign existing capabilities to a role
+      type: object
+      properties:
+        roleId:
+          type: string
+          format: uuid
+          description: ID of the role
+        capabilityIds:
+          description: List of capability identifiers
+          type: array
+          items:
+            type: string
+            description: Capability identifier
+            format: uuid
+        capabilityNames:
+          description: List of capability names
+          type: array
+          items:
+            type: string
+            description: Capability names
+      required:
+      - roleId
+    httpMethod:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Http Method
+      type: string
+      enum:
+      - GET
+      - HEAD
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+      - TRACE
+    roleCapabilities:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Role-Capabilities Objects Schema
+      description: Response body containing role-capabilities relations for search request
+      type: object
+      properties:
+        totalRecords:
+          description: The total number of role-capability objects matching the provided criteria
+          type: integer
+          format: int64
+        roleCapabilities:
+          description: List with found/created role-capability relations
+          type: array
+          items:
+            $ref: '#/components/schemas/roleCapability'
+    endpoint:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: endpoint.json
+      description: Object containing the details of the http-endpoint.
+      properties:
+        path:
+          type: string
+          description: Endpoint's static path / expression
+        method:
+          description: Http Method
+          $ref: '#/components/schemas/httpMethod'
+    roleCapability:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Role-Capability Relation Schema
+      description: Role-Capability Relation Schema
+      type: object
+      properties:
+        roleId:
+          description: Role identifier as UUID
+          type: string
+          format: uuid
+        capabilityId:
+          description: Capability identifier as UUID
+          type: string
+          format: uuid
+        metadata:
+          $ref: '#/components/schemas/metadata'
+    capabilities:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Capabilities Object Schema
+      description: Response body containing capability records
+      type: object
+      properties:
+        capabilities:
+          description: A collection of capability sets
+          type: array
+          items:
+            $ref: '#/components/schemas/capability'
+          minItems: 1
+        totalRecords:
+          readOnly: true
+          description: The total number of records matching the provided criteria
+          type: integer
+          format: int64
+      required:
+      - capabilities
+    capabilitiesUpdateRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Capability Relation Update Request Schema
+      description: Request body to update capabilities assigned to entity (role, user, etc.)
+      type: object
+      properties:
+        capabilityIds:
+          description: List of capability identifiers
+          type: array
+          items:
+            type: string
+            description: Capability identifier
+            format: uuid
+        capabilityNames:
+          description: List of capability names
+          type: array
+          items:
+            type: string
+            description: Capability names
+    capabilityType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The type of capability
+      type: string
+      enum:
+      - settings
+      - data
+      - procedural
+    capability:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: Capability Set Object Schema
+      description: Object containing details of a capability
+      properties:
+        id:
+          description: A unique identifier for this capability
+          type: string
+          format: uuid
+        name:
+          description: a human-readable name/label for this capability.  Takes the form of {resourceName}.{scope}, e.g. item.create
+          type: string
+          readOnly: true
+        description:
+          description: Free form description of the capability
+          type: string
+        resource:
+          description: The resource this capability is associated with, e.g. item
+          type: string
+          pattern: ^[A-Za-z\s]+$
+        action:
+          description: The action this capability is associated with, e.g. create
+          $ref: '#/components/schemas/capabilityAction'
+        applicationId:
+          description: The id of the application which defines the capability
+          type: string
+        moduleId:
+          description: The id of the module which defines the capability
+          type: string
+        permission:
+          description: Folio permission name
+          type: string
+        endpoints:
+          type: array
+          description: List of assigned endpoints
+          items:
+            $ref: '#/components/schemas/endpoint'
+        dummyCapability:
+          description: Is capability dummy
+          type: boolean
+        type:
+          description: The type of capability
+          $ref: '#/components/schemas/capabilityType'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readOnly: true
+        visible:
+          description: Is visible in UI
+          type: boolean
+        direct:
+          description: Indicates whether the capability was directly assigned to the role (true) or inherited via a capability set (false). Populated only by GET /roles/{id}/capabilities.
+          type: boolean
+          readOnly: true
+      required:
+      - resource
+      - action
+      - permissions
+      - type
+      - applicationId
+  parameters:
+    pathRoleId:
+      in: path
+      required: true
+      name: id
+      description: Role identifier
+      schema:
+        type: string
+        format: uuid
+      example: 1e985e76-e9ca-401c-ad8e-0d121a11111e
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+      example: 20
+    includeDummy:
+      in: query
+      name: includeDummy
+      description: Include dummy capabilities.
+      required: false
+      schema:
+        type: boolean
+        default: false
+      example: false
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 2
+    expand-capabilities:
+      in: query
+      name: expand
+      description: Defines if capability sets must be expanded
+      required: false
+      schema:
+        type: boolean
+        default: false
+    dedup-capabilities:
+      in: query
+      name: dedup
+      description: Defines if duplicate capabilities (assigned both directly and via a capability set) must be deduplicated. Only meaningful when expand=true.
+      required: false
+      schema:
+        type: boolean
+        default: true
+    query:
+      in: query
+      name: query
+      description: A query string to filter users based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+      example: role
+  responses:
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
+    notFoundResponse:
+      description: Not found error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/notFoundResponse'
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/badRequestResponse'
+  examples:
+    capabilitiesUpdateRequest:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    capabilitiesResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    roleCapabilitiesRequest:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    roleCapabilitiesResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    notFoundResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    internalServerErrorResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    badRequestResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+x-refined-from:
+- folio-mod-roles-keycloak-openapi.json
+- folio-mod-roles-keycloak-openapi.yml

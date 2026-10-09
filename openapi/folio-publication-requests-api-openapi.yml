@@ -1,0 +1,1113 @@
+openapi: 3.2.0
+info:
+  title: Folio Publication requests API
+  version: 3.2.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Publication requests across 2 of this provider''s published API definitions: folio-mod-oa-openapi.json, folio-mod-oa-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Publication requests
+paths:
+  /oa/publicationRequest:
+    description: Supports search and creation of publication requests.
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Publication requests
+      summary: Get a set of publication request records
+      operationId: getPublicationRequests
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/PublicationRequestResults'
+                - $ref: '#/components/schemas/PublicationRequestResultsArray'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    post:
+      tags:
+      - Publication requests
+      summary: Create publication request record
+      operationId: postPublicationRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicationRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicationRequest'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /oa/publicationRequest/{publicationRequestId}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/publicationRequestId'
+    get:
+      tags:
+      - Publication requests
+      summary: Get a specified publication request record
+      operationId: getPublicationRequest
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicationRequest'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpringBootErrorResponse'
+        '500':
+          description: Internal server error
+    put:
+      tags:
+      - Publication requests
+      summary: Update publication request record
+      operationId: putPublicationRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicationRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicationRequest'
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpringBootErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+      - Publication requests
+      summary: Delete a specified publication request record
+      operationId: deletePublicationRequest
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpringBootErrorResponse'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  schemas:
+    Correspondence:
+      type: object
+      required:
+      - id
+      - dateOfCorrespondence
+      - content
+      - correspondent
+      - status
+      - mode
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          required:
+          - id
+          properties:
+            id:
+              type: string
+              format: uuid
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        dateOfCorrespondence:
+          type: string
+          format: date
+        content:
+          type: string
+        correspondent:
+          type: string
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        mode:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        category:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    PublicationRequestResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/PublicationRequestResultsArray'
+    ExternalRequestId:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+        externalId:
+          type: string
+          description: An identifier for this request in an external system
+    PublicationRequest:
+      type: object
+      required:
+      - id
+      - withoutAgreement
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        requestNumber:
+          type: string
+        requestDate:
+          type: string
+          format: date
+        retrospectiveOA:
+          type: boolean
+          default: false
+        publicationTitle:
+          type: string
+        authorNames:
+          type: string
+        correspondingAuthor:
+          $ref: '#/components/schemas/RequestParty'
+        requestContact:
+          $ref: '#/components/schemas/RequestParty'
+        localReference:
+          type: string
+        publicationUrl:
+          type: string
+          format: uri
+        doi:
+          type: string
+        bookDateOfPublication:
+          type: string
+          pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?$
+        bookPlaceOfPublication:
+          type: string
+        correspondingInstitutionLevel1:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        correspondingInstitutionLevel2:
+          type: string
+        withoutAgreement:
+          type: boolean
+          default: false
+        requestStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        closureReason:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        publicationType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        subtype:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        publisher:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        license:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        work:
+          $ref: '#/components/schemas/Work'
+        workIndexedInDOAJ:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        workOAStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        agreement:
+          $ref: '#/components/schemas/PublicationRequestAgreement'
+        externalRequestIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalRequestId'
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicationRequestHistory'
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicationIdentifier'
+        publicationStatuses:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicationStatus'
+        fundings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Funding'
+        correspondences:
+          type: array
+          items:
+            $ref: '#/components/schemas/Correspondence'
+        charges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Charge'
+        checklist:
+          type: array
+          description: Checklist items tracking this request's progress through a workflow
+          items:
+            $ref: '#/components/schemas/ChecklistItem'
+    ChecklistItem:
+      type: object
+      required:
+      - id
+      - definition
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        definition:
+          $ref: '#/components/schemas/ChecklistItemDefinition'
+        outcome:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChecklistItemNote'
+    ChecklistItemDefinition:
+      type: object
+      required:
+      - id
+      - label
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        label:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        weight:
+          type: integer
+          default: 0
+    RemoteOkapiLink:
+      type: object
+      required:
+      - id
+      - remoteId
+      properties:
+        id:
+          type: string
+          readOnly: true
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          readOnly: true
+          description: Result of a live lookup against the remote system by remoteId. Either the resolved remote object (shape depends on what is being linked to) or, if the lookup failed, an error object.
+          oneOf:
+          - type: object
+          - type: object
+            properties:
+              error:
+                oneOf:
+                - type: integer
+                - type: string
+                description: HTTP status code if the lookup failed with an HTTP error, otherwise the exception class name.
+              message:
+                type: string
+    IdentifierOccurrence:
+      type: object
+      required:
+      - identifier
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Present when reached via /oa/publicationRequest or /oa/works; absent via /oa/titleInstances
+        identifier:
+          $ref: '#/components/schemas/Identifier'
+        title:
+          type: object
+          readOnly: true
+          description: Present when reached via /oa/titleInstances; absent via /oa/publicationRequest or /oa/works
+          properties:
+            id:
+              type: string
+              format: uuid
+        status:
+          description: Present when reached via /oa/titleInstances; absent via /oa/publicationRequest or /oa/works
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        selected:
+          type: boolean
+          description: Present when reached via /oa/titleInstances; absent via /oa/publicationRequest or /oa/works
+    PublicationRequestAgreement:
+      allOf:
+      - $ref: '#/components/schemas/RemoteOkapiLink'
+      - type: object
+        required:
+        - owner
+        properties:
+          owner:
+            type: object
+            readOnly: true
+            required:
+            - id
+            properties:
+              id:
+                type: string
+                format: uuid
+    PublicationRequestHistory:
+      type: object
+      required:
+      - id
+      - toState
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        note:
+          type: string
+        fromState:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        toState:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    Charge:
+      type: object
+      required:
+      - id
+      - amount
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        owner:
+          type: string
+          format: uuid
+          writeOnly: true
+        amount:
+          $ref: '#/components/schemas/MonetaryValue'
+        exchangeRate:
+          $ref: '#/components/schemas/ExchangeRate'
+        description:
+          type: string
+        paymentPeriod:
+          type: string
+          pattern: ^([0-9]{4})?$
+        category:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        discount:
+          type: number
+          default: 0
+        discountType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        discountNote:
+          type: string
+        tax:
+          type: number
+        chargeStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        invoiceReference:
+          type: string
+          format: uuid
+        invoiceLineItemReference:
+          type: string
+          format: uuid
+        payers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payer'
+        estimatedInvoicePrice:
+          readOnly: true
+          $ref: '#/components/schemas/MonetaryValue'
+        estimatedPrice:
+          readOnly: true
+          $ref: '#/components/schemas/MonetaryValue'
+    ExchangeRate:
+      type: object
+      required:
+      - id
+      - fromCurrency
+      - toCurrency
+      - coefficient
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        fromCurrency:
+          type: string
+        toCurrency:
+          type: string
+        coefficient:
+          type: number
+    ChecklistItemNote:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        note:
+          type: string
+    WorkTitleInstance:
+      description: A more limited TitleInstance representation used for TitleInstance nested under Work.instances prop
+      type: object
+      required:
+      - id
+      - title
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifierOccurrence'
+        publicationType:
+          $ref: '#/components/schemas/Refdata'
+        type:
+          $ref: '#/components/schemas/Refdata'
+        subType:
+          $ref: '#/components/schemas/Refdata'
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+    PublicationRequestResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/PublicationRequest'
+    PublicationStatus:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+        publicationStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        statusDate:
+          type: string
+          format: date
+        statusNote:
+          type: string
+    Work:
+      type: object
+      required:
+      - id
+      - title
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+        indexedInDOAJ:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        oaStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        instances:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkTitleInstance'
+    Funding:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        funder:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        aspectFunded:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    Refdata:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+    SpringBootErrorResponse:
+      type: object
+      description: Spring Boot's default error body. Emitted by the servlet container itself when a request ends in an error status with no response body written by the application, rather than by this app's own error handling - so it does not match the `HttpError` shape used elsewhere in this API.
+      properties:
+        timestamp:
+          type: integer
+          description: Epoch milliseconds
+        status:
+          type: integer
+        error:
+          type: string
+        path:
+          type: string
+    Address:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        addressLineOne:
+          type: string
+        addressLineTwo:
+          type: string
+        city:
+          type: string
+        region:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    RequestParty:
+      type: object
+      required:
+      - id
+      - role
+      - partyOwner
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        role:
+          description: The role this party plays on the request, e.g. corresponding author
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        partyOwner:
+          $ref: '#/components/schemas/Party'
+    MonetaryValue:
+      type: object
+      required:
+      - id
+      - baseCurrency
+      - value
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        baseCurrency:
+          type: string
+        value:
+          type: number
+          multipleOf: 0.01
+          description: Monetary amount, fixed to 2 decimal places
+    PartyAddress:
+      type: object
+      required:
+      - id
+      - address
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: The party that this address belongs to
+        address:
+          $ref: '#/components/schemas/Address'
+    Payer:
+      type: object
+      required:
+      - id
+      - payer
+      - payerAmount
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        payer:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        payerAmount:
+          type: number
+        payerNote:
+          type: string
+    AlternateEmailAddress:
+      type: object
+      required:
+      - id
+      - email
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: The party that this alternate email address belongs to
+        email:
+          type: string
+          format: email
+    Party:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+        familyName:
+          type: string
+        givenNames:
+          type: string
+        fullName:
+          type: string
+          readOnly: true
+          description: Derived automatically from givenNames and familyName
+        orcidId:
+          type: string
+        mainEmail:
+          type: string
+          format: email
+        phone:
+          type: string
+        mobile:
+          type: string
+        streetAddress:
+          $ref: '#/components/schemas/PartyAddress'
+        institutionLevel1:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        institutionLevel2:
+          type: string
+        alternateEmails:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternateEmailAddress'
+    ValidationError:
+      type: object
+      required:
+      - message
+      - path
+      - _links
+      properties:
+        message:
+          type: string
+        path:
+          type: string
+        _links:
+          type: object
+          required:
+          - self
+          properties:
+            self:
+              type: object
+              required:
+              - href
+              properties:
+                href:
+                  type: string
+                  format: uri
+    Identifier:
+      type: object
+      required:
+      - value
+      - ns
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Present when reached via /oa/publicationRequest or /oa/works; absent via /oa/titleInstances
+        value:
+          type: string
+        ns:
+          type: object
+          required:
+          - value
+          properties:
+            id:
+              type: string
+              format: uuid
+              readOnly: true
+              description: Present when reached via /oa/publicationRequest or /oa/works; absent via /oa/titleInstances
+            value:
+              type: string
+    PublicationIdentifier:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+        type:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        publicationIdentifier:
+          type: string
+  parameters:
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    publicationRequestId:
+      in: path
+      name: publicationRequestId
+      description: UUID for a publication request
+      required: true
+      schema:
+        type: string
+        format: uuid
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-oa-openapi.json
+- folio-mod-oa-openapi.yml

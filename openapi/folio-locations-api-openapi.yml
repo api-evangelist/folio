@@ -1,0 +1,2075 @@
+openapi: 3.2.0
+info:
+  title: Folio Locations API
+  version: '1.0'
+  description: 'Operations tagged locations across 6 of this provider''s published API definitions: folio-edge-inventory-openapi.json, folio-mod-inn-reach-settings-openapi.json, folio-mod-locations-openapi.json, folio-edge-inventory-openapi.yml, folio-mod-inn-reach-settings-openapi.yml, folio-mod-locations-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inventory
+- url: /inn-reach/
+- description: Development environments.
+  url: https://folio-{environment}.ci.folio.org
+  variables:
+    environment:
+      default: edev-spitfire-diku
+      enum:
+      - edev-spitfire-diku
+      - edev-spitfire-consortium
+tags:
+- name: Locations
+paths:
+  /inventory/locations:
+    get:
+      tags:
+      - Locations
+      operationId: getLocations
+      summary: Retrieve collection of location items
+      description: Retrieve collection of location items.
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      - $ref: '#/components/parameters/request-query-parameters'
+      responses:
+        '200':
+          description: 'Calls the mod-inventory-storage GET /locations API and returns the result as-is. \
+
+            The example of response: https://github.com/folio-org/mod-inventory-storage/blob/master/ramls/examples/locations.json
+
+            '
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '401':
+          $ref: '#/components/responses/notAuthorizedResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    servers:
+    - url: /inventory
+  /inventory/locations/{locationId}:
+    get:
+      tags:
+      - Locations
+      operationId: getLocationById
+      summary: Retrieve location information by id
+      description: Retrieve location information by id.
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      - $ref: '#/components/parameters/location-id'
+      responses:
+        '200':
+          description: 'Calls the mod-inventory-storage GET /locations/{id} API and returns the result as-is. \
+
+            The example of response: https://github.com/folio-org/mod-inventory-storage/blob/master/ramls/locinst.json
+
+            '
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    servers:
+    - url: /inventory
+  /inventory/location-units/institutions/{institutionId}:
+    get:
+      tags:
+      - Locations
+      operationId: getInstitutionById
+      summary: Retrieve institution information by id
+      description: Retrieve institution information by id.
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      - $ref: '#/components/parameters/institution-id'
+      responses:
+        '200':
+          description: 'Calls the mod-inventory-storage GET /location-units/institutions/{institutionId} API and returns the result as-is. \
+
+            The example of response: https://github.com/folio-org/mod-inventory-storage/blob/master/ramls/locinst.json
+
+            '
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    servers:
+    - url: /inventory
+  /inventory/location-units/libraries/{libraryId}:
+    get:
+      tags:
+      - Locations
+      operationId: getLibraryById
+      summary: Retrieve library information by id
+      description: Retrieve library information by id.
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      - $ref: '#/components/parameters/library-id'
+      responses:
+        '200':
+          description: 'Calls the mod-inventory-storage GET /location-units/libraries/{libraryId} API and returns the result as-is. \
+
+            The example of response: https://github.com/folio-org/mod-inventory-storage/blob/master/ramls/loclib.json
+
+            '
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    servers:
+    - url: /inventory
+  /inventory/location-units/campuses/{campusId}:
+    get:
+      tags:
+      - Locations
+      operationId: getCampusById
+      summary: Retrieve campus information by id
+      description: Retrieve campus information by id.
+      parameters:
+      - $ref: '#/components/parameters/x-okapi-tenant-header'
+      - $ref: '#/components/parameters/x-okapi-token-header'
+      - $ref: '#/components/parameters/campus-id'
+      responses:
+        '200':
+          description: 'Calls the mod-inventory-storage GET /location-units/campuses/{campusId} API and returns the result as-is. \
+
+            https://github.com/folio-org/mod-inventory-storage/blob/master/ramls/loccamp.json
+
+            '
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+    servers:
+    - url: /inventory
+  /locations:
+    post:
+      description: Add new InnReach location
+      operationId: postInnReachLocation
+      tags:
+      - Locations
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachLocationDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/innReachLocationDTO'
+        required: true
+      summary: Post inn reach location
+      x-summary-source: derived
+    get:
+      description: Get a list of InnReach locations
+      operationId: getLocations
+      tags:
+      - Locations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachLocationsDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      summary: Get locations
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /locations/{locationId}:
+    get:
+      description: Get InnReach location by id
+      operationId: getLocationsByLocationId
+      tags:
+      - Locations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachLocationDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      summary: Get location by id
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: getLocationById
+    put:
+      description: Update InnReach location
+      operationId: updateLocation
+      tags:
+      - Locations
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/innReachLocationDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/id'
+      summary: Update location
+      x-summary-source: derived
+    delete:
+      description: Delete InnReach location
+      operationId: deleteLocation
+      tags:
+      - Locations
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      summary: Delete location
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+  /location-storage/locations:
+    delete:
+      description: Delete all locations.
+      operationId: deleteLocations
+      responses:
+        '204':
+          description: All locations deleted.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Internal server error.
+      summary: Delete all locations
+      tags:
+      - Locations
+    get:
+      description: Return a list of locations.
+      operationId: getLocationStorageLocations
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Whether to include shadow records in the response or not.
+        in: query
+        name: includeShadow
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/locationsCollection'
+          description: Collection of locations.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Bad request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Internal server error.
+      summary: Get locations
+      tags:
+      - Locations
+      x-operation-id-source: normalized
+      x-operation-id-original: getLocations
+    post:
+      description: Create a new location.
+      operationId: createLocation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/location'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/location'
+          description: Created location.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Bad request.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Internal server error.
+      summary: Create location
+      tags:
+      - Locations
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+  /location-storage/locations/{id}:
+    delete:
+      description: Delete a location by id.
+      operationId: deleteLocationById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Location deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete location by id
+      tags:
+      - Locations
+    get:
+      description: Retrieve a location by id.
+      operationId: getLocationStorageLocationsById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/location'
+          description: Location record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get location by id
+      tags:
+      - Locations
+      x-operation-id-source: normalized
+      x-operation-id-original: getLocationById
+    put:
+      description: Update a location by id.
+      operationId: updateLocationById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/location'
+        required: true
+      responses:
+        '204':
+          description: Location updated successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Bad request.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update location by id
+      tags:
+      - Locations
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+  /location-storage/institutions:
+    delete:
+      description: Delete all institutions.
+      operationId: deleteLocationInstitutions
+      responses:
+        '204':
+          description: All institutions deleted.
+      summary: Delete institutions
+      tags:
+      - Locations
+    get:
+      description: Return a list of institutions.
+      operationId: getLocationInstitutions
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Whether to include shadow records in the response or not.
+        in: query
+        name: includeShadow
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/institutionsCollection'
+          description: Collection of institutions.
+      summary: Get institutions
+      tags:
+      - Locations
+    post:
+      description: Create a new institution.
+      operationId: createLocationInstitution
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/institution'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/institution'
+          description: Created institution.
+      summary: Create institution
+      tags:
+      - Locations
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+  /location-storage/institutions/{id}:
+    delete:
+      description: Delete an existing institution by its unique identifier.
+      operationId: deleteLocationInstitutionById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Institution deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete institution by id
+      tags:
+      - Locations
+    get:
+      description: Retrieve a single institution by its unique identifier.
+      operationId: getLocationInstitutionById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/institution'
+          description: Institution record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get institution by id
+      tags:
+      - Locations
+    put:
+      description: Update an existing institution by its unique identifier.
+      operationId: updateLocationInstitutionById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/institution'
+        required: true
+      responses:
+        '204':
+          description: Institution updated successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update institution by id
+      tags:
+      - Locations
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+  /location-storage/campuses:
+    delete:
+      description: Delete all campus records.
+      operationId: deleteLocationCampuses
+      responses:
+        '204':
+          description: All campuses deleted.
+      summary: Delete campuses
+      tags:
+      - Locations
+    get:
+      description: Return a list of campuses.
+      operationId: getLocationCampuses
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Whether to include shadow records in the response or not.
+        in: query
+        name: includeShadow
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/campusesCollection'
+          description: Collection of campuses.
+      summary: Get campuses
+      tags:
+      - Locations
+    post:
+      description: Create a new campus record.
+      operationId: createLocationCampus
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/campus'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/campus'
+          description: Created campus.
+      summary: Create campus
+      tags:
+      - Locations
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+  /location-storage/campuses/{id}:
+    delete:
+      description: Delete an existing campus by its unique identifier.
+      operationId: deleteLocationCampusById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Campus deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete campus by id
+      tags:
+      - Locations
+    get:
+      description: Retrieve a single campus by its unique identifier.
+      operationId: getLocationCampusById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/campus'
+          description: Campus record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get campus by id
+      tags:
+      - Locations
+    put:
+      description: Update an existing campus by its unique identifier.
+      operationId: updateLocationCampusById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/campus'
+        required: true
+      responses:
+        '204':
+          description: Campus updated successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update campus by id
+      tags:
+      - Locations
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+  /location-storage/libraries:
+    delete:
+      description: Delete all library records.
+      operationId: deleteLocationLibraries
+      responses:
+        '204':
+          description: All libraries deleted.
+      summary: Delete libraries
+      tags:
+      - Locations
+    get:
+      description: Return a list of libraries.
+      operationId: getLocationLibraries
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      - description: Whether to include shadow records in the response or not.
+        in: query
+        name: includeShadow
+        required: false
+        schema:
+          default: false
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/librariesCollection'
+          description: Collection of libraries.
+      summary: Get libraries
+      tags:
+      - Locations
+    post:
+      description: Create a new library record.
+      operationId: createLocationLibrary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/library'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/library'
+          description: Created library.
+      summary: Create library
+      tags:
+      - Locations
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+  /location-storage/libraries/{id}:
+    delete:
+      description: Delete an existing library by its unique identifier.
+      operationId: deleteLocationLibraryById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Library deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Delete library by id
+      tags:
+      - Locations
+    get:
+      description: Retrieve a single library by its unique identifier.
+      operationId: getLocationLibraryById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/library'
+          description: Library record.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Get library by id
+      tags:
+      - Locations
+    put:
+      description: Update an existing library by its unique identifier.
+      operationId: updateLocationLibraryById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/library'
+        required: true
+      responses:
+        '204':
+          description: Library updated successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorCollection'
+          description: Resource not found.
+      summary: Update library by id
+      tags:
+      - Locations
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+components:
+  schemas:
+    RequestQueryParameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: A CQL query string with search conditions.
+          minLength: 1
+        limit:
+          type: integer
+          description: Limit the number of elements returned in the response
+          maximum: 2147483647
+          minimum: 0
+          default: 10
+        offset:
+          type: integer
+          description: Skip over a number of elements by specifying an offset value for the query
+          maximum: 2147483647
+          minimum: 0
+          default: 0
+        lang:
+          type: string
+          description: Requested language
+          default: en
+          pattern: '[a-zA-Z]{2}'
+        expand:
+          type: string
+          description: Whether or not to expand the id fields
+    Error:
+      type: object
+      properties:
+        code:
+          description: Error status code
+          type: integer
+        errorMessage:
+          description: Error message text
+          type: string
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error_2:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    innReachLocationsDTO:
+      description: InnReach locations collection
+      type: object
+      properties:
+        totalRecords:
+          description: Total records
+          type: integer
+        locations:
+          description: List of INN-Reach locations
+          type: array
+          items:
+            $ref: '#/components/schemas/innReachLocationDTO'
+      additionalProperties: false
+      required:
+      - locations
+    innReachLocationDTO:
+      description: InnReach location
+      type: object
+      properties:
+        id:
+          description: location id
+          type: string
+          format: UUID
+        code:
+          description: location code
+          type: string
+          maxLength: 5
+        description:
+          description: location description
+          type: string
+          maxLength: 255
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - code
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: invalid
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      title: Parameter
+      type: object
+    librariesCollection:
+      description: A collection of libraries (third-level location units)
+      example:
+        totalRecords: 0
+        loclibs:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+      properties:
+        loclibs:
+          description: List of libraries
+          items:
+            $ref: '#/components/schemas/library'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - loclibs
+      - totalRecords
+      title: Libraries Collection
+      type: object
+    errorCollection:
+      description: Collection of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      title: Error Collection
+      type: object
+    location:
+      additionalProperties: false
+      description: 'Location: the forth-level location unit below institution, campus, and library'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        discoveryDisplayName: discoveryDisplayName
+        libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        description: description
+        isActive: true
+        primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isFloatingCollection: true
+        name: name
+        details:
+          key: ''
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+        servicePointIds:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: ID of the location
+          format: uuid
+          type: string
+        name:
+          description: Name of the location
+          type: string
+        code:
+          description: Code of the location, usually an abbreviation of the name
+          type: string
+        description:
+          description: Description of the location
+          type: string
+        discoveryDisplayName:
+          description: Name of the location to be shown in the discovery
+          type: string
+        isActive:
+          description: Whether this location is active. Inactive locations can no longer been used
+          type: boolean
+        institutionId:
+          description: The ID of the institution, the first-level location unit, this location belongs to
+          format: uuid
+          type: string
+        campusId:
+          description: The ID of the campus, the second-level location unit, this location belongs to
+          format: uuid
+          type: string
+        libraryId:
+          description: The ID of the library, the third-level location unit, this location belongs to
+          format: uuid
+          type: string
+        details:
+          additionalProperties: true
+          description: Details about this location
+          type: object
+        primaryServicePoint:
+          description: The ID of the primary service point of this location
+          format: uuid
+          type: string
+        servicePointIds:
+          description: All service points that this location has
+          items:
+            description: The ID of a service point that belongs to this location
+            format: uuid
+            type: string
+          type: array
+        isFloatingCollection:
+          description: Items checked in/out from this location can be checked in/out to other locations with the same flag
+          type: boolean
+        isShadow:
+          default: false
+          description: Whether this location is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+      required:
+      - campusId
+      - code
+      - institutionId
+      - libraryId
+      - name
+      - primaryServicePoint
+      title: Location
+      type: object
+    campusesCollection:
+      description: A collection of campuses (second-level location units)
+      example:
+        loccamps:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        totalRecords: 0
+      properties:
+        loccamps:
+          description: List of campuses
+          items:
+            $ref: '#/components/schemas/campus'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - loccamps
+      - totalRecords
+      title: Campuses Collection
+      type: object
+    campus:
+      additionalProperties: false
+      description: 'Campus: second-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of the campus
+          format: uuid
+          type: string
+        name:
+          description: Name of the campus
+          type: string
+        code:
+          description: Distinct code for the campus
+          type: string
+        institutionId:
+          description: ID of the institution that the campus unit belongs to
+          format: uuid
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+      required:
+      - code
+      - institutionId
+      - name
+      title: Campus
+      type: object
+    locationsCollection:
+      description: List of locations
+      example:
+        totalRecords: 0
+        locations:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          discoveryDisplayName: discoveryDisplayName
+          libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          description: description
+          isActive: true
+          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isFloatingCollection: true
+          name: name
+          details:
+            key: ''
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+          servicePointIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          discoveryDisplayName: discoveryDisplayName
+          libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          description: description
+          isActive: true
+          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isFloatingCollection: true
+          name: name
+          details:
+            key: ''
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+          servicePointIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        locations:
+          description: List of locations
+          items:
+            $ref: '#/components/schemas/location'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - locations
+      - totalRecords
+      title: Locations Collection
+      type: object
+    institution:
+      additionalProperties: false
+      description: 'Institution: highest-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of institution
+          format: uuid
+          type: string
+        name:
+          description: Name of institution
+          type: string
+        code:
+          description: Distinct code for institution
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+      required:
+      - code
+      - name
+      title: Institution
+      type: object
+    library:
+      additionalProperties: false
+      description: 'Library: third-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        name: name
+        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of the library
+          format: uuid
+          type: string
+        name:
+          description: Name of the library
+          type: string
+        code:
+          description: Distinct code for the library
+          type: string
+        campusId:
+          description: ID of the campus that the library belongs to
+          format: uuid
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+      required:
+      - campusId
+      - code
+      - name
+      title: Library
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      title: Error
+      type: object
+    institutionsCollection:
+      description: A collection of institutions (top-level location units)
+      example:
+        locinsts:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        totalRecords: 0
+      properties:
+        locinsts:
+          description: List of institution
+          items:
+            $ref: '#/components/schemas/institution'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - locinsts
+      - totalRecords
+      title: Institutions Collection
+      type: object
+    metadata_2:
+      additionalProperties: false
+      description: Metadata about creation and changes to records
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      readOnly: true
+      title: Metadata
+      type: object
+    Error_3:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    location_2:
+      additionalProperties: false
+      description: 'Location: the forth-level location unit below institution, campus, and library'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        discoveryDisplayName: discoveryDisplayName
+        libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        description: description
+        isActive: true
+        primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isFloatingCollection: true
+        name: name
+        details:
+          key: ''
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+        servicePointIds:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: ID of the location
+          format: uuid
+          type: string
+        name:
+          description: Name of the location
+          type: string
+        code:
+          description: Code of the location, usually an abbreviation of the name
+          type: string
+        description:
+          description: Description of the location
+          type: string
+        discoveryDisplayName:
+          description: Name of the location to be shown in the discovery
+          type: string
+        isActive:
+          description: Whether this location is active. Inactive locations can no longer been used
+          type: boolean
+        institutionId:
+          description: The ID of the institution, the first-level location unit, this location belongs to
+          format: uuid
+          type: string
+        campusId:
+          description: The ID of the campus, the second-level location unit, this location belongs to
+          format: uuid
+          type: string
+        libraryId:
+          description: The ID of the library, the third-level location unit, this location belongs to
+          format: uuid
+          type: string
+        details:
+          additionalProperties: true
+          description: Details about this location
+          type: object
+        primaryServicePoint:
+          description: The ID of the primary service point of this location
+          format: uuid
+          type: string
+        servicePointIds:
+          description: All service points that this location has
+          items:
+            description: The ID of a service point that belongs to this location
+            format: uuid
+            type: string
+          type: array
+        isFloatingCollection:
+          description: Items checked in/out from this location can be checked in/out to other locations with the same flag
+          type: boolean
+        isShadow:
+          default: false
+          description: Whether this location is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_3'
+      required:
+      - campusId
+      - code
+      - institutionId
+      - libraryId
+      - name
+      - primaryServicePoint
+      title: Location
+      type: object
+    campus_2:
+      additionalProperties: false
+      description: 'Campus: second-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of the campus
+          format: uuid
+          type: string
+        name:
+          description: Name of the campus
+          type: string
+        code:
+          description: Distinct code for the campus
+          type: string
+        institutionId:
+          description: ID of the institution that the campus unit belongs to
+          format: uuid
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_3'
+      required:
+      - code
+      - institutionId
+      - name
+      title: Campus
+      type: object
+    institution_2:
+      additionalProperties: false
+      description: 'Institution: highest-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of institution
+          format: uuid
+          type: string
+        name:
+          description: Name of institution
+          type: string
+        code:
+          description: Distinct code for institution
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_3'
+      required:
+      - code
+      - name
+      title: Institution
+      type: object
+    library_2:
+      additionalProperties: false
+      description: 'Library: third-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        name: name
+        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of the library
+          format: uuid
+          type: string
+        name:
+          description: Name of the library
+          type: string
+        code:
+          description: Distinct code for the library
+          type: string
+        campusId:
+          description: ID of the campus that the library belongs to
+          format: uuid
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_3'
+      required:
+      - campusId
+      - code
+      - name
+      title: Library
+      type: object
+    metadata_3:
+      additionalProperties: false
+      description: Metadata about creation and changes to records
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      readOnly: true
+      title: Metadata
+      type: object
+  parameters:
+    location-id:
+      name: locationId
+      in: path
+      description: Location id
+      required: true
+      schema:
+        type: string
+    campus-id:
+      name: campusId
+      in: path
+      description: Library campus id
+      required: true
+      schema:
+        type: string
+    institution-id:
+      name: institutionId
+      in: path
+      description: Location institution id
+      required: true
+      schema:
+        type: string
+    library-id:
+      name: libraryId
+      in: path
+      description: Location library id
+      required: true
+      schema:
+        type: string
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    request-query-parameters:
+      name: requestQueryParameters
+      in: query
+      description: Request query parameters(query, limit, offset and etc.) as object.
+      schema:
+        $ref: '#/components/schemas/RequestQueryParameters'
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    trait_response_404_2:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_3'
+    trait_response_500_2:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_3'
+x-refined-from:
+- folio-edge-inventory-openapi.json
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-locations-openapi.json
+- folio-edge-inventory-openapi.yml
+- folio-mod-inn-reach-settings-openapi.yml
+- folio-mod-locations-openapi.yml

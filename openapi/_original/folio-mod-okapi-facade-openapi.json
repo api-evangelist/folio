@@ -1,0 +1,3232 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Okapi Core API Facade",
+  "version": "v2.0",
+  "description": "Okapi Core API Facade"
+ },
+ "servers": [
+  {
+   "url": "http://localhost:8081",
+   "description": "Locally deployed server"
+  }
+ ],
+ "paths": {
+  "/_/deployment/modules": {
+   "post": {
+    "responses": {
+     "201": {
+      "description": "Created",
+      "headers": {
+       "Location": {
+        "description": "URI to the descriptor of the deployed instance",
+        "schema": {
+         "type": "string"
+        }
+       },
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeploymentDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Deploy (launch process, start a container, etc) instance of a\nparticular service, according to the deployment descriptor.\n",
+    "operationId": "deployModuleInstance",
+    "tags": [
+     "deployment"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DeploymentDescriptor"
+       }
+      }
+     },
+     "required": true
+    }
+   },
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeploymentDescriptorList"
+        }
+       }
+      }
+     }
+    },
+    "description": "List all deployed instances",
+    "operationId": "getAllDeployedModuleInstances",
+    "tags": [
+     "deployment"
+    ]
+   }
+  },
+  "/_/deployment/modules/{instance_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeploymentDescriptor"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Retrieve deployment descriptor for a particular instance",
+    "operationId": "getDeployedModuleInstance",
+    "tags": [
+     "deployment"
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     }
+    },
+    "description": "Shutdown instance",
+    "operationId": "deleteDeployedModuleInstance",
+    "tags": [
+     "deployment"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "instance_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/discovery/modules": {
+   "post": {
+    "responses": {
+     "201": {
+      "description": "Created",
+      "headers": {
+       "Location": {
+        "description": "URI to the registered instance",
+        "schema": {
+         "type": "string"
+        }
+       },
+       "X-Okapi-Trace": {
+        "required": false,
+        "description": "Okapi trace and timing",
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeploymentDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Register instance under a specified service id",
+    "operationId": "createDiscovery",
+    "tags": [
+     "discovery"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DeploymentDescriptor"
+       }
+      }
+     },
+     "required": true
+    }
+   },
+   "get": {
+    "responses": {
+     "200": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeploymentDescriptorList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Return all instances",
+    "operationId": "getAllDiscoveries",
+    "tags": [
+     "discovery"
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Delete all instances",
+    "operationId": "deleteAllDiscoveries",
+    "tags": [
+     "discovery"
+    ]
+   }
+  },
+  "/_/discovery/modules/{service_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeploymentDescriptorList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "List all instances for a particular service",
+    "operationId": "getDiscoveriesByService",
+    "tags": [
+     "discovery"
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "No Content",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Remove registration for a given instance",
+    "operationId": "deleteDiscoveriesByService",
+    "tags": [
+     "discovery"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "service_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/discovery/modules/{service_id}/{instance_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeploymentDescriptor"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Get registration of a specified instance",
+    "operationId": "getDiscoveryByInstance",
+    "tags": [
+     "discovery"
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Remove registration for a given instance",
+    "operationId": "deleteDiscoveryByInstance",
+    "tags": [
+     "discovery"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "instance_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    },
+    {
+     "name": "service_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/discovery/health": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HealthDescriptorList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get health info for all services",
+    "operationId": "getAllDiscoveryHealth",
+    "tags": [
+     "discovery"
+    ]
+   }
+  },
+  "/_/discovery/health/{service_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HealthDescriptorList"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Health for all instances for a particular service",
+    "operationId": "getDiscoveryHealthByService",
+    "tags": [
+     "discovery"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "service_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/discovery/health/{service_id}/{instance_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HealthDescriptor"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Get health for a particular instance",
+    "operationId": "getDiscoveryHealthByInstance",
+    "tags": [
+     "discovery"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "instance_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    },
+    {
+     "name": "service_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/discovery/nodes": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/NodeDescriptorList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get list of all nodes",
+    "operationId": "getAllDiscoveryNodes",
+    "tags": [
+     "discovery"
+    ]
+   }
+  },
+  "/_/discovery/nodes/{node_id}": {
+   "put": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/NodeDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Update descriptor of a particular node, only the name can be changed",
+    "operationId": "updateDiscoveryNode",
+    "tags": [
+     "discovery"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NodeDescriptor"
+       }
+      }
+     },
+     "required": true
+    }
+   },
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/NodeDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get info for one node",
+    "operationId": "getDiscoveryNode",
+    "tags": [
+     "discovery"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "node_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/import/modules": {
+   "post": {
+    "responses": {
+     "204": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Announce a list of new modules to the proxy. Once successful a module can be selected for a specific tenant. To announce only one module you may use /_/proxy/modules.",
+    "operationId": "announceModules",
+    "tags": [
+     "proxy-module"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ModuleList"
+       }
+      }
+     },
+     "required": true
+    },
+    "parameters": [
+     {
+      "name": "check",
+      "in": "query",
+      "description": "Whether to check dependencies",
+      "schema": {
+       "default": true,
+       "type": "boolean"
+      }
+     },
+     {
+      "$ref": "#/components/parameters/query-pre-release"
+     },
+     {
+      "$ref": "#/components/parameters/query-npm-snapshot"
+     }
+    ]
+   }
+  },
+  "/_/proxy/cleanup/modules": {
+   "post": {
+    "responses": {
+     "204": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "description": "Okapi trace and timing",
+        "schema": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Remove module snapshot modules descriptors that are obsolete. A module is considered obsolete if it is part of a release that is earlier than N latest releases (saveReleases) and not part of the M latest snapshots in that release.",
+    "operationId": "cleanupModules",
+    "tags": [
+     "proxy-module"
+    ],
+    "parameters": [
+     {
+      "name": "removeDependencies",
+      "in": "query",
+      "description": "Force removal of modules that depend on obsolete snapshots",
+      "schema": {
+       "default": false,
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "saveReleases",
+      "in": "query",
+      "required": true,
+      "description": "The number of latest releases where snapshots are never considered obsolete",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "saveSnapshots",
+      "in": "query",
+      "required": true,
+      "description": "The number of latest snapshots that are never considered obsolete (preserved)",
+      "schema": {
+       "type": "integer"
+      }
+     }
+    ]
+   }
+  },
+  "/_/proxy/modules": {
+   "post": {
+    "responses": {
+     "201": {
+      "description": "Created",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       },
+       "Location": {
+        "description": "URI to the created module instance",
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ModuleDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Announce new module to the proxy. Once successful a module can be selected for a specific tenant.",
+    "operationId": "announceModule",
+    "tags": [
+     "proxy-module"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ModuleDescriptor"
+       }
+      }
+     },
+     "required": true
+    },
+    "parameters": [
+     {
+      "name": "check",
+      "in": "query",
+      "description": "Whether to check dependencies",
+      "schema": {
+       "default": true,
+       "type": "boolean"
+      }
+     },
+     {
+      "$ref": "#/components/parameters/query-pre-release"
+     },
+     {
+      "$ref": "#/components/parameters/query-npm-snapshot"
+     }
+    ]
+   },
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ModuleList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "List all or subset of modules for proxy",
+    "operationId": "getAllModules",
+    "tags": [
+     "proxy-module"
+    ],
+    "parameters": [
+     {
+      "name": "dot",
+      "in": "query",
+      "description": "If true, return Graphviz DOT content as plain text",
+      "schema": {
+       "default": false,
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "filter",
+      "in": "query",
+      "description": "Filter by module ID",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "full",
+      "in": "query",
+      "description": "Whether full or compact MD should be returned",
+      "schema": {
+       "default": false,
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "latest",
+      "in": "query",
+      "description": "Limit to latest N releases (most likely 1 if given)",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "order",
+      "in": "query",
+      "description": "Order",
+      "schema": {
+       "enum": [
+        "desc",
+        "asc"
+       ],
+       "type": "string"
+      }
+     },
+     {
+      "name": "orderBy",
+      "in": "query",
+      "description": "Order by field",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "provide",
+      "in": "query",
+      "description": "Limit to provided interfaces (each interface name separated by comma)",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "require",
+      "in": "query",
+      "description": "Limit to required interfaces (each interface name separated by comma)",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "scope",
+      "in": "query",
+      "description": "Limit to interface scope (only useful with provide and require)",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "$ref": "#/components/parameters/query-pre-release"
+     },
+     {
+      "$ref": "#/components/parameters/query-npm-snapshot"
+     }
+    ]
+   }
+  },
+  "/_/proxy/modules/{module_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ModuleDescriptor"
+        }
+       }
+      }
+     }
+    },
+    "description": "Retrieve descriptor for a particular module",
+    "operationId": "getModule",
+    "tags": [
+     "proxy-module"
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Remove module descriptor for a particular module, module will no longer be selectable by tenants",
+    "operationId": "deleteModule",
+    "tags": [
+     "proxy-module"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "module_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants": {
+   "post": {
+    "responses": {
+     "201": {
+      "description": "Tenant has been created",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       },
+       "Location": {
+        "description": "URI to the created tenant",
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     }
+    },
+    "description": "Create a new tenant",
+    "operationId": "createTenant",
+    "tags": [
+     "proxy-tenant"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TenantDescriptor"
+       }
+      }
+     },
+     "required": true
+    }
+   },
+   "get": {
+    "responses": {
+     "200": {
+      "description": "List of tenants in a brief format",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantList"
+        }
+       }
+      }
+     }
+    },
+    "description": "List all tenants",
+    "operationId": "getAllTenants",
+    "tags": [
+     "proxy-tenant"
+    ]
+   }
+  },
+  "/_/proxy/tenants/{tenant_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantDescriptor"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Retrieve a tenant",
+    "operationId": "getTenant",
+    "tags": [
+     "proxy-tenant"
+    ]
+   },
+   "put": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Update a tenant",
+    "operationId": "updateTenant",
+    "tags": [
+     "proxy-tenant"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TenantDescriptor"
+       }
+      }
+     },
+     "required": true
+    }
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "403": {
+      "description": "Forbidden"
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Remove a tenant",
+    "operationId": "deleteTenant",
+    "tags": [
+     "proxy-tenant"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants/{tenant_id}/modules": {
+   "post": {
+    "responses": {
+     "201": {
+      "description": "Created",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       },
+       "Location": {
+        "description": "URI to the enabled module",
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantModuleDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Enable a module for tenant. Only the member 'id' from TenantModuleDescriptor is used in this operation. This call will eventually be replaced by the 'install' service.",
+    "operationId": "enableTenantModule",
+    "tags": [
+     "proxy-tenant-module"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TenantModuleDescriptor"
+       }
+      }
+     },
+     "required": true
+    }
+   },
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ModuleList"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get enabled modules for tenant",
+    "operationId": "getAllTenantModules",
+    "tags": [
+     "proxy-tenant-module"
+    ],
+    "parameters": [
+     {
+      "name": "dot",
+      "in": "query",
+      "description": "If true, return Graphviz DOT content as plain text",
+      "schema": {
+       "default": false,
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "filter",
+      "in": "query",
+      "description": "Filter by module ID",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "full",
+      "in": "query",
+      "description": "Whether full or compact MD should be returned",
+      "schema": {
+       "default": false,
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "latest",
+      "in": "query",
+      "description": "Limit to latest N releases (most likely 1 if given)",
+      "schema": {
+       "type": "integer"
+      }
+     },
+     {
+      "name": "order",
+      "in": "query",
+      "description": "Order",
+      "schema": {
+       "enum": [
+        "desc",
+        "asc"
+       ],
+       "type": "string"
+      }
+     },
+     {
+      "name": "orderBy",
+      "in": "query",
+      "description": "Order by field",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "provide",
+      "in": "query",
+      "description": "Limit to provided interfaces (each interface name separated by comma)",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "require",
+      "in": "query",
+      "description": "Limit to required interfaces (each interface name separted by comma)",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "scope",
+      "in": "query",
+      "description": "Limit to interface scope (only useful with provide and require)",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "$ref": "#/components/parameters/query-pre-release"
+     },
+     {
+      "$ref": "#/components/parameters/query-npm-snapshot"
+     }
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Disable modules for tenant",
+    "operationId": "disableTenantModules",
+    "tags": [
+     "proxy-tenant-module"
+    ],
+    "parameters": [
+     {
+      "name": "invoke",
+      "in": "query",
+      "description": "Whether to invoke for tenant init/permissions/purge. Use\n\"true\" to invoke, \"false\" to not invoke. Any other value\nis a regular expression that is matched against the module ID.\nIf that pattern matches, invoke is performed (same as \"true)\".\n",
+      "schema": {
+       "default": "true",
+       "type": "string"
+      }
+     },
+     {
+      "name": "purge",
+      "in": "query",
+      "description": "Disabled modules will also be purged.",
+      "schema": {
+       "default": false,
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "tenantParameters",
+      "in": "query",
+      "description": "Parameters for Tenant init",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ]
+   },
+   "parameters": [
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants/{tenant_id}/modules/{module_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantModuleDescriptor"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Look up particular module selection",
+    "operationId": "getTenantModule",
+    "tags": [
+     "proxy-tenant-module"
+    ]
+   },
+   "post": {
+    "responses": {
+     "201": {
+      "description": "Created",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       },
+       "Location": {
+        "description": "URI to the enabled module",
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantModuleDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Client Error"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Upgrade a module for a tenant. Enable new module and disable current module with new module ID in body and existing ID in path. This call will eventually be replaced by the 'install' service.",
+    "operationId": "upgradeTenantModule",
+    "tags": [
+     "proxy-tenant-module"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TenantModuleDescriptor"
+       }
+      }
+     },
+     "required": true
+    },
+    "parameters": [
+     {
+      "name": "invoke",
+      "in": "query",
+      "description": "Whether to invoke for tenant init/permissions/purge. Use\n\"true\" to invoke, \"false\" to not invoke. Any other value\nis a regular expression that is matched against the module ID.\nIf that pattern matches, invoke is performed (same as \"true)\".\n",
+      "schema": {
+       "default": "true",
+       "type": "string"
+      }
+     },
+     {
+      "name": "purge",
+      "in": "query",
+      "description": "Disabled modules will also be purged.",
+      "schema": {
+       "default": false,
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "tenantParameters",
+      "in": "query",
+      "description": "Parameters for Tenant init",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "Gone",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Client Error"
+     }
+    },
+    "description": "Disable a module for a tenant. This call will eventually be replaced by the 'install' service.",
+    "operationId": "disableTenantModule",
+    "tags": [
+     "proxy-tenant-module"
+    ],
+    "parameters": [
+     {
+      "name": "invoke",
+      "in": "query",
+      "description": "Whether to invoke for tenant init/permissions/purge. Use\n\"true\" to invoke, \"false\" to not invoke. Any other value\nis a regular expression that is matched against the module ID.\nIf that pattern matches, invoke is performed (same as \"true)\".\n",
+      "schema": {
+       "default": "true",
+       "type": "string"
+      }
+     },
+     {
+      "name": "purge",
+      "in": "query",
+      "description": "Disabled modules will also be purged.",
+      "schema": {
+       "default": false,
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "tenantParameters",
+      "in": "query",
+      "description": "Parameters for Tenant init",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ]
+   },
+   "parameters": [
+    {
+     "name": "module_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    },
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants/{tenant_id}/install": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/InstallJobList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "User error"
+     },
+     "404": {
+      "description": "Tenant not Found"
+     },
+     "500": {
+      "description": "User error"
+     }
+    },
+    "description": "Retrieve information about all install/upgrade jobs - including those that are ongoing.",
+    "operationId": "getAllInstallJobs",
+    "tags": [
+     "proxy-tenant-installation"
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Tenant not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Delete all completed install jobs",
+    "operationId": "deleteInstallJobs",
+    "tags": [
+     "proxy-tenant-installation"
+    ]
+   },
+   "post": {
+    "responses": {
+     "200": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantModuleDescriptorList"
+        }
+       }
+      }
+     },
+     "201": {
+      "description": "Install job created (async mode)",
+      "headers": {
+       "Location": {
+        "description": "URI to the install job",
+        "schema": {
+         "type": "string"
+        }
+       },
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantModuleDescriptorList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Enable, disable or upgrade one or more modules for tenant. The request body and response body is of the same type TenantModuleDescriptorList. This list includes one or more modules to be enabled, disabled or upgraded. The request is the initial desired changes and the response is the list of changes that must be fulfilled to satisfy dependencies. This service will eventually partially replace /_/proxy/tenants/{tenant}/modules . It also allows enabling multiple modules in one transaction. For simulate=true, the response, can be viewed as a recipe for what must be deployed (optionally) and enabled/disabled by the existing tenants-modules CRUD service.",
+    "operationId": "createInstallJob",
+    "tags": [
+     "proxy-tenant-installation"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TenantModuleDescriptorList"
+       }
+      }
+     },
+     "required": true
+    },
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query-pre-release"
+     },
+     {
+      "$ref": "#/components/parameters/query-npm-snapshot"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-async"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-deploy"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-ignore-errors"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-invoke"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-parallel"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-purge"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-reinstall"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-simulate"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-tenant-parameters"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-dep-check"
+     }
+    ]
+   },
+   "parameters": [
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants/{tenant_id}/install/{install_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/InstallJob"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "User error"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Internal error"
+     }
+    },
+    "description": "Get install job status",
+    "operationId": "getInstallJob",
+    "tags": [
+     "proxy-tenant-installation"
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "User error"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Internal error"
+     }
+    },
+    "description": "Delete install job",
+    "operationId": "deleteInstallJob",
+    "tags": [
+     "proxy-tenant-installation"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "install_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    },
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants/{tenant_id}/upgrade": {
+   "post": {
+    "responses": {
+     "200": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantModuleDescriptorList"
+        }
+       }
+      }
+     },
+     "201": {
+      "description": "Install job created (async mode)",
+      "headers": {
+       "Location": {
+        "description": "URI to the install job",
+        "schema": {
+         "type": "string"
+        }
+       },
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantModuleDescriptorList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Upgrade each module to the latest version. The upgrade is rejected if it would violate the interface dependencies of the modules. The response is a list of modules that have been enabled, disabled or upgraded to perform the upgrade.",
+    "operationId": "createUpgradeJob",
+    "tags": [
+     "proxy-tenant-installation"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/query-pre-release"
+     },
+     {
+      "$ref": "#/components/parameters/query-npm-snapshot"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-async"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-deploy"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-ignore-errors"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-invoke"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-parallel"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-purge"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-reinstall"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-simulate"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-tenant-parameters"
+     },
+     {
+      "$ref": "#/components/parameters/query-install-dep-check"
+     }
+    ]
+   },
+   "parameters": [
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants/{tenant_id}/interfaces": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/InterfaceList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Client Error"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get all interfaces for tenant",
+    "operationId": "getAllInterfaces",
+    "tags": [
+     "proxy-tenant-interface"
+    ],
+    "parameters": [
+     {
+      "name": "full",
+      "in": "query",
+      "description": "Whether brief or full interface list",
+      "schema": {
+       "default": false,
+       "type": "boolean"
+      }
+     },
+     {
+      "name": "type",
+      "in": "query",
+      "description": "Limit by interfaceType",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ]
+   },
+   "parameters": [
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants/{tenant_id}/interfaces/{interface_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TenantModuleDescriptorList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Client Error"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get all modules that provide the specified interface ID. DEPRECATED Use /_/proxy/tenants/{tenant_id}/modules?provide={interface_id} instead.",
+    "operationId": "getInterface",
+    "tags": [
+     "proxy-tenant-interface"
+    ],
+    "parameters": [
+     {
+      "name": "type",
+      "in": "query",
+      "description": "Limit by interfaceType",
+      "schema": {
+       "type": "string"
+      }
+     }
+    ]
+   },
+   "parameters": [
+    {
+     "name": "interface_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    },
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants/{tenant_id}/timers": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TimerDescriptorList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Client Error"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get timers for tenant.",
+    "operationId": "getAllTimers",
+    "tags": [
+     "proxy-tenant-timer"
+    ]
+   },
+   "patch": {
+    "responses": {
+     "204": {
+      "description": "Patch OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Client Error"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "patch timer. Both routingEntry and id must be given. The routingEntry.unit, routingEntry.delay and routingEntry.schedule determines the new schedule for the timer. Using delay=0 disables a timer. Omitting delay, unit and schedule reverts timer back to initial values from module.",
+    "operationId": "updateTimers",
+    "tags": [
+     "proxy-tenant-timer"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TimerDescriptor"
+       }
+      }
+     },
+     "required": true
+    }
+   },
+   "parameters": [
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/tenants/{tenant_id}/timers/{timer_id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TimerDescriptor"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Client Error"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "get timer with id given.",
+    "operationId": "getTimer",
+    "tags": [
+     "proxy-tenant-timer"
+    ]
+   },
+   "patch": {
+    "responses": {
+     "204": {
+      "description": "Patch OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Client Error"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "patch timer with routing entry as body. The unit, delay and schedule determines the new schedule for the timer. Using delay=0 disables a timer. Omitting delay, unit and schedule reverts timer back to initial values from module.",
+    "operationId": "updateTimer",
+    "tags": [
+     "proxy-tenant-timer"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RoutingEntry"
+       }
+      }
+     },
+     "required": true
+    }
+   },
+   "parameters": [
+    {
+     "name": "timer_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    },
+    {
+     "name": "tenant_id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/proxy/health": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HealthStatusList"
+        }
+       }
+      }
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Check health of modules",
+    "operationId": "getHealthStatus",
+    "tags": [
+     "proxy-health"
+    ]
+   }
+  },
+  "/_/proxy/pull/modules": {
+   "post": {
+    "responses": {
+     "200": {
+      "description": "OK",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ModuleList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Pull modules (i.e. Module Descriptors) from a remote repository. The PullDescriptor includes one or more URLs. And the operation will try all URLs in order until one succeeds. Hence, the URLs should be pointing to identical remote repositories.",
+    "operationId": "pullDescriptors",
+    "tags": [
+     "proxy-descriptor"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PullDescriptor"
+       }
+      }
+     },
+     "required": true
+    }
+   }
+  },
+  "/_/env": {
+   "post": {
+    "responses": {
+     "201": {
+      "description": "Created",
+      "headers": {
+       "Location": {
+        "description": "URI to the environment entry instance",
+        "schema": {
+         "type": "string"
+        }
+       },
+       "X-Okapi-Trace": {
+        "required": false,
+        "description": "Okapi trace and timing",
+        "schema": {
+         "type": "string"
+        }
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EnvEntry"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Add environment entry",
+    "operationId": "createEnvironmentEntry",
+    "tags": [
+     "environment"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EnvEntry"
+       }
+      }
+     },
+     "required": true
+    }
+   },
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EnvEntryList"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get list of all environment variables",
+    "operationId": "getAllEnvironmentEntries",
+    "tags": [
+     "environment"
+    ]
+   }
+  },
+  "/_/env/{id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      },
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/EnvEntry"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "404": {
+      "description": "Not Found"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get info for one environment variable",
+    "operationId": "getEnvironmentEntry",
+    "tags": [
+     "environment"
+    ]
+   },
+   "delete": {
+    "responses": {
+     "204": {
+      "description": "",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "404": {
+      "description": "Not Found"
+     }
+    },
+    "description": "Remove environment variable",
+    "operationId": "deleteEnvironmentEntry",
+    "tags": [
+     "environment"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  },
+  "/_/version": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "OK, with version in body",
+      "headers": {
+       "X-Okapi-Trace": {
+        "$ref": "#/components/headers/X-Okapi-Trace"
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request"
+     },
+     "500": {
+      "description": "Server Error"
+     }
+    },
+    "description": "Get Okapi version",
+    "operationId": "getVersion",
+    "tags": [
+     "version"
+    ]
+   }
+  },
+  "/_/invoke/tenant/{id}": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "OK"
+     }
+    },
+    "description": "Invoke any service (the rest of the path, any method, any response).",
+    "operationId": "invoke",
+    "tags": [
+     "invoke-service"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "id",
+     "in": "path",
+     "required": true,
+     "schema": {
+      "type": "string"
+     }
+    }
+   ]
+  }
+ },
+ "components": {
+  "schemas": {
+   "DeploymentDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "DeploymentDescriptor.json",
+    "title": "DeploymentDescriptor",
+    "description": "Module deployment information. There are two modes: deployment managed by Okapi (with nodeId specified) and remote module (with URL specified).",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "srvcId": {
+      "description": "The Module ID for the instance",
+      "type": "string"
+     },
+     "instId": {
+      "description": "Instance ID (at least unique for node)",
+      "type": "string"
+     },
+     "nodeId": {
+      "description": "Node ID where module is deployed",
+      "type": "string"
+     },
+     "url": {
+      "description": "URL where module is deployed (not managed by Okapi)",
+      "type": "string"
+     },
+     "descriptor": {
+      "description": "Deployment details",
+      "$ref": "#/components/schemas/LaunchDescriptor"
+     }
+    },
+    "required": [
+     "srvcId"
+    ]
+   },
+   "LaunchDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "LaunchDescriptor.json",
+    "title": "LaunchDescriptor",
+    "description": "Specifies how a module is deployed and undeployed",
+    "type": "object"
+   },
+   "DeploymentDescriptorList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "DeploymentDescriptorList.json",
+    "title": "DeploymentDescriptorList",
+    "description": "Deployment information list",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/DeploymentDescriptor"
+    }
+   },
+   "ModuleDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "ModuleDescriptor.json",
+    "title": "ModuleDescriptor",
+    "description": "A FOLIO Module",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "description": "Module ID with format product-semver",
+      "type": "string"
+     },
+     "name": {
+      "description": "Short name for module (does not include version)",
+      "type": "string"
+     },
+     "replaces": {
+      "description": "List of modules that this replaces",
+      "type": "array",
+      "items": {
+       "description": "Module name - without semantic version",
+       "type": "string"
+      }
+     },
+     "tags": {
+      "description": "Module tags",
+      "type": "array",
+      "items": {
+       "description": "Module tag",
+       "type": "string"
+      }
+     },
+     "requires": {
+      "description": "Required interfaces",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/InterfaceReference"
+      }
+     },
+     "provides": {
+      "description": "Provided interfaces",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/InterfaceDescriptor"
+      }
+     },
+     "optional": {
+      "description": "Optional interfaces",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/InterfaceReference"
+      }
+     },
+     "filters": {
+      "description": "Provided filters",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/RoutingEntry"
+      }
+     },
+     "permissionSets": {
+      "description": "Module Permission Sets",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/Permission"
+      }
+     },
+     "env": {
+      "description": "Supported environment variables",
+      "$ref": "#/components/schemas/EnvEntryList"
+     },
+     "metadata": {
+      "description": "Module Metadata (any object)",
+      "type": "object"
+     },
+     "uiDescriptor": {
+      "description": "UI module descriptor",
+      "$ref": "#/components/schemas/UiModuleDescriptor"
+     },
+     "launchDescriptor": {
+      "description": "Default deployment for this module",
+      "$ref": "#/components/schemas/LaunchDescriptor"
+     }
+    },
+    "required": [
+     "id"
+    ]
+   },
+   "ModuleList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "ModuleList.json",
+    "title": "ModuleList",
+    "description": "List of Module Descriptors",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/ModuleDescriptor"
+    }
+   },
+   "InterfaceDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "InterfaceDescriptor.json",
+    "title": "InterfaceDescriptor",
+    "description": "An interface that a module can provide",
+    "type": "object"
+   },
+   "InterfaceList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "InterfaceList.json",
+    "title": "InterfaceList",
+    "description": "Interface List",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/InterfaceDescriptor"
+    }
+   },
+   "RoutingEntry": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "RoutingEntry.json",
+    "title": "RoutingEntry",
+    "description": "Okapi proxy routing entry",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "methods": {
+      "description": "List of methods GET, POST,.. * (for all)",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "pathPattern": {
+      "description": "Path pattern match. * matches any path. {x} matches one or more characters but not slash",
+      "type": "string"
+     },
+     "path": {
+      "description": "Path prefix match",
+      "type": "string"
+     },
+     "rewritePath": {
+      "description": "Rewrite path. e.g. have filter rewrite '/*' to '/events/*'",
+      "type": "string"
+     },
+     "phase": {
+      "description": "If given, may be auth, pre or post",
+      "type": "string"
+     },
+     "level": {
+      "description": "Processing level. Default is 50 (handlers)",
+      "type": "string"
+     },
+     "type": {
+      "description": "Proxy handling. One of: request-response, request-only, headers, redirect, system, internal, request-response-1.0. The default is request-response",
+      "type": "string"
+     },
+     "redirectPath": {
+      "description": "If given, path that we internally redirect to",
+      "type": "string"
+     },
+     "unit": {
+      "description": "Delay unit",
+      "type": "string"
+     },
+     "delay": {
+      "description": "Delay between calls; a value of zero disables timer",
+      "type": "string"
+     },
+     "schedule": {
+      "title": "RoutingEntrySchedule",
+      "description": "Timer schedule using cron-utils",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+       "cron": {
+        "description": "crontab specification",
+        "type": "string"
+       },
+       "zone": {
+        "description": "time zone (UTC is the default); See https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/ZoneId.html",
+        "type": "string"
+       }
+      }
+     },
+     "permissionsRequired": {
+      "description": "Required permissions for this entry",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "permissionsDesired": {
+      "description": "Desired permissions for this entry",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "modulePermissions": {
+      "description": "Module permissions for this entry",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "permissionsRequiredTenant": {
+      "description": "Required permissions that replace permissionsRequired when the user is authenticated and either the tenant matches each {tenantId} in pathPattern or pathPattern doesn't contain {tenantId}",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "delegateCORS": {
+      "description": "Okapi handles CORS by default. Set to true to delegate CORS handling to the module. This only applies to calls made via /_/invoke/tenant/<tid>/<path>. No OPTIONS entry in the methods array is needed for this.",
+      "type": "boolean"
+     }
+    }
+   },
+   "TimerDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "TimerDescriptor.json",
+    "title": "TimerDescriptor",
+    "description": "Timer",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "description": "Timer identifier",
+      "type": "string"
+     },
+     "modified": {
+      "description": "Whether modified",
+      "type": "boolean"
+     },
+     "routingEntry": {
+      "description": "Routing entry",
+      "$ref": "#/components/schemas/RoutingEntry"
+     }
+    },
+    "required": [
+     "id"
+    ]
+   },
+   "TimerDescriptorList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "TimerDescriptorList.json",
+    "title": "Timer Descriptor list",
+    "description": "Timer Descriptor List",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/TimerDescriptor"
+    }
+   },
+   "InstallJob": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "InstallJob.json",
+    "title": "InstallJob",
+    "description": "Install job",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "description": "Job ID",
+      "type": "string"
+     },
+     "complete": {
+      "description": "Whether job is complete",
+      "type": "boolean"
+     },
+     "startDate": {
+      "description": "Start date",
+      "type": "string"
+     },
+     "endDate": {
+      "description": "End date",
+      "type": "string"
+     },
+     "modules": {
+      "description": "List of modules involved in install job",
+      "$ref": "#/components/schemas/TenantModuleDescriptorList"
+     }
+    },
+    "required": [
+     "complete",
+     "modules"
+    ]
+   },
+   "InstallJobList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "InstallJobList.json",
+    "title": "InstallJobList",
+    "description": "List of install jobs",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/InstallJob"
+    }
+   },
+   "TenantDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "TenantDescriptor.json",
+    "title": "TenantDescriptor",
+    "description": "Tenant information",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "description": "Tenant ID. A new tenant ID created via the POST /_/proxy/tenants API must match the ^[a-z][a-z0-9]{0,30}$ regexp as required by https://folio-org.atlassian.net/wiki/spaces/TC/pages/5053983/DR-000002+-+Tenant+Id+and+Module+Name+Restrictions Technical Council decision. All other APIs also accept a legacy tenant ID that matches ^[a-z0-9_-]+$ regexp and may pose security issues as explained on https://folio-org.atlassian.net/wiki/spaces/DD/pages/1779867/Tenant+Id+and+Module+Name+Restrictions",
+      "type": "string"
+     },
+     "name": {
+      "description": "Tenant name",
+      "type": "string"
+     },
+     "description": {
+      "description": "Tenant description",
+      "type": "string"
+     }
+    }
+   },
+   "TenantList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "TenantList.json",
+    "title": "TenantList",
+    "description": "List of Tenants",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/TenantDescriptor"
+    }
+   },
+   "TenantModuleDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "TenantModuleDescriptor.json",
+    "title": "TenantModuleDescriptor",
+    "description": "Module transitions",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "description": "Module ID (or just product part)",
+      "type": "string"
+     },
+     "from": {
+      "description": "Original Module ID when transitioning from one module to another",
+      "type": "string"
+     },
+     "action": {
+      "description": "Module action",
+      "type": "string",
+      "enum": [
+       "enable",
+       "disable",
+       "uptodate",
+       "suggest",
+       "conflict"
+      ]
+     },
+     "stage": {
+      "description": "Stage for the module",
+      "type": "string",
+      "enum": [
+       "pending",
+       "deploy",
+       "invoke",
+       "undeploy",
+       "done"
+      ]
+     },
+     "message": {
+      "description": "Diagnostic Message",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id"
+    ]
+   },
+   "TenantModuleDescriptorList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "TenantModuleDescriptorList.json",
+    "title": "TenantModuleDescriptorList",
+    "description": "List of module transitions",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/TenantModuleDescriptor"
+    }
+   },
+   "HealthStatus": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "HealthStatus.json",
+    "title": "Health for module as seen from proxy",
+    "description": "Proxy health status",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "description": "Module ID",
+      "type": "string"
+     },
+     "status": {
+      "description": "Status message",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "status"
+    ]
+   },
+   "HealthStatusList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "HealthStatusList.json",
+    "title": "HealthStatusList",
+    "description": "Health for each module as seen from proxy",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/HealthStatus"
+    }
+   },
+   "HealthDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "HealthDescriptor.json",
+    "title": "HealthDescriptor",
+    "description": "Health for an instance",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "srvcId": {
+      "description": "Service ID, normally same as Module ID",
+      "type": "string"
+     },
+     "instId": {
+      "description": "Instance ID, unique on node",
+      "type": "string"
+     },
+     "healthMessage": {
+      "description": "Health message",
+      "type": "string"
+     },
+     "healthStatus": {
+      "description": "Whether healthy",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "srvcId",
+     "instId",
+     "healthMessage",
+     "healthStatus"
+    ]
+   },
+   "HealthDescriptorList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "HealthDescriptorList.json",
+    "title": "HealthDescriptorList",
+    "description": "List of health descriptors",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/HealthDescriptor"
+    }
+   },
+   "NodeDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "NodeDescriptor.json",
+    "title": "NodeDescriptor",
+    "description": "Deployment node information",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "nodeId": {
+      "description": "Node ID",
+      "type": "string"
+     },
+     "url": {
+      "description": "Host:port for for this node",
+      "type": "string"
+     },
+     "nodeName": {
+      "description": "Human readable node name",
+      "type": "string"
+     }
+    },
+    "required": [
+     "nodeId",
+     "url"
+    ]
+   },
+   "NodeDescriptorList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "NodeDescriptorList.json",
+    "title": "NodeDescriptorList",
+    "description": "List of Nodes",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/NodeDescriptor"
+    }
+   },
+   "EnvEntry": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "EnvEntry.json",
+    "title": "EnvEntry",
+    "description": "Environment Variable",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+     "name": {
+      "description": "Key",
+      "type": "string"
+     },
+     "value": {
+      "description": "Value",
+      "type": "string"
+     },
+     "description": {
+      "description": "Description",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name"
+    ]
+   },
+   "EnvEntryList": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "EnvEntryList.json",
+    "title": "EnvEntryList",
+    "description": "List of environment variables",
+    "type": "array",
+    "items": {
+     "$ref": "#/components/schemas/EnvEntry"
+    }
+   },
+   "Permission": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "Permission.json",
+    "title": "Permissions Definition Schema",
+    "description": "Permission entity",
+    "type": "object"
+   },
+   "PullDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "PullDescriptor.json",
+    "title": "PullDescriptor",
+    "description": "Information controlling the pull facility",
+    "type": "object",
+    "properties": {
+     "urls": {
+      "description": "List of URLs from which Okapi attempts pulling",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    }
+   },
+   "InterfaceReference": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "InterfaceReference.json",
+    "title": "InterfaceReference",
+    "description": "A reference to an interfaceDescriptor, by name and version",
+    "type": "object"
+   },
+   "UiModuleDescriptor": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "UiModuleDescriptor.json",
+    "title": "UiModuleDescriptor",
+    "description": "UI Module description",
+    "type": "object"
+   }
+  },
+  "responses": {},
+  "parameters": {
+   "query-pre-release": {
+    "name": "preRelease",
+    "in": "query",
+    "description": "Whether to use pre-release in operation. \"true\"&#58; use all modules; \"false\"&#58; releases (no pre-releases); \"only\"&#58; only pre-releases.",
+    "schema": {
+     "default": "true",
+     "enum": [
+      "true",
+      "false",
+      "only"
+     ],
+     "type": "string"
+    }
+   },
+   "query-npm-snapshot": {
+    "name": "npmSnapshot",
+    "in": "query",
+    "description": "Whether to use NPM module snapshots in operation. \"true\"&#58; use all modules; \"false\"&#58; releases (no NPM snapshots); \"only\"&#58; only NPM snapshots.",
+    "schema": {
+     "default": "true",
+     "enum": [
+      "true",
+      "false",
+      "only"
+     ],
+     "type": "string"
+    }
+   },
+   "query-install-async": {
+    "name": "async",
+    "in": "query",
+    "description": "Whether to install in the background.",
+    "schema": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "query-install-deploy": {
+    "name": "deploy",
+    "in": "query",
+    "description": "Whether to deploy (or undeploy if disabling).",
+    "schema": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "query-install-ignore-errors": {
+    "name": "ignoreErrors",
+    "in": "query",
+    "description": "Okapi 4.2.0 and later, it is possible to ignore errors during the\ninstall operation. This is done by supplying parameter `ignoreErrors=true`.\nIn this case, Okapi will try to upgrade all modules in the modules list,\nregardless if one of them fails. However, for individual modules, if they\nfail, their upgrade will not be committed. This is an experimental parameter\nwhich was added to be able to inspect all problem(s) with module upgrade(s).\n",
+    "schema": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "query-install-invoke": {
+    "name": "invoke",
+    "in": "query",
+    "description": "Whether to invoke for tenant init/permissions/purge. Use\n \"true\" to invoke, \"false\" to not invoke. Any other value\n is a regular expression that is matched against the module ID.\n If that pattern matches, invoke is performed (same as \"true\").\n",
+    "schema": {
+     "default": "true",
+     "type": "string"
+    }
+   },
+   "query-install-parallel": {
+    "name": "parallel",
+    "in": "query",
+    "description": "Number of parallel calls to tenant interfaces of modules.\nA value of 1 means calls are happening in sequence.\nIf depCheck=false and parallel>1, the invocation will be rejected.\n",
+    "schema": {
+     "default": 1,
+     "minimum": 1,
+     "type": "integer"
+    }
+   },
+   "query-install-purge": {
+    "name": "purge",
+    "in": "query",
+    "description": "Disabled modules will also be purged.",
+    "schema": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "query-install-reinstall": {
+    "name": "reinstall",
+    "in": "query",
+    "description": "Whether to install modules even if up-to-update.",
+    "schema": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "query-install-simulate": {
+    "name": "simulate",
+    "in": "query",
+    "description": "Whether the installation is simulated",
+    "schema": {
+     "default": false,
+     "type": "boolean"
+    }
+   },
+   "query-install-tenant-parameters": {
+    "name": "tenantParameters",
+    "in": "query",
+    "description": "Parameters for tenant init",
+    "schema": {
+     "type": "string"
+    }
+   },
+   "query-install-dep-check": {
+    "name": "depCheck",
+    "in": "query",
+    "description": "Whether to check dependencies of modules before being installed. Modules are installed exactly\n  in the order supplied by the client. If depCheck=false and parallel>1, the invocation will be\n  rejected.\n",
+    "schema": {
+     "default": true,
+     "type": "boolean"
+    }
+   }
+  },
+  "examples": {},
+  "requestBodies": {},
+  "headers": {
+   "X-Okapi-Trace": {
+    "required": false,
+    "description": "Okapi trace and timing",
+    "schema": {
+     "type": "string"
+    }
+   }
+  }
+ }
+}

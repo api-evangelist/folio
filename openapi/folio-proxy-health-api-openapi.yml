@@ -1,0 +1,70 @@
+openapi: 3.2.0
+info:
+  title: Folio Proxy Health API
+  version: v2.0
+  description: 'Operations tagged proxy-health across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: proxy-health
+paths:
+  /_/proxy/health:
+    get:
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatusList'
+        '500':
+          description: Server Error
+      description: Check health of modules
+      operationId: getHealthStatus
+      tags:
+      - proxy-health
+      summary: Get health status
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    HealthStatusList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: HealthStatusList.json
+      title: HealthStatusList
+      description: Health for each module as seen from proxy
+      type: array
+      items:
+        $ref: '#/components/schemas/HealthStatus'
+    HealthStatus:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: HealthStatus.json
+      title: Health for module as seen from proxy
+      description: Proxy health status
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Module ID
+          type: string
+        status:
+          description: Status message
+          type: string
+      required:
+      - id
+      - status
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-okapi-facade-openapi.json
+- folio-mod-okapi-facade-openapi.yml

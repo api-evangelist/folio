@@ -1,0 +1,581 @@
+openapi: 3.2.0
+info:
+  title: Folio Migration API
+  version: v1
+  description: 'Operations tagged migration across 4 of this provider''s published API definitions: folio-mod-roles-keycloak-openapi.json, folio-mod-users-keycloak-openapi.json, folio-mod-roles-keycloak-openapi.yml, folio-mod-users-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: Migration
+paths:
+  /roles-keycloak/migrations:
+    get:
+      operationId: findMigrations
+      description: Retrieve a list of permission migrations
+      tags:
+      - Migration
+      parameters:
+      - $ref: '#/components/parameters/query'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Retrieve a list of permission migrations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/permissionMigrationJobs'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find migrations
+      x-summary-source: derived
+    post:
+      operationId: migratePermissions
+      description: Migrate user permissions from mod-permissions to Keycloak
+      tags:
+      - Migration
+      responses:
+        '201':
+          description: User migration jobs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/permissionMigrationJob'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Migrate permissions
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /roles-keycloak/migrations/{id}:
+    get:
+      description: Retrieve a permission migration
+      operationId: getMigration
+      tags:
+      - Migration
+      parameters:
+      - $ref: '#/components/parameters/pathEntityId'
+      responses:
+        '200':
+          description: Retrieve a permission migration by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/permissionMigrationJob'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get migration
+      x-summary-source: derived
+    delete:
+      description: Delete a permission migration
+      operationId: deleteMigration
+      tags:
+      - Migration
+      parameters:
+      - $ref: '#/components/parameters/pathEntityId'
+      responses:
+        '204':
+          description: Delete a permission migration
+          content:
+            text/plain:
+              schema:
+                type: string
+      summary: Delete migration
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /roles-keycloak/migrations/{id}/errors:
+    get:
+      description: Retrieve errors for a specific migration job
+      operationId: getMigrationErrors
+      tags:
+      - Migration
+      parameters:
+      - $ref: '#/components/parameters/pathEntityId'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: A collection of migration errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/permissionMigrationErrors'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get migration errors
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /users-keycloak/migrations:
+    get:
+      operationId: getMigrations
+      description: Retrieve a list of user migrations
+      tags:
+      - Migration
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-offset'
+      - $ref: '#/components/parameters/query-limit'
+      responses:
+        '200':
+          description: Retrieve a list of user migrations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userMigrationJobs'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Get migrations
+      x-summary-source: derived
+    post:
+      operationId: migrateUsers
+      description: Migrate users from mod-users to Keycloak
+      tags:
+      - Migration
+      responses:
+        '201':
+          description: User migration jobs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userMigrationJob'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '422':
+          $ref: '#/components/responses/unprocessableEntity'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Migrate users
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /users-keycloak/migrations/{id}:
+    get:
+      description: Retrieve a user migration
+      operationId: getUsersKeycloakMigrationsById
+      tags:
+      - Migration
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '200':
+          description: Retrieve a user migration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userMigrationJob'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Get migration
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: getMigration
+    delete:
+      description: Delete a user migration
+      operationId: deleteUsersKeycloakMigrationsById
+      tags:
+      - Migration
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '204':
+          description: Delete a user migration
+          content:
+            text/plain:
+              schema:
+                type: string
+      summary: Delete migration
+      x-summary-source: derived
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteMigration
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  parameters:
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 2
+    pathEntityId:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
+    query:
+      in: query
+      name: query
+      description: A query string to filter users based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+      example: role
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+      example: 20
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    cql-query:
+      name: query
+      in: query
+      required: false
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+  schemas:
+    permissionMigrationErrors:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of migration errors
+      type: object
+      properties:
+        errors:
+          description: List of migration errors
+          type: array
+          items:
+            $ref: '#/components/schemas/permissionMigrationError'
+        totalRecords:
+          description: Total number of migration errors
+          type: integer
+      required:
+      - errors
+      - totalRecords
+    permissionMigrationJobStatus:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: migration/permissionMigrationJobStatus.json
+      title: Permission Migration Job Status Schema
+      description: An permission migration job status
+      type: string
+      enum:
+      - in_progress
+      - failed
+      - finished
+    permissionMigrationJobs:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: permissionMigrationJobs.json
+      title: List of Permission Migration Jobs Schema
+      description: A list of permission migration job entities
+      type: object
+      properties:
+        migrations:
+          description: List of Migration Jobs
+          type: array
+          id: migrations
+          items:
+            $ref: '#/components/schemas/permissionMigrationJob'
+        totalRecords:
+          type: integer
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    permissionMigrationJob:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: permissionMigrationJob.json
+      title: Permission Migration Job Schema
+      description: A permission migration job entity for tracking migration's progress
+      type: object
+      properties:
+        id:
+          description: An migration job identifier
+          type: string
+          format: uuid
+        totalRecords:
+          description: Total number of records to be migrated
+          type: integer
+        status:
+          description: A permission migration job status
+          $ref: '#/components/schemas/permissionMigrationJobStatus'
+        startedAt:
+          description: A permission migration job start timestamp
+          type: string
+          format: date-time
+        finishedAt:
+          description: A permission migration job end timestamp
+          type: string
+          format: date-time
+    permissionMigrationError:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Permission migration error details
+      type: object
+      properties:
+        id:
+          description: Error log identifier
+          type: string
+          format: uuid
+        migrationJobId:
+          description: Migration job identifier
+          type: string
+          format: uuid
+        errorType:
+          description: Type of error
+          type: string
+        errorMessage:
+          description: Detailed error message
+          type: string
+        failedEntityType:
+          description: Type of entity that failed (e.g., ROLE, USER_ROLE)
+          type: string
+        failedEntityId:
+          description: Identifier or name of the failed entity
+          type: string
+        occurredAt:
+          description: When the error occurred
+          type: string
+          format: date-time
+      required:
+      - id
+      - migrationJobId
+      - errorType
+      - errorMessage
+      - occurredAt
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    userMigrationJobs:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: userMigrationJobs.json
+      title: List of User Migration Jobs Schema
+      description: A list of user migration job entities
+      type: object
+      properties:
+        migrations:
+          description: List of Migration Jobs
+          type: array
+          id: migrations
+          items:
+            $ref: '#/components/schemas/userMigrationJob'
+        totalRecords:
+          type: integer
+    userMigrationJobStatus:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: types/userMigrationJobStatus.json
+      title: User Migration Job Status Schema
+      description: An user migration job status
+      type: string
+      enum:
+      - in_progress
+      - failed
+      - finished
+    errors_2:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    userMigrationJob:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: userMigrationJob.json
+      title: User Migration Job Schema
+      description: A user migration job entity for tracking migration's progress
+      type: object
+      properties:
+        id:
+          description: An migration job identifier
+          type: string
+          format: uuid
+        status:
+          description: An user migration job status
+          $ref: '#/components/schemas/userMigrationJobStatus'
+        totalRecords:
+          type: integer
+        startedAt:
+          description: A user migration job start timestamp
+          type: string
+          format: date-time
+        finishedAt:
+          description: A user migration job end timestamp
+          type: string
+          format: date-time
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: List of key/value parameters of an error
+          $ref: '#/components/schemas/parameters'
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    errors_3:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+  responses:
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
+    notFoundResponse:
+      description: Not found error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/notFoundResponse'
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/badRequestResponse'
+    internalServerError:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_2'
+    unprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_2'
+    badRequest:
+      description: Bad request, e.g. malformed request body or query parameter
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_2'
+    internalServerError_2:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_3'
+    unprocessableEntity_2:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_3'
+    badRequest_2:
+      description: Bad request, e.g. malformed request body or query parameter
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_3'
+  examples:
+    notFoundResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    internalServerErrorResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    badRequestResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+x-refined-from:
+- folio-mod-roles-keycloak-openapi.json
+- folio-mod-users-keycloak-openapi.json
+- folio-mod-roles-keycloak-openapi.yml
+- folio-mod-users-keycloak-openapi.yml

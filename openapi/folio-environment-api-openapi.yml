@@ -1,0 +1,156 @@
+openapi: 3.2.0
+info:
+  title: Folio Environment API
+  version: v2.0
+  description: 'Operations tagged environment across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: Environment
+paths:
+  /_/env:
+    post:
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              description: URI to the environment entry instance
+              schema:
+                type: string
+            X-Okapi-Trace:
+              required: false
+              description: Okapi trace and timing
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvEntry'
+        '400':
+          description: Bad Request
+        '500':
+          description: Server Error
+      description: Add environment entry
+      operationId: createEnvironmentEntry
+      tags:
+      - Environment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnvEntry'
+        required: true
+      summary: Create environment entry
+      x-summary-source: derived
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvEntryList'
+        '400':
+          description: Bad Request
+        '500':
+          description: Server Error
+      description: Get list of all environment variables
+      operationId: getAllEnvironmentEntries
+      tags:
+      - Environment
+      summary: Get all environment entries
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /_/env/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvEntry'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Server Error
+      description: Get info for one environment variable
+      operationId: getEnvironmentEntry
+      tags:
+      - Environment
+      summary: Get environment entry
+      x-summary-source: derived
+    delete:
+      responses:
+        '204':
+          description: ''
+          headers:
+            X-Okapi-Trace:
+              $ref: '#/components/headers/X-Okapi-Trace'
+        '404':
+          description: Not Found
+      description: Remove environment variable
+      operationId: deleteEnvironmentEntry
+      tags:
+      - Environment
+      summary: Delete environment entry
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    EnvEntryList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: EnvEntryList.json
+      title: EnvEntryList
+      description: List of environment variables
+      type: array
+      items:
+        $ref: '#/components/schemas/EnvEntry'
+    EnvEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: EnvEntry.json
+      title: EnvEntry
+      description: Environment Variable
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          description: Key
+          type: string
+        value:
+          description: Value
+          type: string
+        description:
+          description: Description
+          type: string
+      required:
+      - name
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-okapi-facade-openapi.json
+- folio-mod-okapi-facade-openapi.yml

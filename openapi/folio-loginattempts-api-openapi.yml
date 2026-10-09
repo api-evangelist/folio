@@ -1,0 +1,152 @@
+openapi: 3.2.0
+info:
+  title: Folio Login Attempts API
+  version: v1
+  description: 'Operations tagged loginAttempts across 2 of this provider''s published API definitions: folio-mod-login-keycloak-openapi.json, folio-mod-login-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: loginAttempts
+paths:
+  /authn/loginAttempts/{userId}:
+    get:
+      description: Get login attempts for a single user
+      operationId: getLoginAttempts
+      tags:
+      - loginAttempts
+      parameters:
+      - $ref: '#/components/parameters/pathUserId'
+      responses:
+        '200':
+          description: Number of login attempts for user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loginAttempts'
+        '404':
+          $ref: '#/components/responses/entityNotFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get login attempts
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  schemas:
+    parameter:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: parameter.json
+      title: Key/Value Parameter Schema
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    loginAttempts:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: loginAttempts.json
+      title: Login Attempts Schema
+      description: An object describing a login attempt
+      type: object
+      properties:
+        id:
+          description: Unique id
+          type: string
+        userId:
+          description: Unique user id
+          type: string
+        lastAttempt:
+          description: Last attempt date
+          type: string
+          format: date-time
+        attemptCount:
+          description: Number of user login attempts
+          type: integer
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: errorCode.json
+      title: Error Code Schema
+      description: Error message code
+      type: string
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
+      - token.parse.failure
+      - token.refresh.unprocessable
+      - token.logout.unprocessable
+      - unauthorized_error
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: error.json
+      title: Error Schema
+      description: An error object
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          description: Error message code
+          $ref: '#/components/schemas/errorCode'
+        parameters:
+          description: List of key/value parameters of an error
+          $ref: '#/components/schemas/parameters'
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: Errors Schema
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: parameters.json
+      title: List of Parameters Schema
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+  responses:
+    entityNotFoundResponse:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+  parameters:
+    pathUserId:
+      in: path
+      required: true
+      name: userId
+      description: User identifier
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-login-keycloak-openapi.json
+- folio-mod-login-keycloak-openapi.yml

@@ -1,0 +1,2703 @@
+# x-archived-from: folio-mod-rtac-cache-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.3
+info:
+  title: RTAC Cache API
+  version: 1.0.0
+paths:
+  /rtac-cache/search/{instanceId}:
+    get:
+      tags:
+      - rtac
+      summary: Search RTAC holdings for a given instance
+      operationId: searchRtacCacheHoldings
+      parameters:
+      - name: instanceId
+        in: path
+        description: The UUID of a FOLIO instance
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/query-param'
+      - $ref: '#/components/parameters/available-param'
+      - $ref: '#/components/parameters/sort-param'
+      - $ref: '#/components/parameters/offset-param'
+      - $ref: '#/components/parameters/limit-param'
+      responses:
+        '200':
+          description: RTAC holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacHoldings'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /rtac-cache/{id}:
+    get:
+      tags:
+      - rtac
+      summary: Browse RTAC holdings for a single instance
+      operationId: getRtacCacheHoldingsById
+      parameters:
+      - name: id
+        in: path
+        description: The UUID of a FOLIO instance
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/sort-param'
+      - $ref: '#/components/parameters/offset-param'
+      - $ref: '#/components/parameters/limit-param'
+      responses:
+        '200':
+          description: RTAC holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacHoldings'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /rtac-cache/batch:
+    post:
+      tags:
+      - rtac
+      summary: Retrieve RTAC holdings in batch
+      operationId: postRtacCacheBatchHoldings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rtacRequest'
+      responses:
+        '200':
+          description: RTAC batch holdings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacHoldingsBatch'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /rtac-cache/invalidate:
+    post:
+      tags:
+      - rtac
+      summary: Invalidate RTAC cache entries by instance IDs
+      operationId: postRtacCacheInvalidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rtacRequest'
+      responses:
+        '204':
+          description: RTAC cache entries invalidated successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /rtac-cache/invalidate-all:
+    post:
+      tags:
+      - rtac
+      summary: Invalidate all RTAC cache entries
+      operationId: postRtacCacheInvalidateAll
+      responses:
+        '204':
+          description: All RTAC cache entries invalidated successfully
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /rtac-cache/prewarm:
+    get:
+      tags:
+      - rtac
+      summary: Get prewarming job statuses
+      operationId: getRtacCachePreWarmingJobs
+      parameters:
+      - $ref: '#/components/parameters/offset-param'
+      - $ref: '#/components/parameters/limit-param'
+      responses:
+        '200':
+          description: RTAC Prewarming Job status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacPreWarmingJobs'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      tags:
+      - rtac
+      summary: Submit cache prewarming job
+      operationId: postRtacCachePreWarmingJob
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rtacSubmitPreWarming'
+      responses:
+        '200':
+          description: RTAC Prewarming Job submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacPreWarmingJob'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /rtac-cache/prewarm/{id}:
+    get:
+      tags:
+      - rtac
+      summary: Get prewarming job status by ID
+      operationId: getRtacCachePreWarmingJob
+      parameters:
+      - name: id
+        in: path
+        description: The UUID of a RTAC prewarming job
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: RTAC Prewarming Job status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rtacPreWarmingJob'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Access Denied
+          content:
+            text/plain:
+              example: Access Denied
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+components:
+  schemas:
+    RtacHolding:
+      $ref: '#/components/schemas/rtacHolding'
+    RtacRequest:
+      $ref: '#/components/schemas/rtacRequest'
+    RtacHoldingsBatch:
+      $ref: '#/components/schemas/rtacHoldingsBatch'
+    RtacHoldings:
+      $ref: '#/components/schemas/rtacHoldings'
+    RtacHoldingsSummary:
+      $ref: '#/components/schemas/rtacHoldingsSummary'
+    InventoryResourceEvent:
+      $ref: '#/components/schemas/inventoryResourceEvent'
+    CirculationResourceEvent:
+      $ref: '#/components/schemas/circulationResourceEvent'
+    PieceResourceEvent:
+      $ref: '#/components/schemas/pieceResourceEvent'
+    InventoryEntityType:
+      $ref: '#/components/schemas/inventoryEntityType'
+    CirculationEntityType:
+      $ref: '#/components/schemas/circulationEntityType'
+    HoldingRecords:
+      $ref: '#/components/schemas/holdingsRecords'
+    Items:
+      $ref: '#/components/schemas/items'
+    Locations:
+      $ref: '#/components/schemas/locations'
+    Libraries:
+      $ref: '#/components/schemas/loclibs'
+    HoldingsNoteTypes:
+      $ref: '#/components/schemas/holdingsNoteTypes'
+    BoundWithPart:
+      $ref: '#/components/schemas/bound-with-part'
+    BoundWithParts:
+      $ref: '#/components/schemas/bound-with-parts'
+    Loans:
+      $ref: '#/components/schemas/loans'
+    Requests:
+      $ref: '#/components/schemas/requests'
+    Pieces:
+      $ref: '#/components/schemas/pieceCollection'
+    HoldingsFacet:
+      $ref: '#/components/schemas/holdingsFacet'
+    UserTenants:
+      $ref: '#/components/schemas/userTenants'
+    Settings:
+      $ref: '#/components/schemas/settings'
+    MaterialTypes:
+      $ref: '#/components/schemas/materialTypes'
+    LoanTypes:
+      $ref: '#/components/schemas/loanTypes'
+    Instances:
+      $ref: '#/components/schemas/instances'
+    ConsortiaTenants:
+      $ref: '#/components/schemas/consortiaTenants'
+    BatchIdsDto:
+      $ref: '#/components/schemas/batchIdsDto'
+    ConsortiumHoldings:
+      $ref: '#/components/schemas/consortiumHoldings'
+    uuid:
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+    rtacHoldingsStatement:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Holdings record statement
+      additionalProperties: false
+      type: object
+      properties:
+        statement:
+          description: Textual description of the holdings of supplementary material
+          type: string
+        note:
+          description: Note attached to a holdings statement
+          type: string
+    rtacHolding:
+      type: object
+      description: Real Time Availability Check (RTAC) holding details
+      additionalProperties: false
+      properties:
+        instanceId:
+          type: string
+          description: The FOLIO id of the instance record
+        id:
+          type: string
+          description: The id of the record, can be itemId, pieceId or holdingsId depending on the type
+        instanceFormatIds:
+          type: array
+          items:
+            type: string
+          description: The FOLIO ids of the instance's nature of content
+        holdingsId:
+          type: string
+          description: The FOLIO id of the holdings record
+        type:
+          type: string
+          enum:
+          - item
+          - piece
+          - holding
+          description: Type of source for RTAC record
+        barcode:
+          description: Unique inventory control number for physical resources, used largely for circulation purposes
+          type: string
+        location:
+          type: object
+          description: The location of the holding
+          properties:
+            id:
+              type: string
+              description: The location id of the holding
+            code:
+              type: string
+              description: The location code of the holding
+            name:
+              type: string
+              description: The location name of the holding
+        callNumber:
+          type: string
+          description: The call number of the holding
+        status:
+          type: string
+          description: The availability status of the holding
+        dueDate:
+          type: string
+          format: date-time
+          description: The date when the holding will be available
+        volume:
+          type: string
+          description: Volume details for the holding (item)
+        temporaryLoanType:
+          type: string
+          description: Name of the temporary loan type for a given item
+        permanentLoanType:
+          type: string
+          description: Name of the default loan type for a given item
+        materialType:
+          type: object
+          description: Define what type of thing the item is
+          properties:
+            id:
+              type: string
+            name:
+              description: label for the material type
+              type: string
+        library:
+          type: object
+          description: The third-level location unit
+          properties:
+            id:
+              description: id of the library
+              type: string
+            code:
+              description: distinct code for the library
+              type: string
+            name:
+              description: name of the library
+              type: string
+        suppressFromDiscovery:
+          description: Indicate if record should not be displayed in a discovery system
+          type: boolean
+        totalHoldRequests:
+          description: The total number of requested items for the patron
+          type: integer
+        notes:
+          description: Notes about action, copy, binding etc.
+          type: array
+          items:
+            type: object
+            properties:
+              holdingsNoteTypeName:
+                description: Name of the holdings note type
+                type: string
+              note:
+                description: Text content of the note
+                type: string
+            required:
+            - holdingsNoteTypeName
+            - note
+        holdingsStatements:
+          description: Notes about action, copy, binding etc.
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHoldingsStatement'
+        holdingsStatementsForIndexes:
+          description: Holdings record indexes statements
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHoldingsStatement'
+        holdingsStatementsForSupplements:
+          description: Holdings record supplements statements
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHoldingsStatement'
+        holdingsCopyNumber:
+          type: string
+          description: Piece ID (usually barcode) for systems that do not use holdings record
+        itemCopyNumber:
+          type: string
+          description: Copy number is the piece identifier. The copy number reflects if the library has a copy of a single-volume monograph; a copy of a multi-volume, (e.g. Copy 1, or C.7.)
+        effectiveShelvingOrder:
+          type: string
+          description: A system generated normalization of the call number that allows for call number sorting in reports and search results
+        isBoundWith:
+          type: boolean
+          default: false
+          description: Indicates whether the record is part of a bound-with
+        createdAt:
+          type: string
+          description: Record creation date
+          format: date-time
+      required:
+      - instanceId
+      - id
+      - type
+      - status
+    rtacHoldings:
+      type: object
+      additionalProperties: false
+      description: Collection of holdings
+      properties:
+        instanceId:
+          description: UUID of the instance
+          $ref: '#/components/schemas/uuid'
+        holdings:
+          description: Collection of holdings
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHolding'
+        totalRecords:
+          description: Total number of records available
+          type: integer
+          minimum: 0
+      required:
+      - holdings
+      - instanceId
+      - totalRecords
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error parameters
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    rtacRequest:
+      description: Define format of request data with instances ids
+      type: object
+      properties:
+        instanceIds:
+          description: Inventory instances identifiers
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/uuid'
+      additionalProperties: false
+      required:
+      - instanceIds
+    statusSummary:
+      type: object
+      description: Location Availability Summary Schema
+      properties:
+        libraryId:
+          type: string
+          description: The library id of the holding
+        locationId:
+          type: string
+          description: The location id of the holding
+        locationCode:
+          type: string
+          description: The location code of the holding
+        status:
+          type: string
+          description: The FOLIO status for the item, holding or piece
+        statusCount:
+          type: integer
+          description: The count for the status for the library location
+        type:
+          type: string
+          description: The type of the resource (item, holding, piece)
+          enum:
+          - item
+          - piece
+          - holding
+    rtacHoldingsSummary:
+      type: object
+      description: Real Time Availability Check (RTAC) holding summary details
+      additionalProperties: false
+      properties:
+        instanceId:
+          type: string
+          description: The FOLIO instance id
+        hasVolumes:
+          type: boolean
+          description: Indicates if the holding has volume information
+        instanceFormatIds:
+          type: array
+          items:
+            type: string
+          description: The FOLIO ids of the instance's nature of content
+        statusSummaries:
+          type: array
+          description: A summary of all statuses organized by library and location ids
+          items:
+            $ref: '#/components/schemas/statusSummary'
+      required:
+      - instanceId
+      - hasVolumes
+    rtacHoldingsBatch:
+      type: object
+      description: Batch holdings response
+      properties:
+        holdings:
+          description: Real Time Availability Check (RTAC) holding details
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHoldingsSummary'
+        errors:
+          description: Errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+          minimum: 0
+      additionalItems: false
+      additionalProperties: false
+    rtacPreWarmingJob:
+      title: RtacPreWarmingJob
+      type: object
+      description: Represents a pre-warming job status and metadata.
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Job unique identifier.
+        startDate:
+          type: string
+          format: date-time
+          description: Job start timestamp (UTC).
+        endDate:
+          type: string
+          format: date-time
+          description: Job end timestamp (UTC) if completed or failed.
+        status:
+          type: string
+          description: Current job status.
+          enum:
+          - RUNNING
+          - COMPLETED
+          - FAILED
+        errorMessage:
+          type: string
+          description: Error details if job failed.
+      required:
+      - id
+      - startDate
+      - status
+      additionalProperties: false
+    rtacPreWarmingJobs:
+      title: RtacPreWarmingJobs
+      type: object
+      description: Represents a pre-warming job statuses and metadata.
+      properties:
+        jobs:
+          description: List of pre-warming jobs.
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacPreWarmingJob'
+        totalRecords:
+          description: Total number of pre-warming jobs.
+          type: integer
+          minimum: 0
+      required:
+      - totalRecords
+      additionalProperties: false
+    rtacSubmitPreWarming:
+      description: Submit pre-warming request
+      type: object
+      properties:
+        instanceIds:
+          description: Inventory instance identifiers to pre-warm
+          type: array
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+    inventoryEventType:
+      type: string
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Inventory event operation type - one of [update, create, delete, unknown]
+      enum:
+      - UPDATE
+      - CREATE
+      - DELETE
+      - UNKNOWN
+    inventoryResourceEvent:
+      type: object
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Inventory event body
+      properties:
+        eventId:
+          description: Event id
+          type: string
+        type:
+          description: Event type
+          $ref: '#/components/schemas/inventoryEventType'
+        tenant:
+          description: Tenant id
+          type: string
+        eventTs:
+          description: Event timestamp
+          type: integer
+          format: int64
+        new:
+          description: Record new fields
+          type: object
+        old:
+          description: Record old fields
+          type: object
+    circulationEventType:
+      type: string
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Circulation event operation type - one of [updated, created, deleted, all_deleted, unknown]
+      enum:
+      - CREATED
+      - UPDATED
+      - DELETED
+      - ALL_DELETED
+      - UNKNOWN
+    circulationResourceEvent:
+      type: object
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Circulation event body
+      properties:
+        id:
+          description: Event id
+          type: string
+        type:
+          description: Event type
+          $ref: '#/components/schemas/circulationEventType'
+        tenant:
+          description: Tenant id
+          type: string
+        timestamp:
+          description: Event timestamp
+          type: integer
+          format: int64
+        data:
+          description: Event data
+          type: object
+          properties:
+            new:
+              description: Record new fields
+              type: object
+            old:
+              description: Record old fields
+              type: object
+    pieceEventAction:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The action of the audit event
+      type: string
+      enum:
+      - Create
+      - Edit
+      - Delete
+      - Unknown
+    pieceFormat:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The format of the piece
+      type: string
+      enum:
+      - Physical
+      - Electronic
+      - Other
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    piece:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Piece details
+      type: object
+      javaName: Piece
+      properties:
+        id:
+          description: UUID of this piece record
+          $ref: '#/components/schemas/uuid'
+        displaySummary:
+          description: Display summary information
+          type: string
+        comment:
+          description: Free form commentary
+          type: string
+        format:
+          description: Format of the piece
+          $ref: '#/components/schemas/pieceFormat'
+        itemId:
+          description: UUID of the inventory item associated with this piece
+          $ref: '#/components/schemas/uuid'
+        bindItemId:
+          description: UUID of the bound-with item associated with this piece
+          $ref: '#/components/schemas/uuid'
+        locationId:
+          description: UUID of the location associated with this piece
+          $ref: '#/components/schemas/uuid'
+        poLineId:
+          description: UUID of the purchase order line associated with this piece
+          $ref: '#/components/schemas/uuid'
+        titleId:
+          description: UUID of the title associated with this piece
+          $ref: '#/components/schemas/uuid'
+        holdingId:
+          description: UUID of the holdings record associated with this piece
+          $ref: '#/components/schemas/uuid'
+        receivingTenantId:
+          description: Receiving tenant for ECS-enabled clusters
+          type: string
+        displayOnHolding:
+          description: Whether or not receiving history should be displayed in holding record view
+          type: boolean
+          default: false
+        displayToPublic:
+          description: Whether or not the piece data should display to patrons at point of receipt
+          type: boolean
+          default: false
+        enumeration:
+          type: string
+          description: Enumeration is the descriptive information for the numbering scheme of a serial. Synchronized with inventory item.
+        chronology:
+          type: string
+          description: Chronology is the descriptive information for the dating scheme of a serial. Synchronized with inventory item.
+        barcode:
+          type: string
+          description: Barcode is the descriptive information for the barcode of a serial. Synchronized with inventory item.
+        accessionNumber:
+          type: string
+          description: AccessionNumber is the descriptive information for the accession number of a serial. Synchronized with inventory item.
+        callNumber:
+          type: string
+          description: CallNumber is the descriptive information for the call number of a serial. Synchronized with inventory item.
+        discoverySuppress:
+          type: boolean
+          description: Records the fact that the record should not be displayed in a discovery system
+        copyNumber:
+          type: string
+          description: Copy number of the piece
+        receivingStatus:
+          description: The status of this piece
+          type: string
+          enum:
+          - Received
+          - Expected
+          - Late
+          - Claim delayed
+          - Claim sent
+          - Unreceivable
+          default: Expected
+        supplement:
+          description: Whether or not this is supplementary material
+          type: boolean
+        isBound:
+          description: Whether or not piece has already been bound
+          type: boolean
+          default: false
+        receiptDate:
+          description: Date that associated item is expected to arrive
+          type: string
+          format: date-time
+        receivedDate:
+          description: The date associated item is actually received
+          type: string
+          format: date-time
+        statusUpdatedDate:
+          description: Date when the status of this piece was last updated
+          type: string
+          format: date-time
+        claimingInterval:
+          description: Time interval (in days) for processing claims related to this piece
+          type: integer
+        internalNote:
+          description: Internal note for Send Claim action
+          type: string
+        externalNote:
+          description: External note for Send Claim action to share with Vendor
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - format
+      - poLineId
+      - titleId
+      - receivingStatus
+    pieceResourceEvent:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Piece resource event
+      type: object
+      properties:
+        id:
+          description: UUID of the event
+          type: string
+        action:
+          description: Action performed on the piece
+          $ref: '#/components/schemas/pieceEventAction'
+        pieceId:
+          description: UUID of the piece
+          type: string
+        userId:
+          description: UUID of the user who performed the action
+          type: string
+        eventDate:
+          description: Date time when event triggered
+          format: date-time
+          type: string
+        actionDate:
+          description: Date time when piece action occurred
+          format: date-time
+          type: string
+        pieceSnapshot:
+          description: Snapshot of the piece at the time of the event
+          $ref: '#/components/schemas/piece'
+      additionalProperties: false
+    inventoryEntityType:
+      type: string
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Inventory domain entity type of the resource
+      enum:
+      - INSTANCE
+      - HOLDINGS
+      - ITEM
+      - ITEM_BOUND_WITH
+      - LOCATION
+      - LIBRARY
+      - MATERIAL_TYPE
+      - LOAN_TYPE
+    circulationEntityType:
+      type: string
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Inventory domain entity type of the resource
+      enum:
+      - LOAN
+      - REQUEST
+    electronicAccessItem:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Electronic access item
+      additionalProperties: false
+      type: object
+      properties:
+        uri:
+          type: string
+          description: uniform resource identifier (URI) is a string of characters designed for unambiguous identification of resources
+        linkText:
+          type: string
+          description: 'the value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated'
+        materialsSpecification:
+          type: string
+          description: materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)
+        publicNote:
+          type: string
+          description: URL public note to be displayed in the discovery
+        relationshipId:
+          type: string
+          description: relationship between the electronic resource at the location identified and the item described in the record as a whole
+      required:
+      - uri
+    holdingsNote:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A holdings record note
+      type: object
+      properties:
+        holdingsNoteTypeId:
+          type: string
+          description: ID of the type of note
+        note:
+          type: string
+          description: Text content of the note
+        staffOnly:
+          type: boolean
+          description: If true, determines that the note should not be visible for others than staff
+          default: false
+    holdingsStatement:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Holdings record statement
+      additionalProperties: false
+      type: object
+      properties:
+        statement:
+          type: string
+          description: Specifies the exact content to which the library has access, typically for continuing publications.
+        note:
+          type: string
+          description: Note attached to a holdings statement
+        staffNote:
+          type: string
+          description: Private note attached to a holdings statement
+    tags:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tags.schema
+      title: tags
+      description: List of simple tags that can be added to an object
+      type: object
+      properties:
+        tagList:
+          description: List of tags
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    holdingsRecord:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A holdings record
+      type: object
+      properties:
+        id:
+          type: string
+          description: the unique ID of the holdings record; UUID
+        _version:
+          type: integer
+          description: Record version for optimistic locking
+        sourceId:
+          description: (A reference to) the source of a holdings record
+          type: string
+        hrid:
+          type: string
+          description: the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID
+        holdingsTypeId:
+          type: string
+          description: unique ID for the type of this holdings record, a UUID
+        formerIds:
+          type: array
+          description: Previous ID(s) assigned to the holdings record
+          items:
+            type: string
+          uniqueItems: true
+        instanceId:
+          description: Inventory instances identifier
+          type: string
+        permanentLocationId:
+          type: string
+          description: The permanent shelving location in which an item resides.
+        temporaryLocationId:
+          type: string
+          description: Temporary location is the temporary location, shelving location, or holding which is a physical place where items are stored, or an Online location.
+        effectiveLocationId:
+          type: string
+          description: Effective location is calculated by the system based on the values in the permanent and temporary locationId fields.
+        electronicAccess:
+          description: List of electronic access items
+          type: array
+          items:
+            $ref: '#/components/schemas/electronicAccessItem'
+        callNumberTypeId:
+          type: string
+          description: unique ID for the type of call number on a holdings record, a UUID
+        callNumberPrefix:
+          type: string
+          description: Prefix of the call number on the holding level.
+        callNumber:
+          type: string
+          description: Call Number is an identifier assigned to an item, usually printed on a label attached to the item.
+        callNumberSuffix:
+          type: string
+          description: Suffix of the call number on the holding level.
+        shelvingTitle:
+          type: string
+          description: Indicates the shelving form of title.
+        acquisitionFormat:
+          type: string
+          description: Format of holdings record acquisition
+        acquisitionMethod:
+          type: string
+          description: Method of holdings record acquisition
+        receiptStatus:
+          type: string
+          description: Receipt status (e.g. pending, awaiting receipt, partially received, fully received, receipt not required, and cancelled)
+        administrativeNotes:
+          type: array
+          description: Administrative notes
+          minItems: 0
+          items:
+            type: string
+        notes:
+          type: array
+          description: Notes about action, copy, binding etc.
+          items:
+            $ref: '#/components/schemas/holdingsNote'
+        illPolicyId:
+          type: string
+          description: unique ID for an ILL policy, a UUID
+        retentionPolicy:
+          type: string
+          description: Records information regarding how long we have agreed to keep something.
+        digitizationPolicy:
+          description: Records information regarding digitization aspects.
+          type: string
+        holdingsStatements:
+          description: Holdings record statements
+          type: array
+          items:
+            $ref: '#/components/schemas/holdingsStatement'
+        holdingsStatementsForIndexes:
+          description: Holdings record indexes statements
+          type: array
+          items:
+            $ref: '#/components/schemas/holdingsStatement'
+        holdingsStatementsForSupplements:
+          description: Holdings record supplements statements
+          type: array
+          items:
+            $ref: '#/components/schemas/holdingsStatement'
+        copyNumber:
+          type: string
+          description: Item/Piece ID (usually barcode) for systems that do not use item records. Ability to designate the copy number if institution chooses to use copy numbers.
+        numberOfItems:
+          type: string
+          description: Text (Number)
+        discoverySuppress:
+          type: boolean
+          description: records the fact that the record should not be displayed in a discovery system
+        statisticalCodeIds:
+          type: array
+          description: List of statistical code IDs
+          items:
+            type: string
+          uniqueItems: true
+        tags:
+          $ref: '#/components/schemas/tags'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - sourceId
+      - instanceId
+      - permanentLocationId
+    resultInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: resultInfo.schema
+      description: Faceting of result sets
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Estimated or exact total number of records
+        totalRecordsEstimated:
+          type: boolean
+          description: True if totalRecords is an estimation, false if it is the exact number
+        totalRecordsRounded:
+          type: integer
+          description: The rounded value of totalRecords if totalRecords is an estimation
+        responseTime:
+          type: number
+          description: Response time
+        facets:
+          type: array
+          description: Array of facets
+          items:
+            type: object
+            description: A facet
+            properties:
+              facetValues:
+                type: array
+                description: Array of facet values
+                items:
+                  type: object
+                  description: A facet value
+                  properties:
+                    count:
+                      type: integer
+                      description: Count of facet values
+                    value:
+                      description: Value Object
+                additionalProperties: false
+              type:
+                type: string
+                description: Type of facet
+            additionalProperties: false
+        diagnostics:
+          type: array
+          description: Array of diagnostic information
+          items:
+            type: object
+            description: Diagnostic information
+            properties:
+              source:
+                type: string
+                description: Source reporting the diagnostic information
+              code:
+                type: string
+                description: Diagnostic Code
+              message:
+                type: string
+                description: Diagnostic Message
+              module:
+                type: string
+                description: Module reporting diagnostic information
+              recordCount:
+                type: integer
+                description: Record Count for diagnostics
+              query:
+                type: string
+                description: CQL Query associated with results
+      additionalProperties: false
+    holdingsRecords:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of holdings records
+      type: object
+      properties:
+        holdingsRecords:
+          description: List of holdings records
+          id: holdingsRecord
+          type: array
+          items:
+            $ref: '#/components/schemas/holdingsRecord'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      required:
+      - holdingsRecords
+      - totalRecords
+    item:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An item record
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID of the item record
+        _version:
+          type: integer
+          description: Record version for optimistic locking
+        hrid:
+          type: string
+          description: The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID
+        holdingsRecordId:
+          type: string
+          description: ID of the holdings record the item is a member of.
+        formerIds:
+          type: array
+          description: Previous identifiers assigned to the item
+          items:
+            type: string
+          uniqueItems: true
+        discoverySuppress:
+          type: boolean
+          description: Records the fact that the record should not be displayed in a discovery system
+        displaySummary:
+          description: Display summary about the item
+          type: string
+        accessionNumber:
+          type: string
+          description: Also called inventar number
+        barcode:
+          type: string
+          description: Unique inventory control number for physical resources, used largely for circulation purposes
+        effectiveShelvingOrder:
+          type: string
+          description: A system generated normalization of the call number that allows for call number sorting in reports and search results
+          readonly: true
+        itemLevelCallNumber:
+          type: string
+          description: Call Number is an identifier assigned to an item, usually printed on a label attached to the item. The call number is used to determine the items physical position in a shelving sequence, e.g. K1 .M44. The Item level call number, is the call number on item level.
+        itemLevelCallNumberPrefix:
+          type: string
+          description: Prefix of the call number on the item level.
+        itemLevelCallNumberSuffix:
+          type: string
+          description: Suffix of the call number on the item level.
+        itemLevelCallNumberTypeId:
+          type: string
+          description: Identifies the source of the call number, e.g., LCC, Dewey, NLM, etc.
+        effectiveCallNumberComponents:
+          type: object
+          description: Elements of a full call number generated from the item or holding
+          properties:
+            callNumber:
+              type: string
+              description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
+              readonly: true
+            prefix:
+              type: string
+              description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
+              readonly: true
+            suffix:
+              type: string
+              description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
+              readonly: true
+            typeId:
+              type: string
+              description: Effective Call Number Type Id is the call number type id of the item, if available, otherwise that of the holding.
+              readonly: true
+          additionalProperties: false
+        volume:
+          type: string
+          description: Volume is intended for monographs when a multipart monograph (e.g. a biography of George Bernard Shaw in three volumes).
+        enumeration:
+          type: string
+          description: Enumeration is the descriptive information for the numbering scheme of a serial.
+        chronology:
+          type: string
+          description: Chronology is the descriptive information for the dating scheme of a serial.
+        yearCaption:
+          type: array
+          description: In multipart monographs, a caption is a character(s) used to label a level of chronology, e.g., year 1985.
+          items:
+            type: string
+          uniqueItems: true
+        itemIdentifier:
+          type: string
+          description: Item identifier number, e.g. imported from the union catalogue (read only).
+        copyNumber:
+          type: string
+          description: Copy number is the piece identifier. The copy number reflects if the library has a copy of a single-volume monograph; one copy of a multi-volume, (e.g. Copy 1, or C.7.)
+        numberOfPieces:
+          type: string
+          description: Number of pieces. Used when an item is checked out or returned to verify that all parts are present (e.g. 7 CDs in a set).
+        descriptionOfPieces:
+          description: Description of item pieces.
+          type: string
+        numberOfMissingPieces:
+          type: string
+          description: Number of missing pieces.
+        missingPieces:
+          type: string
+          description: 'Description of the missing pieces. '
+        missingPiecesDate:
+          type: string
+          description: Date when the piece(s) went missing.
+        itemDamagedStatusId:
+          description: Item dame status id identifier.
+          type: string
+        itemDamagedStatusDate:
+          description: Date and time when the item was damaged.
+          type: string
+        administrativeNotes:
+          type: array
+          description: Administrative notes
+          minItems: 0
+          items:
+            type: string
+        notes:
+          type: array
+          description: Notes about action, copy, binding etc.
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              itemNoteTypeId:
+                type: string
+                description: ID of the type of note
+              note:
+                type: string
+                description: Text content of the note
+              staffOnly:
+                type: boolean
+                description: If true, determines that the note should not be visible for others than staff
+                default: false
+        circulationNotes:
+          type: array
+          description: Notes to be displayed in circulation processes
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The id of the circulation note
+              noteType:
+                type: string
+                description: Type of circulation process that the note applies to
+                enum:
+                - Check in
+                - Check out
+              note:
+                type: string
+                description: Text to display
+              source:
+                type: object
+                description: The user who added/updated the note. The property is generated by the server and needed to support sorting. Points to /users/{id} resource.
+                properties:
+                  id:
+                    type: string
+                    description: The id of the user who added/updated the note. The user information is generated by the server and needed to support sorting. Points to /users/{id} resource.
+                  personal:
+                    type: object
+                    description: Personal information about the user
+                    properties:
+                      lastName:
+                        description: The user's last name
+                        type: string
+                      firstName:
+                        description: The user's first name
+                        type: string
+              date:
+                type: string
+                description: Date and time the record is added/updated. The property is generated by the server and needed to support sorting.
+              staffOnly:
+                type: boolean
+                description: Flag to restrict display of this note
+                default: false
+            additionalProperties: false
+        status:
+          description: The status of the item
+          type: object
+          properties:
+            name:
+              description: Name of the status e.g. Available, Checked out, In transit
+              type: string
+              enum:
+              - Aged to lost
+              - Available
+              - Awaiting pickup
+              - Awaiting delivery
+              - Checked out
+              - Claimed returned
+              - Declared lost
+              - In process
+              - In process (non-requestable)
+              - In transit
+              - Intellectual item
+              - Long missing
+              - Lost and paid
+              - Missing
+              - On order
+              - Paged
+              - Restricted
+              - Order closed
+              - Unavailable
+              - Unknown
+              - Withdrawn
+            date:
+              description: Date and time when the status was last changed
+              type: string
+              format: date-time
+              readonly: true
+          required:
+          - name
+          additionalProperties: false
+        materialTypeId:
+          type: string
+          description: Material type, term. Define what type of thing the item is.
+        permanentLoanTypeId:
+          type: string
+          description: The permanent loan type, is the default loan type for a given item. Loan types are tenant-defined.
+        temporaryLoanTypeId:
+          type: string
+          description: Temporary loan type, is the temporary loan type for a given item.
+        permanentLocationId:
+          type: string
+          description: Permanent item location is the default location, shelving location, or holding which is a physical place where items are stored, or an Online location.
+        temporaryLocationId:
+          type: string
+          description: Temporary item location is the temporarily location, shelving location, or holding which is a physical place where items are stored, or an Online location.
+        effectiveLocationId:
+          type: string
+          description: Read only current home location for the item.
+          readonly: true
+        electronicAccess:
+          type: array
+          description: References for accessing the item by URL.
+          items:
+            type: object
+            properties:
+              uri:
+                type: string
+                description: uniform resource identifier (URI) is a string of characters designed for unambiguous identification of resources
+              linkText:
+                type: string
+                description: 'the value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated'
+              materialsSpecification:
+                type: string
+                description: materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)
+              publicNote:
+                type: string
+                description: URL public note to be displayed in the discovery
+              relationshipId:
+                type: string
+                description: relationship between the electronic resource at the location identified and the item described in the record as a whole
+            additionalProperties: false
+            required:
+            - uri
+        inTransitDestinationServicePointId:
+          description: Service point an item is intended to be transited to (should only be present when in transit)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        statisticalCodeIds:
+          type: array
+          description: List of statistical code IDs
+          items:
+            type: string
+            pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+          uniqueItems: true
+        purchaseOrderLineIdentifier:
+          type: string
+          description: ID referencing a remote purchase order object related to this item
+        tags:
+          $ref: '#/components/schemas/tags'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - materialTypeId
+      - permanentLoanTypeId
+      - holdingsRecordId
+      - status
+    items:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of item records
+      type: object
+      properties:
+        items:
+          description: List of item records
+          id: items
+          type: array
+          items:
+            $ref: '#/components/schemas/item'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      required:
+      - items
+      - totalRecords
+    location:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A (shelf) location, the forth-level location unit below institution, campus, and library.
+      javaType: org.folio.rest.jaxrs.model.Location
+      type: object
+      properties:
+        id:
+          description: id of this (shelf) location record as UUID.
+          type: string
+        name:
+          description: Name of the (shelf) location
+          type: string
+        code:
+          description: Code of the (shelf) location, usually an abbreviation of the name.
+          type: string
+        description:
+          description: Description of the (shelf) location.
+          type: string
+        discoveryDisplayName:
+          description: Name of the (shelf) location to be shown in the discovery.
+          type: string
+        isActive:
+          description: Whether this (shelf) location is active. Inactive (shelf) locations can no longer been used.
+          type: boolean
+        institutionId:
+          description: The UUID of the institution, the first-level location unit, this (shelf) location belongs to.
+          type: string
+        campusId:
+          description: The UUID of the campus, the second-level location unit, this (shelf) location belongs to.
+          type: string
+        libraryId:
+          description: The UUID of the library, the third-level location unit, this (shelf) location belongs to.
+          type: string
+        details:
+          description: Details about this (shelf) location.
+          type: object
+        primaryServicePoint:
+          description: The UUID of the primary service point of this (shelf) location.
+          format: uuid
+          type: string
+        servicePointIds:
+          description: All service points that this (shelf) location has.
+          type: array
+          items:
+            description: The UUID of a service point that belongs to this (shelf) location.
+            type: string
+            format: uuid
+            not:
+              type: 'null'
+        isFloatingCollection:
+          description: Items checked in/out from this location can be checked in/out to other locations with the same flag.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+      - code
+      - institutionId
+      - campusId
+      - libraryId
+      - primaryServicePoint
+    locations:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of (shelf) locations.
+      type: object
+      properties:
+        locations:
+          id: locations
+          description: List of (shelf) locations.
+          type: array
+          items:
+            $ref: '#/components/schemas/location'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - locations
+      - totalRecords
+    loclib:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: third-level location unit
+      properties:
+        id:
+          type: string
+        name:
+          description: name of the location
+          type: string
+        code:
+          description: distinct code for the location
+          type: string
+        campusId:
+          description: ID of the second-level location unit that the third-level unit belongs to
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+      - campusId
+      - code
+    loclibs:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of third-level location units
+      type: object
+      properties:
+        loclibs:
+          description: List of third-level location units
+          id: loclibs
+          type: array
+          items:
+            $ref: '#/components/schemas/loclib'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - loclibs
+      - totalRecords
+    holdingsNoteType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A holdings note type
+      type: object
+      properties:
+        id:
+          type: string
+          description: unique ID of the holdings note type; a UUID
+        name:
+          type: string
+          description: name of the holdings note type
+        source:
+          type: string
+          description: label indicating where the holdings note type entry originates from, i.e. 'folio' or 'local'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+      - source
+    holdingsNoteTypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of holdings note types
+      type: object
+      properties:
+        holdingsNoteTypes:
+          description: List of holdings note types
+          id: holdingsNoteType
+          type: array
+          items:
+            $ref: '#/components/schemas/holdingsNoteType'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - holdingsNoteTypes
+      - totalRecords
+    bound-with-part:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Records the relationship between a part of a bound-with (a holdings-record) and the bound-with as a whole (the circulatable item)
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        instanceId:
+          description: UUID of the instance
+          $ref: '#/components/schemas/uuid'
+        holdingsRecordId:
+          description: UUID of the holdings record that is part of the bound-with
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: UUID of the bound-with item
+          $ref: '#/components/schemas/uuid'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - holdingsRecordId
+      - itemId
+    bound-with-parts:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of parts (holdings-records) of one or more bound-with items
+      type: object
+      properties:
+        boundWithParts:
+          description: List of bound-with records
+          id: boundWithPart
+          type: array
+          items:
+            $ref: '#/components/schemas/bound-with-part'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - boundWithParts
+      - totalRecords
+    servicePoint:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A service point
+      type: object
+      properties:
+        name:
+          description: Unique name of the service point
+          type: string
+          readonly: true
+        code:
+          description: Short code for the service point
+          type: string
+          readonly: true
+        discoveryDisplayName:
+          description: Human readable name
+          type: string
+          readonly: true
+        description:
+          description: Service Point description data
+          type: string
+          readonly: true
+        shelvingLagTime:
+          description: Time to shelving
+          type: integer
+          readonly: true
+        pickupLocation:
+          description: Is this a pickup location
+          type: boolean
+          readonly: true
+        holdShelfClosedLibraryDateManagement:
+          description: Hold shelf closed date strategy
+          type: string
+          readonly: true
+    loan:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: Loan
+      description: Links the item with the patron and applies certain conditions based on policies
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        userId:
+          description: UUID of the patron (user) who has borrowed the item
+          $ref: '#/components/schemas/uuid'
+        borrower:
+          description: Additional information about the borrower of the item, taken from the user referred to by the userId
+          readonly: true
+          type: object
+          properties:
+            firstName:
+              description: first name of the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+            lastName:
+              description: last name of the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+            middleName:
+              description: middle name of the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+            barcode:
+              description: barcode used to identify the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+            preferredFirstName:
+              description: preferred first name of the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+            patronGroup:
+              description: current patron group of the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+          additionalProperties: false
+        proxyUserId:
+          description: UUID of the proxy user acting on behalf of the patron
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: UUID of the item associated with this loan
+          $ref: '#/components/schemas/uuid'
+        loanPolicyId:
+          description: UUID of the loan policy applied to this loan
+          $ref: '#/components/schemas/uuid'
+        loanPolicy:
+          description: Additional information about the loan policy of the item, taken from the loan loanPolicyId
+          readonly: true
+          type: object
+          properties:
+            name:
+              readonly: true
+              description: Name of last policy used in relation to this loan (read only, defined by the server)
+              type: string
+        overdueFinePolicyId:
+          description: UUID of the overdue fine policy applied to this loan
+          $ref: '#/components/schemas/uuid'
+        overdueFinePolicy:
+          description: Additional information about the overdue fine policy of the item, taken from the loan overdueFinePolicyId
+          readonly: true
+          type: object
+          properties:
+            name:
+              readonly: true
+              description: Name of last overdue fine policy used in relation to this loan (read only, defined by the server)
+              type: string
+        lostItemPolicyId:
+          description: UUID of the lost item policy applied to this loan
+          $ref: '#/components/schemas/uuid'
+        lostItemPolicy:
+          description: Additional information about the lost item policy of the item, taken from the loan lostItemPolicyId
+          readonly: true
+          type: object
+          properties:
+            name:
+              readonly: true
+              description: Name of last lost item policy used in relation to this loan (read only, defined by the server)
+              type: string
+        itemEffectiveLocationIdAtCheckOut:
+          description: UUID of the item's effective location at the time of checkout
+          $ref: '#/components/schemas/uuid'
+        status:
+          description: Overall status of the loan
+          type: object
+          properties:
+            name:
+              description: Name of the status (currently can be any value, values commonly used are Open and Closed)
+              type: string
+        loanDate:
+          description: Date and time when the loan began
+          type: string
+          format: date-time
+        dueDate:
+          description: Date and time when the item is due to be returned
+          type: string
+          format: date-time
+        returnDate:
+          description: Date and time when the item was returned
+          type: string
+          format: date-time
+        systemReturnDate:
+          description: Date and time when return was processed
+          type: string
+          format: date-time
+        action:
+          description: Last action performed on a loan (currently can be any value, values commonly used are checkedout and checkedin)
+          type: string
+        actionComment:
+          description: Last action performed on a loan comments
+          type: string
+        renewalCount:
+          description: Count of how many times a loan has been renewed (incremented by the client)
+          type: integer
+          minimum: 0
+        dueDateChangedByRecall:
+          description: Is due date changed by recall request
+          type: boolean
+          readonly: true
+        dueDateChangedByNearExpireUser:
+          description: Indicates whether or not this loan had its due date modified by a expired user
+          type: boolean
+        dueDateChangedByHold:
+          description: Is due date changed by hold request
+          type: boolean
+          readonly: true
+        checkoutServicePointId:
+          description: UUID of the checkout service point
+          $ref: '#/components/schemas/uuid'
+        checkinServicePointId:
+          description: UUID of the check-in service point
+          $ref: '#/components/schemas/uuid'
+        checkoutServicePoint:
+          description: Checkout service point information
+          $ref: '#/components/schemas/servicePoint'
+        checkinServicePoint:
+          description: Check-in service point information
+          $ref: '#/components/schemas/servicePoint'
+        patronGroupAtCheckout:
+          description: Patron Group at checkout
+          type: object
+          properties:
+            id:
+              $ref: '#/components/schemas/uuid'
+            name:
+              description: Patron group name
+              type: string
+              readonly: true
+          additionalProperties: false
+        feesAndFines:
+          description: Fees and fines associated with loans
+          type: object
+          properties:
+            amountRemainingToPay:
+              type: number
+              description: Total remaining amount due on fees and fines for the loan (read only, defined by the server)
+              readonly: true
+          additionalProperties: false
+        declaredLostDate:
+          description: Date and time the item was declared lost during this loan
+          type: string
+          format: date-time
+        isDcb:
+          description: Indicates whether or not this loan is associated for DCB use case
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - itemId
+      - loanDate
+      - action
+    loans:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Collection of loans
+      description: Collection of loans
+      type: object
+      properties:
+        loans:
+          description: Paged collection of loans
+          id: loans
+          type: array
+          items:
+            $ref: '#/components/schemas/loan'
+        totalRecords:
+          description: Total number of loan records
+          type: integer
+      required:
+      - loans
+      - totalRecords
+    request:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: A request for an item
+      description: Request for an item that might be at a different location or already checked out to another patron
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        requestType:
+          description: Whether the item should be held upon return, recalled or paged for
+          type: string
+          enum:
+          - Hold
+          - Recall
+          - Page
+        requestLevel:
+          description: Level of the request - Item or Title
+          type: string
+          enum:
+          - Item
+          - Title
+        requestDate:
+          description: Date the request was made
+          type: string
+          format: date-time
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        requesterId:
+          description: UUID of the patron who placed the request
+          $ref: '#/components/schemas/uuid'
+        proxyUserId:
+          description: UUID of the proxy user acting on behalf of the requester
+          $ref: '#/components/schemas/uuid'
+        instanceId:
+          description: UUID of the instance associated with this request
+          $ref: '#/components/schemas/uuid'
+        holdingsRecordId:
+          description: UUID of the holdings record associated with this request
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: UUID of the item associated with this request
+          $ref: '#/components/schemas/uuid'
+        status:
+          description: Status of the request
+          type: string
+          enum:
+          - Open - Not yet filled
+          - Open - Awaiting pickup
+          - Open - In transit
+          - Open - Awaiting delivery
+          - Closed - Filled
+          - Closed - Cancelled
+          - Closed - Unfilled
+          - Closed - Pickup expired
+        cancellationReasonId:
+          description: UUID of the cancellation reason
+          $ref: '#/components/schemas/uuid'
+        cancelledByUserId:
+          description: UUID of the user who cancelled the request
+          $ref: '#/components/schemas/uuid'
+        cancellationAdditionalInformation:
+          description: Additional information about a cancellation
+          type: string
+        cancelledDate:
+          description: Date the request was cancelled
+          type: string
+          format: date-time
+        position:
+          description: position of the request in a per-item request queue
+          type: integer
+          minimum: 1
+        instance:
+          description: Copy of some instance metadata (used for searching and sorting)
+          type: object
+          properties:
+            title:
+              description: title of the item
+              type: string
+            identifiers:
+              type: array
+              description: An extensible set of name-value pairs of identifiers associated with the resource
+              minItems: 0
+              items:
+                type: object
+                properties:
+                  value:
+                    type: string
+                    description: Resource identifier value
+                  identifierTypeId:
+                    description: UUID of the identifier type
+                    $ref: '#/components/schemas/uuid'
+                additionalProperties: false
+                required:
+                - value
+                - identifierTypeId
+        item:
+          description: Copy of some item metadata (used for searching and sorting)
+          type: object
+          properties:
+            barcode:
+              description: barcode of the item
+              type: string
+          additionalProperties: false
+        requester:
+          description: Copy of some requesting patron metadata (used for searching and sorting), will be taken from the user referred to by the requesterId
+          readonly: true
+          type: object
+          properties:
+            firstName:
+              description: first name of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            lastName:
+              description: last name of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            middleName:
+              description: middle name of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            barcode:
+              description: barcode of the patron (read only, defined by the server)
+              type: string
+              readonly: true
+            patronGroupId:
+              description: UUID of the patron group
+              $ref: '#/components/schemas/uuid'
+            patronGroup:
+              description: record for the user's patron group
+              type: object
+              additionalProperties: false
+              readonly: true
+              properties:
+                id:
+                  description: UUID of the patron group record
+                  $ref: '#/components/schemas/uuid'
+                group:
+                  description: The unique name of the patron group
+                  type: string
+                  readonly: true
+                desc:
+                  description: A description of the patron group
+                  type: string
+                  readonly: true
+          additionalProperties: false
+        proxy:
+          description: Copy of some proxy patron metadata (used for searching and sorting), will be taken from the user referred to by the proxyUserId
+          readonly: true
+          type: object
+          properties:
+            firstName:
+              description: first name of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            lastName:
+              description: last name of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            middleName:
+              description: middle name of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            barcode:
+              description: barcode of the proxy patron (read only, defined by the server)
+              type: string
+              readonly: true
+            patronGroupId:
+              description: UUID of the patron group
+              $ref: '#/components/schemas/uuid'
+            patronGroup:
+              description: record for the user's patrongroup
+              type: object
+              readonly: true
+              additionalProperties: false
+              properties:
+                id:
+                  description: UUID of the patron group record
+                  $ref: '#/components/schemas/uuid'
+                group:
+                  description: The unique name of the patrongroup
+                  type: string
+                  readonly: true
+                desc:
+                  description: A description of the patrongroup
+                  type: string
+                  readonly: true
+          additionalProperties: false
+        fulfillmentPreference:
+          description: How should the request be fulfilled (whether the item should be kept on the hold shelf for collection or delivered to the requester)
+          type: string
+          enum:
+          - Hold Shelf
+          - Delivery
+        deliveryAddressTypeId:
+          description: UUID of the delivery address type
+          $ref: '#/components/schemas/uuid'
+        deliveryAddress:
+          description: Address the item is to be delivered to (derived from requester information)
+          type: object
+          readonly: true
+          properties:
+            addressLine1:
+              description: Address line 1
+              type: string
+              readonly: true
+            addressLine2:
+              description: Address line 2
+              type: string
+              readonly: true
+            city:
+              description: City name
+              type: string
+              readonly: true
+            region:
+              description: Region
+              type: string
+              readonly: true
+            postalCode:
+              description: Postal code
+              type: string
+              readonly: true
+            countryId:
+              description: Country code
+              type: string
+              readonly: true
+            addressTypeId:
+              description: UUID of the delivery address type
+              $ref: '#/components/schemas/uuid'
+          additionalProperties: false
+        requestExpirationDate:
+          description: Date when the request expires
+          type: string
+          format: date-time
+        holdShelfExpirationDate:
+          description: Date when an item returned to the hold shelf expires
+          type: string
+          format: date-time
+        pickupServicePointId:
+          description: UUID of the pickup service point
+          $ref: '#/components/schemas/uuid'
+        pickupServicePoint:
+          description: The full object of the Service Point record from pickupServicePointId
+          additionalProperties: false
+          readonly: true
+          properties:
+            name:
+              description: Unique name for the service point
+              type: string
+              readonly: true
+            code:
+              description: Unique code for the service point
+              type: string
+              readonly: true
+            discoveryDisplayName:
+              description: Human-readable name for the service point
+              type: string
+              readonly: true
+            description:
+              description: Description of the service point
+              type: string
+              readonly: true
+            shelvingLagTime:
+              description: Shelving lag time
+              type: integer
+              readonly: true
+            pickupLocation:
+              description: Is this service point a pickup location?
+              type: boolean
+              readonly: true
+        printDetails:
+          description: The print details of the request
+          type: object
+          readonly: true
+          properties:
+            printCount:
+              description: Total no of times the request is printed
+              type: integer
+              readOnly: true
+            requesterId:
+              description: User uuid of last print requester
+              type: string
+              readOnly: true
+            isPrinted:
+              description: Whether the request is ever printed
+              type: boolean
+              readOnly: true
+            printEventDate:
+              description: Recent printed time of the request
+              type: string
+              format: date-time
+              readOnly: true
+            lastPrintRequester:
+              description: Details of the User who printed the request recently
+              readonly: true
+              type: object
+              properties:
+                firstName:
+                  description: first name of the user
+                  type: string
+                  readonly: true
+                lastName:
+                  description: last name of the user
+                  type: string
+                  readonly: true
+                middleName:
+                  description: middle name of the user
+                  type: string
+                  readonly: true
+        tags:
+          $ref: '#/components/schemas/tags'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+        itemLocationCode:
+          description: Allow specifying item location when creating title-level requests
+          type: string
+        isDcbReRequestCancellation:
+          description: Indicates whether the request was cancelled during a DCB transaction update
+          type: boolean
+      required:
+      - requesterId
+      - requestType
+      - requestDate
+      - fulfillmentPreference
+    requests:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Collection of item requests
+      description: Collection of item requests
+      type: object
+      properties:
+        requests:
+          description: Paged collection of item requests
+          id: requests
+          type: array
+          items:
+            $ref: '#/components/schemas/request'
+        totalRecords:
+          description: Total number of item requests
+          type: integer
+      required:
+      - requests
+      - totalRecords
+    pieceCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: collection of piece records
+      type: object
+      properties:
+        pieces:
+          description: collection of piece records
+          type: array
+          id: pieces
+          items:
+            $ref: '#/components/schemas/piece'
+        totalRecords:
+          description: The number of objects contained in this collection
+          type: integer
+      additionalProperties: false
+    holdingsFacet:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Response schema for search holdings tenants
+      type: object
+      properties:
+        facets:
+          description: Requested facets
+          type: object
+          properties:
+            holdings.tenantId:
+              description: Facet name
+              type: object
+              properties:
+                values:
+                  description: Facet result values
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        description: Facet value
+                        type: string
+                      totalRecords:
+                        type: integer
+                totalRecords:
+                  type: integer
+        totalRecords:
+          type: integer
+      required:
+      - facets
+      - totalRecords
+      additionalProperties: false
+    userTenants:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Response schema for user tenants
+      type: object
+      properties:
+        userTenants:
+          description: User tenant affiliations
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              userId:
+                description: user UUID
+                type: string
+              username:
+                description: username
+                type: string
+              tenantId:
+                description: tenant id of user tenant affiliation
+                type: string
+              centralTenantId:
+                description: central tenant id
+                type: string
+              consortiumId:
+                description: id of consortium from mod-consortia
+                type: string
+        totalRecords:
+          type: integer
+      required:
+      - userTenants
+      - totalRecords
+      additionalProperties: false
+    settings:
+      description: Setting entries response
+      type: object
+      properties:
+        items:
+          description: List of settings
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Identifier
+                type: string
+                format: uuid
+              scope:
+                type: string
+                description: Scope for this entry (normally a module)
+              key:
+                type: string
+                description: Key within scope for this setting
+              value:
+                description: Settings value (any type)
+              userId:
+                type: string
+                format: uuid
+                description: Owner of this setting (optional)
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      additionalProperties: false
+      required:
+      - items
+    materialType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A material type
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the material type
+          type: string
+        source:
+          description: origin of the material type record
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+    materialTypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of material types
+      type: object
+      properties:
+        mtypes:
+          description: List of material types
+          id: mtype
+          type: array
+          items:
+            $ref: '#/components/schemas/materialType'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - mtypes
+      - totalRecords
+    loanType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A loan type
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          description: label for the loan type
+          type: string
+        source:
+          description: Origin of the loan type record, e.g. 'System', 'User', 'Consortium' etc.
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+    loanTypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of loan types
+      type: object
+      properties:
+        loantypes:
+          description: List of loan types
+          id: loantype
+          type: array
+          items:
+            $ref: '#/components/schemas/loanType'
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - loantypes
+      - totalRecords
+    instance:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An instances records
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+        title:
+          type: string
+          description: The primary title (or label) associated with the resource
+        source:
+          type: string
+          description: The metadata source and its format of the underlying record to the instance record. (e.g. FOLIO if it's a record created in Inventory; MARC if it's a MARC record created in MARCcat or EPKB if it's a record coming from eHoldings; CONSORTIUM-MARC or CONSORTIUM-FOLIO for sharing Instances).
+        instanceFormatIds:
+          type: array
+          description: UUIDs for the unique terms for the format whether it's from the RDA carrier term list of locally defined
+          items:
+            $ref: '#/components/schemas/uuid'
+    instances:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An instances records
+      type: object
+      properties:
+        instances:
+          type: array
+          description: Paged collection of instance records
+          items:
+            $ref: '#/components/schemas/instance'
+        totalRecords:
+          type: integer
+          description: Total number of instance records
+      required:
+      - instances
+      - totalRecords
+    consortiaTenants:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Consortia Tenants
+      type: object
+      description: List of tenants in a consortia
+      properties:
+        tenants:
+          type: array
+          description: Tenants
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Tenant identifier
+              code:
+                description: Short tenant code
+                type: string
+                minLength: 2
+                maxLength: 5
+                pattern: ^[a-zA-Z0-9]*$
+              name:
+                description: Tenant name
+                type: string
+                minLength: 2
+                maxLength: 150
+              isCentral:
+                type: boolean
+                description: Whether the tenant is the central tenant
+              isDeleted:
+                type: boolean
+                description: Whether the tenant is marked as deleted
+            required:
+            - id
+            - code
+            - name
+            - isCentral
+        totalRecords:
+          type: integer
+          description: Total number of tenant records
+      required:
+      - tenants
+      - totalRecords
+    batchIdsDto:
+      description: Batch IDs DTO
+      type: object
+      properties:
+        identifierType:
+          description: Type of entity identifier
+          type: string
+          enum:
+          - id
+          - hrid
+          - accessionNumber
+          - formerIds
+          - barcode
+          - holdingsRecordId
+          - instanceId
+          - instanceHrid
+          - itemBarcode
+        identifierValues:
+          description: Entity identifier values
+          type: array
+          items:
+            type: string
+      required:
+      - identifierType
+      - identifierValues
+    consortiumHolding:
+      type: object
+      description: A holdings record returned from a consortium holdings search
+      properties:
+        id:
+          description: Holdings ID
+          type: string
+        hrid:
+          description: Holdings HRID
+          type: string
+        tenantId:
+          description: Tenant ID of the Holding
+          type: string
+        instanceId:
+          description: Related Instance Id
+          type: string
+          format: uuid
+        discoverySuppress:
+          description: Discovery suppress flag
+          type: boolean
+        callNumberPrefix:
+          description: Call number prefix
+          type: string
+        callNumber:
+          description: Call number
+          type: string
+        callNumberSuffix:
+          description: Call number suffix
+          type: string
+        copyNumber:
+          description: Copy number
+          type: string
+        permanentLocationId:
+          description: Permanent Location ID
+          type: string
+    consortiumHoldings:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Response schema for consortium holdings search
+      type: object
+      properties:
+        holdings:
+          description: Holdings search results
+          type: array
+          items:
+            $ref: '#/components/schemas/consortiumHolding'
+        totalRecords:
+          description: Total number of records available
+          type: integer
+      additionalProperties: false
+  parameters:
+    query-param:
+      name: query
+      in: query
+      description: A search query to find holdings by volume, location name, or call number
+      required: true
+      schema:
+        type: string
+    available-param:
+      name: available
+      in: query
+      description: Filter by holdings that are available
+      required: false
+      schema:
+        type: boolean
+    sort-param:
+      name: sort
+      in: query
+      description: 'A list of sort criteria in the format: `property,(asc|desc)`.
+
+        Supported properties are: effectiveShelvingOrder, libraryName, locationName, status.
+
+        If the direction is omitted for a property, the default direction is `desc` for effectiveShelvingOrder and `asc` for other properties.
+
+        The default sort order is effectiveShelvingOrder (descending), status (ascending), libraryName (ascending), locationName (ascending).
+
+        '
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    offset-param:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100000
+        default: 0
+    limit-param:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 100

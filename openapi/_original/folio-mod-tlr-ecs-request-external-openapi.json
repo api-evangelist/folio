@@ -1,0 +1,386 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "ECS Request External API",
+  "version": "v1"
+ },
+ "tags": [
+  {
+   "name": "ecsRequestExternal"
+  }
+ ],
+ "paths": {
+  "/tlr/create-ecs-request-external": {
+   "post": {
+    "description": "Create ECS request external",
+    "operationId": "postEcsRequestExternal",
+    "tags": [
+     "ecsRequestExternal"
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EcsRequestExternal"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "$ref": "#/components/responses/ecs-tlr"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "ecs-request-external": {
+    "$ref": "#/components/schemas/EcsRequestExternal"
+   },
+   "errorResponse": {
+    "$ref": "#/components/schemas/errors"
+   },
+   "uuid": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/",
+    "type": "string",
+    "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
+   },
+   "EcsRequestExternal": {
+    "description": "ECS Request External - title level requests in a multi-tenant environment with \u0421onsortia support enabled",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "ID of the ECS TLR",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "instanceId": {
+      "description": "ID of the instance being requested",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "requesterId": {
+      "description": "ID of the requesting patron (user)",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "requestLevel": {
+      "description": "Level of the request - Item or Title",
+      "type": "string",
+      "enum": [
+       "Item",
+       "Title"
+      ]
+     },
+     "requestExpirationDate": {
+      "description": "Date when the request expires",
+      "type": "string",
+      "format": "date-time"
+     },
+     "requestDate": {
+      "description": "Date when the request was placed",
+      "type": "string",
+      "format": "date-time"
+     },
+     "patronComments": {
+      "description": "Comments made by the patron",
+      "type": "string"
+     },
+     "fulfillmentPreference": {
+      "description": "How should the request be fulfilled (whether the item should be kept on the hold shelf for collection or delivered to the requester)",
+      "type": "string",
+      "enum": [
+       "Hold Shelf",
+       "Delivery"
+      ]
+     },
+     "pickupServicePointId": {
+      "description": "The ID of the Service Point where this request can be picked up",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "itemId": {
+      "description": "ID of the item being requested",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "holdingsRecordId": {
+      "description": "ID of the holdings record being requested",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "primaryRequestId": {
+      "description": "Primary request ID",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "primaryRequestDcbTransactionId": {
+      "description": "ID of DCB transaction created for primary request",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "primaryRequestTenantId": {
+      "description": "ID of the tenant primary request was created in",
+      "type": "string"
+     },
+     "secondaryRequestId": {
+      "description": "Secondary request ID",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "secondaryRequestDcbTransactionId": {
+      "description": "ID of DCB transaction created for secondary request",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "secondaryRequestTenantId": {
+      "description": "ID of the tenant secondary request was created in",
+      "type": "string"
+     }
+    },
+    "required": [
+     "instanceId",
+     "requesterId",
+     "requestLevel",
+     "fulfillmentPreference",
+     "requestDate"
+    ]
+   },
+   "EcsTlr": {
+    "description": "ECS TLR - title level requests in a multi-tenant environment with \u0421onsortia support enabled",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "ID of the ECS TLR",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "instanceId": {
+      "description": "ID of the instance being requested",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "requesterId": {
+      "description": "ID of the requesting patron (user)",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "requestType": {
+      "description": "Whether the item should be held upon return, recalled or paged for",
+      "type": "string",
+      "enum": [
+       "Hold",
+       "Recall",
+       "Page"
+      ]
+     },
+     "requestLevel": {
+      "description": "Level of the request - Item or Title",
+      "type": "string",
+      "enum": [
+       "Item",
+       "Title"
+      ]
+     },
+     "requestExpirationDate": {
+      "description": "Date when the request expires",
+      "type": "string",
+      "format": "date-time"
+     },
+     "requestDate": {
+      "description": "Date when the request was placed",
+      "type": "string",
+      "format": "date-time"
+     },
+     "patronComments": {
+      "description": "Comments made by the patron",
+      "type": "string"
+     },
+     "fulfillmentPreference": {
+      "description": "How should the request be fulfilled (whether the item should be kept on the hold shelf for collection or delivered to the requester)",
+      "type": "string",
+      "enum": [
+       "Hold Shelf",
+       "Delivery"
+      ]
+     },
+     "pickupServicePointId": {
+      "description": "The ID of the Service Point where this request can be picked up",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "itemId": {
+      "description": "ID of the item being requested",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "holdingsRecordId": {
+      "description": "ID of the holdings record being requested",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "primaryRequestId": {
+      "description": "Primary request ID",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "primaryRequestDcbTransactionId": {
+      "description": "ID of DCB transaction created for primary request",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "primaryRequestTenantId": {
+      "description": "ID of the tenant primary request was created in",
+      "type": "string"
+     },
+     "secondaryRequestId": {
+      "description": "Secondary request ID",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "secondaryRequestDcbTransactionId": {
+      "description": "ID of DCB transaction created for secondary request",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "secondaryRequestTenantId": {
+      "description": "ID of the tenant secondary request was created in",
+      "type": "string"
+     },
+     "intermediateRequestId": {
+      "description": "Intermediate request ID",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "intermediateRequestDcbTransactionId": {
+      "description": "ID of DCB transaction created for intermediate request",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "intermediateRequestTenantId": {
+      "description": "ID of the tenant intermediate request was created in",
+      "type": "string"
+     }
+    },
+    "required": [
+     "instanceId",
+     "requesterId",
+     "requestType",
+     "requestLevel",
+     "fulfillmentPreference",
+     "requestDate"
+    ]
+   },
+   "parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "description": "Parameter key",
+      "type": "string"
+     },
+     "value": {
+      "description": "Parameter value",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "parameters": {
+    "description": "List of key/value parameters of an error",
+    "type": "array",
+    "items": {
+     "type": "object",
+     "$ref": "#/components/schemas/parameter"
+    },
+    "additionalProperties": false
+   },
+   "error": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "type": "object",
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message"
+    ]
+   },
+   "errors": {
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "id": "errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   }
+  },
+  "responses": {
+   "ecs-tlr": {
+    "description": "ECS TLR object",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/EcsTlr"
+      }
+     }
+    }
+   },
+   "badRequestResponse": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "example": {
+       "errors": [
+        {
+         "message": "Request is invalid"
+        }
+       ],
+       "total_records": 1
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   },
+   "internalServerErrorResponse": {
+    "description": "When unhandled exception occurred during code execution, e.g. NullPointerException",
+    "content": {
+     "application/json": {
+      "example": {
+       "errors": [
+        {
+         "message": "Unexpected error"
+        }
+       ],
+       "total_records": 1
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   }
+  }
+ }
+}

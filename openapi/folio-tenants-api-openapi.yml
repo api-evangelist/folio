@@ -1,0 +1,806 @@
+openapi: 3.2.0
+info:
+  title: Folio Tenants API
+  version: '1.0'
+  description: 'Operations tagged tenants across 5 of this provider''s published API definitions: folio-mgr-tenants-openapi.json, folio-mod-consortia-keycloak-tenants-openapi.json, folio-mgr-tenants-openapi.yml, folio-mod-consortia-keycloak-tenants-openapi.yml, folio-mod-consortia-tenants-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+- url: /consortia/{consortiumId}/
+tags:
+- name: Tenants
+paths:
+  /tenants:
+    post:
+      operationId: createTenant
+      description: Create a new tenant
+      tags:
+      - Tenants
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tenant'
+      responses:
+        '201':
+          description: Tenant has been created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenant'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Create tenant
+      x-summary-source: derived
+    get:
+      operationId: getTenantsByQuery
+      tags:
+      - Tenants
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-offset'
+      - $ref: '#/components/parameters/query-limit'
+      responses:
+        '200':
+          description: List of tenants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenants'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Get tenants by query
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /tenants/{id}:
+    get:
+      operationId: getTenantById
+      tags:
+      - Tenants
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '200':
+          description: Tenant data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenant'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Get tenant by id
+      x-summary-source: derived
+    put:
+      operationId: updateTenantById
+      description: Update a tenant
+      tags:
+      - Tenants
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tenant'
+      responses:
+        '200':
+          description: Tenant data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenant'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Update tenant by id
+      x-summary-source: derived
+    delete:
+      operationId: deleteTenantById
+      description: Remove a tenant by id
+      tags:
+      - Tenants
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      - $ref: '#/components/parameters/purgeKafkaTopics'
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Delete tenant by id
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /tenants/{tenantId}:
+    put:
+      summary: Update tenant name
+      operationId: updateTenant
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/tenantId'
+      requestBody:
+        $ref: '#/components/requestBodies/TenantBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/Tenant'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Tenants
+    delete:
+      summary: Delete tenant by Id
+      operationId: deleteTenantsByTenantId
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/tenantId'
+      requestBody:
+        $ref: '#/components/requestBodies/TenantDeleteRequest'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Tenants
+      x-operation-id-source: normalized
+      x-operation-id-original: deleteTenantById
+    get:
+      summary: Get tenant details by Id
+      operationId: getTenantDetailsById
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/tenantId'
+      responses:
+        '200':
+          $ref: '#/components/responses/TenantDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Tenants
+    servers:
+    - url: /consortia/{consortiumId}/
+  /tenants/{tenantId}/sync-primary-affiliations:
+    post:
+      summary: Sync Primary Affiliations
+      operationId: syncPrimaryAffiliations
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/tenantId'
+      - $ref: '#/components/parameters/centralTenantId'
+      responses:
+        '201':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Tenants
+    servers:
+    - url: /consortia/{consortiumId}/
+  /tenants/{tenantId}/create-primary-affiliations:
+    post:
+      summary: Create Primary Affiliations
+      operationId: createPrimaryAffiliations
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/tenantId'
+      - $ref: '#/components/parameters/centralTenantId'
+      requestBody:
+        $ref: '#/components/requestBodies/SyncPrimaryAffiliationsRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Tenants
+    servers:
+    - url: /consortia/{consortiumId}/
+  /tenants/{tenantId}/identity-provider:
+    post:
+      summary: Create keycloak identity provider for member tenant in central tenant realm
+      operationId: createIdentityProvider
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/tenantId'
+      requestBody:
+        $ref: '#/components/requestBodies/IdentityProviderCreateRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Tenants
+    delete:
+      summary: Delete keycloak identity provider of member tenant from central tenant realm
+      operationId: deleteIdentityProvider
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/tenantId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Tenants
+    servers:
+    - url: /consortia/{consortiumId}/
+  /tenants/{tenantId}/custom-login:
+    post:
+      summary: Set up custom keycloak login flow for central tenant
+      operationId: setupCustomLogin
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/tenantId'
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Tenants
+    delete:
+      summary: Remove custom keycloak login flow of central tenant and restore built-in…
+      operationId: deleteCustomLogin
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/tenantId'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Tenants
+    servers:
+    - url: /consortia/{consortiumId}/
+components:
+  responses:
+    internalServerError:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequest:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    entityNotFound:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    NoContent:
+      description: No content
+    TenantCollection:
+      description: Returns a tenant collection object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TenantCollection'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Tenant:
+      description: Returns a tenant object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tenant'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Created:
+      description: Created
+    TenantDetails:
+      description: Returns a tenant details object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TenantDetails'
+  schemas:
+    tenant:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tenant.json
+      title: Tenant Schema
+      description: Tenant information
+      type: object
+      x-implements:
+      - org.folio.tm.domain.entity.base.Identifiable
+      properties:
+        id:
+          description: A UUID identifying this attribute
+          type: string
+          format: uuid
+        name:
+          description: Tenant name
+          type: string
+          pattern: '[a-z][a-z0-9_]{0,29}[a-z0-9]'
+        description:
+          description: Tenant description
+          type: string
+        type:
+          description: Tenant type
+          $ref: '#/components/schemas/tenantType'
+        secure:
+          description: The flag shows whether the particular tenant is secure or not
+          type: boolean
+        attributes:
+          description: List of tenant attributes
+          type: array
+          items:
+            $ref: '#/components/schemas/tenantAttribute'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - name
+    tenantType:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tenantType.json
+      title: Tenant Type Schema
+      description: Tenant type
+      default: default
+      type: string
+      enum:
+      - default
+      - virtual
+      x-enum-varnames:
+      - DEFAULT
+      - VIRTUAL
+    tenantAttribute:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tenantAttribute.json
+      title: Tenant Attribute Schema
+      description: Tenant attribute
+      type: object
+      x-implements:
+      - org.folio.tm.domain.entity.base.Identifiable
+      properties:
+        id:
+          description: A UUID identifying this attribute
+          type: string
+          format: uuid
+        key:
+          description: Key for this attribute
+          type: string
+        value:
+          description: Value for this attribute
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - key
+      - value
+    tenants:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tenants.json
+      title: Tenants Schema
+      description: Collection of tenants
+      type: object
+      properties:
+        tenants:
+          description: List of tenants
+          type: array
+          items:
+            $ref: '#/components/schemas/tenant'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - tenants
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdBy:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        modifiedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        modifiedBy:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - createdDate
+    TenantCollection:
+      type: object
+      properties:
+        tenants:
+          type: array
+          description: Tenants
+          items:
+            type: object
+            $ref: '#/components/schemas/Tenant'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - tenants
+      - totalRecords
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    TenantDeleteRequest:
+      type: object
+      properties:
+        deleteType:
+          type: string
+          enum:
+          - HARD
+          - SOFT
+        deleteOptions:
+          type: object
+          properties:
+            deleteUsersUserTenants:
+              type: boolean
+              default: false
+            deleteRelatedShadowUsers:
+              type: boolean
+              default: false
+      additionalProperties: false
+      required:
+      - deleteType
+      - deleteOptions
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+          minLength: 2
+          maxLength: 5
+          pattern: ^[a-zA-Z0-9]*$
+        name:
+          type: string
+          minLength: 2
+          maxLength: 150
+        isCentral:
+          type: boolean
+        isDeleted:
+          type: boolean
+      additionalProperties: false
+      required:
+      - id
+      - code
+      - name
+      - isCentral
+    IdentityProviderCreateRequest:
+      type: object
+      properties:
+        createProvider:
+          type: boolean
+          default: true
+        migrateUsers:
+          type: boolean
+          default: true
+        baseUrl:
+          type: string
+          description: Keycloak base URL to build identity provider URLs with (e.g. https://keycloak.example.org). Overrides KC_IDENTITY_PROVIDER_BASE_URL if provided
+          pattern: ^(\s*|https?://.+)$
+      additionalProperties: false
+      required:
+      - createProvider
+      - migrateUsers
+    TenantDetails:
+      allOf:
+      - $ref: '#/components/schemas/Tenant'
+      - type: object
+        properties:
+          setupStatus:
+            type: string
+            enum:
+            - IN_PROGRESS
+            - COMPLETED
+            - COMPLETED_WITH_ERRORS
+            - FAILED
+    SyncPrimaryAffiliationBody:
+      description: Primary affiliation DTO
+      type: object
+      properties:
+        tenantId:
+          description: Unique tenant id
+          type: string
+        users:
+          description: users
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncUser'
+      additionalProperties: false
+      required:
+      - tenantId
+    uuid:
+      type: string
+      format: uuid
+    SyncUser:
+      description: Users item
+      type: object
+      properties:
+        id:
+          description: User id
+          type: string
+        username:
+          description: The name of the user
+          type: string
+        email:
+          description: The email of the user
+          type: string
+        mobilePhoneNumber:
+          description: The mobile phone number of the user
+          type: string
+        phoneNumber:
+          description: The phone number of the user
+          type: string
+        externalSystemId:
+          description: External system id of user
+          type: string
+        barcode:
+          description: The user's barcode
+          type: string
+      additionalProperties: false
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+  parameters:
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    purgeKafkaTopics:
+      name: purgeKafkaTopics
+      in: query
+      description: 'If set to true, the tenant''s Kafka topics will be purged.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    adminUserId:
+      in: query
+      name: adminUserId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      description: The ID of adminUser
+    centralTenantId:
+      in: query
+      name: centralTenantId
+      schema:
+        type: string
+      required: true
+      description: The ID of the central tenant
+    tenantId:
+      in: path
+      name: tenantId
+      schema:
+        type: string
+      required: true
+      description: The ID of the tenant
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 100
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+  requestBodies:
+    SyncPrimaryAffiliationsRequest:
+      description: SyncPrimaryAffiliationsRequest object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SyncPrimaryAffiliationBody'
+    TenantDeleteRequest:
+      description: Deletes tenant based on delete options
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TenantDeleteRequest'
+    IdentityProviderCreateRequest:
+      description: IdentityProviderCreateRequest object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IdentityProviderCreateRequest'
+    TenantBody:
+      description: Tenant object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tenant'
+x-refined-from:
+- folio-mgr-tenants-openapi.json
+- folio-mod-consortia-keycloak-tenants-openapi.json
+- folio-mgr-tenants-openapi.yml
+- folio-mod-consortia-keycloak-tenants-openapi.yml
+- folio-mod-consortia-tenants-openapi.yml

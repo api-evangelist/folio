@@ -1,0 +1,1599 @@
+# x-archived-from: folio-mod-users-keycloak-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Users Keycloak API
+  version: v1
+  description: Users Keycloak API
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+paths:
+  /users-keycloak/users:
+    post:
+      operationId: createUser
+      description: Create a new user
+      tags:
+      - users
+      parameters:
+      - $ref: '#/components/parameters/keycloak-only'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        '201':
+          description: User has been created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '422':
+          $ref: '#/components/responses/unprocessableEntity'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /users-keycloak/users/{id}:
+    put:
+      operationId: updateUser
+      description: Update user with given id
+      tags:
+      - users
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        '204':
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: User successfully updated
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    get:
+      operationId: getUser
+      description: Get a single user
+      tags:
+      - users
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '200':
+          description: Returns user with a given id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      operationId: deleteUser
+      description: Delete user with given id
+      tags:
+      - users
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '204':
+          description: User deleted successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /users-keycloak/users/{id}/permissions:
+    get:
+      operationId: findPermissions
+      description: Finds user permissions by filter. desiredPermissions query parameter is required. Wildcard (*) is supported.
+      tags:
+      - users
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      - $ref: '#/components/parameters/desired-permissions'
+      responses:
+        '200':
+          description: Returns resolved permissions for a user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/permissions'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /users-keycloak/_self:
+    get:
+      operationId: getUserBySelfReference
+      description: Get a user by self reference
+      tags:
+      - users
+      parameters:
+      - $ref: '#/components/parameters/query-include'
+      - $ref: '#/components/parameters/query-expand-permissions'
+      - $ref: '#/components/parameters/query-override-user'
+      responses:
+        '200':
+          description: Returns user by self reference
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/compositeUser'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /users-keycloak/migrations:
+    get:
+      operationId: getMigrations
+      description: Retrieve a list of user migrations
+      tags:
+      - migration
+      parameters:
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-offset'
+      - $ref: '#/components/parameters/query-limit'
+      responses:
+        '200':
+          description: Retrieve a list of user migrations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userMigrationJobs'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    post:
+      operationId: migrateUsers
+      description: Migrate users from mod-users to Keycloak
+      tags:
+      - migration
+      responses:
+        '201':
+          description: User migration jobs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userMigrationJob'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '422':
+          $ref: '#/components/responses/unprocessableEntity'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /users-keycloak/migrations/{id}:
+    get:
+      description: Retrieve a user migration
+      operationId: getMigration
+      tags:
+      - migration
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '200':
+          description: Retrieve a user migration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userMigrationJob'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      description: Delete a user migration
+      operationId: deleteMigration
+      tags:
+      - migration
+      parameters:
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '204':
+          description: Delete a user migration
+          content:
+            text/plain:
+              schema:
+                type: string
+  /users-keycloak/idp-migrations:
+    post:
+      operationId: linkUserIdpMigration
+      description: Link users to an identity provider migration operation
+      tags:
+      - idp-migration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/usersIdp'
+      responses:
+        '204':
+          description: Link users to an identity provider migration operation
+          content:
+            text/plain:
+              schema:
+                type: string
+    delete:
+      operationId: unlinkUserIdpMigration
+      description: Unlink users from an identity provider migration operation
+      tags:
+      - idp-migration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/usersIdp'
+      responses:
+        '204':
+          description: Unlink users from an identity provider migration operation
+          content:
+            text/plain:
+              schema:
+                type: string
+  /users-keycloak/forgotten/password:
+    post:
+      description: 'Called when a user has forgotten a password. Always returns 204 No Content regardless of whether a user exists, to prevent username/email enumeration. If a matching active user is found, a password reset link is sent. Otherwise, the request is logged but no email is sent.
+
+        '
+      operationId: resetForgottenPassword
+      tags:
+      - forgotten-username-password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/identifier'
+      responses:
+        '204':
+          $ref: '#/components/responses/noContent'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /users-keycloak/forgotten/username:
+    post:
+      description: 'Called when a user has forgotten a username. Always returns 204 No Content regardless of whether a user exists, to prevent username/email enumeration. If a matching active user is found, a username reminder is sent. Otherwise, the request is logged but no email is sent.
+
+        '
+      operationId: recoverForgottenUsername
+      tags:
+      - forgotten-username-password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/identifier'
+      responses:
+        '204':
+          $ref: '#/components/responses/noContent'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /users-keycloak/password-reset/reset:
+    post:
+      operationId: passwordReset
+      tags:
+      - password-reset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/passwordReset'
+      responses:
+        '204':
+          description: Successful password reset
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '422':
+          $ref: '#/components/responses/unprocessableEntity'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /users-keycloak/password-reset/link:
+    post:
+      operationId: generatePasswordResetLink
+      tags:
+      - password-reset
+      description: Generate and send password reset link
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/generateLinkRequest'
+      responses:
+        '200':
+          description: Response for reset password link generation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/generateLinkResponse'
+  /users-keycloak/password-reset/validate:
+    post:
+      operationId: validatePasswordResetLink
+      tags:
+      - password-reset
+      description: Validates password reset link
+      responses:
+        '204':
+          $ref: '#/components/responses/noContent'
+        '422':
+          $ref: '#/components/responses/unprocessableEntity'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+  /users-keycloak/auth-users/{userId}:
+    get:
+      operationId: checkIfExistsAuthUserById
+      tags:
+      - auth-user
+      description: Check if AuthUser exists for the specified user ID
+      parameters:
+      - $ref: '#/components/parameters/path-entity-userId'
+      responses:
+        '204':
+          $ref: '#/components/responses/noContent'
+          description: User is present in Keycloak
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+          description: User is not present in Keycloak
+    post:
+      operationId: createAuthUser
+      tags:
+      - auth-user
+      description: Check if AuthUser exists for the specified user ID
+      parameters:
+      - $ref: '#/components/parameters/path-entity-userId'
+      responses:
+        '201':
+          $ref: '#/components/responses/created'
+          description: User was not present in Keycloak and was created
+        '204':
+          $ref: '#/components/responses/noContent'
+          description: User was already present in Keycloak so nothing was changed
+        '400':
+          $ref: '#/components/responses/badRequest'
+          description: User doesn't have a username
+        '500':
+          $ref: '#/components/responses/internalServerError'
+          description: Unexpected error
+components:
+  schemas:
+    errorResponse:
+      $ref: '#/components/schemas/errors'
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: List of key/value parameters of an error
+          $ref: '#/components/schemas/parameters'
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    user:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: User Schema
+      description: A user
+      type: object
+      properties:
+        username:
+          description: A unique name belonging to a user. Typically used for login
+          type: string
+        id:
+          description: A globally unique (UUID) identifier for the user
+          type: string
+          format: uuid
+        externalSystemId:
+          description: A unique ID that corresponds to an external authority
+          type: string
+        barcode:
+          description: The unique library barcode for this user
+          type: string
+        active:
+          description: A flag to determine if the user's account is effective and not expired. The tenant configuration can require the user to be active for login. Active is different from the loan patron block
+          type: boolean
+        type:
+          description: The class of user like staff or patron; this is different from patronGroup
+          type: string
+        patronGroup:
+          description: A UUID corresponding to the group the user belongs to, see /groups API, example groups are undergraduate and faculty; loan rules, patron blocks, fees/fines and expiration days can use the patron group
+          type: string
+          format: uuid
+        departments:
+          description: A list of UUIDs corresponding to the departments the user belongs to, see /departments API
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+        meta:
+          description: Deprecated
+          type: object
+        proxyFor:
+          description: Deprecated
+          type: array
+          items:
+            type: string
+        personal:
+          description: Personal information about the user
+          $ref: '#/components/schemas/personal'
+        enrollmentDate:
+          description: The date in which the user joined the organization
+          type: string
+          format: date-time
+        expirationDate:
+          description: The date for when the user becomes inactive
+          type: string
+          format: date-time
+        createdDate:
+          description: Deprecated
+          type: string
+          format: date-time
+        updatedDate:
+          description: Deprecated
+          type: string
+          format: date-time
+        metadata:
+          $ref: '#/components/schemas/metadata'
+        tags:
+          $ref: '#/components/schemas/tags'
+        customFields:
+          description: Object that contains custom field
+          type: object
+          additionalProperties: true
+        preferredEmailCommunication:
+          type: array
+          items:
+            type: string
+            enum:
+            - Support
+            - Programs
+            - Services
+          maxItems: 3
+          uniqueItems: true
+          description: Preferred email communication types
+      additionalProperties: false
+    users:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Collection of users
+      properties:
+        users:
+          description: List of userdata items
+          type: array
+          id: usersData
+          items:
+            $ref: '#/components/schemas/user'
+        totalRecords:
+          type: integer
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+          readonly: true
+      required:
+      - users
+      - totalRecords
+    compositeUser:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Composite user object
+      properties:
+        user:
+          description: User object
+          $ref: '#/components/schemas/user'
+        patronGroup:
+          description: Patron group object
+          $ref: '#/components/schemas/userGroup'
+        permissions:
+          description: Permissions object
+          $ref: '#/components/schemas/permissionUser'
+        proxiesFor:
+          type: array
+          description: Proxies for, array
+          id: proxyFor
+          items:
+            $ref: '#/components/schemas/proxyFor'
+        servicePointsUser:
+          description: Service point user
+          $ref: '#/components/schemas/servicePointUser'
+        originalTenantId:
+          description: An original tenant id to redirect member tenant to
+          type: string
+    userTenant:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Primary tenant of a user used for single-sign-on
+      type: object
+      properties:
+        id:
+          description: UUID of the user tenant
+          type: string
+        userId:
+          description: UUID of the user
+          type: string
+        username:
+          description: The user name
+          type: string
+        tenantId:
+          description: Primary tenant of the user for single-sign-on
+          type: string
+        centralTenantId:
+          description: Central tenant id in the consortium
+          type: string
+        phoneNumber:
+          description: The user's primary phone number
+          type: string
+        mobilePhoneNumber:
+          description: The user's mobile phone number
+          type: string
+        email:
+          description: The user's email address
+          type: string
+        barcode:
+          description: The barcode of the user's
+          type: string
+        externalSystemId:
+          description: The externalSystemId of the user's
+          type: string
+        consortiumId:
+          description: UUID of the consortiumId
+          type: string
+      required:
+      - userId
+      - tenantId
+    userTenantCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Collection of primary tenant records
+      properties:
+        userTenants:
+          description: List of primary tenant records
+          type: array
+          id: userTenants
+          items:
+            type: object
+            $ref: '#/components/schemas/userTenant'
+        totalRecords:
+          type: integer
+      required:
+      - userTenants
+      - totalRecords
+    usersIdp:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Users IDP Linking Schema
+      description: Users scheduled for IDP linking
+      type: object
+      properties:
+        centralTenantId:
+          description: Central tenant id that will be used for linking the shadow users
+          type: string
+        userIds:
+          description: A list of user UUIDs that are to be scheduled for IDP linking in central tenant
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+      required:
+      - centralTenantId
+      - userIds
+      additionalProperties: true
+    userMigrationJob:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: userMigrationJob.json
+      title: User Migration Job Schema
+      description: A user migration job entity for tracking migration's progress
+      type: object
+      properties:
+        id:
+          description: An migration job identifier
+          type: string
+          format: uuid
+        status:
+          description: An user migration job status
+          $ref: '#/components/schemas/userMigrationJobStatus'
+        totalRecords:
+          type: integer
+        startedAt:
+          description: A user migration job start timestamp
+          type: string
+          format: date-time
+        finishedAt:
+          description: A user migration job end timestamp
+          type: string
+          format: date-time
+    userMigrationJobs:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: userMigrationJobs.json
+      title: List of User Migration Jobs Schema
+      description: A list of user migration job entities
+      type: object
+      properties:
+        migrations:
+          description: List of Migration Jobs
+          type: array
+          id: migrations
+          items:
+            $ref: '#/components/schemas/userMigrationJob'
+        totalRecords:
+          type: integer
+    userCapabilitiesRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: User-Capability Request Schema
+      description: Request body to assign existing capabilities to a user
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: User identifier
+        capabilityIds:
+          description: List of capability identifiers
+          type: array
+          items:
+            type: string
+            description: Capability identifier
+            format: uuid
+          minItems: 1
+          maxItems: 255
+      required:
+      - userId
+      - capabilityIds
+    capabilities:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Capabilities Object Schema
+      description: Response body containing capability records
+      type: object
+      properties:
+        capabilities:
+          description: A collection of capability sets
+          type: array
+          items:
+            $ref: '#/components/schemas/capability'
+          minItems: 1
+        totalRecords:
+          readOnly: true
+          description: The total number of records matching the provided criteria
+          type: integer
+          format: int64
+      required:
+      - capabilities
+    identifier:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Identifier
+      properties:
+        id:
+          type: string
+          description: Id
+    passwordReset:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Password reset entity
+      type: object
+      properties:
+        newPassword:
+          description: New password
+          type: string
+      additionalProperties: false
+      required:
+      - newPassword
+    generateLinkRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Request to generate and send reset password link
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Id of user to whom a reset password link is sent
+      required:
+      - userId
+    generateLinkResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Response for reset password link generation
+      properties:
+        link:
+          type: string
+          description: Link for resetting password
+      additionalProperties: false
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: string
+      description: Error message code
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
+      - user.not-found
+      - user.absent-username
+      - link.used
+      - link.expired
+      - link.invalid
+    policy:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Object containing the details of the policy.
+      properties:
+        id:
+          description: A unique identifier for this policy. System-generated if not provided.
+          type: string
+          format: uuid
+        name:
+          description: A human-readable name/label for this policy. Required.
+          type: string
+        description:
+          description: Free form description of the policy. Optional.
+          type: string
+        type:
+          description: The type of policy. Required.
+          $ref: '#/components/schemas/policyType'
+        source:
+          description: The source for the policy.
+          $ref: '#/components/schemas/sourceType'
+        userPolicy:
+          description: Object containing the details of the user-based policy
+          $ref: '#/components/schemas/userPolicy'
+        timePolicy:
+          description: Object containing the details of the user-based policy
+          $ref: '#/components/schemas/timePolicy'
+        rolePolicy:
+          description: Object containing the details of the user-based policy
+          $ref: '#/components/schemas/rolePolicy'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+      - type
+    policies:
+      type: object
+      description: A list of policies with additional meta information.
+      properties:
+        policies:
+          description: A list of policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/policy'
+        totalRecords:
+          description: The total number of roles matching the provided criteria
+          type: integer
+    permissionsContainer:
+      $ref: '#/components/schemas/permissions'
+    includedField:
+      type: string
+      title: Included field
+      enum:
+      - groups
+      - perms
+      - proxiesfor
+      - servicepoints
+      - expanded_perms
+      - expanded_servicepoints
+    address:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Address Schema
+      description: Address information
+      type: object
+      properties:
+        id:
+          description: A unique id for this address
+          type: string
+        countryId:
+          description: The country code for this address
+          type: string
+        addressLine1:
+          description: Address, Line 1
+          type: string
+        addressLine2:
+          description: Address, Line 2
+          type: string
+        city:
+          description: City name
+          type: string
+        region:
+          description: Region
+          type: string
+        postalCode:
+          description: Postal Code
+          type: string
+        addressTypeId:
+          description: A UUID that corresponds with an address type object
+          type: string
+          format: uuid
+        primaryAddress:
+          description: Is this the user's primary address?
+          type: boolean
+      required:
+      - addressTypeId
+      additionalProperties: false
+    personal:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Personal Schema
+      description: Personal information about the user
+      type: object
+      properties:
+        lastName:
+          description: The user's surname
+          type: string
+        firstName:
+          description: The user's given name
+          type: string
+        middleName:
+          description: The user's middle name (if any)
+          type: string
+        preferredFirstName:
+          description: The user's preferred name
+          type: string
+        email:
+          description: The user's email address
+          type: string
+        pronouns:
+          description: The user's pronouns
+          type: string
+          maxLength: 300
+        phone:
+          description: The user's primary phone number
+          type: string
+        mobilePhone:
+          description: The user's mobile phone number
+          type: string
+        dateOfBirth:
+          type: string
+          description: The user's birth date
+          format: date-time
+        addresses:
+          description: Physical addresses associated with the user
+          type: array
+          minItems: 0
+          items:
+            $ref: '#/components/schemas/address'
+        preferredContactTypeId:
+          description: (Deprecated) ID of user's preferred contact type like Email, Mail, or Text Message  (see ui-users contactTypes.js)
+          type: string
+          deprecated: true
+        preferredContactTypeIds:
+          description: IDs of user's preferred contact types like Email, Mail, or Text Message (see ui-users contactTypes.js)
+          type: array
+          items:
+            type: string
+        profilePictureLink:
+          description: Link to the profile picture
+          type: string
+          format: uri
+      additionalProperties: false
+      required:
+      - lastName
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    tags:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: tags
+      description: List of simple tags that can be added to an object
+      type: object
+      properties:
+        tagList:
+          description: List of tags
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    permissions:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Permissions container
+      properties:
+        permissions:
+          type: array
+          description: Permissions array
+          items:
+            type: string
+    userGroup:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: User Group Schema
+      description: User group schema
+      type: object
+      properties:
+        group:
+          type: string
+          description: group
+        desc:
+          type: string
+          description: description
+        id:
+          type: string
+          description: id
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+          description: Metadata
+      required:
+      - group
+    permissionUser:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Permission User Object
+      properties:
+        id:
+          type: string
+          description: Id
+        userId:
+          type: string
+          description: User Id
+        permissions:
+          type: array
+          description: Permissions array
+          items:
+            type: object
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          description: Metadata
+      additionalProperties: false
+    proxyFor:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: ProxyFor Schema
+      description: Proxy For Schema
+      type: object
+      properties:
+        userId:
+          type: string
+          description: User Id
+        proxyUserId:
+          type: string
+          description: Proxy User Id
+        id:
+          type: string
+          description: Id
+        requestForSponsor:
+          type: string
+          description: Request For Sponsor
+        createdDate:
+          type: string
+          format: date-time
+          description: Created Date
+        notificationsTo:
+          type: string
+          description: Notifications To
+        accrueTo:
+          type: string
+          description: Accrue To
+        status:
+          type: string
+          description: Status
+        expirationDate:
+          type: string
+          format: date-time
+          description: Expiration Date
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      additionalProperties: false
+    staffSlip:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Staff slip Schema
+      description: Staff slip
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the staff slip
+        printByDefault:
+          type: boolean
+          description: Whether or not to print the staff slip by default
+      additionalProperties: false
+      required:
+      - id
+      - printByDefault
+    servicePoint:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Service point
+      properties:
+        id:
+          type: string
+          description: id
+        name:
+          type: string
+          description: Service point name
+        code:
+          type: string
+          description: Service point code
+        discoveryDisplayName:
+          type: string
+          description: Service point discovery name
+        description:
+          type: string
+          description: Service point description
+        shelvingLagTime:
+          type: integer
+          description: Shelving lag time
+        pickupLocation:
+          type: boolean
+          description: Pick up location
+        staffSlips:
+          type: array
+          description: List of staff slips for this service point
+          items:
+            $ref: '#/components/schemas/staffSlip'
+        locationIds:
+          type: array
+          description: Location Ids
+          items:
+            type: string
+            format: uuid
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+          description: Metadata
+      required:
+      - name
+      - code
+      - discoveryDisplayName
+    servicePointUser:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Service points expanded user
+      properties:
+        id:
+          type: string
+          description: Id
+        userId:
+          type: string
+          description: User Id
+        servicePointsIds:
+          type: array
+          description: Service Points Ids
+          items:
+            type: string
+        servicePoints:
+          type: array
+          description: Service Points
+          items:
+            $ref: '#/components/schemas/servicePoint'
+        defaultServicePointId:
+          type: string
+          description: Default Service Point Id
+        defaultServicePoint:
+          description: Default Service Point Object
+          $ref: '#/components/schemas/servicePoint'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      additionalProperties: false
+      required:
+      - userId
+    userMigrationJobStatus:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: types/userMigrationJobStatus.json
+      title: User Migration Job Status Schema
+      description: An user migration job status
+      type: string
+      enum:
+      - in_progress
+      - failed
+      - finished
+    facetValue:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Facet value Schema
+      description: A facet value
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Count of facet values
+        value:
+          description: Value Object
+    facet:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Facet Schema
+      description: A facet
+      type: object
+      properties:
+        facetValues:
+          type: array
+          description: Array of facet values
+          items:
+            $ref: '#/components/schemas/facetValue'
+        type:
+          type: string
+          description: Type of facet
+      additionalProperties: false
+    diagnostic:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Diagnostic Schema
+      description: Diagnostic information
+      type: object
+      properties:
+        source:
+          type: string
+          description: Source reporting the diagnostic information
+        code:
+          type: string
+          description: Diagnostic Code
+        message:
+          type: string
+          description: Diagnostic Message
+        module:
+          type: string
+          description: Module reporting diagnostic information
+        recordCount:
+          type: integer
+          description: Record Count for diagnostics
+        query:
+          type: string
+          description: CQL Query associated with results
+    resultInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Faceting of result sets
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Total number of records
+        responseTime:
+          type: number
+          description: Response time
+        facets:
+          type: array
+          description: Array of facets
+          items:
+            $ref: '#/components/schemas/facet'
+        diagnostics:
+          type: array
+          description: Array of diagnostic information
+          items:
+            $ref: '#/components/schemas/diagnostic'
+      additionalProperties: false
+    capabilityAction:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The action this capability is associated with, e.g. create
+      type: string
+      enum:
+      - view
+      - create
+      - edit
+      - delete
+      - manage
+      - execute
+    httpMethod:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Http Method
+      type: string
+      enum:
+      - GET
+      - HEAD
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+      - TRACE
+    endpoint:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: endpoint.json
+      description: Object containing the details of the http-endpoint.
+      properties:
+        path:
+          type: string
+          description: Endpoint's static path / expression
+        method:
+          description: Http Method
+          $ref: '#/components/schemas/httpMethod'
+    capabilityType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The type of capability
+      type: string
+      enum:
+      - settings
+      - data
+      - procedural
+    capability:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: Capability Set Object Schema
+      description: Object containing the details of the capability set
+      properties:
+        id:
+          description: A unique identifier for this capability
+          type: string
+          format: uuid
+        name:
+          description: a human-readable name/label for this capability.  Takes the form of {resourceName}.{scope}, e.g. item.create
+          type: string
+          readOnly: true
+        description:
+          description: Free form description of the capability
+          type: string
+        resource:
+          description: The resource this capability is associated with, e.g. item
+          type: string
+          pattern: ^[A-Za-z\s]+$
+        action:
+          description: The action this capability is associated with, e.g. create
+          $ref: '#/components/schemas/capabilityAction'
+        applicationId:
+          description: The id of the application which defines the capability
+          type: string
+        permission:
+          description: Folio permission name
+          type: string
+        endpoints:
+          type: array
+          description: List of assigned endpoints
+          items:
+            $ref: '#/components/schemas/endpoint'
+        type:
+          description: The type of capability
+          $ref: '#/components/schemas/capabilityType'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+          readOnly: true
+      required:
+      - resource
+      - action
+      - permissions
+      - type
+      - applicationId
+    policyType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The type of policy. Required.
+      type: string
+      enum:
+      - USER
+      - TIME
+      - ROLE
+    sourceType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Source type for roles and policies.
+      type: string
+      enum:
+      - SYSTEM
+      - USER
+      - CONSORTIUM
+    policyLogicType:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Policy logic enum
+      description: The logic type of policy.
+      type: string
+      enum:
+      - POSITIVE
+      - NEGATIVE
+      default: POSITIVE
+      examples:
+      - POSITIVE
+      - NEGATIVE
+    userPolicy:
+      type: object
+      description: Object containing the details of the user-based policy
+      properties:
+        users:
+          description: Collection of user IDs. Required.
+          type: array
+          items:
+            type: string
+            format: uuid
+        logic:
+          description: The logic to apply for this policy.
+          $ref: '#/components/schemas/policyLogicType'
+      required:
+      - users
+      example:
+        id: 3f3f3f3f-3f3f-3333-3f3f-3f3f3f3f3f3f
+        name: user_based_policy
+        description: This policy is meant to be an example
+        users:
+        - f7f7f7f7-7777-f7f7-f7f7-f7f7f7f7f7f7
+        - 7f7f7f7f-7f7f-7777-7f7f-7f7f7f7f7f7f
+        logic: POSITIVE
+    timePolicy:
+      type: object
+      description: Object containing the details of the time-based policy.
+      required: []
+      properties:
+        repeat:
+          description: Whether or not to repeat the policy.
+          type: boolean
+          default: false
+        start:
+          description: Defines the time before which access must not be granted. Permission is granted only if the current date/time is later than or equal to this value. Ignored if repeat is true.
+          type: string
+          format: date-time
+        expires:
+          description: Defines the time after which access must not be granted. Permission is granted only if the current date/time is earlier than or equal to this value. Must be greater than the start time. Ignored if repeat is true.
+          type: string
+          format: date-time
+        dayOfMonthStart:
+          description: Defines the day of the month that access must be granted. You can also specify a range of dates. In this case, permission is granted only if the current day of the month is between or equal to the two values specified. Ignored if repeat is false.
+          type: integer
+          minimum: 1
+          maximum: 31
+        dayOfMonthEnd:
+          description: Defines the end of the day of the month range. Must be greater than dayOfMonthStart. Ignored if repeat is false.
+          type: integer
+          minimum: 1
+          maximum: 31
+        monthStart:
+          description: Defines the month that access must be granted. You can also specify a range of months. In this case, permission is granted only if the current month is between or equal to the two values specified. Ignored if repeat is false.
+          type: integer
+          minimum: 1
+          maximum: 12
+        monthEnd:
+          description: Defines the end of the month range. Must be greater than monthStart. Ignored if repeat is false.
+          type: integer
+          minimum: 1
+          maximum: 12
+        hourStart:
+          description: Defines the hour that access must be granted. You can also specify a range of hours. In this case, permission is granted only if the current hour is between or equal to the two values specified. Ignored if repeat is false.
+          type: integer
+          minimum: 0
+          maximum: 23
+        hourEnd:
+          description: Defines the end of the hour range. Must be greater than hourStart. Ignored if repeat is false.
+          type: integer
+          minimum: 0
+          maximum: 23
+        minuteStart:
+          description: Defines the minute that access must be granted. You can also specify a range of minutes. In this case, permission is granted only if the current minute is between or equal to the two values specified. Ignored if repeat is false.
+          type: integer
+          minimum: 0
+          maximum: 59
+        minuteEnd:
+          description: Defines the end of the minutes range. Must be greater than minuteStart. Ignored if repeat is false.
+          type: integer
+          minimum: 0
+          maximum: 59
+          min: ${minuteStart}
+        logic:
+          description: Policies can be configured with positive or negative logic. Briefly, you can use this option to define whether the policy result should be kept as it is or be negated.
+          $ref: '#/components/schemas/policyLogicType'
+    rolePolicyRole:
+      type: object
+      description: Object containing the details of the aggregated policy.
+      required:
+      - id
+      properties:
+        id:
+          description: Specifies a role permitted by this policy. Required.
+          type: string
+          format: uuid
+        required:
+          description: When creating a role-based policy, you can specify a specific role as Required. When you do that, the policy will grant access only if the user requesting access has been granted all the required roles.
+          type: boolean
+          default: false
+    rolePolicy:
+      type: object
+      description: Object containing the details of the aggregated policy.
+      properties:
+        roles:
+          description: Specifies which roles are permitted by this policy. Required
+          type: array
+          items:
+            $ref: '#/components/schemas/rolePolicyRole'
+        logic:
+          description: The logic to apply for this policy.
+          $ref: '#/components/schemas/policyLogicType'
+      required:
+      - roles
+  responses:
+    created:
+      description: Success, entity created
+    noContent:
+      description: Success, no content
+      content:
+        text/plain:
+          schema:
+            type: string
+    badRequest:
+      description: Bad request, e.g. malformed request body or query parameter
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    unprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    entityNotFound:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerError:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+  parameters:
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    query-include:
+      in: query
+      required: false
+      name: include
+      description: Indicates which referenced fields should be populated (de-referenced) by the service
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/includedField'
+    query-expand-permissions:
+      in: query
+      required: false
+      name: expandPermissions
+      description: Whether or not to expand permissions listings
+      schema:
+        type: boolean
+        default: false
+    query-override-user:
+      in: query
+      required: false
+      name: overrideUser
+      description: When set to true the real user will be retrieved for ECS login into member tenants
+      schema:
+        type: boolean
+        default: false
+    cql-query:
+      name: query
+      in: query
+      required: false
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    keycloak-only:
+      in: query
+      required: false
+      name: keycloakOnly
+      description: Create auth user only during user creation
+      schema:
+        type: boolean
+        default: false
+    desired-permissions:
+      in: query
+      required: true
+      name: desiredPermissions
+      description: Permissions of permission prefix to filter by
+      schema:
+        type: array
+        items:
+          type: string
+      example:
+      - users.collection.get
+      - users.item.*
+    path-entity-userId:
+      in: path
+      required: true
+      name: userId
+      description: User ID
+      schema:
+        type: string
+        format: uuid

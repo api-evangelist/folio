@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/folio/main/json-schema/folio-calendar-schema.json",
+  "title": "calendar",
+  "description": "A single calendar",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/folio-mod-calendar-openapi.yml#/components/schemas/calendar",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "A unique UUID identifying this calendar",
+      "type": "string",
+      "format": "uuid"
+    },
+    "name": {
+      "description": "A user-provided name used to label this calendar",
+      "type": "string"
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date",
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this calendar"
+    },
+    "endDate": {
+      "type": "string",
+      "format": "date",
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this calendar"
+    },
+    "assignments": {
+      "description": "A list of all service points that this calendar is assigned to",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/servicePointId"
+      }
+    },
+    "normalHours": {
+      "description": "A list of objects describing when the calendar is normally open",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/normalHours"
+      }
+    },
+    "exceptions": {
+      "description": "A list of objects describing exceptions to the normal hours",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/exceptionRange"
+      }
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "startDate",
+    "endDate",
+    "assignments",
+    "normalHours",
+    "exceptions"
+  ],
+  "$defs": {
+    "exceptionRange": {
+      "description": "An exception to a calendar, consisting of a set of openings (or none if a closure)",
+      "type": "object",
+      "properties": {
+        "calendarId": {
+          "description": "The UUID of the calendar which this exception is for",
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "description": "A user-provided label for this exception",
+          "type": "string"
+        },
+        "startDate": {
+          "description": "The first effective date (inclusive, YYYY-MM-DD) of this exception range",
+          "type": "string",
+          "format": "date"
+        },
+        "endDate": {
+          "description": "The first effective date (inclusive, YYYY-MM-DD) of this exception range",
+          "type": "string",
+          "format": "date"
+        },
+        "openings": {
+          "description": "The openings during this exception",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/exceptionalOpening"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "startDate",
+        "endDate",
+        "openings"
+      ]
+    },
+    "exceptionalOpening": {
+      "description": "An opening as part of an exception",
+      "type": "object",
+      "properties": {
+        "exceptionId": {
+          "description": "The UUID of the exception which this opening is for",
+          "type": "string",
+          "format": "uuid"
+        },
+        "startDate": {
+          "description": "The first effective date (inclusive, YYYY-MM-DD) of this opening",
+          "type": "string",
+          "format": "date"
+        },
+        "startTime": {
+          "description": "The first opening time (inclusive) of this opening",
+          "type": "string",
+          "format": "time"
+        },
+        "endDate": {
+          "description": "The first effective date (inclusive, YYYY-MM-DD) of this opening",
+          "type": "string",
+          "format": "date"
+        },
+        "endTime": {
+          "description": "The last open time (inclusive) of this opening",
+          "type": "string",
+          "format": "time"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "startDate",
+        "startTime",
+        "endDate",
+        "endTime"
+      ]
+    },
+    "metadata": {
+      "description": "Metadata associated with the calendar. This is provided by the server on a best-effort basis; no fields are guaranteed to be present. Metadata is provided from Okapi; any metadata sent directly from the client will be ignored.",
+      "type": "object",
+      "properties": {
+        "createdDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdByUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "updatedDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedByUserId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "additionalProperties": false,
+      "required": []
+    },
+    "normalHours": {
+      "description": "A range of hours when a calendar is open",
+      "type": "object",
+      "properties": {
+        "calendarId": {
+          "description": "The UUID of the calendar which these hours are for",
+          "type": "string",
+          "format": "uuid"
+        },
+        "startDay": {
+          "description": "The first weekday (inclusive) of this range",
+          "$ref": "#/$defs/weekday"
+        },
+        "startTime": {
+          "description": "The time when this opening starts, inclusive",
+          "type": "string",
+          "format": "time"
+        },
+        "endDay": {
+          "description": "The last weekday (inclusive) of this range",
+          "$ref": "#/$defs/weekday"
+        },
+        "endTime": {
+          "description": "The last minute of this opening, inclusive (11:59 if it should be open at 11:59 and closed at 12:00)",
+          "type": "string",
+          "format": "time"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "startDay",
+        "startTime",
+        "endDay",
+        "endTime"
+      ]
+    },
+    "servicePointId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "A UUID uniquely identifying a service point"
+    },
+    "weekday": {
+      "description": "A day of the week.  Either SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, or SATURDAY",
+      "type": "string",
+      "format": "Weekday"
+    }
+  }
+}

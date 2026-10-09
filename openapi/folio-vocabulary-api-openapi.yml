@@ -1,0 +1,101 @@
+openapi: 3.2.0
+info:
+  title: Folio Vocabulary API
+  version: v1
+  description: 'Operations tagged vocabulary across 2 of this provider''s published API definitions: folio-mod-linked-data-openapi.json, folio-mod-linked-data-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: vocabulary
+paths:
+  /linked-data/vocabularies/{vocabularyName}:
+    get:
+      operationId: getVocabularyByName
+      tags:
+      - vocabulary
+      description: Get vocabulary JSON by vocabulary name
+      parameters:
+      - $ref: '#/components/parameters/vocabularyName'
+      responses:
+        '200':
+          description: Vocabulary as json string
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: No vocabulary is found by vocabulary name
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get vocabulary by name
+      x-summary-source: derived
+components:
+  schemas:
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    error:
+      description: An error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+  responses:
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example: example/unknownError.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+  parameters:
+    vocabularyName:
+      name: vocabularyName
+      in: path
+      required: true
+      description: Vocabulary name
+      schema:
+        type: string
+x-refined-from:
+- folio-mod-linked-data-openapi.json
+- folio-mod-linked-data-openapi.yml

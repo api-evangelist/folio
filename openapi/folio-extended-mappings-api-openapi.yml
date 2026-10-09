@@ -1,0 +1,334 @@
+openapi: 3.2.0
+info:
+  title: Folio Extended Mappings API
+  version: v1
+  description: 'Operations tagged Extended Mappings across 2 of this provider''s published API definitions: folio-mod-remote-storage-openapi.json, folio-mod-remote-storage-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /remote-storage/
+tags:
+- name: Extended Mappings
+paths:
+  /extended-mappings:
+    post:
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedRemoteLocationConfigurationMapping'
+        '400':
+          description: Bad request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Bad request
+        '422':
+          $ref: '#/components/responses/trait_validate_422'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Add/update a mapping between remote and Folio locations
+      operationId: postExtendedRemoteLocationConfigurationMapping
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/extendedRemoteLocationConfigurationMapping'
+        required: true
+      tags:
+      - Extended Mappings
+      summary: Post extended remote location configuration mapping
+      x-summary-source: derived
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedRemoteLocationConfigurationMappings'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Get a list of location mappings
+      operationId: getExtendedRemoteLocationConfigurationMappings
+      parameters:
+      - $ref: '#/components/parameters/trait_queryable_final_location_id'
+      - $ref: '#/components/parameters/trait_queryable_configuration_id'
+      - $ref: '#/components/parameters/trait_queryable_original_location_id'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      tags:
+      - Extended Mappings
+      summary: Get extended remote location configuration mappings
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+  /extended-mappings/{finalLocationId}:
+    parameters:
+    - name: finalLocationId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/uuid'
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedRemoteLocationConfigurationMappings'
+        '404':
+          description: Mapping not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Mapping not found
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      operationId: getExtendedRemoteLocationConfigurationMappingsById
+      tags:
+      - Extended Mappings
+      summary: Get extended remote location configuration mappings by id
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+  /extended-mappings/{remoteStorageConfigurationId}/{originalLocationId}:
+    delete:
+      responses:
+        '204':
+          description: No content
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: No content
+        '404':
+          description: Mapping not found
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Mapping not found
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      operationId: deleteOriginalLocationByRemoteStorageConfigurationIdAndOriginalLocationId
+      parameters:
+      - name: remoteStorageConfigurationId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      - name: originalLocationId
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/uuid'
+      tags:
+      - Extended Mappings
+      summary: Delete original location by remote storage configuration id and original…
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+  /extended-mappings/locations:
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/extendedRemoteLocationConfigurationMappings'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Internal server error
+      description: Get a list of location mappings
+      operationId: getExtendedRemoteLocationConfigurationMappingsLocations
+      parameters:
+      - $ref: '#/components/parameters/trait_queryable_configuration_id'
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      tags:
+      - Extended Mappings
+      summary: Get extended remote location configuration mappings locations
+      x-summary-source: derived
+    servers:
+    - url: /remote-storage/
+components:
+  schemas:
+    baseCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Basic object to create pageable responses
+      type: object
+      properties:
+        totalRecords:
+          description: total records value
+          type: integer
+    parameter:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          description: Key of the parameter
+        value:
+          type: string
+          description: Value of the parameter
+      additionalProperties: false
+      required:
+      - key
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+    extendedRemoteLocationConfigurationMappings:
+      allOf:
+      - $ref: '#/components/schemas/baseCollection'
+      - type: object
+        properties:
+          mappings:
+            type: array
+            items:
+              $ref: '#/components/schemas/extendedRemoteLocationConfigurationMapping'
+        required:
+        - mappings
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Regexp pattern for UUID validation
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    extendedRemoteLocationConfigurationMapping:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Mapping between remote and Folio locations with original location
+      type: object
+      properties:
+        finalLocationId:
+          description: Final location id
+          $ref: '#/components/schemas/uuid'
+        remoteConfigurationId:
+          description: Remote storage configuration id
+          $ref: '#/components/schemas/uuid'
+        originalLocationId:
+          description: Original location id
+          $ref: '#/components/schemas/uuid'
+      additionalProperties: false
+      required:
+      - finalLocationId
+      - remoteConfigurationId
+      - originalLocationId
+  parameters:
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_queryable_final_location_id:
+      name: finalLocationId
+      in: query
+      description: Final location id
+      schema:
+        type: string
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_queryable_original_location_id:
+      name: originalLocationId
+      in: query
+      description: Original location id
+      schema:
+        type: string
+    trait_queryable_configuration_id:
+      name: remoteStorageConfigurationId
+      in: query
+      description: Remote storage configuration id
+      schema:
+        type: string
+  responses:
+    trait_validate_422:
+      description: Validation errors
+      content:
+        application/json:
+          example: examples/errors.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+x-refined-from:
+- folio-mod-remote-storage-openapi.json
+- folio-mod-remote-storage-openapi.yml

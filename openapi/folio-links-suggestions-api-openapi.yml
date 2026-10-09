@@ -1,0 +1,295 @@
+openapi: 3.2.0
+info:
+  title: Folio Links Suggestions API
+  version: v1.0
+  description: 'Operations tagged links-suggestions across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://localhost:8081
+tags:
+- name: links-suggestions
+paths:
+  /links-suggestions/marc:
+    post:
+      description: Retrieve links suggestions for marc records
+      operationId: suggestLinksForMarcRecord
+      parameters:
+      - description: Authority field to search by
+        explode: true
+        in: query
+        name: authoritySearchParameter
+        required: false
+        schema:
+          $ref: '#/components/schemas/AuthoritySearchParameter'
+        style: form
+      - description: Indicates if we need to ignore autoLinkingEnabled flag when filtering the fields for suggestions
+        explode: true
+        in: query
+        name: ignoreAutoLinkingEnabled
+        required: false
+        schema:
+          default: false
+          type: boolean
+        style: form
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/parsedRecordContentCollection'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/parsedRecordContentCollection'
+          description: The marc records with links suggestion
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Validation errors.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors'
+          description: Internal server error.
+      tags:
+      - links-suggestions
+      summary: Suggest links for marc record
+      x-summary-source: derived
+    servers:
+    - url: https://localhost:8081
+components:
+  schemas:
+    AuthoritySearchParameter:
+      default: NATURAL_ID
+      description: Authority search parameter for link suggestions
+      enum:
+      - ID
+      - NATURAL_ID
+      type: string
+    linkStatus:
+      description: Link status
+      enum:
+      - ACTUAL
+      - ERROR
+      - NEW
+      type: string
+    FieldContent_value:
+      example:
+        ind1: ind1
+        ind2: ind2
+        subfields:
+        - key: subfields
+        - key: subfields
+        linkDetails:
+          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          authorityNaturalId: authorityNaturalId
+          status: ACTUAL
+          linkingRuleId: 0
+          errorCause: errorCause
+      properties:
+        ind1:
+          description: Identifier 1
+          type: string
+        ind2:
+          description: Identifier 2
+          type: string
+        subfields:
+          description: List of subfields
+          items:
+            additionalProperties:
+              type: string
+            description: Map of subfields
+            type: object
+          type: array
+        linkDetails:
+          $ref: '#/components/schemas/linkDetails'
+      type: object
+    parsedRecordContent:
+      additionalProperties: false
+      description: Parsed record content, e.g. MARC record
+      example:
+        fields:
+        - key:
+            ind1: ind1
+            ind2: ind2
+            subfields:
+            - key: subfields
+            - key: subfields
+            linkDetails:
+              authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              authorityNaturalId: authorityNaturalId
+              status: ACTUAL
+              linkingRuleId: 0
+              errorCause: errorCause
+        - key:
+            ind1: ind1
+            ind2: ind2
+            subfields:
+            - key: subfields
+            - key: subfields
+            linkDetails:
+              authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+              authorityNaturalId: authorityNaturalId
+              status: ACTUAL
+              linkingRuleId: 0
+              errorCause: errorCause
+        leader: leader
+      properties:
+        fields:
+          description: List of fields
+          items:
+            additionalProperties:
+              $ref: '#/components/schemas/FieldContent_value'
+            description: Map of marc fields
+            maxProperties: 1
+            title: FieldContent
+            type: object
+          type: array
+        leader:
+          description: Parsed record content, e.g. MARC record
+          type: string
+      required:
+      - fields
+      - leader
+      type: object
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/error_parameters_inner'
+          type: array
+      type: object
+    linkDetails:
+      description: Collection of SRS records content
+      example:
+        authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        authorityNaturalId: authorityNaturalId
+        status: ACTUAL
+        linkingRuleId: 0
+        errorCause: errorCause
+      properties:
+        authorityId:
+          description: Authority ID
+          format: uuid
+          type: string
+        authorityNaturalId:
+          description: Authority Natural ID
+          type: string
+        status:
+          $ref: '#/components/schemas/linkStatus'
+        linkingRuleId:
+          description: Linking rule ID
+          type: integer
+        errorCause:
+          description: Error status code
+          type: string
+      type: object
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object
+    parsedRecordContentCollection:
+      description: Collection of SRS records content
+      example:
+        records:
+        - fields:
+          - key:
+              ind1: ind1
+              ind2: ind2
+              subfields:
+              - key: subfields
+              - key: subfields
+              linkDetails:
+                authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                authorityNaturalId: authorityNaturalId
+                status: ACTUAL
+                linkingRuleId: 0
+                errorCause: errorCause
+          - key:
+              ind1: ind1
+              ind2: ind2
+              subfields:
+              - key: subfields
+              - key: subfields
+              linkDetails:
+                authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                authorityNaturalId: authorityNaturalId
+                status: ACTUAL
+                linkingRuleId: 0
+                errorCause: errorCause
+          leader: leader
+        - fields:
+          - key:
+              ind1: ind1
+              ind2: ind2
+              subfields:
+              - key: subfields
+              - key: subfields
+              linkDetails:
+                authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                authorityNaturalId: authorityNaturalId
+                status: ACTUAL
+                linkingRuleId: 0
+                errorCause: errorCause
+          - key:
+              ind1: ind1
+              ind2: ind2
+              subfields:
+              - key: subfields
+              - key: subfields
+              linkDetails:
+                authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+                authorityNaturalId: authorityNaturalId
+                status: ACTUAL
+                linkingRuleId: 0
+                errorCause: errorCause
+          leader: leader
+      properties:
+        records:
+          description: List of records content
+          items:
+            $ref: '#/components/schemas/parsedRecordContent'
+          type: array
+      type: object
+x-refined-from:
+- folio-mod-entities-links-openapi.json
+- folio-mod-entities-links-openapi.yml

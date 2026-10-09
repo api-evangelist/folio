@@ -1,0 +1,1233 @@
+{
+ "openapi": "3.0.3",
+ "info": {
+  "title": "Calendar Opening Hours API",
+  "version": "v5.0"
+ },
+ "servers": [
+  {
+   "url": "/"
+  }
+ ],
+ "paths": {
+  "/calendar/calendars": {
+   "get": {
+    "summary": "Search all calendars",
+    "description": "Get all calendars that match the given query",
+    "operationId": "searchCalendars",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "id",
+      "required": false,
+      "style": "form",
+      "explode": true,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "format": "uuid"
+       }
+      },
+      "description": "The list of calendar IDs to retrieve, sent as separate parameters (?id=aaaa&id=bbbb...).  If this list is passed, calendars must have an ID in this list in addition to any additional criteria."
+     },
+     {
+      "in": "query",
+      "name": "servicePointId",
+      "required": false,
+      "style": "form",
+      "explode": true,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "format": "uuid"
+       }
+      },
+      "description": "Filter for calendars that are assigned to a certain service point.  If this parameter is excluded, all service points will be considered/included in the response.  Multiple service points may be specified with form-style query expansions; in this case, calendars that are assigned to any of the provided service points will be returned."
+     },
+     {
+      "in": "query",
+      "name": "startDate",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "format": "date"
+      },
+      "description": "The first date (YYYY-MM-DD) to consider, inclusively"
+     },
+     {
+      "in": "query",
+      "name": "endDate",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "format": "date"
+      },
+      "description": "The last date (YYYY-MM-DD) to consider, inclusively"
+     },
+     {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 0,
+       "minimum": 0
+      },
+      "description": "Skip a certain number of the first values; used for pagination"
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 10,
+       "minimum": 0
+      },
+      "description": "The maximum number of elements returned in the response, used for pagination.  A limit of zero will not include any results (however, totalRecords will still be included) -- to include all results, use a large number such as 2147483647."
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "The query results",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/calendarCollection"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/invalidRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerError"
+     }
+    }
+   },
+   "post": {
+    "summary": "Create a new calendar",
+    "description": "Create a new calendar from a provided body.  If an ID is provided for the calendar, it will be ignored (and a new one generated).",
+    "operationId": "createCalendar",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/calendar"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "The created calendar",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/calendar"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/invalidRequest"
+     },
+     "409": {
+      "$ref": "#/components/responses/calendarDateOverlap"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerError"
+     }
+    }
+   },
+   "delete": {
+    "summary": "Delete multiple calendars",
+    "description": "Delete a calendar by its ID.",
+    "operationId": "deleteCalendars",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "id",
+      "required": true,
+      "style": "form",
+      "explode": true,
+      "schema": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "format": "uuid"
+       },
+       "minItems": 1
+      },
+      "description": "A list of calendars to delete, sent as separate parameters (?id=aaaa&id=bbbb...).  If any calendars are missing, a 404 will be returned and nothing modified."
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "The requested calendars were deleted"
+     },
+     "400": {
+      "$ref": "#/components/responses/invalidRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/calendarNotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerError"
+     }
+    }
+   }
+  },
+  "/calendar/calendars/{calendarId}": {
+   "get": {
+    "summary": "Get a calendar",
+    "description": "Get a calendar's information by its ID.",
+    "operationId": "getCalendar",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "calendarId",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "description": "The calendar ID to retrieve"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "The resulting calendar",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/calendar"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/invalidRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/calendarNotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerError"
+     }
+    }
+   },
+   "put": {
+    "summary": "Update an existing calendar",
+    "description": "Overwrite an existing calendar with the provided payload.  The provided calendar must already exist (attempting to overwrite a calendar that does not yet exist will result in a 404).  If the payload includes any IDs, they will be ignored, and the existing calendar ID reused.",
+    "operationId": "updateCalendar",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "calendarId",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "description": "The calendar ID to replace"
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/calendar"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "The newly saved calendar",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/calendar"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/invalidRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/calendarNotFound"
+     },
+     "409": {
+      "$ref": "#/components/responses/calendarDateOverlap"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerError"
+     }
+    }
+   },
+   "delete": {
+    "summary": "Delete a calendar",
+    "description": "Delete a calendar by its ID.",
+    "operationId": "deleteCalendar",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "calendarId",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "description": "The calendar ID to operate on."
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "The requested calendar was deleted"
+     },
+     "400": {
+      "$ref": "#/components/responses/invalidRequest"
+     },
+     "404": {
+      "$ref": "#/components/responses/calendarNotFound"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerError"
+     }
+    }
+   }
+  },
+  "/calendar/dates/{servicePointId}/surrounding-openings": {
+   "get": {
+    "operationId": "getSurroundingOpenings",
+    "summary": "Surrounding openings",
+    "description": "Calculate openings nearest to a given date for a specified service point",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "servicePointId",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "description": "The service point to calculate openings on"
+     },
+     {
+      "in": "query",
+      "name": "date",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "date"
+      },
+      "description": "The date (YYYY-MM-DD) to calculate openings around"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "The query results",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/surroundingOpenings"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/invalidRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerError"
+     }
+    }
+   }
+  },
+  "/calendar/dates/{servicePointId}/all-openings": {
+   "get": {
+    "operationId": "getAllOpenings",
+    "summary": "Daily opening information",
+    "description": "Calculate the opening information for each date within a range",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "servicePointId",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid"
+      },
+      "description": "The service point to calculate openings on"
+     },
+     {
+      "in": "query",
+      "name": "startDate",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "date"
+      },
+      "description": "The first date (YYYY-MM-DD) to include, inclusive"
+     },
+     {
+      "in": "query",
+      "name": "endDate",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "date"
+      },
+      "description": "The last date (YYYY-MM-DD) to include, inclusive"
+     },
+     {
+      "in": "query",
+      "name": "includeClosed",
+      "required": true,
+      "schema": {
+       "type": "boolean"
+      },
+      "description": "Whether or not the results should include days where the service point is closed.  Exceptional closures will always be returned"
+     },
+     {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 0,
+       "minimum": 0
+      },
+      "description": "Skip a certain number of the first values; used for pagination"
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 10,
+       "minimum": 0
+      },
+      "description": "The maximum number of elements returned in the response, used for pagination.  A limit of zero will not include any results (however, totalRecords will still be included) -- to include all results, use a large number such as 2147483647."
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "The query results",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/singleDayOpeningCollection"
+        }
+       }
+      }
+     },
+     "400": {
+      "$ref": "#/components/responses/invalidRequest"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerError"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "servicePointId": {
+    "type": "string",
+    "format": "uuid",
+    "description": "A UUID uniquely identifying a service point"
+   },
+   "weekday": {
+    "description": "A day of the week.  Either SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, or SATURDAY",
+    "type": "string",
+    "format": "Weekday"
+   },
+   "normalHours": {
+    "description": "A range of hours when a calendar is open",
+    "type": "object",
+    "properties": {
+     "calendarId": {
+      "description": "The UUID of the calendar which these hours are for",
+      "type": "string",
+      "format": "uuid"
+     },
+     "startDay": {
+      "description": "The first weekday (inclusive) of this range",
+      "$ref": "#/components/schemas/weekday"
+     },
+     "startTime": {
+      "description": "The time when this opening starts, inclusive",
+      "type": "string",
+      "format": "time"
+     },
+     "endDay": {
+      "description": "The last weekday (inclusive) of this range",
+      "$ref": "#/components/schemas/weekday"
+     },
+     "endTime": {
+      "description": "The last minute of this opening, inclusive (11:59 if it should be open at 11:59 and closed at 12:00)",
+      "type": "string",
+      "format": "time"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "startDay",
+     "startTime",
+     "endDay",
+     "endTime"
+    ],
+    "example": {
+     "startDay": "MONDAY",
+     "startTime": "07:00:00",
+     "endDay": "FRIDAY",
+     "endTime": "22:00:00"
+    }
+   },
+   "exceptionalOpening": {
+    "description": "An opening as part of an exception",
+    "type": "object",
+    "properties": {
+     "exceptionId": {
+      "description": "The UUID of the exception which this opening is for",
+      "type": "string",
+      "format": "uuid"
+     },
+     "startDate": {
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this opening",
+      "type": "string",
+      "format": "date"
+     },
+     "startTime": {
+      "description": "The first opening time (inclusive) of this opening",
+      "type": "string",
+      "format": "time"
+     },
+     "endDate": {
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this opening",
+      "type": "string",
+      "format": "date"
+     },
+     "endTime": {
+      "description": "The last open time (inclusive) of this opening",
+      "type": "string",
+      "format": "time"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "startDate",
+     "startTime",
+     "endDate",
+     "endTime"
+    ],
+    "example": {
+     "startDate": "2022-05-01",
+     "startTime": "07:00:00",
+     "endDate": "2022-05-01",
+     "endTime": "22:00:00"
+    }
+   },
+   "exceptionRange": {
+    "description": "An exception to a calendar, consisting of a set of openings (or none if a closure)",
+    "type": "object",
+    "properties": {
+     "calendarId": {
+      "description": "The UUID of the calendar which this exception is for",
+      "type": "string",
+      "format": "uuid"
+     },
+     "name": {
+      "description": "A user-provided label for this exception",
+      "type": "string"
+     },
+     "startDate": {
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this exception range",
+      "type": "string",
+      "format": "date"
+     },
+     "endDate": {
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this exception range",
+      "type": "string",
+      "format": "date"
+     },
+     "openings": {
+      "description": "The openings during this exception",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/exceptionalOpening"
+      }
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "startDate",
+     "endDate",
+     "openings"
+    ],
+    "example": {
+     "name": "Sample exception",
+     "startDate": "2022-05-01",
+     "endDate": "2022-05-03",
+     "openings": [
+      {
+       "startDate": "2022-05-01",
+       "startTime": "07:00:00",
+       "endDate": "2022-05-02",
+       "endTime": "22:00:00"
+      },
+      {
+       "startDate": "2022-05-03",
+       "startTime": "09:00:00",
+       "endDate": "2022-05-03",
+       "endTime": "23:00:00"
+      }
+     ]
+    }
+   },
+   "metadata": {
+    "description": "Metadata associated with the calendar. This is provided by the server on a best-effort basis; no fields are guaranteed to be present. Metadata is provided from Okapi; any metadata sent directly from the client will be ignored.",
+    "type": "object",
+    "properties": {
+     "createdDate": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdByUserId": {
+      "type": "string",
+      "format": "uuid"
+     },
+     "updatedDate": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedByUserId": {
+      "type": "string",
+      "format": "uuid"
+     }
+    },
+    "additionalProperties": false,
+    "required": []
+   },
+   "calendar": {
+    "description": "A single calendar",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "A unique UUID identifying this calendar",
+      "type": "string",
+      "format": "uuid"
+     },
+     "name": {
+      "description": "A user-provided name used to label this calendar",
+      "type": "string"
+     },
+     "startDate": {
+      "type": "string",
+      "format": "date",
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this calendar"
+     },
+     "endDate": {
+      "type": "string",
+      "format": "date",
+      "description": "The first effective date (inclusive, YYYY-MM-DD) of this calendar"
+     },
+     "assignments": {
+      "description": "A list of all service points that this calendar is assigned to",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/servicePointId"
+      }
+     },
+     "normalHours": {
+      "description": "A list of objects describing when the calendar is normally open",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/normalHours"
+      }
+     },
+     "exceptions": {
+      "description": "A list of objects describing exceptions to the normal hours",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/exceptionRange"
+      }
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "name",
+     "startDate",
+     "endDate",
+     "assignments",
+     "normalHours",
+     "exceptions"
+    ],
+    "example": {
+     "name": "Sample Spring Calendar",
+     "startDate": "2022-01-08",
+     "endDate": "2022-05-09",
+     "assignments": [
+      "44444444-4444-4444-4444-444444444444",
+      "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "dddddddd-dddd-dddd-dddd-dddddddddddd"
+     ],
+     "normalHours": [
+      {
+       "startDay": "MONDAY",
+       "startTime": "07:00:00",
+       "endDay": "FRIDAY",
+       "endTime": "22:00:00"
+      },
+      {
+       "startDay": "SATURDAY",
+       "startTime": "07:00:00",
+       "endDay": "SATURDAY",
+       "endTime": "22:00:00"
+      }
+     ],
+     "exceptions": [
+      {
+       "name": "Spring break (closed)",
+       "startDate": "2022-03-01",
+       "endDate": "2022-03-05",
+       "openings": []
+      },
+      {
+       "name": "Early closure",
+       "startDate": "2022-04-01",
+       "endDate": "2022-04-01",
+       "openings": [
+        {
+         "startDate": "2022-04-01",
+         "startTime": "07:00:00",
+         "endDate": "2022-04-01",
+         "endTime": "12:00:00"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "calendarCollection": {
+    "description": "Collection of calendars",
+    "type": "object",
+    "properties": {
+     "calendars": {
+      "type": "array",
+      "description": "Each calendar returned in the response",
+      "items": {
+       "$ref": "#/components/schemas/calendar"
+      }
+     },
+     "totalRecords": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of calendars in the response"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "calendars",
+     "totalRecords"
+    ],
+    "example": {
+     "calendars": [
+      {
+       "name": "Sample Spring Calendar",
+       "startDate": "2022-01-08",
+       "endDate": "2022-05-09",
+       "assignments": [
+        "44444444-4444-4444-4444-444444444444",
+        "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        "dddddddd-dddd-dddd-dddd-dddddddddddd"
+       ],
+       "normalHours": [
+        {
+         "startDay": "MONDAY",
+         "startTime": "07:00:00",
+         "endDay": "FRIDAY",
+         "endTime": "22:00:00"
+        },
+        {
+         "startDay": "SATURDAY",
+         "startTime": "07:00:00",
+         "endDay": "SATURDAY",
+         "endTime": "22:00:00"
+        }
+       ],
+       "exceptions": [
+        {
+         "name": "Spring break (closed)",
+         "startDate": "2022-03-01",
+         "endDate": "2022-03-05",
+         "openings": []
+        },
+        {
+         "name": "Early closure",
+         "startDate": "2022-04-01",
+         "endDate": "2022-04-01",
+         "openings": [
+          {
+           "startDate": "2022-04-01",
+           "startTime": "07:00:00",
+           "endDate": "2022-04-01",
+           "endTime": "12:00:00"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "totalRecords": 1
+    }
+   },
+   "errorCode": {
+    "description": "A code describing the error.",
+    "type": "string",
+    "enum": [
+     "internalServerError",
+     "invalidRequest",
+     "invalidParameter",
+     "calendarDateOverlap",
+     "calendarNotFound",
+     "calendarNoName",
+     "calendarInvalidDateRange",
+     "calendarInvalidNormalOpenings",
+     "calendarInvalidExceptions",
+     "calendarInvalidExceptionName",
+     "calendarInvalidExceptionDateOrder",
+     "calendarInvalidExceptionDateBoundary",
+     "calendarInvalidExceptionOpenings",
+     "calendarInvalidExceptionOpeningBoundary",
+     "settings.error.invalidDateRange",
+     "duplication",
+     "notFound"
+    ],
+    "x-enum-varnames": [
+     "INTERNAL_SERVER_ERROR",
+     "INVALID_REQUEST",
+     "INVALID_PARAMETER",
+     "CALENDAR_DATE_OVERLAP",
+     "CALENDAR_NOT_FOUND",
+     "CALENDAR_NO_NAME",
+     "CALENDAR_INVALID_DATE_RANGE",
+     "CALENDAR_INVALID_NORMAL_OPENINGS",
+     "CALENDAR_INVALID_EXCEPTIONS",
+     "CALENDAR_INVALID_EXCEPTION_NAME",
+     "CALENDAR_INVALID_EXCEPTION_DATE_ORDER",
+     "CALENDAR_INVALID_EXCEPTION_DATE_BOUNDARY",
+     "CALENDAR_INVALID_EXCEPTION_OPENINGS",
+     "CALENDAR_INVALID_EXCEPTION_OPENING_BOUNDARY",
+     "INVALID_DATE_RANGE",
+     "OVERLAPPING_CALENDAR",
+     "NOT_FOUND"
+    ],
+    "x-enum-descriptions": [
+     "Catch-all for any other unhandled exceptions",
+     "Catch-all for unparsable requests (bad JSON, etc)",
+     "Catch-all for missing or wrongly-typed parameters",
+     "The provided dates overlap other dates for the same assignment",
+     "The calender with the provided UUID was not found",
+     "The calendar's name was empty or whitespace",
+     "The calendar's start date was after the end date",
+     "The calendar has overlapping normal openings",
+     "The calendar has overlapping exceptions",
+     "An exception has an empty or whitespace-only name",
+     "An exception has a start date after its end date",
+     "An exception is outside of the boundary of the enclosing calendar",
+     "The calendar has overlapping openings within an exception",
+     "The exception has an opening outside of its range",
+     "The start date was after the end date",
+     "The new calendar would overlap with another calendar for this service point!  Please change the dates or add an exception.",
+     "No calendar/period was found with this ID"
+    ]
+   },
+   "error": {
+    "description": "Any kind of error coming from an endpoint",
+    "type": "object",
+    "properties": {
+     "code": {
+      "$ref": "#/components/schemas/errorCode"
+     },
+     "message": {
+      "type": "string",
+      "description": "A description of the error, properly localized."
+     },
+     "data": {
+      "type": "object",
+      "description": "Additional data that may be used for rich error display in the UI"
+     },
+     "_parameters": {
+      "description": "Parameters which may give insight into what caused the error"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "code",
+     "message"
+    ],
+    "example": {
+     "code": "internalServerError",
+     "message": "Internal Server Error"
+    }
+   },
+   "errorResponse": {
+    "description": "A set of error(s) from a request",
+    "type": "object",
+    "properties": {
+     "timestamp": {
+      "description": "The time that the error occurred",
+      "type": "string",
+      "format": "date-time"
+     },
+     "status": {
+      "description": "The HTTP response code",
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 600,
+      "exclusiveMaximum": true
+     },
+     "errors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "$ref": "#/components/schemas/error"
+      }
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "timestamp",
+     "status",
+     "errors"
+    ]
+   },
+   "singleDayOpeningRange": {
+    "description": "A time for a single opening range on a given day",
+    "type": "object",
+    "properties": {
+     "startTime": {
+      "description": "The start time of this opening",
+      "type": "string",
+      "format": "time"
+     },
+     "endTime": {
+      "description": "The end time of this opening",
+      "type": "string",
+      "format": "time"
+     }
+    },
+    "required": [
+     "startTime",
+     "endTime"
+    ],
+    "additionalProperties": false,
+    "example": {
+     "startTime": "13:30:00",
+     "endTime": "17:00:00"
+    }
+   },
+   "singleDayOpening": {
+    "description": "Opening information for a single day",
+    "type": "object",
+    "properties": {
+     "date": {
+      "description": "The date (YYYY-MM-DD) that this object is describing openings for",
+      "type": "string",
+      "format": "date"
+     },
+     "allDay": {
+      "description": "If the service point is open or closed for the entire day",
+      "type": "boolean"
+     },
+     "open": {
+      "description": "If the service point is open on this day",
+      "type": "boolean"
+     },
+     "exceptional": {
+      "description": "If this opening (or closure) was the result of an exception",
+      "type": "boolean"
+     },
+     "exceptionName": {
+      "description": "The name of an exception, if this day was affected by one",
+      "type": "string"
+     },
+     "openings": {
+      "description": "A list of all the opening ranges of the service point on this day",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/singleDayOpeningRange"
+      }
+     }
+    },
+    "required": [
+     "date",
+     "allDay",
+     "open",
+     "exceptional",
+     "openings"
+    ],
+    "additionalProperties": false,
+    "example": {
+     "date": "2022-05-01",
+     "allDay": false,
+     "open": true,
+     "exceptional": true,
+     "exceptionName": "Holiday (reduced hours with lunch break)",
+     "openings": [
+      {
+       "startTime": "10:00:00",
+       "endTime": "12:00:00"
+      },
+      {
+       "startTime": "13:30:00",
+       "endTime": "17:00:00"
+      }
+     ]
+    }
+   },
+   "surroundingOpenings": {
+    "description": "Information for three dates: one before when the SP is open, one representing an opening or closure for the current date, and one after the provided date where the SP is open.  If there are no openings before or after a given date, then an opening object will be returned with the date immediately following, denoting a closure.",
+    "type": "object",
+    "properties": {
+     "openings": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+       "$ref": "#/components/schemas/singleDayOpening"
+      }
+     }
+    },
+    "required": [
+     "openings"
+    ],
+    "additionalProperties": false,
+    "example": {
+     "openings": [
+      {
+       "date": "2022-05-01",
+       "allDay": false,
+       "open": true,
+       "exceptional": true,
+       "exceptionName": "Holiday (reduced hours with lunch break)",
+       "openings": [
+        {
+         "startTime": "10:00:00",
+         "endTime": "12:00:00"
+        },
+        {
+         "startTime": "13:30:00",
+         "endTime": "17:00:00"
+        }
+       ]
+      },
+      {
+       "date": "2022-05-02",
+       "allDay": true,
+       "open": false,
+       "exceptional": false,
+       "openings": []
+      },
+      {
+       "date": "2022-05-03",
+       "allDay": true,
+       "open": true,
+       "exceptional": false,
+       "openings": [
+        {
+         "startTime": "00:00:00",
+         "endTime": "23:59:00"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "singleDayOpeningCollection": {
+    "description": "Collection of opening information for single days",
+    "type": "object",
+    "properties": {
+     "dates": {
+      "type": "array",
+      "description": "Each opening or date returned in the response",
+      "items": {
+       "$ref": "#/components/schemas/singleDayOpening"
+      }
+     },
+     "totalRecords": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of total openings or dates available"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "dates",
+     "totalRecords"
+    ],
+    "example": {
+     "dates": [
+      {
+       "date": "2022-05-01",
+       "allDay": false,
+       "open": true,
+       "exceptional": true,
+       "exceptionName": "Holiday (reduced hours with lunch break)",
+       "openings": [
+        {
+         "startTime": "10:00:00",
+         "endTime": "12:00:00"
+        },
+        {
+         "startTime": "13:30:00",
+         "endTime": "17:00:00"
+        }
+       ]
+      },
+      {
+       "date": "2022-05-02",
+       "allDay": true,
+       "open": false,
+       "exceptional": false,
+       "openings": []
+      },
+      {
+       "date": "2022-05-03",
+       "allDay": true,
+       "open": true,
+       "exceptional": false,
+       "openings": [
+        {
+         "startTime": "00:00:00",
+         "endTime": "23:59:00"
+        }
+       ]
+      }
+     ],
+     "totalRecords": 3
+    }
+   }
+  },
+  "responses": {
+   "invalidRequest": {
+    "description": "Invalid request or parameters",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errorResponse"
+      },
+      "example": {
+       "value": {
+        "timestamp": "2021-11-18T13:38.51-50:00",
+        "status": 400,
+        "errors": [
+         {
+          "code": "invalidRequest",
+          "message": "The request could not be parsed"
+         }
+        ]
+       },
+       "summary": "The request could not be parsed/understood."
+      }
+     }
+    }
+   },
+   "internalServerError": {
+    "description": "Internal server error",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errorResponse"
+      },
+      "example": {
+       "value": {
+        "timestamp": "2021-11-18T13:38.51-05:00",
+        "status": 500,
+        "errors": [
+         {
+          "code": "internalServerError",
+          "message": "Internal Server Error"
+         }
+        ]
+       },
+       "summary": "Any kind of internal error"
+      }
+     }
+    }
+   },
+   "calendarDateOverlap": {
+    "description": "A calendar creation/update cannot be performed due to an existing assignment overlapping with the provided date range",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errorResponse"
+      },
+      "example": {
+       "value": {
+        "timestamp": "2021-11-18T13:38.51-05:00",
+        "status": 409,
+        "errors": [
+         {
+          "code": "calendarDateOverlap",
+          "message": "This calendar cannot be created due to an overlap with \"Other calendar\" (which is from Jan 3, 2022 to Mar 30, 2022)",
+          "data": {
+           "conflictingServicePointIds": [
+            "dddddddd-dddd-dddd-dddd-dddddddddddd"
+           ]
+          }
+         }
+        ]
+       },
+       "summary": "A calendar being created overlaps with an existing one"
+      }
+     }
+    }
+   },
+   "calendarNotFound": {
+    "description": "A calendar with the given UUID could not be found.",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/errorResponse"
+      },
+      "example": {
+       "value": {
+        "timestamp": "2021-11-18T13:38.51-05:00",
+        "status": 404,
+        "errors": [
+         {
+          "code": "calendarNotFound",
+          "message": "A calendar with UUIDs aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa and dddddddd-dddd-dddd-dddd-dddddddddddd could not be found.",
+          "data": {
+           "notFound": [
+            "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            "dddddddd-dddd-dddd-dddd-dddddddddddd"
+           ]
+          }
+         }
+        ]
+       },
+       "summary": "A calendar with the requested UUID does not exist."
+      }
+     }
+    }
+   }
+  }
+ }
+}

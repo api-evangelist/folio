@@ -1,0 +1,298 @@
+openapi: 3.2.0
+info:
+  title: Folio Service Points Users API
+  version: 1.0.0
+  contact:
+    name: Spitfire team
+  description: 'Operations tagged service-points-users across 2 of this provider''s published API definitions: folio-mod-locations-openapi.json, folio-mod-locations-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- description: Development environments.
+  url: https://folio-{environment}.ci.folio.org
+  variables:
+    environment:
+      default: edev-spitfire-diku
+      enum:
+      - edev-spitfire-diku
+      - edev-spitfire-consortium
+tags:
+- description: Manage service points users.
+  name: service-points-users
+paths:
+  /service-point-storage/service-points-users:
+    delete:
+      description: Delete all service points user records.
+      operationId: deleteServicePointsUsers
+      responses:
+        '204':
+          description: All service points users deleted.
+      summary: Delete service points users
+      tags:
+      - service-points-users
+    get:
+      description: Return a list of service points users.
+      operationId: getServicePointsUsers
+      parameters:
+      - description: CQL query expression.
+        in: query
+        name: query
+        required: false
+        schema:
+          type: string
+      - description: Limit the number of elements returned.
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          minimum: 0
+          type: integer
+      - description: Skip over a number of elements.
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePointsUsersCollection'
+          description: Collection of service points users.
+      summary: Get service points users
+      tags:
+      - service-points-users
+    post:
+      description: Create a new service points user record.
+      operationId: createServicePointsUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/servicePointsUser'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePointsUser'
+          description: Created service points user.
+      summary: Create service points user
+      tags:
+      - service-points-users
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+  /service-point-storage/service-points-users/{id}:
+    delete:
+      description: Delete an existing service points user by their unique identifier.
+      operationId: deleteServicePointsUserById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '204':
+          description: Service points user deleted successfully.
+      summary: Delete service points user by id
+      tags:
+      - service-points-users
+    get:
+      description: Retrieve a single service points user by their unique identifier.
+      operationId: getServicePointsUserById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/servicePointsUser'
+          description: Service points user record.
+      summary: Get service points user by id
+      tags:
+      - service-points-users
+    put:
+      description: Update an existing service points user by their unique identifier.
+      operationId: updateServicePointsUserById
+      parameters:
+      - description: Record identifier.
+        in: path
+        name: id
+        required: true
+        schema:
+          format: uuid
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/servicePointsUser'
+        required: true
+      responses:
+        '204':
+          description: Service points user updated successfully.
+      summary: Update service points user by id
+      tags:
+      - service-points-users
+    servers:
+    - description: Development environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: edev-spitfire-diku
+          enum:
+          - edev-spitfire-diku
+          - edev-spitfire-consortium
+    - description: Reference environments.
+      url: https://folio-{environment}.ci.folio.org
+      variables:
+        environment:
+          default: etesting-snapshot-diku
+          enum:
+          - etesting-snapshot-diku
+          - etesting-snapshot-2-diku
+          - etesting-sprint-fs09000000
+components:
+  schemas:
+    servicePointsUser:
+      additionalProperties: false
+      description: The list of service points a user is allowed to work at, and the default service point for that user
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        defaultServicePointId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        servicePointsIds:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        userId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: ID of the service points user
+          format: uuid
+          type: string
+        userId:
+          description: ID of the user
+          format: uuid
+          type: string
+        servicePointsIds:
+          description: List of service points a user is allowed to work at
+          items:
+            description: ID of a service point
+            format: uuid
+            type: string
+          type: array
+        defaultServicePointId:
+          description: ID of the user's default service point
+          format: uuid
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - userId
+      title: Service Points User
+      type: object
+    servicePointsUsersCollection:
+      description: Collection of service points users
+      example:
+        totalRecords: 0
+        servicePointsUsers:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          defaultServicePointId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          servicePointsIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          userId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          defaultServicePointId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          servicePointsIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          userId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        servicePointsUsers:
+          description: List of service points users
+          items:
+            $ref: '#/components/schemas/servicePointsUser'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - servicePointsUsers
+      - totalRecords
+      title: Service Points Users Collection
+      type: object
+    metadata:
+      additionalProperties: false
+      description: Metadata about creation and changes to records
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      readOnly: true
+      title: Metadata
+      type: object
+x-refined-from:
+- folio-mod-locations-openapi.json
+- folio-mod-locations-openapi.yml

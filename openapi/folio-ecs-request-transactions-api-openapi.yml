@@ -1,0 +1,281 @@
+openapi: 3.2.0
+info:
+  title: Folio Ecs Request Transactions API
+  version: 1.0.0
+  description: 'Operations tagged ecs-request-transactions across 2 of this provider''s published API definitions: folio-mod-dcb-dcb-transaction-openapi.json, folio-mod-dcb-dcb-transaction-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: ecs-request-transactions
+paths:
+  /ecs-request-transactions/{ecsRequestTransactionId}:
+    description: ECS TLR Transaction endpoint
+    post:
+      description: Create transaction for existing circulation TLR
+      operationId: createEcsRequestTransactions
+      tags:
+      - ecs-request-transactions
+      parameters:
+      - $ref: '#/components/parameters/ecsRequestTransactionId'
+      requestBody:
+        $ref: '#/components/requestBodies/DCBTransaction'
+      responses:
+        '201':
+          $ref: '#/components/responses/TransactionStatusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Create ecs request transactions
+      x-summary-source: derived
+    patch:
+      description: Update ECS request transaction
+      operationId: updateEcsRequestTransaction
+      tags:
+      - ecs-request-transactions
+      parameters:
+      - $ref: '#/components/parameters/ecsRequestTransactionId'
+      requestBody:
+        $ref: '#/components/requestBodies/DCBTransaction'
+      responses:
+        '200':
+          $ref: '#/components/responses/TransactionStatusResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      summary: Update ecs request transaction
+      x-summary-source: derived
+components:
+  schemas:
+    TransactionStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - CREATED
+          - OPEN
+          - AWAITING_PICKUP
+          - ITEM_CHECKED_OUT
+          - ITEM_CHECKED_IN
+          - EXPIRED
+          - CLOSED
+          - CANCELLED
+          - ERROR
+        message:
+          type: string
+        context:
+          type: object
+          description: Optional context for the transaction status update
+          properties:
+            claimedReturnedResolution:
+              $ref: '#/components/schemas/ClaimedReturnedResolution'
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    DcbPatron:
+      description: Patron metadata required for the transaction
+      type: object
+      properties:
+        id:
+          description: The unique identifier for the patron making the request as known in the requesting library
+          $ref: '#/components/schemas/uuid'
+        group:
+          description: The patron group associated with the requesting patron
+          type: string
+        barcode:
+          description: The barcode of the patron
+          type: string
+        localNames:
+          description: 'The local names for the patron, for example: "[John, Johnny, Doe]"'
+          type: string
+    TransactionStatusResponse:
+      allOf:
+      - $ref: '#/components/schemas/TransactionStatus'
+      - $ref: '#/components/schemas/DcbTransaction'
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    DcbPickup:
+      description: Pickup Location metadata required for the pickup service point
+      type: object
+      properties:
+        libraryCode:
+          description: The code which identifies the pickup library
+          type: string
+        servicePointId:
+          description: UUID of the pickup service point
+          type: string
+        servicePointName:
+          description: The name of the pickup service point
+          type: string
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    DcbTransaction:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/DcbItem'
+        patron:
+          $ref: '#/components/schemas/DcbPatron'
+        pickup:
+          $ref: '#/components/schemas/DcbPickup'
+        requestId:
+          description: ID of the existing circulation TLR
+          type: string
+        selfBorrowing:
+          description: selfBorrowing flag for BORROWING_PICKUP role to allow patrons to request items from own library via DCB
+          type: boolean
+        role:
+          type: string
+          enum:
+          - LENDER
+          - BORROWER
+          - PICKUP
+          - BORROWING-PICKUP
+    DcbItem:
+      description: Item metadata required for the transaction
+      type: object
+      properties:
+        id:
+          description: The unique item identifier
+          $ref: '#/components/schemas/uuid'
+        title:
+          description: The title of the item that has been requested
+          type: string
+        barcode:
+          description: The barcode of the item as specified in the lending library
+          type: string
+        materialType:
+          description: The “hub-normalized” form of the item item type, used in the circulation rules for determining the correct loan policy.
+          type: string
+        lendingLibraryCode:
+          description: The code which identifies the lending library
+          type: string
+        locationCode:
+          description: The location code of the item, representing the library agency code used for determining loan policy flexibility.
+          type: string
+        renewalInfo:
+          $ref: '#/components/schemas/renewalInfo'
+        holdCount:
+          description: The number of holds on the item (Will be returned only for Lender role)
+          type: integer
+    ClaimedReturnedResolution:
+      type: string
+      description: Claimed returned resolution
+      enum:
+      - Found by library
+      - Returned by patron
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    renewalInfo:
+      type: object
+      properties:
+        renewalCount:
+          description: renewalCount of the loan
+          type: integer
+        renewalMaxCount:
+          description: renewalMaxCount of loan as per the loan policy configuration
+          type: integer
+        renewable:
+          description: renewable
+          type: boolean
+  responses:
+    TransactionStatusResponse:
+      description: TransactionStatusResponse object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TransactionStatusResponse'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    ecsRequestTransactionId:
+      in: path
+      name: ecsRequestTransactionId
+      schema:
+        type: string
+      required: true
+  requestBodies:
+    DCBTransaction:
+      description: DCB transaction object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DcbTransaction'
+x-refined-from:
+- folio-mod-dcb-dcb-transaction-openapi.json
+- folio-mod-dcb-dcb-transaction-openapi.yml

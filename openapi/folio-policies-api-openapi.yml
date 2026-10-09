@@ -1,0 +1,681 @@
+openapi: 3.2.0
+info:
+  title: Folio Policies API
+  version: '1.0'
+  description: 'Operations tagged Policies across 4 of this provider''s published API definitions: folio-mod-consortia-keycloak-sharing-policies-openapi.json, folio-mod-roles-keycloak-openapi.json, folio-mod-consortia-keycloak-sharing-policies-openapi.yml, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /consortia/{consortiumId}/sharing
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: Policies
+paths:
+  /policies:
+    post:
+      summary: start sharing policy
+      operationId: startSharingPolicy
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      requestBody:
+        $ref: '#/components/requestBodies/SharingPolicyBody'
+      responses:
+        '201':
+          $ref: '#/components/responses/SharingPolicyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Policies
+    get:
+      description: Get policies by query
+      operationId: findPolicies
+      tags:
+      - Policies
+      parameters:
+      - $ref: '#/components/parameters/query'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: Array of policies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/policies'
+              example:
+                $ref: '#/components/examples/policiesResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Find policies
+      x-summary-source: derived
+    servers:
+    - url: /consortia/{consortiumId}/sharing
+  /policies/{policyId}:
+    delete:
+      summary: delete sharing policy
+      operationId: deleteSharingPolicy
+      parameters:
+      - $ref: '#/components/parameters/consortiumId'
+      - $ref: '#/components/parameters/policyId'
+      requestBody:
+        $ref: '#/components/requestBodies/SharingPolicyBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/SharingPolicyDeleteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      tags:
+      - Policies
+    servers:
+    - url: /consortia/{consortiumId}/sharing
+  /policies/{id}:
+    get:
+      description: Get policy by ID
+      operationId: getPolicy
+      tags:
+      - Policies
+      parameters:
+      - $ref: '#/components/parameters/pathPolicyId'
+      responses:
+        '200':
+          description: Retrieve a policy by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/policy'
+              example:
+                $ref: '#/components/examples/policyResponse'
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Get policy
+      x-summary-source: derived
+    put:
+      description: Update a policy
+      operationId: updatePolicy
+      tags:
+      - Policies
+      parameters:
+      - $ref: '#/components/parameters/pathPolicyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/policy'
+            example:
+              $ref: '#/components/examples/policyRequest'
+      responses:
+        '204':
+          description: Update existing policy
+        '404':
+          $ref: '#/components/responses/notFoundResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Update policy
+      x-summary-source: derived
+    delete:
+      description: Delete a policy
+      operationId: deletePolicy
+      tags:
+      - Policies
+      parameters:
+      - $ref: '#/components/parameters/pathPolicyId'
+      responses:
+        '204':
+          description: Delete a policy
+      summary: Delete policy
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /policies/batch:
+    post:
+      description: Create one or more policies
+      operationId: createPolicies
+      tags:
+      - Policies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/policiesRequest'
+            example:
+              $ref: '#/components/examples/policiesRequest'
+      responses:
+        '201':
+          description: Array of created policy or policies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/policies'
+              example:
+                $ref: '#/components/examples/policiesResponse'
+        '400':
+          $ref: '#/components/responses/badRequestResponse'
+        '500':
+          $ref: '#/components/responses/internalServerErrorResponse'
+      summary: Create policies
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  responses:
+    SharingPolicyResponse:
+      description: Returns a sharing policy object response for post operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingPolicyResponse'
+          example:
+            createPCId: c734a41e-16ba-4a02-beb0-2d45081e39b1
+            updatePCId: 53e0f091-ffee-448c-a0f8-562d9ad6bf3f
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    SharingPolicyDeleteResponse:
+      description: Returns a sharing policy response for delete operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingPolicyDeleteResponse'
+          example:
+            pcId: c734a41e-16ba-4a02-beb0-2d45081e39b1
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
+    notFoundResponse:
+      description: Not found error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/notFoundResponse'
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/badRequestResponse'
+  parameters:
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+    policyId:
+      in: path
+      name: policyId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of policy
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+      example: 20
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 2
+    pathPolicyId:
+      in: path
+      required: true
+      name: id
+      description: Policy identifier
+      schema:
+        type: string
+        format: uuid
+      example: 1e589e76-e9ca-401c-ad8e-0d121a11111e
+    query:
+      in: query
+      name: query
+      description: A query string to filter users based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+      example: role
+  schemas:
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    SharingPolicyResponse:
+      description: A JSON schema for the Sharing policies object response for post request
+      type: object
+      properties:
+        createPCId:
+          type: string
+          format: uuid
+        updatePCId:
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - createPCId
+      - updatePCId
+    SharingPolicyRequest:
+      description: A JSON schema for the Sharing policies object
+      type: object
+      properties:
+        policyId:
+          description: id of sharing policy record
+          type: string
+          format: uuid
+        url:
+          description: URL for publishing requests for consortia tenants
+          type: string
+        payload:
+          description: Http request body
+          type: object
+      additionalProperties: false
+      required:
+      - policyId
+      - url
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    SharingPolicyDeleteResponse:
+      description: A JSON schema for the Sharing policies object response for delete request
+      type: object
+      properties:
+        pcId:
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - pcId
+    uuid:
+      type: string
+      format: uuid
+    timePolicy:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Object containing the details of the time-based policy.
+      required: []
+      properties:
+        repeat:
+          description: Whether or not to repeat the policy.
+          type: boolean
+          default: false
+        start:
+          description: Defines the time before which access must not be granted. Permission is granted only if the current date/time is later than or equal to this value. Ignored if repeat is true.
+          type: string
+          format: date-time
+        expires:
+          description: Defines the time after which access must not be granted. Permission is granted only if the current date/time is earlier than or equal to this value. Must be greater than the start time. Ignored if repeat is true.
+          type: string
+          format: date-time
+        dayOfMonthStart:
+          description: Defines the day of the month that access must be granted. You can also specify a range of dates. In this case, permission is granted only if the current day of the month is between or equal to the two values specified. Ignored if repeat is false.
+          type: integer
+          minimum: 1
+          maximum: 31
+        dayOfMonthEnd:
+          description: Defines the end of the day of the month range. Must be greater than dayOfMonthStart. Ignored if repeat is false.
+          type: integer
+          minimum: 1
+          maximum: 31
+        monthStart:
+          description: Defines the month that access must be granted. You can also specify a range of months. In this case, permission is granted only if the current month is between or equal to the two values specified. Ignored if repeat is false.
+          type: integer
+          minimum: 1
+          maximum: 12
+        monthEnd:
+          description: Defines the end of the month range. Must be greater than monthStart. Ignored if repeat is false.
+          type: integer
+          minimum: 1
+          maximum: 12
+        hourStart:
+          description: Defines the hour that access must be granted. You can also specify a range of hours. In this case, permission is granted only if the current hour is between or equal to the two values specified. Ignored if repeat is false.
+          type: integer
+          minimum: 0
+          maximum: 23
+        hourEnd:
+          description: Defines the end of the hour range. Must be greater than hourStart. Ignored if repeat is false.
+          type: integer
+          minimum: 0
+          maximum: 23
+        minuteStart:
+          description: Defines the minute that access must be granted. You can also specify a range of minutes. In this case, permission is granted only if the current minute is between or equal to the two values specified. Ignored if repeat is false.
+          type: integer
+          minimum: 0
+          maximum: 59
+        minuteEnd:
+          description: Defines the end of the minutes range. Must be greater than minuteStart. Ignored if repeat is false.
+          type: integer
+          minimum: 0
+          maximum: 59
+          min: ${minuteStart}
+        logic:
+          description: Time policy logic
+          $ref: '#/components/schemas/policyLogicType'
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+      additionalProperties: false
+    policyType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The type of policy. Required.
+      type: string
+      enum:
+      - USER
+      - TIME
+      - ROLE
+    sourceType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Source type for roles and policies.
+      type: string
+      enum:
+      - SYSTEM
+      - USER
+      - CONSORTIUM
+    rolePolicy:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Object containing the details of the aggregated policy.
+      properties:
+        roles:
+          description: Specifies which roles are permitted by this policy. Required
+          type: array
+          items:
+            $ref: '#/components/schemas/rolePolicyRole'
+        logic:
+          description: User policy logic
+          $ref: '#/components/schemas/policyLogicType'
+      required:
+      - roles
+    policyLogicType:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Policy logic enum
+      description: The logic type of policy.
+      type: string
+      enum:
+      - POSITIVE
+      - NEGATIVE
+      default: POSITIVE
+      examples:
+      - POSITIVE
+      - NEGATIVE
+    userPolicy:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Object containing the details of the user-based policy
+      properties:
+        users:
+          description: Collection of user IDs. Required.
+          type: array
+          items:
+            type: string
+            format: uuid
+        logic:
+          description: User policy logic
+          $ref: '#/components/schemas/policyLogicType'
+      required:
+      - users
+      example:
+        id: 3f3f3f3f-3f3f-3333-3f3f-3f3f3f3f3f3f
+        name: user_based_policy
+        description: This policy is meant to be an example
+        users:
+        - f7f7f7f7-7777-f7f7-f7f7-f7f7f7f7f7f7
+        - 7f7f7f7f-7f7f-7777-7f7f-7f7f7f7f7f7f
+        logic: POSITIVE
+    policy:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Object containing the details of the policy.
+      properties:
+        id:
+          description: A unique identifier for this policy. System-generated if not provided.
+          type: string
+          format: uuid
+        name:
+          description: A human-readable name/label for this policy. Required.
+          type: string
+        description:
+          description: Free form description of the policy. Optional.
+          type: string
+        type:
+          description: The type of policy. Required.
+          $ref: '#/components/schemas/policyType'
+        source:
+          description: The source for the policy.
+          $ref: '#/components/schemas/sourceType'
+        userPolicy:
+          description: Object containing the details of the user-based policy
+          $ref: '#/components/schemas/userPolicy'
+        timePolicy:
+          description: Object containing the details of the time-based policy.
+          $ref: '#/components/schemas/timePolicy'
+        rolePolicy:
+          description: Object containing the details of the aggregated policy.
+          $ref: '#/components/schemas/rolePolicy'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - name
+      - type
+    policiesRequest:
+      type: object
+      description: A list of policies with additional meta information.
+      properties:
+        policies:
+          description: A list of policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/policy'
+          minItems: 1
+          maxItems: 255
+      required:
+      - policies
+    rolePolicyRole:
+      type: object
+      description: Object containing the details of the aggregated policy.
+      required:
+      - id
+      properties:
+        id:
+          description: Specifies a role permitted by this policy. Required.
+          type: string
+          format: uuid
+        required:
+          description: When creating a role-based policy, you can specify a specific role as Required. When you do that, the policy will grant access only if the user requesting access has been granted all the required roles.
+          type: boolean
+          default: false
+    policies:
+      type: object
+      description: A list of policies with additional meta information.
+      properties:
+        policies:
+          description: A list of policies.
+          type: array
+          items:
+            $ref: '#/components/schemas/policy'
+        totalRecords:
+          description: The total number of roles matching the provided criteria
+          type: integer
+  requestBodies:
+    SharingPolicyBody:
+      description: Sharing policies object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingPolicyRequest'
+          example:
+            policyId: 2844767a-8367-4926-9999-514c35840399
+            url: /policy
+            payload:
+              id: 2844767a-8367-4926-9999-514c35840399
+              name: 'Policy for role: 004d7a66-c51d-402a-9c9f-3bdcdbbcdbe7'
+              source: local
+  examples:
+    policyResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    notFoundResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    policiesResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    internalServerErrorResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    badRequestResponse:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    timeBasedPolicy:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    policiesRequest:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+    policyRequest:
+      type: object
+      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
+      x-ae-placeholder: true
+x-refined-from:
+- folio-mod-consortia-keycloak-sharing-policies-openapi.json
+- folio-mod-roles-keycloak-openapi.json
+- folio-mod-consortia-keycloak-sharing-policies-openapi.yml
+- folio-mod-roles-keycloak-openapi.yml

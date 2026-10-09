@@ -1,0 +1,3509 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Staff Slips API",
+  "version": "v1"
+ },
+ "tags": [
+  {
+   "name": "staffSlips"
+  }
+ ],
+ "servers": [
+  {
+   "url": "/tlr/staff-slips"
+  }
+ ],
+ "paths": {
+  "/pick-slips/{servicePointId}": {
+   "get": {
+    "description": "Get pick slips",
+    "operationId": "getPickSlips",
+    "tags": [
+     "staffSlips"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/servicePointId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/pick-slips"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  },
+  "/search-slips/{servicePointId}": {
+   "get": {
+    "description": "Get search slips",
+    "operationId": "getSearchSlips",
+    "tags": [
+     "staffSlips"
+    ],
+    "parameters": [
+     {
+      "$ref": "#/components/parameters/servicePointId"
+     }
+    ],
+    "responses": {
+     "200": {
+      "$ref": "#/components/responses/search-slips"
+     },
+     "400": {
+      "$ref": "#/components/responses/badRequestResponse"
+     },
+     "404": {
+      "$ref": "#/components/responses/notFoundResponse"
+     },
+     "500": {
+      "$ref": "#/components/responses/internalServerErrorResponse"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "errorResponse": {
+    "$ref": "#/components/schemas/errors"
+   },
+   "locations": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "List of (shelf) locations.",
+    "type": "object",
+    "properties": {
+     "locations": {
+      "id": "locations",
+      "description": "List of (shelf) locations.",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/location"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     }
+    }
+   },
+   "items": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of item records",
+    "type": "object",
+    "properties": {
+     "items": {
+      "description": "List of item records",
+      "id": "items",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/item"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     },
+     "resultInfo": {
+      "$ref": "#/components/schemas/resultInfo",
+      "readonly": true
+     }
+    }
+   },
+   "materialTypes": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of material types",
+    "type": "object",
+    "properties": {
+     "mtypes": {
+      "description": "List of material types",
+      "id": "mtype",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/materialType"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     }
+    }
+   },
+   "loanTypes": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of loan types",
+    "type": "object",
+    "properties": {
+     "loantypes": {
+      "description": "List of loan types",
+      "id": "loantype",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/loanType"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     }
+    }
+   },
+   "libraries": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of third-level location units",
+    "type": "object",
+    "properties": {
+     "loclibs": {
+      "description": "List of third-level location units",
+      "id": "loclibs",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/library"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     }
+    }
+   },
+   "campuses": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of second-level location units",
+    "type": "object",
+    "properties": {
+     "loccamps": {
+      "description": "List of second-level location units",
+      "id": "loccamps",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/campus"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     }
+    }
+   },
+   "institutions": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of top-level location units",
+    "type": "object",
+    "properties": {
+     "locinsts": {
+      "description": "List of first-level location units",
+      "id": "locinsts",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/institution"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     }
+    }
+   },
+   "servicePoints": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of service points",
+    "type": "object",
+    "properties": {
+     "servicepoints": {
+      "description": "List of service points",
+      "id": "servicepoint",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/servicePoint"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     }
+    }
+   },
+   "holdingsRecords": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of holdings records",
+    "type": "object",
+    "properties": {
+     "holdingsRecords": {
+      "description": "List of holdings records",
+      "id": "holdingsRecord",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/holdingsRecord"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     },
+     "resultInfo": {
+      "$ref": "#/components/schemas/resultInfo",
+      "readonly": true
+     }
+    }
+   },
+   "instances": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A collection of instance records",
+    "type": "object",
+    "properties": {
+     "instances": {
+      "description": "List of instance records",
+      "id": "instances",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/instance"
+      }
+     },
+     "totalRecords": {
+      "description": "Estimated or exact total number of records",
+      "type": "integer"
+     }
+    }
+   },
+   "users": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Collection of users",
+    "properties": {
+     "users": {
+      "description": "List of users",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/user"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     },
+     "resultInfo": {
+      "$ref": "#/components/schemas/resultInfo",
+      "readonly": true
+     }
+    },
+    "required": [
+     "users",
+     "totalRecords"
+    ]
+   },
+   "usersGroups": {
+    "$ref": "#/components/schemas/userGroups"
+   },
+   "departments": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Department Collection",
+    "description": "Department collection object schema",
+    "type": "object",
+    "properties": {
+     "departments": {
+      "type": "array",
+      "description": "List of departments",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/department"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    }
+   },
+   "addressTypes": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Collection of address types",
+    "properties": {
+     "addressTypes": {
+      "description": "List of address type items",
+      "type": "array",
+      "id": "addressType",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/addressType"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    }
+   },
+   "searchInstancesResponse": {
+    "description": "Instance search result response",
+    "type": "object",
+    "properties": {
+     "totalRecords": {
+      "type": "integer",
+      "description": "Amount of instances found"
+     },
+     "instances": {
+      "type": "array",
+      "description": "List of instances found",
+      "items": {
+       "$ref": "#/components/schemas/searchInstance"
+      }
+     }
+    }
+   },
+   "staffSlip": {
+    "description": "Staff slip",
+    "type": "object",
+    "properties": {
+     "currentDateTime": {
+      "type": "string",
+      "format": "date-time"
+     },
+     "item": {
+      "type": "object",
+      "properties": {
+       "title": {
+        "type": "string"
+       },
+       "primaryContributor": {
+        "type": "string"
+       },
+       "allContributors": {
+        "type": "string"
+       },
+       "barcode": {
+        "type": "string"
+       },
+       "status": {
+        "type": "string"
+       },
+       "enumeration": {
+        "type": "string"
+       },
+       "volume": {
+        "type": "string"
+       },
+       "chronology": {
+        "type": "string"
+       },
+       "yearCaption": {
+        "type": "string"
+       },
+       "materialType": {
+        "type": "string"
+       },
+       "loanType": {
+        "type": "string"
+       },
+       "copy": {
+        "type": "string"
+       },
+       "numberOfPieces": {
+        "type": "string"
+       },
+       "displaySummary": {
+        "type": "string"
+       },
+       "descriptionOfPieces": {
+        "type": "string"
+       },
+       "effectiveLocationSpecific": {
+        "type": "string"
+       },
+       "effectiveLocationLibrary": {
+        "type": "string"
+       },
+       "effectiveLocationCampus": {
+        "type": "string"
+       },
+       "effectiveLocationInstitution": {
+        "type": "string"
+       },
+       "effectiveLocationDiscoveryDisplayName": {
+        "type": "string"
+       },
+       "effectiveLocationPrimaryServicePointName": {
+        "type": "string"
+       },
+       "callNumber": {
+        "type": "string"
+       },
+       "callNumberPrefix": {
+        "type": "string"
+       },
+       "callNumberSuffix": {
+        "type": "string"
+       },
+       "lastCheckedInDateTime": {
+        "type": "string",
+        "format": "date-time"
+       }
+      }
+     },
+     "request": {
+      "type": "object",
+      "properties": {
+       "requestID": {
+        "type": "string",
+        "format": "uuid"
+       },
+       "servicePointPickup": {
+        "type": "string"
+       },
+       "requestDate": {
+        "type": "string",
+        "format": "date-time"
+       },
+       "requestExpirationDate": {
+        "type": "string",
+        "format": "date-time"
+       },
+       "holdShelfExpirationDate": {
+        "type": "string",
+        "format": "date-time"
+       },
+       "additionalInfo": {
+        "type": "string"
+       },
+       "reasonForCancellation": {
+        "type": "string"
+       },
+       "deliveryAddressType": {
+        "type": "string"
+       },
+       "patronComments": {
+        "type": "string"
+       }
+      }
+     },
+     "requester": {
+      "type": "object",
+      "properties": {
+       "firstName": {
+        "type": "string"
+       },
+       "preferredFirstName": {
+        "type": "string"
+       },
+       "lastName": {
+        "type": "string"
+       },
+       "middleName": {
+        "type": "string"
+       },
+       "barcode": {
+        "type": "string"
+       },
+       "patronGroup": {
+        "type": "string"
+       },
+       "departments": {
+        "type": "string"
+       },
+       "primaryDeliveryAddressType": {
+        "type": "string"
+       },
+       "primaryAddressLine1": {
+        "type": "string"
+       },
+       "primaryAddressLine2": {
+        "type": "string"
+       },
+       "primaryCity": {
+        "type": "string"
+       },
+       "primaryStateProvRegion": {
+        "type": "string"
+       },
+       "primaryZipPostalCode": {
+        "type": "string"
+       },
+       "primaryCountry": {
+        "type": "string"
+       },
+       "addressType": {
+        "type": "string"
+       },
+       "addressLine1": {
+        "type": "string"
+       },
+       "addressLine2": {
+        "type": "string"
+       },
+       "city": {
+        "type": "string"
+       },
+       "region": {
+        "type": "string"
+       },
+       "postalCode": {
+        "type": "string"
+       },
+       "countryId": {
+        "type": "string"
+       }
+      }
+     }
+    }
+   },
+   "pickSlipsResponse": {
+    "description": "Pick slips response",
+    "type": "object",
+    "properties": {
+     "totalRecords": {
+      "type": "integer",
+      "description": "Total number of pick slips"
+     },
+     "pickSlips": {
+      "type": "array",
+      "description": "Collection of pick clips",
+      "items": {
+       "$ref": "#/components/schemas/staffSlip"
+      }
+     }
+    }
+   },
+   "parameter": {
+    "description": "List of key/value parameters of an error",
+    "type": "object",
+    "properties": {
+     "key": {
+      "description": "Parameter key",
+      "type": "string"
+     },
+     "value": {
+      "description": "Parameter value",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "key"
+    ]
+   },
+   "parameters": {
+    "description": "List of key/value parameters of an error",
+    "type": "array",
+    "items": {
+     "type": "object",
+     "$ref": "#/components/schemas/parameter"
+    },
+    "additionalProperties": false
+   },
+   "error": {
+    "description": "An error",
+    "type": "object",
+    "properties": {
+     "message": {
+      "type": "string",
+      "description": "Error message text"
+     },
+     "type": {
+      "type": "string",
+      "description": "Error message type"
+     },
+     "code": {
+      "type": "string",
+      "description": "Error message code"
+     },
+     "parameters": {
+      "type": "object",
+      "description": "Error message parameters",
+      "$ref": "#/components/schemas/parameters"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "message"
+    ]
+   },
+   "errors": {
+    "description": "A set of errors",
+    "type": "object",
+    "properties": {
+     "errors": {
+      "description": "List of errors",
+      "id": "errors",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/error"
+      }
+     },
+     "total_records": {
+      "description": "Total number of errors",
+      "type": "integer"
+     }
+    },
+    "additionalProperties": false
+   },
+   "searchSlipsResponse": {
+    "description": "Search slips response",
+    "type": "object",
+    "properties": {
+     "totalRecords": {
+      "type": "integer",
+      "description": "Total number of search slips"
+     },
+     "searchSlips": {
+      "type": "array",
+      "description": "Collection of search clips",
+      "items": {
+       "$ref": "#/components/schemas/staffSlip"
+      }
+     }
+    }
+   },
+   "timePeriod": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "schema for time-period, which contains time interval 'duration' and the time unit",
+    "properties": {
+     "duration": {
+      "type": "integer",
+      "description": "Duration interval"
+     },
+     "intervalId": {
+      "type": "string",
+      "description": "Unit of time for the duration",
+      "enum": [
+       "Minutes",
+       "Hours",
+       "Days",
+       "Weeks",
+       "Months"
+      ],
+      "default": "Days"
+     }
+    }
+   },
+   "metadata": {
+    "title": "Metadata Schema",
+    "description": "Metadata about creation and changes to records, provided by the server (client should not provide)",
+    "type": "object",
+    "properties": {
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdByUserId": {
+      "description": "ID of the user who created the record (when available)",
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+     },
+     "createdByUsername": {
+      "description": "Username of the user who created the record (when available)",
+      "type": "string"
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedByUserId": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+     },
+     "updatedByUsername": {
+      "description": "Username of the user who last updated the record (when available)",
+      "type": "string"
+     }
+    },
+    "additionalProperties": false,
+    "required": [
+     "createdDate"
+    ]
+   },
+   "servicePoint": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A service point",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Id of service-point object"
+     },
+     "name": {
+      "type": "string",
+      "description": "service-point name, a required field"
+     },
+     "code": {
+      "type": "string",
+      "description": "service-point code, a required field"
+     },
+     "discoveryDisplayName": {
+      "type": "string",
+      "description": "display name, a required field"
+     },
+     "description": {
+      "type": "string",
+      "description": "description of the service-point"
+     },
+     "shelvingLagTime": {
+      "type": "integer",
+      "description": "shelving lag time"
+     },
+     "pickupLocation": {
+      "type": "boolean",
+      "description": "indicates whether or not the service point is a pickup location"
+     },
+     "holdShelfExpiryPeriod": {
+      "type": "object",
+      "$ref": "#/components/schemas/timePeriod",
+      "description": "expiration period for items on the hold shelf at the service point"
+     },
+     "holdShelfClosedLibraryDateManagement": {
+      "type": "string",
+      "description": "enum for closedLibraryDateManagement associated with hold shelf",
+      "enum": [
+       "Keep_the_current_due_date",
+       "Move_to_the_end_of_the_previous_open_day",
+       "Move_to_the_end_of_the_next_open_day",
+       "Keep_the_current_due_date_time",
+       "Move_to_end_of_current_service_point_hours",
+       "Move_to_beginning_of_next_open_service_point_hours"
+      ],
+      "default": "Keep_the_current_due_date"
+     },
+     "staffSlips": {
+      "type": "array",
+      "description": "List of staff slips for this service point",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "string",
+         "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+         "description": "The ID of the staff slip"
+        },
+        "printByDefault": {
+         "type": "boolean",
+         "description": "Whether or not to print the staff slip by default"
+        }
+       }
+      }
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "location": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A (shelf) location, the forth-level location unit below institution, campus, and library.",
+    "javaType": "org.folio.rest.jaxrs.model.Location",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "id of this (shelf) location record as UUID.",
+      "type": "string"
+     },
+     "name": {
+      "description": "Name of the (shelf) location",
+      "type": "string"
+     },
+     "code": {
+      "description": "Code of the (shelf) location, usually an abbreviation of the name.",
+      "type": "string"
+     },
+     "description": {
+      "description": "Description of the (shelf) location.",
+      "type": "string"
+     },
+     "discoveryDisplayName": {
+      "description": "Name of the (shelf) location to be shown in the discovery.",
+      "type": "string"
+     },
+     "isActive": {
+      "description": "Whether this (shelf) location is active. Inactive (shelf) locations can no longer been used.",
+      "type": "boolean"
+     },
+     "institutionId": {
+      "description": "The UUID of the institution, the first-level location unit, this (shelf) location belongs to.",
+      "type": "string"
+     },
+     "institution": {
+      "description": "The institution, the first-level location unit, this (shelf) location belongs to.",
+      "type": "object",
+      "$ref": "locinst.json",
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "location-units/institutions",
+      "folio:linkFromField": "institutionId",
+      "folio:linkToField": "id",
+      "folio:includedElement": "locinsts.0"
+     },
+     "campusId": {
+      "description": "The UUID of the campus, the second-level location unit, this (shelf) location belongs to.",
+      "type": "string"
+     },
+     "campus": {
+      "description": "The campus, the second-level location unit, this (shelf) location belongs to",
+      "type": "object",
+      "$ref": "loccamp.json",
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "location-units/campuses",
+      "folio:linkFromField": "campusId",
+      "folio:linkToField": "id",
+      "folio:includedElement": "loccamps.0"
+     },
+     "libraryId": {
+      "description": "The UUID of the library, the third-level location unit, this (shelf) location belongs to.",
+      "type": "string"
+     },
+     "library": {
+      "description": "The library, the third-level location unit, this (shelf) location belongs to.",
+      "type": "object",
+      "$ref": "locinst.json",
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "location-units/libraries",
+      "folio:linkFromField": "libraryId",
+      "folio:linkToField": "id",
+      "folio:includedElement": "loclibs.0"
+     },
+     "details": {
+      "description": "Details about this (shelf) location.",
+      "type": "object"
+     },
+     "primaryServicePoint": {
+      "description": "The UUID of the primary service point of this (shelf) location.",
+      "format": "uuid",
+      "type": "string"
+     },
+     "primaryServicePointObject": {
+      "type": "object",
+      "description": "Dereferenced object for primary service point. This should really just be called 'primaryServicePoint', but the field containing the ID of this object has that name -- it should really be called 'primaryServicePointId' -- so we need something different for this one.",
+      "$ref": "#/components/schemas/servicePoint",
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "service-points",
+      "folio:linkFromField": "primaryServicePoint",
+      "folio:linkToField": "id",
+      "folio:includedElement": "servicepoints.0"
+     },
+     "servicePointIds": {
+      "description": "All service points that this (shelf) location has.",
+      "type": "array",
+      "items": {
+       "description": "The UUID of a service point that belongs to this (shelf) location.",
+       "type": "string",
+       "format": "uuid",
+       "not": {
+        "type": "null"
+       }
+      }
+     },
+     "servicePoints": {
+      "type": "array",
+      "description": "List of dereferenced service points",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/servicePoint"
+      },
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "service-points",
+      "folio:linkFromField": "servicePointIds",
+      "folio:linkToField": "id",
+      "folio:includedElement": "servicepoints"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "uuid": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/",
+    "type": "string",
+    "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
+   },
+   "tags": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "tags.schema",
+    "title": "tags",
+    "description": "List of simple tags that can be added to an object",
+    "type": "object",
+    "properties": {
+     "tagList": {
+      "description": "List of tags",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "additionalProperties": true
+   },
+   "item": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "An item record",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Unique ID of the item record"
+     },
+     "instanceId": {
+      "type": "string",
+      "description": "Unique ID of the instance record (added for Kafka event compatibility)"
+     },
+     "_version": {
+      "type": "integer",
+      "description": "Record version for optimistic locking"
+     },
+     "hrid": {
+      "type": "string",
+      "description": "The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID"
+     },
+     "holdingsRecordId": {
+      "type": "string",
+      "description": "ID of the holdings record the item is a member of."
+     },
+     "formerIds": {
+      "type": "array",
+      "description": "Previous identifiers assigned to the item",
+      "items": {
+       "type": "string"
+      },
+      "uniqueItems": true
+     },
+     "discoverySuppress": {
+      "type": "boolean",
+      "description": "Records the fact that the record should not be displayed in a discovery system"
+     },
+     "displaySummary": {
+      "description": "Display summary about the item",
+      "type": "string"
+     },
+     "accessionNumber": {
+      "type": "string",
+      "description": "Also called inventar number"
+     },
+     "barcode": {
+      "type": "string",
+      "description": "Unique inventory control number for physical resources, used largely for circulation purposes"
+     },
+     "effectiveShelvingOrder": {
+      "type": "string",
+      "description": "A system generated normalization of the call number that allows for call number sorting in reports and search results",
+      "readonly": true
+     },
+     "itemLevelCallNumber": {
+      "type": "string",
+      "description": "Call Number is an identifier assigned to an item, usually printed on a label attached to the item. The call number is used to determine the items physical position in a shelving sequence, e.g. K1 .M44. The Item level call number, is the call number on item level."
+     },
+     "itemLevelCallNumberPrefix": {
+      "type": "string",
+      "description": "Prefix of the call number on the item level."
+     },
+     "itemLevelCallNumberSuffix": {
+      "type": "string",
+      "description": "Suffix of the call number on the item level."
+     },
+     "itemLevelCallNumberTypeId": {
+      "type": "string",
+      "description": "Identifies the source of the call number, e.g., LCC, Dewey, NLM, etc."
+     },
+     "effectiveCallNumberComponents": {
+      "type": "object",
+      "description": "Elements of a full call number generated from the item or holding",
+      "properties": {
+       "callNumber": {
+        "type": "string",
+        "description": "Effective Call Number is an identifier assigned to an item or its holding and associated with the item.",
+        "readonly": true
+       },
+       "prefix": {
+        "type": "string",
+        "description": "Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.",
+        "readonly": true
+       },
+       "suffix": {
+        "type": "string",
+        "description": "Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.",
+        "readonly": true
+       },
+       "typeId": {
+        "type": "string",
+        "description": "Effective Call Number Type Id is the call number type id of the item, if available, otherwise that of the holding.",
+        "$ref": "#/components/schemas/uuid",
+        "readonly": true
+       }
+      },
+      "additionalProperties": false
+     },
+     "volume": {
+      "type": "string",
+      "description": "Volume is intended for monographs when a multipart monograph (e.g. a biography of George Bernard Shaw in three volumes)."
+     },
+     "enumeration": {
+      "type": "string",
+      "description": "Enumeration is the descriptive information for the numbering scheme of a serial."
+     },
+     "chronology": {
+      "type": "string",
+      "description": "Chronology is the descriptive information for the dating scheme of a serial."
+     },
+     "yearCaption": {
+      "type": "array",
+      "description": "In multipart monographs, a caption is a character(s) used to label a level of chronology, e.g., year 1985.",
+      "items": {
+       "type": "string"
+      },
+      "uniqueItems": true
+     },
+     "itemIdentifier": {
+      "type": "string",
+      "description": "Item identifier number, e.g. imported from the union catalogue (read only)."
+     },
+     "copyNumber": {
+      "type": "string",
+      "description": "Copy number is the piece identifier. The copy number reflects if the library has a copy of a single-volume monograph; one copy of a multi-volume, (e.g. Copy 1, or C.7.)"
+     },
+     "numberOfPieces": {
+      "type": "string",
+      "description": "Number of pieces. Used when an item is checked out or returned to verify that all parts are present (e.g. 7 CDs in a set)."
+     },
+     "descriptionOfPieces": {
+      "description": "Description of item pieces.",
+      "type": "string"
+     },
+     "numberOfMissingPieces": {
+      "type": "string",
+      "description": "Number of missing pieces."
+     },
+     "missingPieces": {
+      "type": "string",
+      "description": "Description of the missing pieces. "
+     },
+     "missingPiecesDate": {
+      "type": "string",
+      "description": "Date when the piece(s) went missing."
+     },
+     "itemDamagedStatusId": {
+      "description": "Item dame status id identifier.",
+      "type": "string"
+     },
+     "itemDamagedStatusDate": {
+      "description": "Date and time when the item was damaged.",
+      "type": "string"
+     },
+     "administrativeNotes": {
+      "type": "array",
+      "description": "Administrative notes",
+      "minItems": 0,
+      "items": {
+       "type": "string"
+      }
+     },
+     "notes": {
+      "type": "array",
+      "description": "Notes about action, copy, binding etc.",
+      "items": {
+       "type": "object",
+       "additionalProperties": false,
+       "javaType": "org.folio.rest.jaxrs.model.ItemNote",
+       "properties": {
+        "itemNoteTypeId": {
+         "type": "string",
+         "description": "ID of the type of note"
+        },
+        "itemNoteType": {
+         "description": "Type of item's note",
+         "type": "object",
+         "$ref": "itemnotetype.json",
+         "javaType": "org.folio.rest.jaxrs.model.itemNoteTypeVirtual",
+         "readonly": true,
+         "folio:isVirtual": true,
+         "folio:linkBase": "item-note-types",
+         "folio:linkFromField": "itemNoteTypeId",
+         "folio:linkToField": "id",
+         "folio:includedElement": "itemNoteTypes.0"
+        },
+        "note": {
+         "type": "string",
+         "description": "Text content of the note"
+        },
+        "staffOnly": {
+         "type": "boolean",
+         "description": "If true, determines that the note should not be visible for others than staff",
+         "default": false
+        }
+       }
+      }
+     },
+     "circulationNotes": {
+      "type": "array",
+      "description": "Notes to be displayed in circulation processes",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "string",
+         "description": "The id of the circulation note"
+        },
+        "noteType": {
+         "type": "string",
+         "description": "Type of circulation process that the note applies to",
+         "enum": [
+          "Check in",
+          "Check out"
+         ]
+        },
+        "note": {
+         "type": "string",
+         "description": "Text to display"
+        },
+        "source": {
+         "type": "object",
+         "description": "The user who added/updated the note. The property is generated by the server and needed to support sorting. Points to /users/{id} resource.",
+         "properties": {
+          "id": {
+           "type": "string",
+           "description": "The id of the user who added/updated the note. The user information is generated by the server and needed to support sorting. Points to /users/{id} resource."
+          },
+          "personal": {
+           "type": "object",
+           "description": "Personal information about the user",
+           "properties": {
+            "lastName": {
+             "description": "The user's last name",
+             "type": "string"
+            },
+            "firstName": {
+             "description": "The user's first name",
+             "type": "string"
+            }
+           }
+          }
+         }
+        },
+        "date": {
+         "type": "string",
+         "description": "Date and time the record is added/updated. The property is generated by the server and needed to support sorting."
+        },
+        "staffOnly": {
+         "type": "boolean",
+         "description": "Flag to restrict display of this note",
+         "default": false
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "status": {
+      "description": "The status of the item",
+      "type": "object",
+      "properties": {
+       "name": {
+        "description": "Name of the status e.g. Available, Checked out, In transit",
+        "type": "string",
+        "enum": [
+         "Aged to lost",
+         "Available",
+         "Awaiting pickup",
+         "Awaiting delivery",
+         "Checked out",
+         "Claimed returned",
+         "Declared lost",
+         "In process",
+         "In process (non-requestable)",
+         "In transit",
+         "Intellectual item",
+         "Long missing",
+         "Lost and paid",
+         "Missing",
+         "On order",
+         "Paged",
+         "Restricted",
+         "Order closed",
+         "Unavailable",
+         "Unknown",
+         "Withdrawn"
+        ]
+       },
+       "date": {
+        "description": "Date and time when the status was last changed",
+        "type": "string",
+        "format": "date-time",
+        "readonly": true
+       }
+      },
+      "required": [
+       "name"
+      ],
+      "additionalProperties": false
+     },
+     "materialTypeId": {
+      "type": "string",
+      "description": "Material type, term. Define what type of thing the item is."
+     },
+     "materialType": {
+      "description": "Item's material type",
+      "type": "object",
+      "$ref": "materialtype.json",
+      "javaType": "org.folio.rest.jaxrs.model.materialTypeVirtual",
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "material-types",
+      "folio:linkFromField": "materialTypeId",
+      "folio:linkToField": "id",
+      "folio:includedElement": "mtypes.0"
+     },
+     "permanentLoanTypeId": {
+      "type": "string",
+      "description": "The permanent loan type, is the default loan type for a given item. Loan types are tenant-defined."
+     },
+     "temporaryLoanTypeId": {
+      "type": "string",
+      "description": "Temporary loan type, is the temporary loan type for a given item."
+     },
+     "permanentLocationId": {
+      "type": "string",
+      "description": "Permanent item location is the default location, shelving location, or holding which is a physical place where items are stored, or an Online location."
+     },
+     "permanentLocation": {
+      "description": "The permanent shelving location in which an item resides",
+      "type": "object",
+      "$ref": "#/components/schemas/location",
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "locations",
+      "folio:linkFromField": "permanentLocationId",
+      "folio:linkToField": "id",
+      "folio:includedElement": "locations.0"
+     },
+     "temporaryLocationId": {
+      "type": "string",
+      "description": "Temporary item location is the temporarily location, shelving location, or holding which is a physical place where items are stored, or an Online location."
+     },
+     "temporaryLocation": {
+      "description": "Temporary location, shelving location, or holding which is a physical place where items are stored, or an Online location",
+      "type": "object",
+      "$ref": "#/components/schemas/location",
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "locations",
+      "folio:linkFromField": "temporaryLocationId",
+      "folio:linkToField": "id",
+      "folio:includedElement": "locations.0"
+     },
+     "effectiveLocationId": {
+      "type": "string",
+      "description": "Read only current home location for the item.",
+      "$ref": "#/components/schemas/uuid",
+      "readonly": true
+     },
+     "electronicAccess": {
+      "type": "array",
+      "description": "References for accessing the item by URL.",
+      "items": {
+       "type": "object",
+       "properties": {
+        "uri": {
+         "type": "string",
+         "description": "uniform resource identifier (URI) is a string of characters designed for unambiguous identification of resources"
+        },
+        "linkText": {
+         "type": "string",
+         "description": "the value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated"
+        },
+        "materialsSpecification": {
+         "type": "string",
+         "description": "materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)"
+        },
+        "publicNote": {
+         "type": "string",
+         "description": "URL public note to be displayed in the discovery"
+        },
+        "relationshipId": {
+         "type": "string",
+         "description": "relationship between the electronic resource at the location identified and the item described in the record as a whole"
+        }
+       },
+       "additionalProperties": false,
+       "required": [
+        "uri"
+       ]
+      }
+     },
+     "inTransitDestinationServicePointId": {
+      "description": "Service point an item is intended to be transited to (should only be present when in transit)",
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+     },
+     "statisticalCodeIds": {
+      "type": "array",
+      "description": "List of statistical code IDs",
+      "items": {
+       "type": "string",
+       "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
+      },
+      "uniqueItems": true
+     },
+     "purchaseOrderLineIdentifier": {
+      "type": "string",
+      "description": "ID referencing a remote purchase order object related to this item"
+     },
+     "tags": {
+      "description": "arbitrary tags associated with this item",
+      "id": "tags",
+      "type": "object",
+      "$ref": "#/components/schemas/tags"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     },
+     "holdingsRecord2": {
+      "type": "object",
+      "description": "Fake property for mod-graphql to determine record relationships.",
+      "$ref": "holdingsrecord.json",
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "holdings-storage/holdings",
+      "folio:linkFromField": "holdingsRecordId",
+      "folio:linkToField": "id",
+      "folio:includedElement": "holdingsRecords.0"
+     },
+     "lastCheckIn": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Information about when an item was last scanned in the Inventory app.",
+      "properties": {
+       "dateTime": {
+        "type": "string",
+        "description": "Date and time of the last check in of the item.",
+        "format": "date-time"
+       },
+       "servicePointId": {
+        "type": "string",
+        "description": "Service point ID being used by a staff member when item was scanned in Check in app.",
+        "$ref": "#/components/schemas/uuid"
+       },
+       "staffMemberId": {
+        "type": "string",
+        "description": "ID a staff member who scanned the item",
+        "$ref": "#/components/schemas/uuid"
+       }
+      }
+     }
+    }
+   },
+   "resultInfo": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "id": "resultInfo.schema",
+    "description": "Faceting of result sets",
+    "type": "object",
+    "properties": {
+     "totalRecords": {
+      "type": "integer",
+      "description": "Estimated or exact total number of records"
+     },
+     "totalRecordsEstimated": {
+      "type": "boolean",
+      "description": "True if totalRecords is an estimation, false if it is the exact number"
+     },
+     "totalRecordsRounded": {
+      "type": "integer",
+      "description": "The rounded value of totalRecords if totalRecords is an estimation"
+     },
+     "responseTime": {
+      "type": "number",
+      "description": "Response time"
+     },
+     "facets": {
+      "type": "array",
+      "description": "Array of facets",
+      "items": {
+       "type": "object",
+       "description": "A facet",
+       "properties": {
+        "facetValues": {
+         "type": "array",
+         "description": "Array of facet values",
+         "items": {
+          "type": "object",
+          "description": "A facet value",
+          "properties": {
+           "count": {
+            "type": "integer",
+            "description": "Count of facet values"
+           },
+           "value": {
+            "description": "Value Object"
+           }
+          }
+         }
+        },
+        "type": {
+         "type": "string",
+         "description": "Type of facet"
+        }
+       }
+      }
+     },
+     "diagnostics": {
+      "type": "array",
+      "description": "Array of diagnostic information",
+      "items": {
+       "type": "object",
+       "description": "Diagnostic information",
+       "properties": {
+        "source": {
+         "type": "string",
+         "description": "Source reporting the diagnostic information"
+        },
+        "code": {
+         "type": "string",
+         "description": "Diagnostic Code"
+        },
+        "message": {
+         "type": "string",
+         "description": "Diagnostic Message"
+        },
+        "module": {
+         "type": "string",
+         "description": "Module reporting diagnostic information"
+        },
+        "recordCount": {
+         "type": "integer",
+         "description": "Record Count for diagnostics"
+        },
+        "query": {
+         "type": "string",
+         "description": "CQL Query associated with results"
+        }
+       }
+      }
+     }
+    }
+   },
+   "materialType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A material type",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "name": {
+      "description": "label for the material type",
+      "type": "string"
+     },
+     "source": {
+      "description": "origin of the material type record",
+      "type": "string"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "loanType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A loan type",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "name": {
+      "description": "label for the loan type",
+      "type": "string"
+     },
+     "source": {
+      "description": "Origin of the loan type record, e.g. 'System', 'User', 'Consortium' etc.",
+      "type": "string"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "library": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "third-level location unit",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "name": {
+      "description": "name of the location",
+      "type": "string"
+     },
+     "code": {
+      "description": "distinct code for the location",
+      "type": "string"
+     },
+     "campusId": {
+      "description": "ID of the second-level location unit that the third-level unit belongs to",
+      "type": "string"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "campus": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "second-level location unit",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "name": {
+      "description": "name of the location",
+      "type": "string"
+     },
+     "code": {
+      "description": "distinct code for the location",
+      "type": "string"
+     },
+     "institutionId": {
+      "description": "ID of the first-level location unit that the second-level unit belongs to",
+      "type": "string"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "institution": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "highest-level location unit",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "name": {
+      "description": "name of location",
+      "type": "string"
+     },
+     "code": {
+      "description": "distinct code for location",
+      "type": "string"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "uuid-2": {
+    "description": "A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/",
+    "type": "string",
+    "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+   },
+   "electronicAccessItem": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Electronic access item",
+    "javaType": "org.folio.rest.jaxrs.model.ElectronicAccessItem",
+    "type": "object",
+    "properties": {
+     "uri": {
+      "type": "string",
+      "description": "uniform resource identifier (URI) is a string of characters designed for unambiguous identification of resources"
+     },
+     "linkText": {
+      "type": "string",
+      "description": "the value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated"
+     },
+     "materialsSpecification": {
+      "type": "string",
+      "description": "materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)"
+     },
+     "publicNote": {
+      "type": "string",
+      "description": "URL public note to be displayed in the discovery"
+     },
+     "relationshipId": {
+      "type": "string",
+      "description": "relationship between the electronic resource at the location identified and the item described in the record as a whole"
+     }
+    }
+   },
+   "holdingsNote": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A holdings record note",
+    "javaType": "org.folio.rest.jaxrs.model.HoldingsNote",
+    "type": "object",
+    "properties": {
+     "holdingsNoteTypeId": {
+      "type": "string",
+      "description": "ID of the type of note",
+      "$ref": "#/components/schemas/uuid"
+     },
+     "note": {
+      "type": "string",
+      "description": "Text content of the note"
+     },
+     "staffOnly": {
+      "type": "boolean",
+      "description": "If true, determines that the note should not be visible for others than staff",
+      "default": false
+     }
+    }
+   },
+   "holdingsStatement": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Holdings record statement",
+    "javaType": "org.folio.rest.jaxrs.model.HoldingsStatement",
+    "type": "object",
+    "properties": {
+     "statement": {
+      "type": "string",
+      "description": "Specifies the exact content to which the library has access, typically for continuing publications."
+     },
+     "note": {
+      "type": "string",
+      "description": "Note attached to a holdings statement"
+     },
+     "staffNote": {
+      "type": "string",
+      "description": "Private note attached to a holdings statement"
+     }
+    }
+   },
+   "holdingsReceivingHistoryEntry": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Receiving history entry of holdings record",
+    "javaType": "org.folio.rest.jaxrs.model.HoldingsReceivingHistoryEntry",
+    "type": "object",
+    "properties": {
+     "publicDisplay": {
+      "type": "boolean",
+      "description": "Defines if the receivingHistory should be visible to the public."
+     },
+     "enumeration": {
+      "type": "string",
+      "description": "This is the volume/issue number (e.g. v.71:no.6-2)"
+     },
+     "chronology": {
+      "type": "string",
+      "description": "Repeated element from Receiving history - Enumeration AND Receiving history - Chronology"
+     }
+    }
+   },
+   "holdingsReceivingHistory": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Receiving history of holdings record",
+    "javaType": "org.folio.rest.jaxrs.model.HoldingsReceivingHistory",
+    "type": "object",
+    "properties": {
+     "displayType": {
+      "type": "string",
+      "description": "Display hint. 1: Display fields separately. 2: Display fields concatenated"
+     },
+     "entries": {
+      "type": "array",
+      "description": "Entries of receiving history",
+      "items": {
+       "$ref": "#/components/schemas/holdingsReceivingHistoryEntry"
+      }
+     }
+    }
+   },
+   "holdingsRecord": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A holdings record",
+    "javaType": "org.folio.rest.jaxrs.model.HoldingsRecord",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "the unique ID of the holdings record; UUID",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "_version": {
+      "type": "integer",
+      "description": "Record version for optimistic locking"
+     },
+     "sourceId": {
+      "description": "(A reference to) the source of a holdings record",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "hrid": {
+      "type": "string",
+      "description": "the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID"
+     },
+     "holdingsTypeId": {
+      "type": "string",
+      "description": "unique ID for the type of this holdings record, a UUID",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "formerIds": {
+      "type": "array",
+      "description": "Previous ID(s) assigned to the holdings record",
+      "items": {
+       "type": "string"
+      },
+      "uniqueItems": true
+     },
+     "instanceId": {
+      "description": "Inventory instances identifier",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "permanentLocationId": {
+      "type": "string",
+      "description": "The permanent shelving location in which an item resides.",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "temporaryLocationId": {
+      "type": "string",
+      "description": "Temporary location is the temporary location, shelving location, or holding which is a physical place where items are stored, or an Online location.",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "effectiveLocationId": {
+      "type": "string",
+      "description": "Effective location is calculated by the system based on the values in the permanent and temporary locationId fields.",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "electronicAccess": {
+      "description": "List of electronic access items",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/electronicAccessItem"
+      }
+     },
+     "callNumberTypeId": {
+      "type": "string",
+      "description": "unique ID for the type of call number on a holdings record, a UUID",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "callNumberPrefix": {
+      "type": "string",
+      "description": "Prefix of the call number on the holding level."
+     },
+     "callNumber": {
+      "type": "string",
+      "description": "Call Number is an identifier assigned to an item, usually printed on a label attached to the item."
+     },
+     "callNumberSuffix": {
+      "type": "string",
+      "description": "Suffix of the call number on the holding level."
+     },
+     "shelvingTitle": {
+      "type": "string",
+      "description": "Indicates the shelving form of title."
+     },
+     "acquisitionFormat": {
+      "type": "string",
+      "description": "Format of holdings record acquisition"
+     },
+     "acquisitionMethod": {
+      "type": "string",
+      "description": "Method of holdings record acquisition"
+     },
+     "receiptStatus": {
+      "type": "string",
+      "description": "Receipt status (e.g. pending, awaiting receipt, partially received, fully received, receipt not required, and cancelled)"
+     },
+     "administrativeNotes": {
+      "type": "array",
+      "description": "Administrative notes",
+      "minItems": 0,
+      "items": {
+       "type": "string"
+      }
+     },
+     "notes": {
+      "type": "array",
+      "description": "Notes about action, copy, binding etc.",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/holdingsNote"
+      }
+     },
+     "illPolicyId": {
+      "type": "string",
+      "description": "unique ID for an ILL policy, a UUID",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "retentionPolicy": {
+      "type": "string",
+      "description": "Records information regarding how long we have agreed to keep something."
+     },
+     "digitizationPolicy": {
+      "description": "Records information regarding digitization aspects.",
+      "type": "string"
+     },
+     "holdingsStatements": {
+      "description": "Holdings record statements",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/holdingsStatement"
+      }
+     },
+     "holdingsStatementsForIndexes": {
+      "description": "Holdings record indexes statements",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/holdingsStatement"
+      }
+     },
+     "holdingsStatementsForSupplements": {
+      "description": "Holdings record supplements statements",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/holdingsStatement"
+      }
+     },
+     "copyNumber": {
+      "type": "string",
+      "description": "Item/Piece ID (usually barcode) for systems that do not use item records. Ability to designate the copy number if institution chooses to use copy numbers."
+     },
+     "numberOfItems": {
+      "type": "string",
+      "description": "Text (Number)"
+     },
+     "receivingHistory": {
+      "description": "Receiving history of holdings record",
+      "$ref": "#/components/schemas/holdingsReceivingHistory"
+     },
+     "discoverySuppress": {
+      "type": "boolean",
+      "description": "records the fact that the record should not be displayed in a discovery system"
+     },
+     "statisticalCodeIds": {
+      "type": "array",
+      "description": "List of statistical code IDs",
+      "items": {
+       "type": "string",
+       "$ref": "#/components/schemas/uuid-2"
+      },
+      "uniqueItems": true
+     },
+     "tags": {
+      "description": "arbitrary tags associated with this holding",
+      "id": "tags",
+      "type": "object",
+      "$ref": "#/components/schemas/tags"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    },
+    "required": [
+     "sourceId",
+     "instanceId",
+     "permanentLocationId"
+    ]
+   },
+   "instanceformat": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "The format of an Instance",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "name": {
+      "description": "label for the Instance format",
+      "type": "string"
+     },
+     "code": {
+      "description": "distinct code for the Instance format",
+      "type": "string"
+     },
+     "source": {
+      "description": "origin of the Instance format record",
+      "type": "string"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "instance": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "An instance record",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "The unique ID of the instance record; a UUID",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "_version": {
+      "type": "integer",
+      "description": "Record version for optimistic locking"
+     },
+     "hrid": {
+      "type": "string",
+      "description": "The human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID"
+     },
+     "matchKey": {
+      "type": "string",
+      "description": "A unique instance identifier matching a client-side bibliographic record identification scheme, in particular for a scenario where multiple separate catalogs with no shared record identifiers contribute to the same Instance in Inventory. A match key is typically generated from select, normalized pieces of metadata in bibliographic records"
+     },
+     "source": {
+      "type": "string",
+      "description": "The metadata source and its format of the underlying record to the instance record. (e.g. FOLIO if it's a record created in Inventory; MARC if it's a MARC record created in MARCcat or EPKB if it's a record coming from eHoldings; CONSORTIUM-MARC or CONSORTIUM-FOLIO for sharing Instances)."
+     },
+     "title": {
+      "type": "string",
+      "description": "The primary title (or label) associated with the resource"
+     },
+     "indexTitle": {
+      "type": "string",
+      "description": "Title normalized for browsing and searching; based on the title with articles removed"
+     },
+     "alternativeTitles": {
+      "type": "array",
+      "description": "List of alternative titles for the resource (e.g. original language version title of a movie)",
+      "items": {
+       "type": "object",
+       "properties": {
+        "alternativeTitleTypeId": {
+         "type": "string",
+         "description": "UUID for an alternative title qualifier",
+         "$ref": "#/components/schemas/uuid-2"
+        },
+        "alternativeTitle": {
+         "type": "string",
+         "description": "An alternative title for the resource"
+        },
+        "authorityId": {
+         "type": "string",
+         "description": "UUID of authority record that controls an alternative title",
+         "$ref": "#/components/schemas/uuid-2"
+        }
+       }
+      },
+      "uniqueItems": true
+     },
+     "editions": {
+      "type": "array",
+      "description": "The edition statement, imprint and other publication source information",
+      "items": {
+       "type": "string"
+      },
+      "uniqueItems": true
+     },
+     "series": {
+      "type": "array",
+      "description": "List of series titles associated with the resource (e.g. Harry Potter)",
+      "items": {
+       "type": "object",
+       "properties": {
+        "value": {
+         "type": "string",
+         "description": "Series title value"
+        },
+        "authorityId": {
+         "type": "string",
+         "description": "UUID of authority record that controls an series title",
+         "$ref": "#/components/schemas/uuid-2"
+        }
+       },
+       "additionalProperties": true
+      },
+      "uniqueItems": true
+     },
+     "identifiers": {
+      "type": "array",
+      "description": "An extensible set of name-value pairs of identifiers associated with the resource",
+      "minItems": 0,
+      "items": {
+       "type": "object",
+       "properties": {
+        "value": {
+         "type": "string",
+         "description": "Resource identifier value"
+        },
+        "identifierTypeId": {
+         "type": "string",
+         "description": "UUID of resource identifier type (e.g. ISBN, ISSN, LCCN, CODEN, Locally defined identifiers)",
+         "$ref": "#/components/schemas/uuid-2"
+        },
+        "identifierTypeObject": {
+         "type": "object",
+         "description": "Information about identifier type, looked up from identifierTypeId",
+         "$ref": "illpolicy.json",
+         "readonly": true,
+         "folio:isVirtual": true,
+         "folio:linkBase": "identifier-types",
+         "folio:linkFromField": "identifierTypeId",
+         "folio:linkToField": "id",
+         "folio:includedElement": "identifierTypes.0"
+        }
+       },
+       "additionalProperties": true
+      }
+     },
+     "contributors": {
+      "type": "array",
+      "description": "List of contributors",
+      "minItems": 0,
+      "items": {
+       "type": "object",
+       "properties": {
+        "name": {
+         "type": "string",
+         "description": "Personal name, corporate name, meeting name"
+        },
+        "contributorTypeId": {
+         "type": "string",
+         "description": "UUID for the contributor type term defined in controlled vocabulary",
+         "$ref": "#/components/schemas/uuid-2"
+        },
+        "contributorTypeText": {
+         "type": "string",
+         "description": "Free text element for adding contributor type terms other that defined by the MARC code list for relators"
+        },
+        "contributorNameTypeId": {
+         "type": "string",
+         "description": "UUID of contributor name type term defined by the MARC code list for relators",
+         "$ref": "#/components/schemas/uuid-2"
+        },
+        "authorityId": {
+         "type": "string",
+         "description": "UUID of authority record that controls the contributor",
+         "$ref": "#/components/schemas/uuid-2"
+        },
+        "contributorNameType": {
+         "type": "object",
+         "description": "Dereferenced contributor-name type",
+         "javaType": "org.folio.rest.jaxrs.model.contributorNameTypeVirtual",
+         "$ref": "contributornametype.json",
+         "readonly": true,
+         "folio:isVirtual": true,
+         "folio:linkBase": "contributor-name-types",
+         "folio:linkFromField": "contributorNameTypeId",
+         "folio:linkToField": "id",
+         "folio:includedElement": "contributorNameTypes.0"
+        },
+        "primary": {
+         "type": "boolean",
+         "description": "Whether this is the primary contributor"
+        }
+       },
+       "additionalProperties": true
+      }
+     },
+     "subjects": {
+      "type": "array",
+      "description": "List of subject headings",
+      "items": {
+       "type": "object",
+       "properties": {
+        "value": {
+         "type": "string",
+         "description": "Subject heading value"
+        },
+        "authorityId": {
+         "type": "string",
+         "description": "UUID of authority record that controls a subject heading",
+         "$ref": "#/components/schemas/uuid-2"
+        }
+       },
+       "additionalProperties": true
+      },
+      "uniqueItems": true
+     },
+     "classifications": {
+      "type": "array",
+      "description": "List of classifications",
+      "minItems": 0,
+      "items": {
+       "type": "object",
+       "properties": {
+        "classificationNumber": {
+         "type": "string",
+         "description": "Classification (e.g. classification scheme, classification schedule)"
+        },
+        "classificationTypeId": {
+         "type": "string",
+         "description": "UUID of classification schema (e.g. LC, Canadian Classification, NLM, National Agricultural Library, UDC, and Dewey)",
+         "$ref": "#/components/schemas/uuid-2"
+        },
+        "classificationType": {
+         "type": "object",
+         "description": "Dereferenced classification schema",
+         "javaType": "org.folio.rest.jaxrs.model.classificationTypeVirtual",
+         "$ref": "classificationtype.json",
+         "readonly": true,
+         "folio:isVirtual": true,
+         "folio:linkBase": "classification-types",
+         "folio:linkFromField": "classificationTypeId",
+         "folio:linkToField": "id",
+         "folio:includedElement": "classificationTypes.0"
+        }
+       },
+       "additionalProperties": true
+      }
+     },
+     "publication": {
+      "type": "array",
+      "description": "List of publication items",
+      "items": {
+       "type": "object",
+       "properties": {
+        "publisher": {
+         "type": "string",
+         "description": "Name of publisher, distributor, etc."
+        },
+        "place": {
+         "type": "string",
+         "description": "Place of publication, distribution, etc."
+        },
+        "dateOfPublication": {
+         "type": "string",
+         "description": "Date (year YYYY) of publication, distribution, etc."
+        },
+        "role": {
+         "type": "string",
+         "description": "The role of the publisher, distributor, etc."
+        }
+       }
+      }
+     },
+     "publicationFrequency": {
+      "type": "array",
+      "description": "List of intervals at which a serial appears (e.g. daily, weekly, monthly, quarterly, etc.)",
+      "items": {
+       "type": "string"
+      },
+      "uniqueItems": true
+     },
+     "publicationRange": {
+      "type": "array",
+      "description": "The range of sequential designation/chronology of publication, or date range",
+      "items": {
+       "type": "string"
+      },
+      "uniqueItems": true
+     },
+     "publicationPeriod": {
+      "type": "object",
+      "description": "Publication period",
+      "properties": {
+       "start": {
+        "type": "integer",
+        "description": "Publication start year"
+       },
+       "end": {
+        "type": "integer",
+        "description": "Publication end year"
+       }
+      },
+      "additionalProperties": true
+     },
+     "electronicAccess": {
+      "type": "array",
+      "description": "List of electronic access items",
+      "items": {
+       "type": "object",
+       "properties": {
+        "uri": {
+         "type": "string",
+         "description": "uniform resource identifier (URI) is a string of characters designed for unambiguous identification of resources"
+        },
+        "linkText": {
+         "type": "string",
+         "description": "The value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated"
+        },
+        "materialsSpecification": {
+         "type": "string",
+         "description": "Materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)"
+        },
+        "publicNote": {
+         "type": "string",
+         "description": "URL public note to be displayed in the discovery"
+        },
+        "relationshipId": {
+         "type": "string",
+         "description": "UUID for the type of relationship between the electronic resource at the location identified and the item described in the record as a whole",
+         "$ref": "#/components/schemas/uuid-2"
+        }
+       },
+       "additionalProperties": true
+      }
+     },
+     "instanceTypeId": {
+      "type": "string",
+      "description": "UUID of the unique term for the resource type whether it's from the RDA content term list of locally defined",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "instanceFormatIds": {
+      "type": "array",
+      "description": "UUIDs for the unique terms for the format whether it's from the RDA carrier term list of locally defined",
+      "items": {
+       "type": "string",
+       "$ref": "#/components/schemas/uuid-2"
+      }
+     },
+     "instanceFormats": {
+      "type": "array",
+      "description": "List of dereferenced instance formats",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/instanceformat"
+      },
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "instance-formats",
+      "folio:linkFromField": "instanceFormatIds",
+      "folio:linkToField": "id",
+      "folio:includedElement": "instanceFormats"
+     },
+     "physicalDescriptions": {
+      "type": "array",
+      "description": "Physical description of the described resource, including its extent, dimensions, and such other physical details as a description of any accompanying materials and unit type and size",
+      "items": {
+       "type": "string"
+      }
+     },
+     "languages": {
+      "type": "array",
+      "description": "The set of languages used by the resource",
+      "minItems": 0,
+      "items": {
+       "type": "string"
+      }
+     },
+     "notes": {
+      "type": "array",
+      "description": "Bibliographic notes (e.g. general notes, specialized notes)",
+      "items": {
+       "type": "object",
+       "javaType": "org.folio.rest.jaxrs.model.InstanceNote",
+       "additionalProperties": true,
+       "properties": {
+        "instanceNoteTypeId": {
+         "description": "ID of the type of note",
+         "$ref": "#/components/schemas/uuid-2"
+        },
+        "note": {
+         "type": "string",
+         "description": "Text content of the note"
+        },
+        "staffOnly": {
+         "type": "boolean",
+         "description": "If true, determines that the note should not be visible for others than staff",
+         "default": false
+        }
+       }
+      }
+     },
+     "administrativeNotes": {
+      "type": "array",
+      "description": "Administrative notes",
+      "minItems": 0,
+      "items": {
+       "type": "string"
+      }
+     },
+     "modeOfIssuanceId": {
+      "type": "string",
+      "description": "UUID of the RDA mode of issuance, a categorization reflecting whether a resource is issued in one or more parts, the way it is updated, and whether its termination is predetermined or not (e.g. monograph,  sequential monograph, serial; integrating Resource, other)",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "catalogedDate": {
+      "type": "string",
+      "description": "Date or timestamp on an instance for when is was considered cataloged"
+     },
+     "previouslyHeld": {
+      "type": "boolean",
+      "description": "Records the fact that the resource was previously held by the library for things like Hathi access, etc.",
+      "default": false
+     },
+     "staffSuppress": {
+      "type": "boolean",
+      "description": "Records the fact that the record should not be displayed for others than catalogers"
+     },
+     "discoverySuppress": {
+      "type": "boolean",
+      "description": "Records the fact that the record should not be displayed in a discovery system",
+      "default": false
+     },
+     "statisticalCodeIds": {
+      "type": "array",
+      "description": "List of statistical code IDs",
+      "items": {
+       "type": "string"
+      },
+      "uniqueItems": true
+     },
+     "sourceRecordFormat": {
+      "type": "string",
+      "description": "Format of the instance source record, if a source record exists (e.g. FOLIO if it's a record created in Inventory,  MARC if it's a MARC record created in MARCcat or EPKB if it's a record coming from eHoldings)",
+      "enum": [
+       "MARC-JSON"
+      ],
+      "readonly": true
+     },
+     "statusId": {
+      "type": "string",
+      "description": "UUID for the Instance status term (e.g. cataloged, uncatalogued, batch loaded, temporary, other, not yet assigned)",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "statusUpdatedDate": {
+      "type": "string",
+      "description": "Date [or timestamp] for when the instance status was updated"
+     },
+     "tags": {
+      "description": "arbitrary tags associated with this instance",
+      "id": "tags",
+      "type": "object",
+      "$ref": "#/components/schemas/tags"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     },
+     "holdingsRecords2": {
+      "type": "array",
+      "description": "List of holdings records",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/holdingsRecord"
+      },
+      "readonly": true,
+      "folio:isVirtual": true,
+      "folio:linkBase": "holdings-storage/holdings",
+      "folio:linkFromField": "id",
+      "folio:linkToField": "instanceId",
+      "folio:includedElement": "holdingsRecords"
+     },
+     "natureOfContentTermIds": {
+      "type": "array",
+      "description": "Array of UUID for the Instance nature of content (e.g. bibliography, biography, exhibition catalogue, festschrift, newspaper, proceedings, research report, thesis or website)",
+      "uniqueItems": true,
+      "items": {
+       "type": "string",
+       "description": "Single UUID for the Instance nature of content",
+       "$ref": "#/components/schemas/uuid-2"
+      }
+     }
+    },
+    "additionalProperties": true
+   },
+   "tags-2": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "tags",
+    "description": "List of simple tags that can be added to an object",
+    "type": "object",
+    "properties": {
+     "tagList": {
+      "description": "List of tags",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "additionalProperties": false
+   },
+   "user": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "User Schema",
+    "description": "A user",
+    "javaName": "User",
+    "type": "object",
+    "properties": {
+     "username": {
+      "description": "A unique name belonging to a user. Typically used for login",
+      "type": "string"
+     },
+     "id": {
+      "description": "A globally unique (UUID) identifier for the user",
+      "type": "string"
+     },
+     "externalSystemId": {
+      "description": "A unique ID that corresponds to an external authority",
+      "type": "string"
+     },
+     "barcode": {
+      "description": "The unique library barcode for this user",
+      "type": "string"
+     },
+     "active": {
+      "description": "A flag to determine if the user's account is effective and not expired. The tenant configuration can require the user to be active for login. Active is different from the loan patron block",
+      "type": "boolean"
+     },
+     "type": {
+      "description": "The class of user like staff or patron; this is different from patronGroup; it can store shadow, system user and dcb types also",
+      "type": "string"
+     },
+     "patronGroup": {
+      "description": "A UUID corresponding to the group the user belongs to, see /groups API, example groups are undergraduate and faculty; loan rules, patron blocks, fees/fines and expiration days can use the patron group",
+      "type": "string",
+      "$ref": "#/components/schemas/uuid-2"
+     },
+     "departments": {
+      "description": "A list of UUIDs corresponding to the departments the user belongs to, see /departments API",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+       "type": "string",
+       "$ref": "#/components/schemas/uuid-2"
+      }
+     },
+     "meta": {
+      "description": "Deprecated",
+      "type": "object"
+     },
+     "proxyFor": {
+      "description": "Deprecated",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "personal": {
+      "description": "Personal information about the user",
+      "type": "object",
+      "properties": {
+       "lastName": {
+        "description": "The user's surname",
+        "type": "string"
+       },
+       "firstName": {
+        "description": "The user's given name",
+        "type": "string"
+       },
+       "middleName": {
+        "description": "The user's middle name (if any)",
+        "type": "string"
+       },
+       "preferredFirstName": {
+        "description": "The user's preferred name",
+        "type": "string"
+       },
+       "email": {
+        "description": "The user's email address",
+        "type": "string"
+       },
+       "phone": {
+        "description": "The user's primary phone number",
+        "type": "string"
+       },
+       "mobilePhone": {
+        "description": "The user's mobile phone number",
+        "type": "string"
+       },
+       "dateOfBirth": {
+        "type": "string",
+        "description": "The user's birth date",
+        "format": "date-time"
+       },
+       "addresses": {
+        "description": "Physical addresses associated with the user",
+        "type": "array",
+        "minItems": 0,
+        "items": {
+         "type": "object",
+         "properties": {
+          "id": {
+           "description": "A unique id for this address",
+           "type": "string"
+          },
+          "countryId": {
+           "description": "The country code for this address",
+           "type": "string"
+          },
+          "addressLine1": {
+           "description": "Address, Line 1",
+           "type": "string"
+          },
+          "addressLine2": {
+           "description": "Address, Line 2",
+           "type": "string"
+          },
+          "city": {
+           "description": "City name",
+           "type": "string"
+          },
+          "region": {
+           "description": "Region",
+           "type": "string"
+          },
+          "postalCode": {
+           "description": "Postal Code",
+           "type": "string"
+          },
+          "addressTypeId": {
+           "description": "A UUID that corresponds with an address type object",
+           "type": "string",
+           "$ref": "#/components/schemas/uuid-2"
+          },
+          "primaryAddress": {
+           "description": "Is this the user's primary address?",
+           "type": "boolean"
+          }
+         }
+        }
+       },
+       "preferredContactTypeId": {
+        "description": "Id of user's preferred contact type like Email, Mail or Text Message, see /addresstypes API",
+        "type": "string"
+       },
+       "profilePictureLink": {
+        "description": "Link to the profile picture",
+        "type": "string",
+        "format": "uri"
+       }
+      }
+     },
+     "enrollmentDate": {
+      "description": "The date in which the user joined the organization",
+      "type": "string",
+      "format": "date-time"
+     },
+     "expirationDate": {
+      "description": "The date for when the user becomes inactive",
+      "type": "string",
+      "format": "date-time"
+     },
+     "createdDate": {
+      "description": "Deprecated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "updatedDate": {
+      "description": "Deprecated",
+      "type": "string",
+      "format": "date-time"
+     },
+     "metadata": {
+      "type": "object",
+      "$ref": "#/components/schemas/metadata"
+     },
+     "tags": {
+      "type": "object",
+      "$ref": "#/components/schemas/tags-2"
+     },
+     "customFields": {
+      "description": "Object that contains custom field",
+      "type": "object"
+     },
+     "preferredEmailCommunication": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "enum": [
+        "Support",
+        "Programs",
+        "Services"
+       ]
+      },
+      "maxItems": 3,
+      "uniqueItems": true,
+      "description": "Preferred email communication types"
+     }
+    }
+   },
+   "userGroup": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "A user group",
+    "type": "object",
+    "properties": {
+     "group": {
+      "description": "The unique name of this group",
+      "type": "string"
+     },
+     "desc": {
+      "description": "An explanation of this group",
+      "type": "string"
+     },
+     "id": {
+      "description": "A UUID identifying this group",
+      "type": "string"
+     },
+     "expirationOffsetInDays": {
+      "description": "The default period in days after which a newly created user that belongs to this group will expire",
+      "type": "integer"
+     },
+     "source": {
+      "description": "Origin of the group record, i.e. 'System' or 'User'",
+      "type": "string"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata"
+     }
+    },
+    "additionalProperties": true,
+    "required": [
+     "group"
+    ]
+   },
+   "userGroups": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "description": "Collection of user groups",
+    "properties": {
+     "usergroups": {
+      "description": "List of user group items",
+      "id": "groups",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "$ref": "#/components/schemas/userGroup"
+      }
+     },
+     "totalRecords": {
+      "type": "integer"
+     }
+    }
+   },
+   "department": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Department",
+    "description": "Department object schema",
+    "type": "object",
+    "properties": {
+     "id": {
+      "description": "A UUID identifying this department",
+      "$ref": "#/components/schemas/uuid-2",
+      "example": "f973c3b6-85fc-4d35-bda8-f31b568957bf"
+     },
+     "name": {
+      "description": "The unique name of this department",
+      "type": "string",
+      "example": "Accounting"
+     },
+     "code": {
+      "description": "The unique code of this department",
+      "type": "string",
+      "example": "ACC"
+     },
+     "usageNumber": {
+      "type": "integer",
+      "description": "Number of users that have this department",
+      "readonly": true
+     },
+     "source": {
+      "description": "Origin of the department record, i.e. 'System' or 'User'",
+      "type": "string"
+     },
+     "metadata": {
+      "description": "Metadata about creation and changes to department records",
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "addressType": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Address Type Schema",
+    "description": "An address type",
+    "type": "object",
+    "properties": {
+     "addressType": {
+      "description": "A unique name for this address type",
+      "type": "string"
+     },
+     "desc": {
+      "description": "An explanation of this address type",
+      "type": "string"
+     },
+     "id": {
+      "description": "A UUID identifying this address type",
+      "type": "string"
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata",
+      "readonly": true
+     }
+    }
+   },
+   "seriesItem": {
+    "type": "object",
+    "description": "A series item description",
+    "properties": {
+     "value": {
+      "type": "string",
+      "description": "Series title value"
+     },
+     "authorityId": {
+      "type": "string",
+      "description": "UUID of authority record that controls a series title"
+     }
+    }
+   },
+   "alternativeTitle": {
+    "type": "object",
+    "description": "An alternative title description",
+    "properties": {
+     "alternativeTitleTypeId": {
+      "type": "string",
+      "description": "UUID for an alternative title qualifier"
+     },
+     "alternativeTitle": {
+      "type": "string",
+      "description": "An alternative title for the resource"
+     },
+     "authorityId": {
+      "type": "string",
+      "description": "UUID of authority record that controls an alternative title"
+     }
+    }
+   },
+   "identifier": {
+    "type": "object",
+    "description": "Resource identifier",
+    "properties": {
+     "value": {
+      "type": "string",
+      "description": "Resource identifier value"
+     },
+     "identifierTypeId": {
+      "type": "string",
+      "description": "Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)"
+     }
+    }
+   },
+   "contributor": {
+    "type": "object",
+    "description": "A contributor description",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "Personal name, corporate name, meeting name"
+     },
+     "contributorTypeId": {
+      "type": "string",
+      "description": "ID for the contributor type term defined as a reference table in settings"
+     },
+     "contributorTypeText": {
+      "type": "string",
+      "description": "Free text element for adding contributor type terms other than those defined by the MARC code list for relators"
+     },
+     "contributorNameTypeId": {
+      "type": "string",
+      "description": "Contributor type terms defined by the MARC code list for relators"
+     },
+     "authorityId": {
+      "type": "string",
+      "description": "ID of authority record that controls the contributor"
+     },
+     "primary": {
+      "type": "boolean",
+      "description": "Whether this is the primary contributor"
+     }
+    }
+   },
+   "subject": {
+    "type": "object",
+    "description": "A subject heading description",
+    "properties": {
+     "value": {
+      "type": "string",
+      "description": "Subject heading value"
+     },
+     "authorityId": {
+      "type": "string",
+      "description": "UUID of authority record that controls a subject heading"
+     },
+     "sourceId": {
+      "type": "string",
+      "description": "UUID of subject source"
+     },
+     "typeId": {
+      "type": "string",
+      "description": "UUID of subject type"
+     }
+    }
+   },
+   "dates": {
+    "type": "object",
+    "description": "Instance Dates",
+    "properties": {
+     "dateTypeId": {
+      "type": "string",
+      "description": "Date type ID"
+     },
+     "date1": {
+      "type": "string",
+      "description": "Date1 value"
+     },
+     "date2": {
+      "type": "string",
+      "description": "Date2 value"
+     }
+    }
+   },
+   "metadata-2": {
+    "type": "object",
+    "properties": {
+     "createdDate": {
+      "description": "Date and time when the record was created",
+      "type": "string"
+     },
+     "createdByUserId": {
+      "description": "ID of the user who created the record (when available)",
+      "type": "string"
+     },
+     "updatedDate": {
+      "description": "Date and time when the record was last updated",
+      "type": "string"
+     },
+     "updatedByUserId": {
+      "description": "ID of the user who last updated the record (when available)",
+      "type": "string"
+     }
+    }
+   },
+   "publication": {
+    "type": "object",
+    "properties": {
+     "publisher": {
+      "description": "Name of publisher, distributor, etc.",
+      "type": "string"
+     },
+     "dateOfPublication": {
+      "description": "Date (year YYYY) of publication, distribution, etc.",
+      "type": "string"
+     },
+     "place": {
+      "description": "Place of publication, distribution, etc.",
+      "type": "string"
+     }
+    }
+   },
+   "tags-3": {
+    "title": "tags",
+    "description": "List of simple tags that can be added to an object",
+    "type": "object",
+    "properties": {
+     "tagList": {
+      "description": "List of tags",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    }
+   },
+   "classification": {
+    "type": "object",
+    "description": "Classification object",
+    "properties": {
+     "classificationNumber": {
+      "description": "Classification (e.g. classification scheme, classification schedule)",
+      "type": "string"
+     },
+     "classificationTypeId": {
+      "description": "Classification type ID",
+      "type": "string"
+     }
+    }
+   },
+   "electronicAccess": {
+    "description": "Electronic access object",
+    "type": "object",
+    "properties": {
+     "uri": {
+      "type": "string",
+      "description": "Uniform Resource Identifier (URI) is a string of characters designed for unambiguous identification of resources"
+     },
+     "linkText": {
+      "type": "string",
+      "description": "The value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated"
+     },
+     "materialsSpecification": {
+      "type": "string",
+      "description": "Materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)"
+     },
+     "publicNote": {
+      "type": "string",
+      "description": "URL public note to be displayed in the discovery"
+     }
+    }
+   },
+   "note": {
+    "description": "Bibliographic or administrative note for instance/item/holding",
+    "type": "object",
+    "properties": {
+     "note": {
+      "type": "string",
+      "description": "Text content of the note"
+     },
+     "staffOnly": {
+      "type": "boolean",
+      "description": "If true, determines that the note should not be visible for others than staff",
+      "default": false
+     }
+    }
+   },
+   "circulationNote": {
+    "description": "Circulations note for item",
+    "type": "object",
+    "properties": {
+     "note": {
+      "type": "string",
+      "description": "Text to display"
+     },
+     "staffOnly": {
+      "type": "boolean",
+      "description": "Flag to restrict display of this note",
+      "default": false
+     }
+    }
+   },
+   "searchItem": {
+    "description": "Item description",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Unique ID of the item record"
+     },
+     "tenantId": {
+      "description": "Tenant ID",
+      "type": "string"
+     },
+     "holdingsRecordId": {
+      "description": "Holdings record ID",
+      "type": "string"
+     },
+     "hrid": {
+      "type": "string",
+      "description": "The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID"
+     },
+     "accessionNumber": {
+      "type": "string",
+      "description": "Also called inventory number"
+     },
+     "formerIds": {
+      "type": "array",
+      "description": "Previous identifiers assigned to the item",
+      "items": {
+       "type": "string"
+      }
+     },
+     "itemIdentifier": {
+      "type": "string",
+      "description": "Item identifier number, e.g. imported from the union catalogue (read only)."
+     },
+     "barcode": {
+      "type": "string",
+      "description": "Unique inventory control number for physical resources, used largely for circulation purposes"
+     },
+     "effectiveLocationId": {
+      "type": "string",
+      "description": "Read only current home location for the item."
+     },
+     "status": {
+      "description": "The status of the item",
+      "type": "object",
+      "properties": {
+       "name": {
+        "description": "Name of the status e.g. Available, Checked out, In transit",
+        "type": "string"
+       }
+      }
+     },
+     "materialTypeId": {
+      "type": "string",
+      "description": "Material type, term. Define what type of thing the item is."
+     },
+     "discoverySuppress": {
+      "type": "boolean",
+      "description": "Records the fact that the record should not be displayed in a discovery system"
+     },
+     "effectiveCallNumberComponents": {
+      "type": "object",
+      "description": "Elements of a full call number generated from the item or holding",
+      "properties": {
+       "callNumber": {
+        "type": "string",
+        "description": "Effective Call Number is an identifier assigned to an item or its holding and associated with the item."
+       },
+       "prefix": {
+        "type": "string",
+        "description": "Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item."
+       },
+       "suffix": {
+        "type": "string",
+        "description": "Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item."
+       },
+       "typeId": {
+        "type": "string",
+        "description": "Effective Call Number Type Id is the call number type id of the item, if available, otherwise that of the holding."
+       }
+      }
+     },
+     "volume": {
+      "type": "string"
+     },
+     "enumeration": {
+      "type": "string"
+     },
+     "chronology": {
+      "type": "string"
+     },
+     "copyNumber": {
+      "type": "string"
+     },
+     "effectiveShelvingOrder": {
+      "type": "string",
+      "description": "A system generated normalization of the call number that allows for call number sorting in reports and search results"
+     },
+     "itemLevelCallNumberTypeId": {
+      "type": "string",
+      "description": "Call number type id"
+     },
+     "tags": {
+      "$ref": "#/components/schemas/tags-3"
+     },
+     "electronicAccess": {
+      "type": "array",
+      "description": "List of electronic access items",
+      "items": {
+       "$ref": "#/components/schemas/electronicAccess"
+      }
+     },
+     "administrativeNotes": {
+      "type": "array",
+      "description": "Administrative notes",
+      "items": {
+       "type": "string"
+      }
+     },
+     "notes": {
+      "type": "array",
+      "description": "Notes about action, copy, binding etc.",
+      "items": {
+       "$ref": "#/components/schemas/note"
+      }
+     },
+     "statisticalCodeIds": {
+      "type": "array",
+      "description": "List of statistical code IDs",
+      "items": {
+       "type": "string",
+       "description": "UUID for a statistical code"
+      }
+     },
+     "circulationNotes": {
+      "type": "array",
+      "description": "Notes to be displayed in circulation processes.",
+      "items": {
+       "$ref": "#/components/schemas/circulationNote"
+      }
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata-2"
+     }
+    },
+    "required": [
+     "notes"
+    ]
+   },
+   "searchHolding": {
+    "description": "Holding description",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "description": "Unique ID of the holding record"
+     },
+     "tenantId": {
+      "description": "Tenant ID",
+      "type": "string"
+     },
+     "permanentLocationId": {
+      "type": "string",
+      "description": "The permanent shelving location in which an item resides."
+     },
+     "discoverySuppress": {
+      "type": "boolean",
+      "description": "Indicates that the record should not be displayed in a discovery system"
+     },
+     "hrid": {
+      "type": "string",
+      "description": "the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID"
+     },
+     "sourceId": {
+      "description": "(A reference to) the source of a holdings record",
+      "type": "string"
+     },
+     "formerIds": {
+      "type": "array",
+      "description": "Previous identifiers assigned to the holding",
+      "items": {
+       "type": "string"
+      }
+     },
+     "statisticalCodeIds": {
+      "type": "array",
+      "description": "List of statistical code IDs",
+      "items": {
+       "type": "string",
+       "description": "UUID for a statistical code"
+      }
+     },
+     "tags": {
+      "$ref": "#/components/schemas/tags-3"
+     },
+     "holdingsTypeId": {
+      "type": "string",
+      "description": "unique ID for the type of this holdings record, a UUID"
+     },
+     "callNumberPrefix": {
+      "type": "string",
+      "description": "Prefix of the call number on the holding level."
+     },
+     "callNumber": {
+      "type": "string",
+      "description": "Call Number is an identifier assigned to an item, usually printed on a label attached to the item."
+     },
+     "callNumberSuffix": {
+      "type": "string",
+      "description": "Suffix of the call number on the holding level."
+     },
+     "copyNumber": {
+      "type": "string",
+      "description": "Item/Piece ID (usually barcode) for systems that do not use item records."
+     },
+     "electronicAccess": {
+      "type": "array",
+      "description": "List of electronic access items",
+      "items": {
+       "$ref": "#/components/schemas/electronicAccess"
+      }
+     },
+     "administrativeNotes": {
+      "type": "array",
+      "description": "Administrative notes",
+      "items": {
+       "type": "string"
+      }
+     },
+     "notes": {
+      "type": "array",
+      "description": "Notes about action, copy, binding etc.",
+      "items": {
+       "$ref": "#/components/schemas/note"
+      }
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata-2"
+     }
+    }
+   },
+   "searchInstance": {
+    "type": "object",
+    "description": "instance description",
+    "properties": {
+     "id": {
+      "description": "The unique ID of the instance record; a UUID",
+      "type": "string"
+     },
+     "tenantId": {
+      "description": "Tenant ID",
+      "type": "string"
+     },
+     "shared": {
+      "description": "Indicate if it shared record",
+      "type": "boolean"
+     },
+     "hrid": {
+      "description": "The human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID",
+      "type": "string"
+     },
+     "source": {
+      "description": "The metadata source and its format of the underlying record to the instance record. (e.g. FOLIO if it's a record created in Inventory;  MARC if it's a MARC record created in MARCcat or EPKB if it's a record coming from eHoldings)",
+      "type": "string"
+     },
+     "statisticalCodeIds": {
+      "description": "List of statistical code IDs",
+      "type": "array",
+      "items": {
+       "description": "UUID for a statistical code",
+       "type": "string"
+      }
+     },
+     "statusId": {
+      "description": "UUID for the Instance status term (e.g. cataloged, uncatalogued, batch loaded, temporary, other, not yet assigned)",
+      "type": "string"
+     },
+     "title": {
+      "description": "The primary title (or label) associated with the resource",
+      "type": "string"
+     },
+     "indexTitle": {
+      "description": "Title normalized for browsing and searching; based on the title with articles removed",
+      "type": "string"
+     },
+     "series": {
+      "description": "List of series titles associated with the resource (e.g. Harry Potter)",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/seriesItem"
+      }
+     },
+     "alternativeTitles": {
+      "type": "array",
+      "description": "List of alternative titles for the resource (e.g. original language version title of a movie)",
+      "items": {
+       "$ref": "#/components/schemas/alternativeTitle"
+      }
+     },
+     "identifiers": {
+      "type": "array",
+      "description": "Resource identifier value array",
+      "items": {
+       "$ref": "#/components/schemas/identifier"
+      }
+     },
+     "contributors": {
+      "type": "array",
+      "description": "List of contributors names",
+      "items": {
+       "$ref": "#/components/schemas/contributor"
+      }
+     },
+     "subjects": {
+      "type": "array",
+      "description": "List of subject headings",
+      "items": {
+       "$ref": "#/components/schemas/subject"
+      }
+     },
+     "dates": {
+      "$ref": "#/components/schemas/dates"
+     },
+     "instanceTypeId": {
+      "description": "UUID of the unique term for the resource type whether it's from the RDA content term list of locally defined",
+      "type": "string"
+     },
+     "instanceFormatIds": {
+      "description": "UUIDs for the unique terms for the format whether it's from the RDA carrier term list of locally defined",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "languages": {
+      "description": "The set of languages used by the resource",
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "metadata": {
+      "$ref": "#/components/schemas/metadata-2"
+     },
+     "administrativeNotes": {
+      "type": "array",
+      "description": "Administrative notes",
+      "items": {
+       "type": "string"
+      }
+     },
+     "modeOfIssuanceId": {
+      "description": "UUID of the RDA mode of issuance, a categorization reflecting whether a resource is issued in one or more parts, the way it is updated, and whether its termination is predetermined or not (e.g. monograph,  sequential monograph, serial; integrating Resource, other)",
+      "type": "string"
+     },
+     "natureOfContentTermIds": {
+      "description": "Array of UUID for the Instance nature of content (e.g. bibliography, biography, exhibition catalogue, festschrift, newspaper, proceedings, research report, thesis or website)",
+      "type": "array",
+      "items": {
+       "description": "Single UUID for the Instance nature of content",
+       "type": "string"
+      }
+     },
+     "publication": {
+      "description": "List of publication items",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/publication"
+      }
+     },
+     "staffSuppress": {
+      "description": "Records the fact that the record should not be displayed for others than catalogers",
+      "type": "boolean"
+     },
+     "discoverySuppress": {
+      "description": "Records the fact that the record should not be displayed in a discovery system",
+      "type": "boolean"
+     },
+     "isBoundWith": {
+      "description": "Indicates if this instance is included in a bound-with",
+      "type": "boolean"
+     },
+     "tags": {
+      "$ref": "#/components/schemas/tags-3"
+     },
+     "classifications": {
+      "type": "array",
+      "description": "List of classifications",
+      "items": {
+       "$ref": "#/components/schemas/classification"
+      }
+     },
+     "electronicAccess": {
+      "description": "List of electronic access items",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/electronicAccess"
+      }
+     },
+     "notes": {
+      "description": "Bibliographic notes (e.g. general notes, specialized notes), and administrative notes",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/note"
+      }
+     },
+     "items": {
+      "description": "List of instance items",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/searchItem"
+      }
+     },
+     "holdings": {
+      "description": "List of instance holding records",
+      "type": "array",
+      "items": {
+       "$ref": "#/components/schemas/searchHolding"
+      }
+     }
+    }
+   }
+  },
+  "parameters": {
+   "servicePointId": {
+    "name": "servicePointId",
+    "in": "path",
+    "required": true,
+    "schema": {
+     "type": "string",
+     "format": "uuid"
+    }
+   }
+  },
+  "responses": {
+   "pick-slips": {
+    "description": "Pick slips response",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/pickSlipsResponse"
+      }
+     }
+    }
+   },
+   "search-slips": {
+    "description": "Search slips response",
+    "content": {
+     "application/json": {
+      "schema": {
+       "$ref": "#/components/schemas/searchSlipsResponse"
+      }
+     }
+    }
+   },
+   "badRequestResponse": {
+    "description": "Validation errors",
+    "content": {
+     "application/json": {
+      "example": {
+       "errors": [
+        {
+         "message": "Request is invalid"
+        }
+       ],
+       "total_records": 1
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   },
+   "notFoundResponse": {
+    "description": "Not found",
+    "content": {
+     "application/json": {
+      "example": {
+       "errors": [
+        {
+         "message": "Request not found"
+        }
+       ],
+       "total_records": 1
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   },
+   "internalServerErrorResponse": {
+    "description": "When unhandled exception occurred during code execution, e.g. NullPointerException",
+    "content": {
+     "application/json": {
+      "example": {
+       "errors": [
+        {
+         "message": "Unexpected error"
+        }
+       ],
+       "total_records": 1
+      },
+      "schema": {
+       "$ref": "#/components/schemas/errors"
+      }
+     }
+    }
+   }
+  }
+ }
+}

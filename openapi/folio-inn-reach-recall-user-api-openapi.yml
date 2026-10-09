@@ -1,0 +1,164 @@
+openapi: 3.2.0
+info:
+  title: Folio Inn Reach Recall User API
+  version: v1
+  description: 'Operations tagged inn-reach-recall-user across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: inn-reach-recall-user
+paths:
+  /central-servers/{centralServerId}/inn-reach-recall-user:
+    post:
+      description: Add new Inn-Reach recall user to central server
+      operationId: saveInnReachRecallUser
+      tags:
+      - inn-reach-recall-user
+      responses:
+        '201':
+          description: Inn-Reach recall user saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachRecallUserDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/innReachRecallUserDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Save inn reach recall user
+      x-summary-source: derived
+    get:
+      description: Get Inn-Reach Central server recall user
+      operationId: getCentralServerRecallUser
+      tags:
+      - inn-reach-recall-user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachRecallUserDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Get central server recall user
+      x-summary-source: derived
+    put:
+      description: Update Inn-Reach Central server recall user
+      operationId: updateCentralServerRecallUser
+      tags:
+      - inn-reach-recall-user
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/innReachRecallUserDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Update central server recall user
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    innReachRecallUserDTO:
+      description: InnReach recall user
+      type: object
+      properties:
+        userId:
+          description: User id
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - userId
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+  responses:
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+x-refined-from:
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-inn-reach-settings-openapi.yml

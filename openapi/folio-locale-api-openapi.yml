@@ -1,0 +1,101 @@
+openapi: 3.2.0
+info:
+  title: Folio Locale API
+  version: v1
+  description: 'Operations tagged Locale across 2 of this provider''s published API definitions: folio-mod-settings-openapi.json, folio-mod-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Locale
+paths:
+  /locale:
+    parameters:
+    - $ref: '#/components/parameters/okapi-tenant'
+    get:
+      description: Get the locale settings for the tenant.
+      operationId: getLocale
+      responses:
+        '200':
+          description: The locale settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/locale'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Locale
+      summary: Get locale
+      x-summary-source: derived
+    put:
+      description: Set the locale settings for the tenant.
+      operationId: setLocale
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/locale'
+      responses:
+        '204':
+          description: Locale settings updated
+        '400':
+          $ref: '#/components/responses/trait_400'
+        '500':
+          $ref: '#/components/responses/trait_500'
+      tags:
+      - Locale
+      summary: Set locale
+      x-summary-source: derived
+components:
+  responses:
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Invalid JSON in request
+  parameters:
+    okapi-tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: true
+      schema:
+        type: string
+        pattern: ^[_a-z][_a-z0-9]*$
+  schemas:
+    locale:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        locale:
+          description: The locale for language display, date format, etc., for example 'en-US' or 'sv' or 'es-419'
+          type: string
+        currency:
+          description: Primary currency, for example USD, EUR, INR
+          type: string
+        timezone:
+          description: The time zone when showing date time information, for example 'UTC', 'America/New_York'
+          type: string
+        numberingSystem:
+          description: The system used for numeral display, either latn or arab
+          type: string
+      additionalProperties: false
+      required:
+      - locale
+      - currency
+      - timezone
+x-refined-from:
+- folio-mod-settings-openapi.json
+- folio-mod-settings-openapi.yml

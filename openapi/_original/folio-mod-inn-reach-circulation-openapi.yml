@@ -1,0 +1,3382 @@
+# x-archived-from: folio-mod-inn-reach-circulation-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: INN-Reach Circulation API
+  version: v1
+servers:
+- url: /inn-reach/
+paths:
+  /central-servers/agencies:
+    get:
+      operationId: getCentralServerAgencies
+      description: Get a combined list of agencies available from all configured central servers
+      tags:
+      - central-server-configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/centralServerAgenciesDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+  /central-servers/item-types:
+    get:
+      operationId: getCentralServerItemTypes
+      description: Get a combined list of item types available from all configured central servers
+      tags:
+      - central-server-configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/centralServerItemTypesDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+  /central-servers/patron-types:
+    get:
+      operationId: getCentralServerPatronTypes
+      description: Get a combined list of patron types available from all configured central servers
+      tags:
+      - central-server-configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/centralServerPatronTypesDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+  /d2ir/getbibrecord/{bibId}/{centralCode}:
+    post:
+      operationId: getBibRecord
+      description: Handles D2IR request from central server for an already-contributed Bib record.
+      tags:
+      - bib-info-d2ir
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bibInfoResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/bibId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/itemhold/{trackingId}/{centralCode}:
+    post:
+      operationId: createInnReachTransactionItemHold
+      description: Originates an item hold at the owning site
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/transactionHoldDTO'
+      responses:
+        '200':
+          description: Transaction record is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during creation of transaction record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /transactions:
+    get:
+      description: Get a list of transactions for the given central server
+      operationId: getAllTransactions
+      tags:
+      - inn-reach-transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachTransactionsDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_malformed_query_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trait_pageable_offset'
+      - $ref: '#/components/parameters/trait_pageable_limit'
+      - $ref: '#/components/parameters/transaction_filter_parameters'
+  /transactions/{id}:
+    get:
+      operationId: getInnReachTransaction
+      description: get inn-reach transaction by id
+      tags:
+      - inn-reach-transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachTransactionDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+    put:
+      operationId: updateInnReachTransaction
+      description: update inn-reach transaction by id
+      tags:
+      - inn-reach-transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/innReachTransactionDTO'
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+  /transactions/{id}/receive-item/{servicePointId}:
+    post:
+      operationId: checkInPatronHoldItem
+      description: receive item for patron hold transaction
+      tags:
+      - inn-reach-transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/patronHoldCheckInResponseDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: circulation.yaml#/components/parameters/servicePointId
+  /transactions/{id}/receive-unshipped-item/{servicePointId}/{itemBarcode}:
+    post:
+      operationId: checkInPatronHoldUnshippedItem
+      description: receive un-shipped/unannounced item for patron hold transaction
+      tags:
+      - inn-reach-transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/patronHoldCheckInResponseDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: circulation.yaml#/components/parameters/servicePointId
+      - $ref: circulation.yaml#/components/parameters/itemBarcode
+  /transactions/{id}/itemhold/finalcheckin/{servicePointId}:
+    post:
+      operationId: finalCheckInItemHold
+      description: Final check-in of an item loaned through INN-Reach
+      tags:
+      - inn-reach-transaction
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: circulation.yaml#/components/parameters/servicePointId
+  /transactions/{id}/itemhold/transfer-item/{itemId}:
+    post:
+      operationId: transferItemHold
+      description: Transfer item hold to another item
+      tags:
+      - inn-reach-transaction
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: circulation.yaml#/components/parameters/itemId
+  /transactions/{id}/patronhold/check-out-item/{servicePointId}:
+    post:
+      operationId: checkOutPatronHoldItem
+      description: Checks out to requesting patron
+      tags:
+      - inn-reach-transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transactionCheckOutResponseDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: circulation.yaml#/components/parameters/servicePointId
+  /transactions/{id}/localhold/check-out-item/{servicePointId}:
+    post:
+      operationId: checkOutLocalHoldItem
+      description: Checks out Local Hold item to requesting patron
+      tags:
+      - inn-reach-transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transactionCheckOutResponseDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: circulation.yaml#/components/parameters/servicePointId
+  /transactions/{itemBarcode}/check-out-item/{servicePointId}:
+    put:
+      operationId: checkOutItemHoldItem
+      description: checks out an item from the owning site to the borrowing site for an Item Hold transaction
+      tags:
+      - inn-reach-transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transactionCheckOutResponseDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: circulation.yaml#/components/parameters/itemBarcode
+      - $ref: circulation.yaml#/components/parameters/servicePointId
+  /transactions/{id}/patronhold/cancel:
+    post:
+      operationId: cancelPatronHoldTransaction
+      description: Cancel patron hold transaction with the reason provided
+      tags:
+      - inn-reach-transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cancelTransactionHoldDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachTransactionDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+  /transactions/{id}/patronhold/remove:
+    post:
+      operationId: removePatronHoldTransaction
+      description: Cancel patron hold transaction which does not have associated item and request details
+      tags:
+      - inn-reach-transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachTransactionDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+  /transactions/{id}/itemhold/recall:
+    post:
+      operationId: recallItemHoldTransaction
+      description: Recall item hold transaction
+      tags:
+      - inn-reach-transaction
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+  /transactions/{id}/patronhold/return-item/{servicePointId}:
+    post:
+      operationId: returnPatronHoldItem
+      description: Returns Patron Hold item
+      tags:
+      - inn-reach-transaction
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: circulation.yaml#/components/parameters/servicePointId
+  /transactions/{id}/itemhold/cancel:
+    post:
+      operationId: cancelItemHoldTransaction
+      description: Cancel item hold transaction with the reason provided
+      tags:
+      - inn-reach-transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cancelTransactionHoldDTO'
+      responses:
+        '204':
+          description: No content
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+  /transactions/{id}/localhold/cancel:
+    post:
+      operationId: cancelLocalHoldTransaction
+      description: Cancel local hold transaction with the reason provided
+      tags:
+      - inn-reach-transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cancelTransactionHoldDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachTransactionDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+  /d2ir/circ/verifypatron:
+    post:
+      operationId: verifyPatron
+      description: Handles D2IR request from central server for patron verification.
+      tags:
+      - verify-patron-d2ir
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patronInfoRequestDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/patronInfoResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/localCodeHeader'
+      - $ref: '#/components/parameters/centralCodeHeader'
+  /d2ir/circ/patronhold/{trackingId}/{centralCode}:
+    post:
+      operationId: patronHold
+      description: Originate a patron hold
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patronHoldDTO'
+      responses:
+        '200':
+          description: Patron hold request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/itemshipped/{trackingId}/{centralCode}:
+    put:
+      operationId: itemShipped
+      description: Process shipped item
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/itemShippedDTO'
+      responses:
+        '200':
+          description: Item shipped request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/cancelrequest/{trackingId}/{centralCode}:
+    put:
+      operationId: cancelPatronHold
+      description: Cancel Patron Hold transaction
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/cancelRequestDTO'
+      responses:
+        '200':
+          description: Cancellation request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/transferrequest/{trackingId}/{centralCode}:
+    put:
+      operationId: transferRequest
+      description: Put transfer request
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/transferRequestDTO'
+      responses:
+        '200':
+          description: Transfer request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/cancelitemhold/{trackingId}/{centralCode}:
+    put:
+      operationId: cancelItemHold
+      description: Cancel an item request
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/baseCircRequestDTO'
+      responses:
+        '200':
+          description: Cancel request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/receiveunshipped/{trackingId}/{centralCode}:
+    put:
+      operationId: receiveUnshipped
+      description: Report unshipped item received to owning site for item hold
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/baseCircRequestDTO'
+      responses:
+        '200':
+          description: report unshipped item complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/intransit/{trackingId}/{centralCode}:
+    put:
+      operationId: itemInTransit
+      description: Receives message from central server to owning site indicating that a loaned item is being returned after being loaned to the borrowing patron.
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/baseCircRequestDTO'
+      responses:
+        '200':
+          description: Item in transit message processing complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/returnuncirculated/{trackingId}/{centralCode}:
+    put:
+      operationId: returnUncirculated
+      description: Return uncirculated message for item hold
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/returnUncirculatedDTO'
+      responses:
+        '200':
+          description: Return uncirculated message for item hold request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/localhold/{trackingId}/{centralCode}:
+    put:
+      operationId: createLocalHold
+      description: Create Local Hold - Central server to owning site when a local patron of that site requests an item through central.
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/localHoldDTO'
+      responses:
+        '200':
+          description: Local hold request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/itemreceived/{trackingId}/{centralCode}:
+    put:
+      operationId: itemReceived
+      description: Shipped item has been received
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/itemReceivedDTO'
+      responses:
+        '200':
+          description: Item received request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/recall/{trackingId}/{centralCode}:
+    put:
+      operationId: recall
+      description: Item has been recalled
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/recallDTO'
+      responses:
+        '200':
+          description: Recall request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/borrowerrenew/{trackingId}/{centralCode}:
+    put:
+      operationId: borrowerRenew
+      description: Borrower Renew Message for Item Hold
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/renewLoanDTO'
+      responses:
+        '200':
+          description: Set transaction state BORROWER_RENEW
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/finalcheckin/{trackingId}/{centralCode}:
+    put:
+      operationId: finalCheckIn
+      description: Indicating that a returned item has been received by its owning site. This is a terminating transaction.
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/baseCircRequestDTO'
+      responses:
+        '200':
+          description: Set transaction state to FINAL_CHECKIN
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/ownerrenew/{trackingId}/{centralCode}:
+    put:
+      operationId: ownerRenew
+      description: Owner Renew loan
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/renewLoanDTO'
+      responses:
+        '200':
+          description: Loan renew request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /d2ir/circ/claimsreturned/{trackingId}/{centralCode}:
+    put:
+      operationId: claimsReturned
+      description: Borrower claims item returned
+      tags:
+      - inn-reach-circulation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/claimsItemReturnedDTO'
+      responses:
+        '200':
+          description: Loan renew request complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '400':
+          description: An error occurred during processing the request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachResponseDTO'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/trackingId'
+      - $ref: '#/components/parameters/centralCode'
+  /transactions/{id}/localhold/transfer-item/{itemId}:
+    post:
+      operationId: transferLocalHold
+      description: Transfer local hold to another item
+      tags:
+      - inn-reach-transaction
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/innReachTransactionDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/id'
+      - $ref: circulation.yaml#/components/parameters/itemId
+  /paging-slips/{servicePointId}:
+    get:
+      description: Get a list of available tokens for INN-Reach paging slips
+      operationId: getPagingSlips
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/pagingSlipsDTO'
+        '404':
+          $ref: '#/components/responses/trait_response_404'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      tags:
+      - paging-slip
+      parameters:
+      - $ref: circulation.yaml#/components/parameters/servicePointId
+components:
+  schemas:
+    code:
+      type: string
+      pattern: '[a-z,0-9]{3,5}'
+    centralServerAgenciesDTO:
+      description: Agency collection from all configured central servers
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+        centralServerAgencies:
+          description: List of agencies per central server
+          type: array
+          items:
+            $ref: '#/components/schemas/agenciesPerCentralServerDTO'
+      required:
+      - centralServerAgencies
+      additionalProperties: false
+    localServerAgenciesDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/innReachResponseDTO'
+      description: D2IR local server agency codes response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        localServerList:
+          description: D2IR local servers
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/localServer'
+      additionalProperties: false
+    centralServerItemTypesDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Item types collection from all configured central servers
+      type: object
+      properties:
+        centralServerItemTypes:
+          description: List of item types per central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/itemTypesPerCentralServerDTO'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - centralServerItemTypes
+    centralItemTypesDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/innReachResponseDTO'
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      description: D2IR central item types response
+      type: object
+      properties:
+        itemTypeList:
+          description: D2IR central item types
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/itemType'
+      additionalProperties: false
+    centralServerPatronTypesDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Patron types collection from all configured central servers
+      type: object
+      properties:
+        centralServerPatronTypes:
+          description: List of patron types per central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/patronTypesPerCentralServerDTO'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - centralServerPatronTypes
+    centralPatronTypesDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/innReachResponseDTO'
+      description: D2IR central patron types response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        patronTypeList:
+          description: D2IR central patron types
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/patronType'
+      additionalProperties: false
+    bibInfoResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/innReachResponseDTO'
+      description: D2IR Bib info response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        bibInfo:
+          description: D2IR Bib info
+          $ref: '#/components/schemas/bibInfo'
+      additionalProperties: false
+      required:
+      - bibInfo
+    innReachResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: D2IR response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        status:
+          description: Status
+          type: string
+        reason:
+          description: Reason
+          type: string
+        errors:
+          description: Errors
+          type: array
+          items:
+            $ref: '#/components/schemas/innReachError'
+      additionalProperties: false
+      required:
+      - status
+      - reason
+      - errors
+    patronInfoResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/innReachResponseDTO'
+      description: D2IR Patron info response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        patronInfo:
+          description: D2IR Patron info
+          $ref: '#/components/schemas/patronInfo'
+        requestAllowed:
+          type: boolean
+          description: If the value is false, the patron cannot place a central request (they will be locally blocked)
+      additionalProperties: false
+      required:
+      - patronInfo
+      - requestAllowed
+    patronInfoRequestDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Request parameters for patron verify
+      type: object
+      properties:
+        patronName:
+          description: Patron name
+          type: string
+          maxLength: 128
+        patronAgencyCode:
+          description: Patron agency code
+          type: string
+          maxLength: 128
+        visiblePatronId:
+          description: User attribute configured by the system to act as their publicId (externalSystemId or barcode)
+          type: string
+          maxLength: 32
+      additionalProperties: false
+      required:
+      - visiblePatronId
+      - patronAgencyCode
+      - patronName
+    innReachTransactionDTO:
+      description: INN-Reach Transaction record
+      type: object
+      properties:
+        id:
+          description: Transaction id
+          type: string
+          format: UUID
+        trackingId:
+          description: ID for transaction tracking
+          type: string
+        centralServerCode:
+          description: Unique code that identifies the central server
+          type: string
+        state:
+          description: Transaction state
+          type: object
+          $ref: '#/components/schemas/transactionStateEnum'
+        type:
+          description: Transaction type
+          type: object
+          $ref: '#/components/schemas/transactionTypeEnum'
+        hold:
+          description: Transaction hold
+          type: object
+          $ref: '#/components/schemas/transactionHoldDTO'
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - transactionTime
+      - pickupLocation
+      - patronId
+      - patronAgencyCode
+      - itemAgencyCode
+      - itemId
+      - centralPatronType
+      - patronName
+    transactionHoldDTO:
+      description: INN-Reach Transaction hold record
+      type: object
+      properties:
+        id:
+          description: Transaction Hold id
+          type: string
+          format: UUID
+        transactionTime:
+          description: Transaction time
+          type: integer
+        pickupLocation:
+          description: Pickup location
+          type: string
+        patronId:
+          description: Base32-encoded FOLIO user UUID (lowercase, no padding). The caller obtains this value from the patron verification response. Decoded server-side to resolve the FOLIO patron.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+        patronAgencyCode:
+          description: Patron agency code
+          type: string
+          minLength: 5
+          maxLength: 5
+        itemAgencyCode:
+          description: Item agency code
+          type: string
+          minLength: 5
+          maxLength: 5
+        itemId:
+          description: FOLIO inventory item HRID (Human-Readable ID). Used to look up the item in FOLIO inventory.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+        needBefore:
+          description: Need before time
+          type: integer
+        dueDateTime:
+          description: Due date time
+          type: integer
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        centralPatronType:
+          description: Central patron type
+          type: integer
+          minimum: 0
+          maximum: 255
+        patronName:
+          description: Patron name
+          type: string
+        patronHomeLibrary:
+          description: Patron home library
+          type: string
+        patronPhone:
+          description: Patron phone
+          type: string
+        title:
+          description: Bibliographic title of the requested item. For item holds, this value is overwritten from inventory; the caller-supplied value is not used.
+          type: string
+        author:
+          description: Patron hold author
+          type: string
+        callNumber:
+          description: Patron hold call number
+          type: string
+        shippedItemBarcode:
+          description: Shipped item barcode
+          type: string
+        folioInstanceId:
+          description: Folio instance id
+          type: string
+          format: UUID
+          readOnly: true
+        folioHoldingId:
+          description: Folio holding id
+          type: string
+          format: UUID
+          readOnly: true
+        folioPatronId:
+          description: Folio patron id
+          type: string
+          format: UUID
+          readOnly: true
+        folioItemId:
+          description: Folio item id
+          type: string
+          format: UUID
+          readOnly: true
+        folioRequestId:
+          description: Folio request id
+          type: string
+          format: UUID
+          readOnly: true
+        folioLoanId:
+          description: Folio loan id
+          type: string
+          format: UUID
+          readOnly: true
+        folioPatronBarcode:
+          description: Folio patron barcode
+          type: string
+          readOnly: true
+        folioItemBarcode:
+          description: Folio item barcode
+          type: string
+          readOnly: true
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - transactionTime
+      - pickupLocation
+      - patronId
+      - patronAgencyCode
+      - itemAgencyCode
+      - itemId
+    patronHoldDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Patron hold
+      type: object
+      properties:
+        pickupLocation:
+          description: Pickup location
+          type: string
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        title:
+          description: 'Bibliographic title of the requested item. Required for patron hold: used as the title of the virtual Instance created in FOLIO inventory.'
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+          maxLength: 256
+        callNumber:
+          description: Call number
+          type: string
+          maxLength: 256
+        needBefore:
+          description: Need before time
+          type: integer
+      additionalProperties: false
+      required:
+      - pickupLocation
+      - centralItemType
+      - title
+    localHoldDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Patron hold
+      type: object
+      properties:
+        pickupLocation:
+          description: Pickup location
+          type: string
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        centralPatronType:
+          description: Central patron type
+          type: integer
+          minimum: 0
+          maximum: 255
+        patronName:
+          description: Patron name
+          type: string
+        patronHomeLibrary:
+          description: Patron home library
+          type: string
+        patronPhone:
+          description: Patron phone
+          type: string
+        title:
+          description: Bibliographic title of the requested item. Stored for informational purposes; not used for instance creation in local hold flow.
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+          maxLength: 256
+        callNumber:
+          description: Call number
+          type: string
+          maxLength: 256
+        needBefore:
+          description: Need before time
+          type: integer
+      additionalProperties: false
+      required:
+      - pickupLocation
+      - centralItemType
+      - centralPatronType
+      - patronName
+    itemShippedDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Item shipped
+      type: object
+      properties:
+        pickupLocation:
+          description: Pickup location
+          type: string
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        itemBarcode:
+          description: Item barcode
+          type: string
+        title:
+          description: Bibliographic title of the requested item. Informational only; not used in item-shipped processing logic.
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+          maxLength: 256
+        callNumber:
+          description: Call number
+          type: string
+          maxLength: 256
+        itemLocation:
+          description: Item location
+          type: string
+        needBefore:
+          description: Need before time
+          type: integer
+      additionalProperties: false
+      required:
+      - pickupLocation
+      - centralItemType
+    cancelRequestDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Cancel request
+      type: object
+      properties:
+        reason:
+          description: Cancellation reason
+          type: string
+        reasonCode:
+          description: Cancellation reason code (always 7)
+          type: integer
+      additionalProperties: false
+      required:
+      - reasonCode
+    transferRequestDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Transfer request
+      type: object
+      properties:
+        newItemId:
+          description: FOLIO inventory item HRID of the replacement item. The current itemId is validated against the stored value, then replaced with this newItemId.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+      additionalProperties: false
+      required:
+      - newItemId
+    innReachTransactionsDTO:
+      description: INN-Reach Transactions collection
+      type: object
+      properties:
+        totalRecords:
+          description: Total records
+          type: integer
+        transactions:
+          description: List of INN-Reach Transactions
+          type: array
+          items:
+            $ref: '#/components/schemas/innReachTransactionDTO'
+      additionalProperties: false
+      required:
+      - transactions
+    innReachTransactionFilterParametersDTO:
+      description: INN-Reach Transaction sorting parameters
+      type: object
+      properties:
+        type:
+          description: List of INN-Reach Transaction types
+          type: array
+          items:
+            $ref: '#/components/schemas/transactionTypeEnum'
+        state:
+          description: List of INN-Reach Transaction states
+          type: array
+          items:
+            $ref: '#/components/schemas/transactionStateEnum'
+        centralServerCode:
+          description: List of central server codes
+          type: array
+          items:
+            type: string
+        patronAgencyCode:
+          description: List of patron agency codes
+          type: array
+          items:
+            type: string
+        itemAgencyCode:
+          description: List of item agency codes
+          type: array
+          items:
+            type: string
+        itemBarcode:
+          description: List of item barcodes
+          type: array
+          items:
+            type: string
+        centralPatronType:
+          description: List of patron types
+          type: array
+          items:
+            type: integer
+        centralItemType:
+          description: List of central item types
+          type: array
+          items:
+            type: integer
+        query:
+          type: string
+          description: Provides ability to perform a keyword-style lookup based on the information associated with the transaction
+        requestedTooLong:
+          type: boolean
+          description: An indication that the filter is applied for the Request too long report.
+        createdDate:
+          description: Create date to which related comparison operation is applied. In case of 'between' operation there can be two values provided
+          type: array
+          maxItems: 2
+          items:
+            type: string
+            format: date-time
+        createdDateOp:
+          description: Comparison operation applied to create date
+          type: string
+          $ref: '#/components/schemas/filterDateOperation'
+        updatedDate:
+          description: Update date to which related comparison operation is applied. In case of 'between' operation there can be two values provided
+          type: array
+          maxItems: 2
+          items:
+            type: string
+            format: date-time
+        updatedDateOp:
+          description: Comparison operation applied to update date
+          type: string
+          $ref: '#/components/schemas/filterDateOperation'
+        holdCreatedDate:
+          description: Create date of hold entity to which related comparison operation is applied. In case of 'between' operation there can be two values provided
+          type: array
+          maxItems: 2
+          items:
+            type: string
+            format: date-time
+        holdCreatedDateOp:
+          description: Comparison operation applied to create date of hold entity
+          type: string
+          $ref: '#/components/schemas/filterDateOperation'
+        holdUpdatedDate:
+          description: Update date of hold entity to which related comparison operation is applied. In case of 'between' operation there can be two values provided
+          type: array
+          maxItems: 2
+          items:
+            type: string
+            format: date-time
+        holdUpdatedDateOp:
+          description: Comparison operation applied to update date of hold entity
+          type: string
+          $ref: '#/components/schemas/filterDateOperation'
+        dueDate:
+          description: Due date of hold entity to which related comparison operation is applied. In case of 'between' operation there can be two values provided
+          type: array
+          maxItems: 2
+          items:
+            type: string
+            format: date-time
+        dueDateOp:
+          description: Comparison operation applied to due date of hold entity
+          type: string
+          $ref: '#/components/schemas/filterDateOperation'
+        sortBy:
+          description: Sorting parameter
+          type: string
+          enum:
+          - transactionTime
+          - createdDate
+          - updatedDate
+          - type
+          - state
+          - itemAgencyCode
+          - patronAgencyCode
+          - centralPatronType
+          - centralItemType
+          - patronName
+          - title
+          x-enum-varnames:
+          - transactionTime
+          - createdDate
+          - updatedDate
+          - type
+          - state
+          - itemAgencyCode
+          - patronAgencyCode
+          - centralPatronType
+          - centralItemType
+          - patronName
+          - title
+        sortOrder:
+          description: Sorting order parameter
+          type: string
+          enum:
+          - asc
+          - desc
+          x-enum-varnames:
+          - asc
+          - desc
+          default: asc
+      additionalProperties: false
+      required: []
+    checkInRequestDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Request to check in an item at a service point (including when a loan is returned)
+      properties:
+        itemBarcode:
+          description: Barcode of the item to be checked in
+          type: string
+        servicePointId:
+          description: Service point where the item is being processed
+          type: string
+          format: UUID
+        checkInDate:
+          description: When the item was checked in
+          type: string
+          format: date-time
+        claimedReturnedResolution:
+          description: Describes how the library resolved the situation where an item that was claimed returned
+          type: string
+          enum:
+          - Found by library
+          - Returned by patron
+      additionalProperties: false
+      required:
+      - itemBarcode
+      - checkInDate
+      - servicePointId
+    checkInResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Success response for checking in an item at a service point
+      properties:
+        loan:
+          description: Loan affected by the check in (may be none, if a receiving check in)
+          $schema: http://json-schema.org/draft-04/schema#
+          type: object
+          title: Loan
+          properties:
+            id:
+              description: Unique ID (generated UUID) of the loan
+              type: string
+              format: UUID
+            userId:
+              description: ID of the patron the item was lent to. Required for open loans, not required for closed loans (for anonymization).
+              type: string
+              format: UUID
+            borrower:
+              description: Additional information about the borrower of the item, taken from the user referred to by the userId
+              readonly: true
+              type: object
+              properties:
+                firstName:
+                  description: first name of the borrower (read only, defined by the server)
+                  type: string
+                  readonly: true
+                lastName:
+                  description: last name of the borrower (read only, defined by the server)
+                  type: string
+                  readonly: true
+                middleName:
+                  description: middle name of the borrower (read only, defined by the server)
+                  type: string
+                  readonly: true
+                barcode:
+                  description: barcode used to identify the borrower (read only, defined by the server)
+                  type: string
+                  readonly: true
+              additionalProperties: false
+            proxyUserId:
+              description: ID of the user representing a proxy for the patron
+              type: string
+              format: UUID
+            itemId:
+              description: ID of the item lent to the patron
+              type: string
+              format: UUID
+            loanPolicyId:
+              description: ID of last policy used in relation to this loan
+              type: string
+              format: UUID
+            loanPolicy:
+              description: Additional information about the loan policy of the item, taken from the loan loanPolicyId
+              readonly: true
+              type: object
+              properties:
+                name:
+                  readonly: true
+                  description: Name of last policy used in relation to this loan (read only, defined by the server)
+                  type: string
+            overdueFinePolicyId:
+              description: ID of last overdue fine policy used in relation to this loan
+              type: string
+              format: UUID
+            overdueFinePolicy:
+              description: Additional information about the overdue fine policy of the item, taken from the loan overdueFinePolicyId
+              readonly: true
+              type: object
+              properties:
+                name:
+                  readonly: true
+                  description: Name of last overdue fine policy used in relation to this loan (read only, defined by the server)
+                  type: string
+            lostItemPolicyId:
+              description: ID of last lost item policy used in relation to this loan
+              type: string
+              format: UUID
+            lostItemPolicy:
+              description: Additional information about the lost item policy of the item, taken from the loan lostItemPolicyId
+              readonly: true
+              type: object
+              properties:
+                name:
+                  readonly: true
+                  description: Name of last lost item policy used in relation to this loan (read only, defined by the server)
+                  type: string
+            item:
+              description: Additional information about the item
+              type: object
+              readonly: true
+              properties:
+                id:
+                  description: ID of the item
+                  type: string
+                  format: UUID
+                  readonly: true
+                title:
+                  description: The title of the item lent to the patron
+                  type: string
+                  readonly: true
+                callNumber:
+                  description: Deprecated call number from the holdings record, use callNumberComponents.callNumber instead
+                  type: string
+                  readonly: true
+                materialType:
+                  description: The material type from the item record
+                  type: object
+                  readonly: true
+                  properties:
+                    name:
+                      description: Name of the material type
+                      type: string
+                      readonly: true
+                  additionalProperties: false
+                contributors:
+                  description: Contributors from the instance record
+                  type: array
+                  readonly: true
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        description: Name of the contributor
+                        type: string
+                        readonly: true
+                    additionalProperties: false
+                holdingsRecordId:
+                  description: The ID of the holdings for the item
+                  type: string
+                  format: UUID
+                  readonly: true
+                instanceId:
+                  description: The ID of the instance for the item
+                  type: string
+                  format: UUID
+                  readonly: true
+                barcode:
+                  description: The barcode of the item
+                  type: string
+                  readonly: true
+                location:
+                  description: The effective location of the item
+                  type: object
+                  readonly: true
+                  properties:
+                    name:
+                      description: The name of the location
+                      type: string
+                      readonly: true
+                status:
+                  description: Overall status of the item
+                  type: object
+                  readonly: true
+                  properties:
+                    name:
+                      description: Name of the item status
+                      type: string
+                      readonly: true
+                    date:
+                      type: string
+                      description: Date time when status was last changed
+                      format: date-time
+                      readonly: true
+                  additionalProperties: false
+                inTransitDestinationServicePointId:
+                  description: Service point an item is intended to be transited to (should only be present when in transit)
+                  type: string
+                  format: UUID
+                  readonly: true
+                inTransitDestinationServicePoint:
+                  description: Service point an item is intended to be transited to (should only be present when in transit)
+                  type: object
+                  readonly: true
+                  properties:
+                    name:
+                      description: Name of the service point
+                      type: string
+                      readonly: true
+                enumeration:
+                  description: Item`s enumeration
+                  type: string
+                  readonly: true
+                chronology:
+                  description: Item`s chronology
+                  type: string
+                  readonly: true
+                volume:
+                  description: Item`s volume
+                  type: string
+                  readonly: true
+                callNumberComponents:
+                  description: Elements of a full call number
+                  readonly: true
+                  $schema: http://json-schema.org/draft-04/schema#
+                  type: object
+                  properties:
+                    callNumber:
+                      type: string
+                      description: Call number for item
+                      readonly: true
+                    prefix:
+                      description: Call number prefix for item
+                      type: string
+                      readonly: true
+                    suffix:
+                      description: Call number suffix for item
+                      type: string
+                      readonly: true
+              additionalProperties: false
+            itemEffectiveLocationIdAtCheckOut:
+              description: The effective location, at the time of checkout, of the item loaned to the patron.
+              type: string
+              format: UUID
+            status:
+              description: Overall status of the loan
+              type: object
+              properties:
+                name:
+                  description: Name of the status (currently can be any value, values commonly used are Open and Closed)
+                  type: string
+            loanDate:
+              description: Date and time when the loan began
+              type: string
+              format: date-time
+            dueDate:
+              description: Date and time when the item is due to be returned
+              type: string
+              format: date-time
+            returnDate:
+              description: Date and time when the item was returned
+              type: string
+              format: date-time
+            systemReturnDate:
+              description: Date and time when return was processed
+              type: string
+              format: date-time
+            action:
+              description: Last action performed on a loan (currently can be any value, values commonly used are checkedout and checkedin)
+              type: string
+            renewalCount:
+              description: Count of how many times a loan has been renewed (incremented by the client)
+              type: integer
+              minimum: 0
+            checkoutServicePointId:
+              description: ID of the Service Point where the last checkout occured
+              type: string
+              format: UUID
+            checkinServicePointId:
+              description: ID of the Service Point where the last checkin occured
+              type: string
+              format: UUID
+            checkoutServicePoint:
+              description: The Service Point where the last checkout occurred
+              type: object
+              readonly: true
+              properties:
+                name:
+                  description: The unique name of the service point
+                  type: string
+                  readonly: true
+                code:
+                  description: The short code for the service point
+                  type: string
+                  readonly: true
+                discoveryDisplayName:
+                  description: The human readable name
+                  type: string
+                  readonly: true
+                shelvingLagTime:
+                  description: The time to shelving
+                  type: integer
+                  readonly: true
+                pickupLocation:
+                  description: Is this a pickup location
+                  type: boolean
+                  readonly: true
+            checkinServicePoint:
+              description: The Service Point where the last checkout occurred
+              type: object
+              readonly: true
+              properties:
+                name:
+                  description: Name of the service point
+                  type: string
+                  readonly: true
+                code:
+                  description: The short code for the service point
+                  type: string
+                  readonly: true
+                discoveryDisplayName:
+                  description: The human readable name
+                  type: string
+                  readonly: true
+                shelvingLagTime:
+                  description: The time to shelving
+                  type: integer
+                  readonly: true
+                pickupLocation:
+                  description: Is this a pickup location
+                  type: boolean
+                  readonly: true
+            patronGroupAtCheckout:
+              description: Patron Group at checkout
+              type: object
+              properties:
+                id:
+                  description: Unique ID (generated UUID) of the patron group
+                  type: string
+                  format: UUID
+                  readonly: true
+                name:
+                  description: Patron group name
+                  type: string
+                  readonly: true
+              additionalProperties: false
+            feesAndFines:
+              description: Fees and fines associated with loans
+              type: object
+              properties:
+                amountRemainingToPay:
+                  type: number
+                  description: Total remaining amount due on fees and fines for the loan (read only, defined by the server)
+                  readonly: true
+              additionalProperties: false
+            declaredLostDate:
+              description: Date and time the item was declared lost during this loan
+              type: string
+              format: date-time
+            metadata:
+              description: Metadata about creation and changes to loan, provided by the server (client should not provide)
+              type: object
+              $schema: http://json-schema.org/draft-04/schema#
+              title: Metadata Schema
+              properties:
+                createdDate:
+                  description: Date and time when the record was created
+                  type: string
+                  format: date-time
+                createdByUserId:
+                  description: ID of the user who created the record (when available)
+                  type: string
+                  format: UUID
+                createdByUsername:
+                  description: Username of the user who created the record (when available)
+                  type: string
+                updatedDate:
+                  description: Date and time when the record was last updated
+                  type: string
+                  format: date-time
+                updatedByUserId:
+                  description: ID of the user who last updated the record (when available)
+                  type: string
+                  format: UUID
+                updatedByUsername:
+                  description: Username of the user who last updated the record (when available)
+                  type: string
+              additionalProperties: false
+              required:
+              - createdDate
+          required:
+          - itemId
+          - loanDate
+          - action
+        item:
+          description: Additional information about the item
+          type: object
+          properties:
+            id:
+              description: ID of the item
+              type: string
+            title:
+              description: The title of the item lent to the patron
+              type: string
+            callNumber:
+              description: The call number from the holdings record
+              type: string
+            materialType:
+              description: The material type from the item record
+              type: object
+              properties:
+                name:
+                  description: Name of the material type
+                  type: string
+              additionalProperties: false
+            contributors:
+              description: Contributors from the instance record
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    description: Name of the contributor
+                    type: string
+                additionalProperties: false
+            holdingsRecordId:
+              description: The ID of the holdings for the item
+              type: string
+            instanceId:
+              description: The ID of the instance for the item
+              type: string
+            barcode:
+              description: The barcode of the item
+              type: string
+            location:
+              description: The effective location of the item
+              type: object
+              properties:
+                name:
+                  description: The name of the location
+                  type: string
+              additionalProperties: false
+            status:
+              description: Overall status of the item
+              type: object
+              properties:
+                name:
+                  description: Name of the item status
+                  type: string
+                date:
+                  type: string
+                  description: Date time when status was last changed
+                  format: date-time
+              additionalProperties: false
+            enumeration:
+              description: Item`s enumeration
+              type: string
+            chronology:
+              description: Chronology is the descriptive information for the dating scheme of a serial.
+              type: string
+            volume:
+              description: Volume is intended for monographs when a multipart monograph (e.g. a biography of George Bernard Shaw in three volumes).
+              type: string
+            inTransitDestinationServicePointId:
+              description: Service point an item is intended to be transited to (should only be present when in transit)
+              type: string
+              format: UUID
+            inTransitDestinationServicePoint:
+              description: Service point an item is intended to be transited to (should only be present when in transit)
+              type: object
+              properties:
+                name:
+                  description: Name of the service point
+                  type: string
+          additionalProperties: false
+        staffSlipContext:
+          description: Context for staff slip tokens
+          type: object
+        inHouseUse:
+          type: boolean
+          description: Defines whether the current check-in operation considered as in-house use or not.
+      additionalProperties: false
+    checkInDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Check-in operation
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+          description: Unique ID (generated UUID) of the check-in operation
+        occurredDateTime:
+          type: string
+          description: Date and time when the check-in occurred
+          format: date-time
+        itemId:
+          description: Id of item that has checked in
+          type: string
+          format: UUID
+        itemStatusPriorToCheckIn:
+          type: string
+          description: Item status prior to check-in
+        requestQueueSize:
+          type: integer
+          description: Request queue size for the item
+          minimum: 0
+        itemLocationId:
+          type: string
+          format: UUID
+          description: Location of the item in check-in time
+        servicePointId:
+          type: string
+          format: UUID
+          description: Service point where the item was checked in
+        performedByUserId:
+          type: string
+          format: UUID
+          description: Id of user that has performed check-in operation
+      additionalProperties: false
+      required:
+      - occurredDateTime
+      - itemId
+      - servicePointId
+      - performedByUserId
+    baseCircRequestDTO:
+      description: INN-Reach Circulation Common Put Request Data
+      type: object
+      properties:
+        transactionTime:
+          description: Transaction time
+          type: integer
+        patronId:
+          description: Base32-encoded FOLIO user UUID (lowercase, no padding). The caller obtains this value from the patron verification response. Decoded server-side to resolve the FOLIO patron.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+        patronAgencyCode:
+          description: Patron agency code
+          type: string
+          pattern: '[a-z,0-9]{5}'
+        itemAgencyCode:
+          description: Item agency code
+          type: string
+          pattern: '[a-z,0-9]{5}'
+        itemId:
+          description: FOLIO inventory item HRID (Human-Readable ID). Used to look up the item in FOLIO inventory.
+          type: string
+          pattern: '[a-z,0-9]{1,32}'
+      additionalProperties: false
+      required:
+      - transactionTime
+      - patronId
+      - patronAgencyCode
+      - itemAgencyCode
+      - itemId
+    checkOutRequestDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Request to check out an item to a loanee using barcodes
+      properties:
+        itemBarcode:
+          description: Barcode of the item to be lent to the patron
+          type: string
+        userBarcode:
+          description: Barcode of the user (representing the patron) the item is to be lent to
+          type: string
+        proxyUserBarcode:
+          description: Barcode of the user representing a proxy for the patron
+          type: string
+        loanDate:
+          description: When the loan is to begin, defaults to current date and time
+          type: string
+          format: date-time
+        servicePointId:
+          description: Service point where the item has been checked out
+          type: string
+          format: UUID
+      required:
+      - itemBarcode
+      - userBarcode
+      - servicePointId
+    loanDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: Loan
+      description: Links the item with the patron and applies certain conditions based on policies
+      properties:
+        id:
+          description: Unique ID (generated UUID) of the loan
+          type: string
+          format: UUID
+        userId:
+          description: ID of the patron the item was lent to. Required for open loans, not required for closed loans (for anonymization).
+          type: string
+          format: UUID
+        borrower:
+          description: Additional information about the borrower of the item, taken from the user referred to by the userId
+          readonly: true
+          type: object
+          properties:
+            firstName:
+              description: first name of the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+            lastName:
+              description: last name of the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+            middleName:
+              description: middle name of the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+            barcode:
+              description: barcode used to identify the borrower (read only, defined by the server)
+              type: string
+              readonly: true
+          additionalProperties: false
+        proxyUserId:
+          description: ID of the user representing a proxy for the patron
+          type: string
+          format: UUID
+        itemId:
+          description: ID of the item lent to the patron
+          type: string
+          format: UUID
+        loanPolicyId:
+          description: ID of last policy used in relation to this loan
+          type: string
+          format: UUID
+        loanPolicy:
+          description: Additional information about the loan policy of the item, taken from the loan loanPolicyId
+          readonly: true
+          type: object
+          properties:
+            name:
+              readonly: true
+              description: Name of last policy used in relation to this loan (read only, defined by the server)
+              type: string
+        overdueFinePolicyId:
+          description: ID of last overdue fine policy used in relation to this loan
+          type: string
+          format: UUID
+        overdueFinePolicy:
+          description: Additional information about the overdue fine policy of the item, taken from the loan overdueFinePolicyId
+          readonly: true
+          type: object
+          properties:
+            name:
+              readonly: true
+              description: Name of last overdue fine policy used in relation to this loan (read only, defined by the server)
+              type: string
+        lostItemPolicyId:
+          description: ID of last lost item policy used in relation to this loan
+          type: string
+          format: UUID
+        lostItemPolicy:
+          description: Additional information about the lost item policy of the item, taken from the loan lostItemPolicyId
+          readonly: true
+          type: object
+          properties:
+            name:
+              readonly: true
+              description: Name of last lost item policy used in relation to this loan (read only, defined by the server)
+              type: string
+        item:
+          description: Additional information about the item
+          type: object
+          readonly: true
+          properties:
+            id:
+              description: ID of the item
+              type: string
+              readonly: true
+              format: UUID
+            title:
+              description: The title of the item lent to the patron
+              type: string
+              readonly: true
+            callNumber:
+              description: Deprecated call number from the holdings record, use callNumberComponents.callNumber instead
+              type: string
+              readonly: true
+            materialType:
+              description: The material type from the item record
+              type: object
+              readonly: true
+              properties:
+                name:
+                  description: Name of the material type
+                  type: string
+                  readonly: true
+              additionalProperties: false
+            contributors:
+              description: Contributors from the instance record
+              type: array
+              readonly: true
+              items:
+                type: object
+                properties:
+                  name:
+                    description: Name of the contributor
+                    type: string
+                    readonly: true
+                additionalProperties: false
+            holdingsRecordId:
+              description: The ID of the holdings for the item
+              type: string
+              readonly: true
+              format: UUID
+            instanceId:
+              description: The ID of the instance for the item
+              type: string
+              readonly: true
+              format: UUID
+            barcode:
+              description: The barcode of the item
+              type: string
+              readonly: true
+            location:
+              description: The effective location of the item
+              type: object
+              readonly: true
+              properties:
+                name:
+                  description: The name of the location
+                  type: string
+                  readonly: true
+            status:
+              description: Overall status of the item
+              type: object
+              readonly: true
+              properties:
+                name:
+                  description: Name of the item status
+                  type: string
+                  readonly: true
+                date:
+                  type: string
+                  description: Date time when status was last changed
+                  format: date-time
+                  readonly: true
+              additionalProperties: false
+            inTransitDestinationServicePointId:
+              description: Service point an item is intended to be transited to (should only be present when in transit)
+              type: string
+              readonly: true
+              format: UUID
+            inTransitDestinationServicePoint:
+              description: Service point an item is intended to be transited to (should only be present when in transit)
+              type: object
+              readonly: true
+              properties:
+                name:
+                  description: Name of the service point
+                  type: string
+                  readonly: true
+            enumeration:
+              description: Item`s enumeration
+              type: string
+              readonly: true
+            chronology:
+              description: Item`s chronology
+              type: string
+              readonly: true
+            volume:
+              description: Item`s volume
+              type: string
+              readonly: true
+            callNumberComponents:
+              description: Elements of a full call number
+              readonly: true
+              $schema: http://json-schema.org/draft-04/schema#
+              type: object
+              properties:
+                callNumber:
+                  type: string
+                  description: Call number for item
+                  readonly: true
+                prefix:
+                  description: Call number prefix for item
+                  type: string
+                  readonly: true
+                suffix:
+                  description: Call number suffix for item
+                  type: string
+                  readonly: true
+          additionalProperties: false
+        itemEffectiveLocationIdAtCheckOut:
+          description: The effective location, at the time of checkout, of the item loaned to the patron.
+          type: string
+          format: UUID
+        status:
+          description: Overall status of the loan
+          type: object
+          properties:
+            name:
+              description: Name of the status (currently can be any value, values commonly used are Open and Closed)
+              type: string
+        loanDate:
+          description: Date and time when the loan began
+          type: string
+          format: date-time
+        dueDate:
+          description: Date and time when the item is due to be returned
+          type: string
+          format: date-time
+        returnDate:
+          description: Date and time when the item was returned
+          type: string
+          format: date-time
+        systemReturnDate:
+          description: Date and time when return was processed
+          type: string
+          format: date-time
+        action:
+          description: Last action performed on a loan (currently can be any value, values commonly used are checkedout and checkedin)
+          type: string
+        renewalCount:
+          description: Count of how many times a loan has been renewed (incremented by the client)
+          type: integer
+          minimum: 0
+        checkoutServicePointId:
+          description: ID of the Service Point where the last checkout occured
+          type: string
+          format: UUID
+        checkinServicePointId:
+          description: ID of the Service Point where the last checkin occured
+          type: string
+          format: UUID
+        checkoutServicePoint:
+          description: The Service Point where the last checkout occurred
+          type: object
+          readonly: true
+          properties:
+            name:
+              description: The unique name of the service point
+              type: string
+              readonly: true
+            code:
+              description: The short code for the service point
+              type: string
+              readonly: true
+            discoveryDisplayName:
+              description: The human readable name
+              type: string
+              readonly: true
+            shelvingLagTime:
+              description: The time to shelving
+              type: integer
+              readonly: true
+            pickupLocation:
+              description: Is this a pickup location
+              type: boolean
+              readonly: true
+        checkinServicePoint:
+          description: The Service Point where the last checkout occurred
+          type: object
+          readonly: true
+          properties:
+            name:
+              description: Name of the service point
+              type: string
+              readonly: true
+            code:
+              description: The short code for the service point
+              type: string
+              readonly: true
+            discoveryDisplayName:
+              description: The human readable name
+              type: string
+              readonly: true
+            shelvingLagTime:
+              description: The time to shelving
+              type: integer
+              readonly: true
+            pickupLocation:
+              description: Is this a pickup location
+              type: boolean
+              readonly: true
+        patronGroupAtCheckout:
+          description: Patron Group at checkout
+          type: object
+          properties:
+            id:
+              description: Unique ID (generated UUID) of the patron group
+              type: string
+              readonly: true
+              format: UUID
+            name:
+              description: Patron group name
+              type: string
+              readonly: true
+          additionalProperties: false
+        feesAndFines:
+          description: Fees and fines associated with loans
+          type: object
+          properties:
+            amountRemainingToPay:
+              type: number
+              description: Total remaining amount due on fees and fines for the loan (read only, defined by the server)
+              readonly: true
+          additionalProperties: false
+        declaredLostDate:
+          description: Date and time the item was declared lost during this loan
+          type: string
+          format: date-time
+        metadata:
+          description: Metadata about creation and changes to loan, provided by the server (client should not provide)
+          type: object
+          $schema: http://json-schema.org/draft-04/schema#
+          title: Metadata Schema
+          properties:
+            createdDate:
+              description: Date and time when the record was created
+              type: string
+              format: date-time
+            createdByUserId:
+              description: ID of the user who created the record (when available)
+              type: string
+              pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+            createdByUsername:
+              description: Username of the user who created the record (when available)
+              type: string
+            updatedDate:
+              description: Date and time when the record was last updated
+              type: string
+              format: date-time
+            updatedByUserId:
+              description: ID of the user who last updated the record (when available)
+              type: string
+              pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+            updatedByUsername:
+              description: Username of the user who last updated the record (when available)
+              type: string
+          additionalProperties: false
+          required:
+          - createdDate
+      required:
+      - itemId
+      - loanDate
+      - action
+    storageLoanDTO:
+      $ref: '#/components/schemas/loanDTO-2'
+    patronHoldCheckInResponseDTO:
+      description: Receive Item for Patron Hold Transaction
+      type: object
+      properties:
+        transaction:
+          description: updated INN-Reach transaction record
+          $ref: '#/components/schemas/innReachTransactionDTO'
+        folioCheckIn:
+          description: the FOLIO check-in response
+          $ref: '#/components/schemas/checkInResponseDTO'
+        barcodeAugmented:
+          description: indicates if the FOLIO item's barcode was augmented to avoid duplicate barcode collision (item agency code appended)
+          type: boolean
+      additionalProperties: false
+      required: []
+    transactionCheckOutResponseDTO:
+      description: Check out to borrowing site for Item Hold Transaction
+      type: object
+      properties:
+        transaction:
+          description: updated INN-Reach transaction record
+          $ref: '#/components/schemas/innReachTransactionDTO'
+        folioCheckOut:
+          description: the FOLIO check-out response
+          $ref: '#/components/schemas/loanDTO'
+      additionalProperties: false
+      required: []
+    returnUncirculatedDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: INN-Reach Return Circulation Message Put Request Data
+      type: object
+      properties:
+        title:
+          description: Bibliographic title of the requested item. Informational only; not used in return-uncirculated processing logic.
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+      additionalProperties: false
+    itemReceivedDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Item received
+      type: object
+      properties:
+        centralItemType:
+          description: Central item type
+          type: integer
+          minimum: 0
+          maximum: 255
+        title:
+          description: Bibliographic title of the requested item. Informational only; not used in item-received processing logic.
+          type: string
+          maxLength: 256
+        author:
+          description: Author
+          type: string
+          maxLength: 256
+        itemBarcode:
+          description: Item barcode
+          type: string
+        callNumber:
+          description: Call number
+          type: string
+          maxLength: 256
+        centralPatronType:
+          description: Central patron type
+          type: integer
+          minimum: 0
+          maximum: 255
+      additionalProperties: false
+      required:
+      - centralItemType
+      - centralPatronType
+    recallDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Item recalled
+      type: object
+      properties:
+        dueDateTime:
+          description: Due date time
+          type: integer
+      additionalProperties: false
+      required:
+      - dueDateTime
+    renewLoanDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Renew loan request
+      type: object
+      properties:
+        dueDateTime:
+          description: Due date time
+          type: integer
+      additionalProperties: false
+      required:
+      - dueDateTime
+    claimsItemReturnedDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/baseCircRequestDTO'
+      description: D2IR Borrower claims item returned
+      type: object
+      properties:
+        claimsReturnedDate:
+          description: Claims returned date (date of -1 indicates date unknown)
+          type: integer
+      additionalProperties: false
+      required:
+      - claimsReturnedDate
+    claimItemReturnedRequestDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Request body schema for claim item returned API
+      properties:
+        itemClaimedReturnedDateTime:
+          description: The date and time when the item is to be claimed returned
+          type: string
+          format: date-time
+        comment:
+          description: Comment explaining why the item has been claimed returned
+          type: string
+      additionalProperties: false
+      required:
+      - itemClaimedReturnedDateTime
+    cancelTransactionHoldDTO:
+      description: Transaction hold cancellation request
+      type: object
+      properties:
+        cancellationReasonId:
+          description: Cancellation reason id
+          type: string
+          format: UUID
+        cancellationAdditionalInformation:
+          description: Additional information about cancellation
+          type: string
+      additionalProperties: false
+      required:
+      - cancellationReasonId
+    holdingSourceDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A holdings records source
+      type: object
+      properties:
+        id:
+          description: The unique ID of the holdings records source; UUID
+          type: string
+          format: UUID
+        name:
+          type: string
+          description: Name of the holdings records source
+        source:
+          type: string
+          enum:
+          - folio
+          - local
+          description: The holdings records source
+      required:
+      - name
+    pagingSlipsDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A collection of paging slips
+      type: object
+      properties:
+        pagingSlips:
+          description: Collection of current paging slips
+          id: pagingSlips
+          type: array
+          items:
+            title: Paging slip
+            description: Paging slip representation of item, request and requester
+            type: object
+            properties:
+              innReachTransaction:
+                description: Paging slip representation of an INN-Reach transaction
+                type: object
+                properties:
+                  patronName:
+                    description: Patron name
+                    type: string
+                  patronAgencyCode:
+                    description: Patron agency code
+                    type: string
+                  patronAgencyDescription:
+                    description: Patron agency description
+                    type: string
+                  patronTypeCode:
+                    description: Patron type
+                    type: integer
+                  patronTypeDescription:
+                    description: Patron type description
+                    type: string
+                  centralServerCode:
+                    description: Unique code that identifies the central server
+                    type: string
+                  centralServerId:
+                    description: UUID of the central server configuration
+                    type: string
+                    format: UUID
+                  localServerCode:
+                    description: Unique code that identifies the local server
+                    type: string
+                  itemAgencyCode:
+                    description: Item agency code
+                    type: string
+                  itemAgencyDescription:
+                    description: Item agency description
+                    type: string
+                  pickupLocationCode:
+                    description: Pickup location code
+                    type: string
+                  pickupLocationPrintName:
+                    description: Pickup location print name
+                    type: string
+                  pickupLocationDeliveryStop:
+                    description: Pickup location
+                    type: string
+              item:
+                description: Paging slip representation of an item
+                type: object
+                properties:
+                  effectiveLocationFolioName:
+                    description: Effective location FOLIO name
+                    type: string
+                  title:
+                    description: Primary title (or label) associated with an item
+                    type: string
+                  barcode:
+                    description: Unique inventory control number for physical resources, used largely for circulation purposes
+                    type: string
+                  author:
+                    description: Author
+                    type: string
+                  effectiveCallNumber:
+                    type: string
+                    description: Effective call number, an identifier assigned to the item or its holding
+                  shelvingOrder:
+                    type: string
+                    description: A system generated normalization of the call number that allows for call number sorting in reports and search results
+                  hrid:
+                    type: string
+                    description: The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID
+                  effectiveCallNumberComponents:
+                    type: object
+                    description: Elements of a full call number generated from the item or holding
+                    properties:
+                      callNumber:
+                        type: string
+                        description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
+                      prefix:
+                        type: string
+                        description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
+                      suffix:
+                        type: string
+                        description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
+                  volume:
+                    description: Volume is intended for monographs when a multipart monograph (e.g. a biography of Gerorge Bernard Shaw in three volumes)
+                    type: string
+                  enumeration:
+                    description: Enumeration is the descriptive information for the numbering scheme of a serial, usually identified by level and a descriptive caption, e.g., level 0 = v. and level 1 = no. This means that each issue of the serial has a volume and an issue number that would appear (e.g. v.71:no.6-2)
+                    type: string
+                  chronology:
+                    description: Chronology is the descriptive information for the dating scheme of a serial, usually identified by level, e.g., level 0 = year level 1 = month. This means that each issue of the serial has a month and a year on each issue (e.g. 1985:July-Dec.)
+                    type: string
+                  copyNumber:
+                    description: Copy number is the piece identifier. The copy number reflects if the library has a copy of a single-volume monograph; a copy of a multi-volume, (e.g. Copy 1, or C.7.)
+                    type: string
+                  displaySummary:
+                    description: Display summary about the item
+                    type: string
+                additionalProperties: false
+              slip:
+                type: object
+                description: Slip info
+                properties:
+                  name:
+                    description: Slip name
+                    type: string
+            additionalProperties: false
+        totalRecords:
+          description: Total number of paging slips
+          type: integer
+          default: 0
+      additionalProperties: false
+      required:
+      - pagingSlips
+      - totalRecords
+    agency:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Agency details
+      type: object
+      properties:
+        agencyCode:
+          description: Agency code
+          type: string
+          maxLength: 5
+        description:
+          description: Agency description
+          type: string
+          maxLength: 128
+      additionalProperties: false
+      required:
+      - agencyCode
+      - description
+    agenciesPerCentralServerDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Central server agencies
+      type: object
+      properties:
+        centralServerId:
+          description: Central server id
+          type: string
+          format: uuid
+        centralServerCode:
+          description: Central server code
+          type: string
+          maxLength: 5
+        agencies:
+          description: List of agencies for this central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/agency'
+      additionalProperties: false
+      required:
+      - centralServerId
+      - centralServerCode
+      - agencies
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    itemType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Item type details
+      type: object
+      properties:
+        centralItemType:
+          description: Item type
+          type: integer
+        description:
+          description: Item type description
+          type: string
+      additionalProperties: false
+      required:
+      - centralItemType
+      - description
+    itemTypesPerCentralServerDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Central server item types
+      type: object
+      properties:
+        centralServerId:
+          description: Central server id
+          type: string
+          format: uuid
+        centralServerCode:
+          description: Central server code
+          type: string
+          maxLength: 5
+        itemTypes:
+          description: List of item types for this central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/itemType'
+      additionalProperties: false
+      required:
+      - centralServerId
+      - centralServerCode
+      - itemTypes
+    patronType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Patron type details
+      type: object
+      properties:
+        centralPatronType:
+          description: Patron type
+          type: integer
+        description:
+          description: Patron type description
+          type: string
+      additionalProperties: false
+      required:
+      - centralPatronType
+      - description
+    patronTypesPerCentralServerDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Central server patron types
+      type: object
+      properties:
+        centralServerId:
+          description: Central server id
+          type: string
+          format: uuid
+        centralServerCode:
+          description: Central server code
+          type: string
+          maxLength: 5
+        patronTypes:
+          description: List of patron types for this central server
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/patronType'
+      additionalProperties: false
+      required:
+      - centralServerId
+      - centralServerCode
+      - patronTypes
+    innReachError:
+      description: D2IR error
+      type: object
+      properties:
+        messages:
+          type: array
+          description: Error messages
+          items:
+            type: string
+        central:
+          type: string
+          description: Central code
+        reason:
+          type: string
+          description: Reason
+        type:
+          type: string
+          description: Error type
+        rejectedValue:
+          description: Rejected value
+        name:
+          type: string
+          description: Name of the rejected field
+      additionalProperties: false
+      required:
+      - reason
+    bibInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: D2IR Bib info
+      type: object
+      properties:
+        bibId:
+          type: string
+          description: 32-character, alphanumeric id corresponding to a FOLIO instance record HRID
+          maxLength: 32
+          minLength: 32
+        marc21BibFormat:
+          type: string
+          description: Currently supports ISO2709
+          default: ISO2709
+        marc21BibData:
+          type: string
+          description: Base 64 encoded MARC data
+        titleHoldCount:
+          type: integer
+          description: Number of title level holds - 0 (title level holds not currently supported in FOLIO)
+          default: 0
+        itemCount:
+          type: integer
+          description: Number of items linked to this bib (max 99, count of items associated with the FOLIO instance record that are contributed)
+          default: 0
+        suppress:
+          type: string
+          description: ASCII y, n, or g; g means display the resource in the discovery layer as having been provided by the consortium, not by the individual site.
+          default: n
+      additionalProperties: false
+      required:
+      - bibId
+      - marc21BibFormat
+      - marc21BibData
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    transactionTypeEnum:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Transaction Type enum
+      description: Transaction Type enum
+      type: string
+      additionalProperties: false
+      enum:
+      - ITEM
+      - PATRON
+      - LOCAL
+    transactionStateEnum:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Transaction State enum
+      description: Transaction State enum
+      type: string
+      additionalProperties: false
+      enum:
+      - ITEM_HOLD
+      - PATRON_HOLD
+      - LOCAL_HOLD
+      - BORROWER_RENEW
+      - BORROWING_SITE_CANCEL
+      - ITEM_IN_TRANSIT
+      - RECEIVE_UNANNOUNCED
+      - RETURN_UNCIRCULATED
+      - CLAIMS_RETURNED
+      - ITEM_RECEIVED
+      - ITEM_SHIPPED
+      - LOCAL_CHECKOUT
+      - CANCEL_REQUEST
+      - FINAL_CHECKIN
+      - RECALL
+      - TRANSFER
+      - OWNER_RENEW
+    filterDateOperation:
+      description: Comparison operation applied to date filter parameters
+      type: string
+      enum:
+      - less
+      - lessOrEqual
+      - equal
+      - notEqual
+      - greater
+      - greaterOrEqual
+      - between
+      x-enum-varnames:
+      - less
+      - lessOrEqual
+      - equal
+      - notEqual
+      - greater
+      - greaterOrEqual
+      - between
+      additionalProperties: false
+    patronInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: D2IR Patron info
+      type: object
+      properties:
+        patronId:
+          type: string
+          description: 32-character, alphanumeric id corresponding to a FOLIO user.id (UUID with no hyphens)
+          maxLength: 32
+        patronAgencyCode:
+          type: string
+          description: 5 character lowercase alphanumeric
+        centralPatronType:
+          type: integer
+          description: 0-255
+        patronExpireDate:
+          type: integer
+          format: int64
+          description: Epoch UNIX time stamp
+        localLoans:
+          type: integer
+          description: Number of local (within library) loans
+        nonLocalLoans:
+          type: integer
+          description: Number of non-local (INN-Reach, ILL, etc.) loans
+        patronName:
+          type: string
+          description: Maximum 128 characters
+          maxLength: 128
+      additionalProperties: false
+      required:
+      - patronId
+      - patronAgencyCode
+      - centralPatronType
+      - patronExpireDate
+      - localLoans
+      - nonLocalLoans
+      - patronName
+    localServer:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Local server with agencies
+      type: object
+      properties:
+        localCode:
+          description: Local server code
+          type: string
+          maxLength: 5
+        description:
+          description: Local server description
+          type: string
+          maxLength: 128
+        agencyList:
+          description: Local server agencies
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/agency'
+      additionalProperties: false
+      required:
+      - localCode
+      - description
+    loanDTO-2:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      title: Loan
+      description: Links the item with the patron and applies certain conditions based on policies
+      properties:
+        id:
+          description: Unique ID (generated UUID) of the loan
+          type: string
+          format: UUID
+        userId:
+          description: ID of the patron the item was lent to. Required for open loans, not required for closed loans (for anonymization).
+          type: string
+          format: UUID
+        proxyUserId:
+          description: ID of the user representing a proxy for the patron
+          type: string
+          format: UUID
+        itemId:
+          description: ID of the item lent to the patron
+          type: string
+          format: UUID
+        itemEffectiveLocationIdAtCheckOut:
+          description: The effective location, at the time of checkout, of the item loaned to the patron.
+          type: string
+          format: UUID
+        status:
+          description: Overall status of the loan
+          type: object
+          properties:
+            name:
+              description: Name of the status (currently can be any value, values commonly used are Open and Closed)
+              type: string
+          additionalProperties: false
+        loanDate:
+          description: Date time when the loan began (typically represented according to rfc3339 section-5.6. Has not had the date-time format validation applied as was not supported at point of introduction and would now be a breaking change)
+          type: string
+        dueDate:
+          description: Date time when the item is due to be returned
+          type: string
+          format: date-time
+        returnDate:
+          description: Date time when the item is returned and the loan ends (typically represented according to rfc3339 section-5.6. Has not had the date-time format validation applied as was not supported at point of introduction and would now be a breaking change)
+          type: string
+        systemReturnDate:
+          description: Date time when the returned item is actually processed
+          type: string
+          format: date-time
+        action:
+          description: Last action performed on a loan (currently can be any value, values commonly used are checkedout and checkedin)
+          type: string
+        actionComment:
+          description: Comment to last action performed on a loan
+          type: string
+        itemStatus:
+          description: Last item status used in relation to this loan (currently can be any value, values commonly used are Checked out and Available)
+          type: string
+        renewalCount:
+          description: Count of how many times a loan has been renewed (incremented by the client)
+          type: integer
+        loanPolicyId:
+          description: ID of last policy used in relation to this loan
+          type: string
+        checkoutServicePointId:
+          description: ID of the Service Point where the last checkout occured
+          type: string
+          format: UUID
+        checkinServicePointId:
+          description: ID of the Service Point where the last checkin occured
+          type: string
+          format: UUID
+        patronGroupIdAtCheckout:
+          description: Patron Group Id at checkout
+          type: string
+        dueDateChangedByRecall:
+          description: Indicates whether or not this loan had its due date modified by a recall on the loaned item
+          type: boolean
+        declaredLostDate:
+          description: Date and time the item was declared lost during this loan
+          type: string
+          format: date-time
+        claimedReturnedDate:
+          description: Date and time the item was claimed returned for this loan
+          type: string
+          format: date-time
+        overdueFinePolicyId:
+          description: ID of overdue fines policy at the time the item is check-in or renewed
+          type: string
+          format: UUID
+        lostItemPolicyId:
+          description: ID of lost item policy which determines when the item ages to lost and the associated fees or the associated fees if the patron declares the item lost.
+          type: string
+          format: UUID
+        metadata:
+          description: Metadata about creation and changes to loan, provided by the server (client should not provide)
+          type: object
+          $schema: http://json-schema.org/draft-04/schema#
+          id: metadata.schema
+          title: Metadata Schema
+          properties:
+            createdDate:
+              description: Date and time when the record was created
+              type: string
+              format: date-time
+            createdByUserId:
+              description: ID of the user who created the record (when available)
+              type: string
+              format: UUID
+            createdByUsername:
+              description: Username of the user who created the record (when available)
+              type: string
+            updatedDate:
+              description: Date and time when the record was last updated
+              type: string
+              format: date-time
+            updatedByUserId:
+              description: ID of the user who last updated the record (when available)
+              type: string
+              format: UUID
+            updatedByUsername:
+              description: Username of the user who last updated the record (when available)
+              type: string
+          additionalProperties: false
+          required:
+          - createdDate
+        agedToLostDelayedBilling:
+          description: Aged to Lost Delayed Billing processing
+          type: object
+          properties:
+            lostItemHasBeenBilled:
+              description: Indicates if the aged to lost fee has been billed (for use where delayed billing is set up)
+              type: boolean
+            dateLostItemShouldBeBilled:
+              description: Indicates when the aged to lost fee should be billed (for use where delayed billing is set up)
+              type: string
+              format: date-time
+            agedToLostDate:
+              description: Date and time the item was aged to lost for this loan
+              type: string
+              format: date-time
+      additionalProperties: false
+      required:
+      - itemId
+      - loanDate
+      - action
+  parameters:
+    bibId:
+      name: bibId
+      description: 32-character, alphanumeric id corresponding to a FOLIO instance record HRID
+      in: path
+      required: true
+      schema:
+        type: string
+    centralCode:
+      name: centralCode
+      description: Unique code that identifies the central server (match against value stored in Central Server settings, used to determine contribution status)
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/code'
+    trackingId:
+      name: trackingId
+      in: path
+      required: true
+      schema:
+        type: string
+    servicePointId:
+      name: servicePointId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    itemBarcode:
+      name: itemBarcode
+      description: Barcode of the item
+      in: path
+      required: true
+      schema:
+        type: string
+    circulationOperationName:
+      name: circulationOperationName
+      in: path
+      required: true
+      schema:
+        type: string
+    localCodeHeader:
+      name: X-To-Code
+      in: header
+      required: true
+      schema:
+        $ref: '#/components/schemas/code'
+    centralCodeHeader:
+      name: X-From-Code
+      in: header
+      required: true
+      schema:
+        $ref: '#/components/schemas/code'
+    transaction_filter_parameters:
+      name: parameters
+      in: query
+      description: Query parameters to filter transactions.
+      schema:
+        $ref: '#/components/schemas/innReachTransactionFilterParametersDTO'
+    itemId:
+      name: itemId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_malformed_query_400:
+      description: Bad request, e.g. malformed query parameter.
+      content:
+        application/json:
+          example:
+            value:
+              $ref: examples/error.sample
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

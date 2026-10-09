@@ -1,0 +1,270 @@
+openapi: 3.2.0
+info:
+  title: Folio Tenant Attributes API
+  version: v1
+  description: 'Operations tagged tenant-attributes across 2 of this provider''s published API definitions: folio-mgr-tenants-openapi.json, folio-mgr-tenants-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: http://localhost:8081
+  description: Locally deployed server
+tags:
+- name: tenant-attributes
+paths:
+  /tenants/{tenantId}/tenant-attributes:
+    get:
+      operationId: getTenantAttributes
+      description: Retrieve list of available tenant attributes by tenant id
+      tags:
+      - tenant-attributes
+      parameters:
+      - $ref: '#/components/parameters/path-tenant-id'
+      - $ref: '#/components/parameters/cql-query'
+      - $ref: '#/components/parameters/query-offset'
+      - $ref: '#/components/parameters/query-limit'
+      responses:
+        '200':
+          description: A tenant descriptor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenantAttributes'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Get tenant attributes
+      x-summary-source: derived
+    post:
+      operationId: createTenantAttributes
+      description: Create or replace tenant-attributes associated with the specified tenant. Idempotent operation
+      tags:
+      - tenant-attributes
+      parameters:
+      - $ref: '#/components/parameters/path-tenant-id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tenantAttributes'
+      responses:
+        '201':
+          description: Tenant attributes has been created or replaced
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenantAttributes'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Create tenant attributes
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+  /tenants/{tenantId}/tenant-attributes/{id}:
+    get:
+      operationId: getTenantAttribute
+      description: Retrieve tenant attribute by id
+      tags:
+      - tenant-attributes
+      parameters:
+      - $ref: '#/components/parameters/path-tenant-id'
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '200':
+          description: A tenant attribute
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenantAttribute'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Get tenant attribute
+      x-summary-source: derived
+    put:
+      operationId: updateTenantAttribute
+      tags:
+      - tenant-attributes
+      parameters:
+      - $ref: '#/components/parameters/path-tenant-id'
+      - $ref: '#/components/parameters/path-entity-id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tenantAttribute'
+      responses:
+        '200':
+          description: Updated tenant attribute
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenantAttribute'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/entityNotFound'
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Update tenant attribute
+      x-summary-source: derived
+    delete:
+      operationId: deleteTenantAttribute
+      tags:
+      - tenant-attributes
+      parameters:
+      - $ref: '#/components/parameters/path-tenant-id'
+      - $ref: '#/components/parameters/path-entity-id'
+      responses:
+        '204':
+          description: No content
+        '500':
+          $ref: '#/components/responses/internalServerError'
+      summary: Delete tenant attribute
+      x-summary-source: derived
+    servers:
+    - url: http://localhost:8081
+      description: Locally deployed server
+components:
+  responses:
+    internalServerError:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequest:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    entityNotFound:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+  schemas:
+    tenantAttributes:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tenantAttributes.json
+      title: Tenant Attributes Schema
+      description: Collection of tenant attributes
+      type: object
+      properties:
+        tenantAttributes:
+          description: List of tenant attributes
+          type: array
+          items:
+            $ref: '#/components/schemas/tenantAttribute'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - tenantAttributes
+    tenantAttribute:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tenantAttribute.json
+      title: Tenant Attribute Schema
+      description: Tenant attribute
+      type: object
+      x-implements:
+      - org.folio.tm.domain.entity.base.Identifiable
+      properties:
+        id:
+          description: A UUID identifying this attribute
+          type: string
+          format: uuid
+        key:
+          description: Key for this attribute
+          type: string
+        value:
+          description: Value for this attribute
+          type: string
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - key
+      - value
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdBy:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        modifiedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        modifiedBy:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - createdDate
+  parameters:
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    path-tenant-id:
+      in: path
+      required: true
+      name: tenantId
+      description: Tenant id
+      schema:
+        type: string
+        format: uuid
+x-refined-from:
+- folio-mgr-tenants-openapi.json
+- folio-mgr-tenants-openapi.yml

@@ -1,0 +1,1266 @@
+# x-archived-from: folio-mod-data-export-worker-order-export-openapi.yml
+# x-archived-on: 2026-10-09
+openapi: 3.0.0
+info:
+  title: Order export API
+  version: v1
+servers:
+- url: https://order-stub.com/
+paths:
+  /order-stub:
+    get:
+      responses:
+        '200':
+          description: stub
+components:
+  schemas:
+    UUID:
+      type: string
+      format: uuid
+    referenceNumberItem:
+      $ref: '#/components/schemas/ReferenceNumberItem'
+    compositePurchaseOrder:
+      $ref: '#/components/schemas/CompositePurchaseOrder'
+    claim:
+      $ref: '#/components/schemas/Claim'
+    closeReason:
+      $ref: '#/components/schemas/CloseReason'
+    contributor:
+      $ref: '#/components/schemas/Contributor'
+    cost:
+      $ref: '#/components/schemas/Cost'
+    details:
+      $ref: '#/components/schemas/Details'
+    eresource:
+      $ref: '#/components/schemas/Eresource'
+    fundDistribution:
+      $ref: '#/components/schemas/FundDistribution'
+    license:
+      $ref: '#/components/schemas/License'
+    location:
+      $ref: '#/components/schemas/Location'
+    ongoing:
+      $ref: '#/components/schemas/Ongoing'
+    physical:
+      $ref: '#/components/schemas/Physical'
+    productIdentifier:
+      $ref: '#/components/schemas/ProductIdentifier'
+    vendorDetail:
+      $ref: '#/components/schemas/VendorDetail'
+    exportHistory:
+      $ref: '#/components/schemas/ExportHistory'
+    poLine:
+      $ref: '#/components/schemas/PoLine'
+    poLineCollection:
+      $ref: '#/components/schemas/PoLineCollection'
+    purchaseOrder:
+      $ref: '#/components/schemas/PurchaseOrder'
+    purchaseOrderCollection:
+      $ref: '#/components/schemas/PurchaseOrderCollection'
+    piece:
+      $ref: '#/components/schemas/Piece'
+    pieceCollection:
+      $ref: '#/components/schemas/PieceCollection'
+    ordersTitle:
+      $ref: '#/components/schemas/OrdersTitle'
+    ReferenceNumberItem:
+      type: object
+      properties:
+        refNumber:
+          description: a reference number for this purchase order line
+          type: string
+        refNumberType:
+          description: the reference number type
+          type: string
+          enum:
+          - Vendor continuation reference number
+          - Vendor order reference number
+          - Vendor subscription reference number
+          - Vendor internal number
+          - Vendor title number
+        vendorDetailsSource:
+          description: the reference number type
+          type: string
+          enum:
+          - OrderLine
+          - InvoiceLine
+      additionalProperties: false
+    CloseReason:
+      type: object
+      properties:
+        reason:
+          description: close reason description
+          type: string
+        note:
+          description: free-form notes related to closing reason
+          type: string
+      additionalProperties: false
+    Ongoing:
+      type: object
+      properties:
+        interval:
+          description: Renewal interval (in days)
+          type: integer
+        isSubscription:
+          description: Whether or not this is a subscription
+          type: boolean
+          default: 'false'
+        manualRenewal:
+          description: Whether or not this is a manual renewal
+          type: boolean
+        notes:
+          description: Notes associated with the Ongoing order
+          type: string
+        reviewPeriod:
+          description: Time prior to renewal where changes can be made to subscription
+          type: integer
+        renewalDate:
+          description: The date this Ongoing PO's order lines were renewed
+          type: string
+          format: date-time
+        reviewDate:
+          description: Date when Order has to be reviewed
+          type: string
+          format: date-time
+      additionalProperties: false
+    Claim:
+      type: object
+      properties:
+        claimed:
+          description: whether or not this purchase order line has been claimed
+          type: boolean
+          default: false
+        sent:
+          description: date a claim was sent
+          type: string
+          format: date-time
+        grace:
+          description: the number of days after the expected receipt date during which claims should not be processed
+          type: integer
+      additionalProperties: false
+    Contributor:
+      type: object
+      properties:
+        contributor:
+          description: the name of a contributor to the material
+          type: string
+        contributorNameTypeId:
+          description: UUID of the contributor type
+          type: string
+          pattern: ^[a-f0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+      additionalProperties: false
+      required:
+      - contributorNameTypeId
+    Cost:
+      type: object
+      properties:
+        listUnitPrice:
+          description: The per-item list price for physical or resources of 'Other' order format
+          type: number
+        listUnitPriceElectronic:
+          description: The e-resource per-item list price
+          type: number
+        currency:
+          description: An ISO currency code
+          type: string
+        additionalCost:
+          description: Lump sum that is added to the total estimated price - not affected by discount
+          type: number
+        discount:
+          description: Percentage (0 to 100) or amount (positive number) that is subtracted from the list price time quantities calculation before additional cost
+          type: number
+        discountType:
+          description: Percentage or amount discount type
+          type: string
+          enum:
+          - amount
+          - percentage
+          default: percentage
+        exchangeRate:
+          description: Exchange rate
+          type: number
+        quantityPhysical:
+          description: Quantity of physical items or resources of 'Other' order format in this purchase order line
+          type: integer
+        quantityElectronic:
+          description: Quantity of electronic items in this purchase order line
+          type: integer
+        poLineEstimatedPrice:
+          description: 'The calculated total estimated price for this purchase order line: list price time quantities minus discount amount plus additional cost'
+          type: number
+        fyroAdjustmentAmount:
+          description: Adjustment amount if rollover was happen
+          type: number
+      additionalProperties: false
+      required:
+      - currency
+    ProductIdentifier:
+      type: object
+      properties:
+        productId:
+          description: The actual product identifier
+          type: string
+        productIdType:
+          description: The type of product identifier
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        qualifier:
+          description: Information about the binding, format, volume numbers, part of a set, publisher, distributor, etc. which might be enclosed in parenthesis
+          type: string
+      additionalProperties: false
+    Details:
+      type: object
+      properties:
+        receivingNote:
+          description: notes regarding receiving instructions
+          type: string
+        productIds:
+          description: a list of product identifiers
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductIdentifier'
+        subscriptionFrom:
+          description: the start date of the subscription
+          type: string
+          format: date-time
+        subscriptionInterval:
+          description: the subscription interval in days
+          type: integer
+        subscriptionTo:
+          description: the end date of the subscription
+          type: string
+          format: date-time
+      additionalProperties: false
+    License:
+      type: object
+      properties:
+        code:
+          description: license code
+          type: string
+        description:
+          description: license description
+          type: string
+        reference:
+          description: license reference
+          type: string
+      additionalProperties: false
+    Eresource:
+      type: object
+      properties:
+        activated:
+          description: whether or not this resource is activated
+          type: boolean
+          default: false
+        activationDue:
+          description: number of days until activation, from date of order placement
+          type: integer
+        createInventory:
+          description: Shows what inventory objects need to be created for electronic resource
+          type: string
+          enum:
+          - Instance, Holding, Item
+          - Instance, Holding
+          - Instance
+          - None
+        trial:
+          description: whether or not this is a trial
+          type: boolean
+          default: false
+        expectedActivation:
+          description: expected date the resource will be activated
+          type: string
+          format: date-time
+        userLimit:
+          description: the concurrent user-limit
+          type: string
+        accessProvider:
+          description: UUID of the access provider
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        license:
+          description: License record
+          type: object
+          $ref: '#/components/schemas/License'
+        materialType:
+          description: UUID of the material Type
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        resourceUrl:
+          description: Electronic resource can be access via this URL
+          type: string
+          pattern: \b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?]))
+      additionalProperties: false
+    FundDistribution:
+      type: object
+      properties:
+        code:
+          description: the fund code
+          type: string
+          pattern: ^[^:]+$
+        encumbrance:
+          description: UUID of encumbrance record associated with this fund distribution
+          type: string
+          format: uuid
+        fundId:
+          description: UUID of the fund associated with this fund distribution
+          type: string
+          format: uuid
+        expenseClassId:
+          description: UUID of the expense class associated with this fund distribution
+          type: string
+          format: uuid
+        distributionType:
+          description: Percentage or amount type of the value property
+          type: string
+          enum:
+          - amount
+          - percentage
+          default: percentage
+        value:
+          description: The value of the cost to be applied to this fund
+          type: number
+      additionalProperties: false
+      required:
+      - fundId
+      - distributionType
+      - value
+    Location:
+      type: object
+      properties:
+        locationId:
+          description: UUID of the (inventory) location record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        holdingId:
+          description: Holding UUID associated with order line
+          type: string
+          format: uuid
+        quantity:
+          description: combined/total quanitity of physical and electronic items
+          type: integer
+        quantityElectronic:
+          description: quantity of electronic items
+          type: integer
+        quantityPhysical:
+          description: quantity of physical items
+          type: integer
+        tenantId:
+          description: Associated tenant for ECS-enabled clusters with Central Ordering enabled
+          type: string
+      additionalProperties: false
+    Physical:
+      type: object
+      properties:
+        createInventory:
+          description: Shows what inventory objects need to be created for physical resource
+          type: string
+          enum:
+          - Instance, Holding, Item
+          - Instance, Holding
+          - Instance
+          - None
+        materialType:
+          description: UUID of the material Type
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        materialSupplier:
+          description: UUID of the material supplier record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        expectedReceiptDate:
+          description: vendor agreed date prior to the Receipt Due date item is expected to be received by
+          type: string
+          format: date-time
+        receiptDue:
+          description: date item should be received by
+          type: string
+          format: date-time
+        volumes:
+          description: list of volumes included to the physical material
+          type: array
+          items:
+            description: the identifier of volume
+            type: string
+      additionalProperties: false
+      required:
+      - volumes
+    Tags:
+      type: object
+      title: tags
+      properties:
+        tagList:
+          description: List of tags
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    VendorDetail:
+      type: object
+      properties:
+        instructions:
+          description: special instructions for the vendor
+          type: string
+        noteFromVendor:
+          description: free-form notes from the vendor
+          type: string
+        vendorAccount:
+          description: the accound number on the vendor's end associated with this purchase order line
+          type: string
+        referenceNumbers:
+          description: Collection of reference number items
+          type: array
+          items:
+            $ref: '#/components/schemas/ReferenceNumberItem'
+      additionalProperties: false
+      required:
+      - instructions
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      Metadata:
+        type: object
+        title: Metadata Schema
+        properties:
+          createdDate:
+            description: Date and time when the record was created
+            type: string
+            format: date-time
+          createdByUserId:
+            description: ID of the user who created the record (when available)
+            type: string
+            format: uuid
+          createdByUsername:
+            description: Username of the user who created the record (when available)
+            type: string
+            maxLength: 50
+          updatedDate:
+            description: Date and time when the record was last updated
+            type: string
+            format: date-time
+          updatedByUserId:
+            description: ID of the user who last updated the record (when available)
+            type: string
+            format: uuid
+          updatedByUsername:
+            description: Username of the user who last updated the record (when available)
+            type: string
+            maxLength: 50
+        additionalProperties: false
+    PoLine:
+      type: object
+      properties:
+        id:
+          description: UUID identifying this purchase order line
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        edition:
+          description: edition of the material
+          type: string
+        checkinItems:
+          description: if true this will toggle the Check-in workflow for details associated with this PO line
+          type: boolean
+          default: false
+        agreementId:
+          description: UUID of the agreement this purchase order line is related to
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        acquisitionMethod:
+          description: UUID of the acquisition method for this purchase order line
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        automaticExport:
+          description: if true then line will be marked as available to export in the EDIFACT format or other format
+          type: boolean
+          default: false
+        cancellationRestriction:
+          description: whether or not there are cancellation restrictions for this purchase order line
+          type: boolean
+        cancellationRestrictionNote:
+          description: free-form notes related to cancellation restrictions
+          type: string
+        claims:
+          description: claims associated with this purchase order line
+          type: array
+          items:
+            description: a claim record
+            type: object
+            $ref: '#/components/schemas/Claim'
+        collection:
+          description: whether or not this purchase order line is for a collection
+          type: boolean
+          default: false
+        contributors:
+          description: list of contributors to the material
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Contributor'
+        cost:
+          description: cost details associated with this purchase order line
+          type: object
+          $ref: '#/components/schemas/Cost'
+        description:
+          description: description of the material
+          type: string
+        details:
+          description: details about this purchase order line
+          type: object
+          $ref: '#/components/schemas/Details'
+        donor:
+          description: the donor contributing to this purchase order line
+          type: string
+        eresource:
+          description: eresource-related details of this purchase order line
+          type: object
+          $ref: '#/components/schemas/Eresource'
+        fundDistribution:
+          description: Fund distribution records for this purchase order line
+          type: array
+          items:
+            description: a fund distribution record
+            type: object
+            $ref: '#/components/schemas/FundDistribution'
+        instanceId:
+          description: UUID of the instance record this purchase order line is related to
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        isPackage:
+          description: Indicates that this POL is for a package
+          type: boolean
+          default: false
+        locations:
+          description: Location records for this purchase order line
+          type: array
+          items:
+            description: The location details
+            type: object
+            $ref: '#/components/schemas/Location'
+        orderFormat:
+          description: The purchase order line format
+          type: string
+          enum:
+          - Electronic Resource
+          - P/E Mix
+          - Physical Resource
+          - Other
+        packagePoLineId:
+          description: UUID referencing the poLine that represents the package that this POLs title belongs to
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        paymentStatus:
+          description: The purchase order line payment status
+          type: string
+          enum:
+          - Awaiting Payment
+          - Cancelled
+          - Fully Paid
+          - Partially Paid
+          - Payment Not Required
+          - Pending
+          - Ongoing
+        physical:
+          description: details of this purchase order line relating to physical materials
+          type: object
+          $ref: '#/components/schemas/Physical'
+        poLineDescription:
+          description: purchase order line description
+          type: string
+        poLineNumber:
+          description: A human readable number assigned to this PO line (assigned automatically)
+          type: string
+          pattern: ^[a-zA-Z0-9]{1,22}-[0-9]{1,3}$
+        publicationDate:
+          description: date (year) of the material's publication
+          type: string
+        publisher:
+          description: publisher of the material
+          type: string
+        purchaseOrderId:
+          description: UUID of the purchase order
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        receiptDate:
+          description: date the purchase order line was received
+          type: string
+          format: date-time
+        receiptStatus:
+          description: The purchase order line receipt status
+          type: string
+          enum:
+          - Awaiting Receipt
+          - Cancelled
+          - Fully Received
+          - Partially Received
+          - Pending
+          - Receipt Not Required
+          - Ongoing
+          default: Pending
+        requester:
+          description: who requested this purchase order line
+          type: string
+        rush:
+          description: whether or not this is a rush order
+          type: boolean
+          default: false
+        selector:
+          description: who selected this material
+          type: string
+        source:
+          description: the source of this purchase order line
+          type: object
+          enum:
+          - User
+          - API
+          - EDI
+          - MARC
+          - EBSCONET
+        tags:
+          description: arbitrary tags associated with this purchase order line
+          type: object
+          $ref: '#/components/schemas/Tags'
+        titleOrPackage:
+          description: title of the material
+          type: string
+        vendorDetail:
+          description: Details related to the vendor of this purchase order line
+          type: object
+          $ref: '#/components/schemas/VendorDetail'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+        customFields:
+          description: Custom field values keyed by refId
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+      required:
+      - acquisitionMethod
+      - cost
+      - orderFormat
+      - source
+      - titleOrPackage
+    Metadata:
+      type: object
+      title: Metadata Schema
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+          maxLength: 50
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+          maxLength: 50
+      additionalProperties: false
+    CompositePurchaseOrder:
+      type: object
+      properties:
+        id:
+          description: UUID of this purchase order
+          type: string
+          format: uuid
+        approved:
+          description: whether or not the purchase order has been approved
+          type: boolean
+          default: false
+        approvedById:
+          description: UUID of the user approving the order
+          type: object
+          format: uuid
+        approvalDate:
+          description: Date and time when purchase order was approved
+          type: string
+          format: date-time
+        assignedTo:
+          description: UUID of the user this purchase order his assigned to
+          type: string
+          format: uuid
+        billTo:
+          description: UUID of the billing address
+          type: string
+          format: uuid
+        closeReason:
+          description: Close reason for purchase order
+          type: object
+          $ref: '#/components/schemas/CloseReason'
+        dateOrdered:
+          description: Date and time when purchase order was opened
+          type: string
+          format: date-time
+        manualPo:
+          description: if true, order cannot be sent automatically, e.g. via EDI
+          type: boolean
+        notes:
+          description: free-form notes associated with this purchase order
+          type: array
+          items:
+            type: string
+        poNumber:
+          description: A human readable ID assigned to this purchase order
+          type: string
+          pattern: ^[a-zA-Z0-9]{1,22}$
+        poNumberPrefix:
+          description: Purchase order number prefix
+          type: string
+        poNumberSuffix:
+          description: Purchase order number suffix
+          type: string
+        orderType:
+          description: the purchase order type
+          type: string
+          enum:
+          - One-Time
+          - Ongoing
+        reEncumber:
+          description: indicates this purchase order should be re-encumbered each fiscal year. Only applies to ongoing orders
+          type: boolean
+          default: false
+        ongoing:
+          description: Ongoing information associated with this order
+          type: object
+          $ref: '#/components/schemas/Ongoing'
+        shipTo:
+          description: UUID of the shipping address
+          type: string
+          format: uuid
+        template:
+          description: The ID of the order template used for this order. Applies to both PO and POL
+          type: string
+          format: uuid
+        totalEstimatedPrice:
+          description: total estimated price of this purchase order
+          type: number
+        totalEncumbered:
+          description: Total encumbered for the order
+          type: number
+        totalExpended:
+          description: Total expended for the order
+          type: number
+        totalItems:
+          description: total number of items included in the purchase order
+          type: integer
+        vendor:
+          description: UUID of the vendorDetails record
+          type: string
+          format: uuid
+        workflowStatus:
+          description: the workflow status for this purchase order
+          type: string
+          enum:
+          - Pending
+          - Open
+          - Closed
+          default: Pending
+        poLines:
+          description: a list of purchase order lines
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/PoLine'
+        acqUnitIds:
+          description: acquisition unit ids associated with this purchase order
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: object
+          description: arbitrary tags associated with this purchase order
+          $ref: '#/components/schemas/Tags'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/Metadata'
+          readonly: true
+        needReEncumber:
+          description: Indicates that order needs to be re-encumbered
+          type: boolean
+        customFields:
+          description: Custom field values keyed by refId
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+      required:
+      - vendor
+      - orderType
+    ExportHistory:
+      type: object
+      properties:
+        id:
+          description: UUID of this history record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        exportJobId:
+          description: UUID of the export Job
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        exportType:
+          description: Export type
+          type: string
+        jobStatus:
+          description: Job status
+          type: string
+        jobName:
+          description: Job name
+          type: string
+        exportMethod:
+          description: Export method name
+          type: string
+        exportFileName:
+          description: Export file name
+          type: string
+        vendorId:
+          description: UUID of vendor
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        vendorName:
+          description: Vendor name
+          type: string
+        exportDate:
+          description: Export date
+          type: string
+          format: date-time
+        exportedPoLineIds:
+          description: References the purchase order lines associated to the export
+          type: array
+          items:
+            description: UUID of the purchase order line
+            type: string
+        exportTransmissionMethod:
+          description: Specifies how the export was delivered and is populated only after a successful FTP upload, email delivery, or file download staging
+          type: string
+          enum:
+          - FTP
+          - File download
+          - Email
+      additionalProperties: false
+      required:
+      - exportType
+      - exportJobId
+      - exportDate
+    PoLineCollection:
+      type: object
+      properties:
+        poLines:
+          description: collection of purchase order line records
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/PoLine'
+        totalRecords:
+          description: The number of objects contained in this collection
+          type: integer
+      additionalProperties: false
+      required:
+      - poLines
+      - totalRecords
+    PurchaseOrder:
+      type: object
+      properties:
+        id:
+          description: UUID of this purchase order
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        approved:
+          description: whether or not the purchase order has been approved
+          type: boolean
+          default: false
+        approvedById:
+          description: UUID of the user approving the order
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        approvalDate:
+          description: Date and time when purchase order was approved
+          type: string
+          format: date-time
+        assignedTo:
+          description: UUID of the user this purchase order his assigned to
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        billTo:
+          description: UUID of the billing address
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        closeReason:
+          description: Close reason for purchase order
+          type: object
+          $ref: '#/components/schemas/CloseReason'
+        dateOrdered:
+          description: Date and time when purchase order was opened
+          type: string
+          format: date-time
+        manualPo:
+          description: if true, order cannot be sent automatically, e.g. via EDI
+          type: boolean
+        notes:
+          description: free-form notes associated with this purchase order
+          type: array
+          items:
+            type: string
+        poNumber:
+          description: A human readable ID assigned to this purchase order
+          type: string
+          pattern: ^[a-zA-Z0-9]{1,22}$
+        poNumberPrefix:
+          description: Purchase order number prefix
+          type: string
+        poNumberSuffix:
+          description: Purchase order number suffix
+          type: string
+        orderType:
+          description: the purchase order type
+          type: string
+          enum:
+          - One-Time
+          - Ongoing
+        reEncumber:
+          description: indicates this purchase order should be re-encumbered each fiscal year. Only applies to ongoing orders
+          type: boolean
+          default: false
+        ongoing:
+          description: Ongoing information associated with this order
+          type: object
+          $ref: '#/components/schemas/Ongoing'
+        shipTo:
+          description: UUID of the shipping address
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        template:
+          description: The ID of the order template used for this order. Applies to both PO and POL
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        vendor:
+          description: UUID of the vendor record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        workflowStatus:
+          description: the workflow status for this purchase order
+          type: string
+          enum:
+          - Pending
+          - Open
+          - Closed
+          default: Pending
+        acqUnitIds:
+          description: acquisition unit ids associated with this purchase order
+          type: array
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        tags:
+          type: object
+          description: arbitrary tags associated with this purchase order
+          $ref: '#/components/schemas/Tags'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/Metadata'
+          readonly: true
+        customFields:
+          description: Custom field values keyed by refId
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    PurchaseOrderCollection:
+      type: object
+      properties:
+        purchaseOrders:
+          description: collection of purchase order line records
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/PurchaseOrder'
+        totalRecords:
+          description: The number of objects contained in this collection
+          type: integer
+      additionalProperties: false
+      required:
+      - purchaseOrders
+      - totalRecords
+    Piece:
+      type: object
+      properties:
+        id:
+          description: UUID of this piece record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        displaySummary:
+          description: Display summary information
+          type: string
+        comment:
+          description: Free form commentary
+          type: string
+        format:
+          description: The format of the piece
+          type: string
+          enum:
+          - Physical
+          - Electronic
+          - Other
+        itemId:
+          description: UUID of the associated item record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        bindItemId:
+          description: UUID of the associated bind item record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        bindItemTenantId:
+          description: Bind item tenant for ECS-enabled clusters
+          type: string
+        locationId:
+          description: UUID of the (inventory) location record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        poLineId:
+          description: UUID of the purchase order line this record is associated with
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        titleId:
+          description: UUID of the title record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        holdingId:
+          description: UUID of the holding record
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        receivingTenantId:
+          description: Receiving tenant for ECS-enabled clusters
+          type: string
+        displayOnHolding:
+          description: Whether or not receiving history should be displayed in holding record view
+          type: boolean
+          default: false
+        displayToPublic:
+          description: Whether or not the piece data should display to patrons at point of receipt
+          type: boolean
+          default: false
+        enumeration:
+          type: string
+          description: Enumeration is the descriptive information for the numbering scheme of a serial. Synchronized with inventory item.
+        chronology:
+          type: string
+          description: Chronology is the descriptive information for the dating scheme of a serial. Synchronized with inventory item.
+        barcode:
+          type: string
+          description: Barcode is the descriptive information for the barcode of a serial. Synchronized with inventory item.
+        accessionNumber:
+          type: string
+          description: AccessionNumber is the descriptive information for the accession number of a serial. Synchronized with inventory item.
+        callNumber:
+          type: string
+          description: CallNumber is the descriptive information for the call number of a serial. Synchronized with inventory item.
+        discoverySuppress:
+          type: boolean
+          description: Records the fact that the record should not be displayed in a discovery system
+        copyNumber:
+          type: string
+          description: Copy number of the piece
+        receivingStatus:
+          description: The status of this piece
+          type: string
+          enum:
+          - Received
+          - Expected
+          - Late
+          - Claim delayed
+          - Claim sent
+          - Unreceivable
+          default: Expected
+        supplement:
+          description: Whether or not this is supplementary material
+          type: boolean
+        isBound:
+          description: Whether or not piece has already been bound
+          type: boolean
+          default: false
+        receiptDate:
+          description: Date that associated item is expected to arrive
+          type: string
+          format: date-time
+        receivedDate:
+          description: The date associated item is actually received
+          type: string
+          format: date-time
+        statusUpdatedDate:
+          description: Date when the status of this piece was last updated
+          type: string
+          format: date-time
+        claimingInterval:
+          description: Time interval (in days) for processing claims related to this piece
+          type: integer
+        internalNote:
+          description: Internal note for Send Claim action
+          type: string
+        externalNote:
+          description: External note for Send Claim action to share with Vendor
+          type: string
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      required:
+      - format
+      - poLineId
+      - titleId
+      - receivingStatus
+    PieceCollection:
+      type: object
+      properties:
+        pieces:
+          description: collection of piece records
+          type: array
+          id: pieces
+          items:
+            type: object
+            $ref: '#/components/schemas/Piece'
+        totalRecords:
+          description: The number of objects contained in this collection
+          type: integer
+      additionalProperties: false
+      required:
+      - pieces
+      - totalRecords
+    product_identifier:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Product identifier
+      ProductIdentifier:
+        type: object
+        properties:
+          productId:
+            description: The actual product identifier
+            type: string
+          productIdType:
+            description: The type of product identifier
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+          qualifier:
+            description: Information about the binding, format, volume numbers, part of a set, publisher, distributor, etc. which might be enclosed in parenthesis
+            type: string
+        additionalProperties: false
+    contributor-2:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: contributor to the material
+      Contributor:
+        type: object
+        properties:
+          contributor:
+            description: the name of a contributor to the material
+            type: string
+          contributorNameTypeId:
+            description: UUID of the contributor type
+            type: string
+            pattern: ^[a-f0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        additionalProperties: false
+        required:
+        - contributorNameTypeId
+    OrdersTitle:
+      type: object
+      properties:
+        id:
+          description: UUID of this title
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        expectedReceiptDate:
+          description: Vendor agreed date prior to the Receipt Due date item is expected to be received by
+          type: string
+          format: date-time
+        title:
+          description: The title name
+          type: string
+        poLineId:
+          description: UUID of the purchase order line this Title is associated with
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        instanceId:
+          description: UUID of the instance associated with this Title
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        productIds:
+          description: List of product identifiers
+          id: productIds
+          type: array
+          items:
+            $ref: '#/components/schemas/product_identifier'
+        contributors:
+          description: List of contributors to the material
+          id: contributors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/contributor-2'
+        publisher:
+          description: Publisher of the material
+          type: string
+        edition:
+          description: Edition of the material
+          type: string
+        packageName:
+          description: The name of the package
+          type: string
+        poLineNumber:
+          description: The number of the POL identified by poLineId
+          type: string
+          pattern: ^[a-zA-Z0-9]{1,22}-[0-9]{1,3}$
+        publishedDate:
+          description: Year of the material's publication
+          type: string
+        receivingNote:
+          description: Receiving note of the POL identified by poLineId
+          type: string
+        subscriptionFrom:
+          description: The start date of the subscription
+          type: string
+          format: date-time
+        subscriptionTo:
+          description: The end date of the subscription
+          type: string
+          format: date-time
+        subscriptionInterval:
+          description: The subscription interval in days
+          type: integer
+        claimingActive:
+          description: Indicates if there is an active claim or dispute
+          type: boolean
+          default: false
+        claimingInterval:
+          description: Specifies the time interval, in days, within which claims or disputes must be initiated
+          type: integer
+        isAcknowledged:
+          description: Flag for acknowledge receiving note
+          type: boolean
+          default: false
+        bindItemIds:
+          description: Item ids which bound to this title for independent receiving workflow
+          type: array
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        acqUnitIds:
+          description: acquisition unit ids associated with this title
+          type: array
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+        metadata:
+          type: object
+          $ref: '#/components/schemas/metadata'
+          readonly: true
+      required:
+      - title
+      - poLineId

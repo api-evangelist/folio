@@ -1,0 +1,231 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+  "title": "Entities-links export schemas",
+  "version": "v1"
+ },
+ "servers": [
+  {
+   "url": "https://stub.com/"
+  }
+ ],
+ "paths": {
+  "/stub": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "stub"
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "authorityControlExportConfig": {
+    "$ref": "#/components/schemas/AuthorityControlExportConfig"
+   },
+   "authorityDataStatDto": {
+    "$ref": "#/components/schemas/AuthorityDataStatDto"
+   },
+   "instanceDataStatDto": {
+    "$ref": "#/components/schemas/InstanceDataStatDto"
+   },
+   "authorityDataStatDtoCollection": {
+    "$ref": "#/components/schemas/AuthorityDataStatDtoCollection"
+   },
+   "instanceDataStatDtoCollection": {
+    "$ref": "#/components/schemas/InstanceDataStatDtoCollection"
+   },
+   "AuthorityControlExportConfig": {
+    "type": "object",
+    "properties": {
+     "fromDate": {
+      "description": "Report date range start",
+      "type": "string",
+      "format": "date"
+     },
+     "toDate": {
+      "description": "Report date range end",
+      "type": "string",
+      "format": "date"
+     }
+    },
+    "required": [
+     "fromDate",
+     "toDate"
+    ]
+   },
+   "Metadata": {
+    "type": "object",
+    "properties": {
+     "startedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date-time when authority update was registered"
+     },
+     "completedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date-time when update of all related links was completed"
+     },
+     "startedByUserId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "User's ID that triggers record"
+     },
+     "startedByUserFirstName": {
+      "type": "string",
+      "description": "User's first name that triggers record"
+     },
+     "startedByUserLastName": {
+      "type": "string",
+      "description": "User's last name that triggers record"
+     }
+    }
+   },
+   "AuthorityDataStatDto": {
+    "x-implements": "org.folio.dew.domain.dto.authoritycontrol.DataStatDTO",
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Stat ID"
+     },
+     "authorityId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Authority ID"
+     },
+     "action": {
+      "type": "string",
+      "description": "Type of change",
+      "enum": [
+       "UPDATE_NATURAL_ID",
+       "UPDATE_HEADING",
+       "DELETE"
+      ]
+     },
+     "naturalIdOld": {
+      "type": "string",
+      "description": "Old natural ID"
+     },
+     "naturalIdNew": {
+      "type": "string",
+      "description": "New natural ID"
+     },
+     "headingOld": {
+      "type": "string",
+      "description": "Old heading"
+     },
+     "headingNew": {
+      "type": "string",
+      "description": "New heading"
+     },
+     "headingTypeOld": {
+      "type": "string",
+      "description": "Old heading type"
+     },
+     "headingTypeNew": {
+      "type": "string",
+      "description": "New heading type"
+     },
+     "sourceFileOld": {
+      "type": "string",
+      "description": "Old source file ID"
+     },
+     "sourceFileNew": {
+      "type": "string",
+      "description": "New source file ID"
+     },
+     "shared": {
+      "type": "boolean",
+      "description": "True if authority is shared between multiple tenants"
+     },
+     "metadata": {
+      "type": "object",
+      "description": "Statistics metadata",
+      "$ref": "#/components/schemas/Metadata"
+     }
+    }
+   },
+   "InstanceDataStatDto": {
+    "x-implements": "org.folio.dew.domain.dto.authoritycontrol.DataStatDTO",
+    "type": "object",
+    "properties": {
+     "instanceId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Linked instance id, UUID"
+     },
+     "instanceTitle": {
+      "type": "string",
+      "description": "Instance title"
+     },
+     "bibRecordTag": {
+      "type": "string",
+      "description": "Bib record tag"
+     },
+     "authorityNaturalId": {
+      "type": "string",
+      "description": "Linked authority natural id"
+     },
+     "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Link last updated at"
+     },
+     "errorCause": {
+      "type": "string",
+      "description": "Cause of error for updating linked bib"
+     }
+    }
+   },
+   "AuthorityDataStatDtoCollection": {
+    "x-implements": "org.folio.dew.domain.dto.authoritycontrol.DataStatCollectionDTO",
+    "type": "object",
+    "properties": {
+     "stats": {
+      "type": "array",
+      "items": {
+       "description": "Authority changes statistic",
+       "$ref": "#/components/schemas/AuthorityDataStatDto"
+      }
+     },
+     "next": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Next response item date to seek by"
+     }
+    },
+    "required": [
+     "stats",
+     "next"
+    ]
+   },
+   "InstanceDataStatDtoCollection": {
+    "x-implements": "org.folio.dew.domain.dto.authoritycontrol.DataStatCollectionDTO",
+    "type": "object",
+    "properties": {
+     "stats": {
+      "type": "array",
+      "items": {
+       "description": "Instance links changes statistic",
+       "$ref": "#/components/schemas/InstanceDataStatDto"
+      }
+     },
+     "next": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Next response item date to seek by"
+     }
+    },
+    "required": [
+     "stats",
+     "next"
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,2036 @@
+openapi: 3.2.0
+info:
+  title: Folio Agreements API
+  version: 7.3.0
+  contact:
+    name: Knowledge Integration
+    url: https://www.k-int.com
+  description: 'Operations tagged Agreements across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://folio-snapshot-okapi.dev.folio.org
+- url: https://folio-snapshot-2-okapi.dev.folio.org
+- url: https://folio-etesting-snapshot-kong.ci.folio.org
+security:
+- accessToken: []
+- okapiToken: []
+tags:
+- name: Agreements
+paths:
+  /erm/sas:
+    description: Supports search and creation of Subscription Agreements. Note that internally the API uses 'SA' or 'Subscription Agreement', but externally the app uses 'Agreement' to describe these objects, and it is not required that they represent subscriptions
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Agreements
+      summary: Get a set of subscription agreement (SA) aka Agreement records
+      operationId: getAgreements
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/AgreementResults'
+                - $ref: '#/components/schemas/AgreementResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    post:
+      tags:
+      - Agreements
+      summary: Create subscription agreement (SA) aka Agreement record
+      operationId: postSA
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agreement'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreement'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable entity -- validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Get a specified agreement record
+      operationId: getAgreement
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreement'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    put:
+      tags:
+      - Agreements
+      summary: Update agreement record
+      operationId: putAgreement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agreement'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreement'
+        '400':
+          description: Bad request error
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+      - Agreements
+      summary: Delete a specified agreement record
+      operationId: deleteAgreement
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns all resources in the internal KB associated with specified agreement
+      operationId: getAgreementResourcesDefault
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/all:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns all resources in the internal KB associated with specified agreement
+      operationId: getAgreementResourcesAll
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/current:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns resources in the internal KB associated with specified agreement…
+      operationId: getAgreementResourcesCurrent
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/dropped:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns resources in the internal KB associated with specified agreement which…
+      operationId: getAgreementResourcesDropped
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/future:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns resources in the internal KB associated with specified agreement which…
+      operationId: getAgreementResourcesFuture
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/static:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns all resources in the internal KB associated with specified agreement…
+      operationId: getAgreementResourcesStaticDefault
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/static/all:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns all resources in the internal KB associated with specified agreement…
+      operationId: getAgreementResourcesStaticAll
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/static/current:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns resources in the internal KB associated with specified agreement…
+      operationId: getAgreementResourcesStaticCurrent
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/static/dropped:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns resources in the internal KB associated with specified agreement which…
+      operationId: getAgreementResourcesStaticDropped
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/static/future:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns resources in the internal KB associated with specified agreement which…
+      operationId: getAgreementResourcesStaticFuture
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErmResourceResults'
+                - $ref: '#/components/schemas/ErmResourceResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/resources/export/{subset}/{format}:
+    description: 'Backed by the same controller/actions as the top-level `/export` family -- `subset: all` calls the same code as `/export`, `subset: current` calls the same code as `/export/current`, just pre-scoped to this one agreement. Returns an empty result set (not a 404) if `agreementId` does not match any agreement -- existence of the agreement is not checked.'
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    - $ref: '#/components/parameters/subset'
+    - $ref: '#/components/parameters/format'
+    get:
+      tags:
+      - Agreements
+      summary: Returns a list of either current or all resources in the internal KB associated…
+      description: '`format: kbart` returns a tab-separated KBART file (one row per Package Content Item; Platform Title Instances and directly-entitled Title Instances are silently skipped). Any other `format` value returns a JSON array.'
+      operationId: exportAgreementResourcesSubsetFormat
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExportEntry'
+            text/tab-separated-value;charset=UTF-8:
+              schema:
+                type: string
+                description: KBART-formatted TSV, with a header row followed by one row per Package Content Item.
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/export/current:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Returns JSON for an Agreement including a list of resources currently available…
+      operationId: exportAgreementCurrent
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/Agreement'
+                - $ref: '#/components/schemas/resourcesInAgreementExport'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/clone:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    post:
+      tags:
+      - Agreements
+      summary: Clones (makes a duplicate) of the specified agreement
+      operationId: cloneAgreement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agreement'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agreement'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/linkedLicenses:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Retrieves the licenses and amendments for a specified agreement from the…
+      operationId: getAgreementLinkedLicenses
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/LinkedLicensesResults'
+                - $ref: '#/components/schemas/LinkedLicensesResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/{agreementId}/usageDataProviders:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/agreementId'
+    get:
+      tags:
+      - Agreements
+      summary: Retrieves the usage data providers for a specified agreement
+      operationId: getAgreementUsageDataProviders
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UsageDataProvidersResults'
+                - $ref: '#/components/schemas/UsageDataProvidersResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/publicLookup:
+    description: Supports retrieval of agreement details including license terms based on a resource ID, specifically used for display of license terms for a resource in public facing discovery systems
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    - $ref: '#/components/parameters/referenceId'
+    - $ref: '#/components/parameters/resourceId'
+    get:
+      tags:
+      - Agreements
+      summary: Get a list of agreements including license terms for a resource or set of…
+      operationId: publicLookup
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModAgreementsLicense'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/linkedLicenses:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Agreements
+      summary: Retrieves the licenses and amendments for a set of agreements that fulfil the…
+      operationId: getLinkedLicenses
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/LinkedLicensesResults'
+                - $ref: '#/components/schemas/LinkedLicensesResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+  /erm/sas/usageDataProviders:
+    parameters:
+    - $ref: '#/components/parameters/x-okapi-tenant'
+    get:
+      tags:
+      - Agreements
+      summary: Retrieves the usage data providers for a set of agreements that fulfil the…
+      operationId: getUsageDataProviders
+      parameters:
+      - $ref: '#/components/parameters/filters'
+      - $ref: '#/components/parameters/match'
+      - $ref: '#/components/parameters/term'
+      - $ref: '#/components/parameters/sort'
+      - $ref: '#/components/parameters/stats'
+      - $ref: '#/components/parameters/perPage'
+      - $ref: '#/components/parameters/offset'
+      - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UsageDataProvidersResults'
+                - $ref: '#/components/schemas/UsageDataProvidersResultsArray'
+        '400':
+          description: Bad request error
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpError'
+        '500':
+          description: Internal server error
+    servers:
+    - url: https://folio-snapshot-okapi.dev.folio.org
+    - url: https://folio-snapshot-2-okapi.dev.folio.org
+    - url: https://folio-etesting-snapshot-kong.ci.folio.org
+components:
+  parameters:
+    subset:
+      in: path
+      name: subset
+      required: true
+      schema:
+        type: string
+        enum:
+        - current
+        - all
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    format:
+      in: path
+      name: format
+      required: true
+      schema:
+        type: string
+        enum:
+        - json
+        - kbart
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    referenceId:
+      in: query
+      name: referenceId
+      required: false
+      schema:
+        type: string
+    agreementId:
+      in: path
+      name: agreementId
+      description: UUID for an Agreement
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    resourceId:
+      in: query
+      name: resourceId
+      required: false
+      schema:
+        type: string
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+  schemas:
+    LinkedLicensesResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/LinkedLicense'
+    UsageDataProvidersResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/UsageDataProvider'
+    DataSchemaHeader:
+      type: object
+      description: Envelope header used by public API lookup/import endpoints to self-describe the response's data schema
+      required:
+      - dataSchema
+      properties:
+        dataSchema:
+          type: object
+          required:
+          - name
+          - version
+          properties:
+            name:
+              type: string
+            version:
+              type: number
+    AgreementResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Agreement'
+    ErmResourceResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/ErmResourceResultsArray'
+    resourcesInAgreementExport:
+      type: object
+      properties:
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportEntry'
+    IdentifierOccurrence:
+      type: object
+      properties:
+        title:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        identifier:
+          $ref: '#/components/schemas/Identifier'
+        status:
+          $ref: '#/components/schemas/Refdata'
+    Embargo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        movingWallStart:
+          $ref: '#/components/schemas/EmbargoStatement'
+        movingWallEnd:
+          $ref: '#/components/schemas/EmbargoStatement'
+    ExportEntry:
+      type: object
+      description: One exported resource, paired with the agreement entitlement (and, if entitled via a package, the package) it was exported for. The same resource can appear more than once if it is entitled through more than one package/agreement, or both directly and via a package.
+      required:
+      - agreementLine
+      - title
+      - coverage
+      - customCoverage
+      properties:
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        package:
+          type: object
+          description: Present only when this resource was reached via a package entitlement.
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            identifiers:
+              type: array
+              items:
+                $ref: '#/components/schemas/IdentifierOccurrence'
+        agreementLine:
+          type: object
+          description: The entitlement (agreement line) this row was exported for. Only a minimal subset of the entitlement is included here -- for the full record, look it up via `id` against `/erm/entitlements/{entitlementId}`.
+          properties:
+            id:
+              type: string
+              format: uuid
+            suppressFromDiscovery:
+              type: boolean
+            tags:
+              type: array
+              items:
+                $ref: '#/components/schemas/Tag'
+        platform:
+          allOf:
+          - $ref: '#/components/schemas/Platform'
+          description: Present when the resource is a Platform Title Instance or Package Content Item.
+        suppressFromDiscovery:
+          type: boolean
+          description: Present when the resource is a Platform Title Instance or Package Content Item.
+        embargo:
+          allOf:
+          - $ref: '#/components/schemas/Embargo'
+          description: Present only for Package Content Item resources with an embargo.
+        note:
+          type: string
+          description: Present only for Package Content Item resources with a note.
+        url:
+          type: string
+          description: Present when the resource is a Platform Title Instance or Package Content Item and has a URL.
+        templatedUrls:
+          type: array
+          description: URLs generated from String Templates (see `/erm/sts`) applicable to this resource's platform. Present when the resource is a Platform Title Instance or Package Content Item.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              name:
+                type: string
+              url:
+                type: string
+        depth:
+          type: string
+          description: Present only for Package Content Item resources.
+        coverage:
+          type: array
+          description: Coverage statements for this resource, or a custom coverage override if one applies (see `customCoverage`). Empty if there is no coverage.
+          items:
+            $ref: '#/components/schemas/CoverageStatement'
+        customCoverage:
+          type: boolean
+          description: True if `coverage` is a custom override rather than the resource's own coverage statements.
+        relatedTitles:
+          type: array
+          description: Related title instances, present only if the title has any.
+          items:
+            allOf:
+            - $ref: '#/components/schemas/TitleInstance'
+            description: A minimal title representation -- only id, name, type, publicationType, subType, identifiers and longName are populated.
+        title:
+          allOf:
+          - $ref: '#/components/schemas/TitleInstance'
+          description: The title instance for this resource. The `entitlements`, `coverage`, `work` and `platformInstances` relations are always omitted here, even where the full TitleInstance representation would include them.
+    PackageDescriptionUrl:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+    AlternateName:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: Agreements that owns the alternate name
+    TitleInstanceRef:
+      description: A lightweight representation of a title instance, used where a title references another title (e.g. `TitleInstance.relatedTitles`). Unlike the full `TitleInstance` representation, fields such as `class`, `dateCreated` and `coverage` are not populated on this partial view, and it does not nest further `relatedTitles`.
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+    UsageDataProvider:
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          type: object
+    CustomPropertyValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        internal:
+          type: boolean
+        note:
+          type: string
+        publicNote:
+          type: string
+        value:
+          oneOf:
+          - type: string
+          - type: integer
+          - $ref: '#/components/schemas/Refdata'
+        type:
+          $ref: '#/components/schemas/CustomPropertyDefinition'
+    Package:
+      type: object
+      required:
+      - name
+      - source
+      - reference
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.Pkg
+          source:
+            type: string
+          sourceDataCreated:
+            type: string
+            format: date-time
+          sourceDataUpdated:
+            type: string
+            format: date-time
+          sourceTitleCount:
+            type: integer
+          syncContentsFromSource:
+            type: boolean
+          reference:
+            type: string
+          nominalPlatform:
+            $ref: '#/components/schemas/Platform'
+          vendor:
+            $ref: '#/components/schemas/Organisation'
+          lifecycleStatus:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          availabilityScope:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          packageDescriptionUrls:
+            type: array
+            items:
+              $ref: '#/components/schemas/PackageDescriptionUrl'
+          contentTypes:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContentType'
+          availabilityConstraints:
+            type: array
+            items:
+              $ref: '#/components/schemas/AvailabilityConstraint'
+          resourceCount:
+            type: integer
+    AlternateResourceName:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    ErmResource:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        class:
+          type: string
+          enum:
+          - org.olf.kb.TitleInstance
+          - org.olf.kb.PlatformTitleInstance
+          - org.olf.kb.PackageContentItem
+          - org.olf.kb.Pkg
+        coverage:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoverageStatement'
+        customCoverage:
+          type: boolean
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        name:
+          type: string
+        normalizedName:
+          type: string
+          readOnly: true
+        description:
+          type: string
+        publicationType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        suppressFromDiscovery:
+          type: boolean
+        subType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        type:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        alternateResourceNames:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternateResourceName'
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifierOccurrence'
+        _object:
+          description: The full, type-specific representation of this resource (fields vary depending on `class`)
+          oneOf:
+          - $ref: '#/components/schemas/TitleInstance'
+          - $ref: '#/components/schemas/PlatformTitleInstance'
+          - $ref: '#/components/schemas/PackageContentItem'
+          - $ref: '#/components/schemas/Package'
+          discriminator:
+            propertyName: class
+            mapping:
+              org.olf.kb.TitleInstance: '#/components/schemas/TitleInstance'
+              org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
+              org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
+              org.olf.kb.Pkg: '#/components/schemas/Package'
+    TitleInstance:
+      type: object
+      required:
+      - name
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.TitleInstance
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          identifiers:
+            type: array
+            items:
+              $ref: '#/components/schemas/IdentifierOccurrence'
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+          relatedTitles:
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/TitleInstanceRef'
+    ModAgreementsLicense:
+      type: object
+      required:
+      - header
+      - records
+      properties:
+        header:
+          $ref: '#/components/schemas/DataSchemaHeader'
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionAgreementList'
+    InternalContact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        role:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        user:
+          type: string
+          format: uuid
+    CoverageStatement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        summary:
+          type: string
+        startVolume:
+          type: string
+        startIssue:
+          type: string
+        endVolume:
+          type: string
+        endIssue:
+          type: string
+    PackageContentItem:
+      type: object
+      required:
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PackageContentItem
+          accessStart:
+            type: string
+            format: date
+          accessEnd:
+            type: string
+            format: date
+          addedTimestamp:
+            type: integer
+          depth:
+            type: string
+          lastSeenTimestamp:
+            type: integer
+          longName:
+            type: string
+          note:
+            type: string
+          removedTimestamp:
+            type: integer
+          embargo:
+            $ref: '#/components/schemas/Embargo'
+          pkg:
+            $ref: '#/components/schemas/Package'
+          pti:
+            $ref: '#/components/schemas/PlatformTitleInstance'
+    Agreement:
+      type: object
+      required:
+      - id
+      - name
+      - agreementStatus
+      - periods
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        dateCreated:
+          type: string
+          format: date-time
+          readOnly: true
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+          description: GORM optimistic-locking version, incremented on every update.
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+        description:
+          type: string
+        agreementStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        isPerpetual:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        reasonForClosure:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        renewalPriority:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        alternateNames:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternateName'
+        localReference:
+          type: string
+        vendorReference:
+          type: string
+        agreementContentTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementContentType'
+        periods:
+          type: array
+          items:
+            type: object
+            required:
+            - startDate
+            properties:
+              startDate:
+                type: string
+                format: date
+              endDate:
+                type: string
+                format: date
+              cancellationDeadline:
+                type: string
+                format: date
+              periodStatus:
+                type: string
+              note:
+                type: string
+              id:
+                type: string
+                format: uuid
+        startDate:
+          type: string
+          format: date
+          readOnly: true
+        endDate:
+          type:
+          - string
+          - 'null'
+          format: date
+          readOnly: true
+          description: Null if any period on the agreement is open-ended (has no end date)
+        cancellationDeadline:
+          type:
+          - string
+          - 'null'
+          format: date
+          readOnly: true
+          description: Null if no period on the agreement has a cancellation deadline set
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/InternalContact'
+        orgs:
+          type: array
+          description: Organisations associated with the agreement
+          items:
+            $ref: '#/components/schemas/AgreementOrg'
+        externalLicenseDocs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        supplementaryDocs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentAttachment'
+        linkedLicenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedLicense'
+        usageDataProviders:
+          type: array
+          items:
+            $ref: '#/components/schemas/UsageDataProvider'
+        inwardRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementRelationship'
+        outwardRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgreementRelationship'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        customProperties:
+          type: object
+          description: Custom properties (agreement supplementary properties) — keys are property names, values are arrays of property value instances
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/CustomPropertyValue'
+    AgreementRelationship:
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        outward:
+          $ref: '#/components/schemas/AgreementRelationshipAgreement'
+        inward:
+          $ref: '#/components/schemas/AgreementRelationshipAgreement'
+    LinkedLicensesResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/LinkedLicensesResultsArray'
+    PlatformTitleInstance:
+      type: object
+      required:
+      - platform
+      - titleInstance
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PlatformTitleInstance
+          longName:
+            type: string
+          platform:
+            $ref: '#/components/schemas/Platform'
+          titleInstance:
+            $ref: '#/components/schemas/TitleInstance'
+          url:
+            type: string
+            format: uri
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    RefdataCategory:
+      type: object
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refdata'
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
+    DocumentAttachment:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        location:
+          type: string
+        url:
+          type: string
+          format: uri
+        note:
+          type: string
+        atType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        fileUpload:
+          $ref: '#/components/schemas/File'
+    EmbargoStatement:
+      type: object
+      properties:
+        unit:
+          type: string
+          enum:
+          - days
+          - months
+          - years
+        length:
+          type: integer
+    File:
+      type: object
+      required:
+      - id
+      - name
+      - size
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          type: string
+          description: MIME type of the uploaded file
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          description: Original filename of the uploaded file
+        size:
+          type: integer
+          description: Size of the uploaded file in bytes
+    AvailabilityConstraint:
+      type: object
+      required:
+      - id
+      - body
+      properties:
+        id:
+          type: string
+          format: uuid
+        body:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    ContentType:
+      type: object
+      required:
+      - id
+      - contentType
+      properties:
+        id:
+          type: string
+          format: uuid
+        contentType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    CustomPropertyDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        primary:
+          type: boolean
+        defaultInternal:
+          type: boolean
+        retired:
+          type: boolean
+        weight:
+          type: integer
+        type:
+          type: string
+          description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
+        category:
+          $ref: '#/components/schemas/RefdataCategory'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    SubscriptionAgreementList:
+      type: object
+      required:
+      - id
+      - name
+      - startDate
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+        startDate:
+          type: string
+          format: date
+          readOnly: true
+        endDate:
+          type:
+          - string
+          - 'null'
+          format: date
+          readOnly: true
+        isPerpetual:
+          oneOf:
+          - type:
+            - string
+            - 'null'
+          - $ref: '#/components/schemas/Refdata'
+        agreementStatus:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        linkedLicenses:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedLicense'
+    Platform:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        locators:
+          type: array
+          items:
+            type: object
+            properties:
+              domainName:
+                type: string
+              id:
+                type: string
+                format: uuid
+    AgreementOrg:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: Agreement that owns the organisation
+        org:
+          $ref: '#/components/schemas/Organisation'
+        primaryOrg:
+          type: boolean
+          description: Whether this is the primary organisation for the agreement
+          default: false
+        note:
+          type: string
+          description: A note about this organisation's relationship to the agreement
+        roles:
+          type: array
+          description: The roles this organisation plays in relation to the agreement
+          items:
+            type: object
+            required:
+            - id
+            - role
+            properties:
+              id:
+                type: string
+                format: uuid
+                readOnly: true
+              owner:
+                $ref: '#/components/schemas/AgreementOrg'
+                readOnly: true
+              role:
+                description: The role (e.g. Content provider)
+                oneOf:
+                - type: string
+                - $ref: '#/components/schemas/Refdata'
+              note:
+                type: string
+    UsageDataProvidersResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/UsageDataProvidersResultsArray'
+    AgreementResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/AgreementResultsArray'
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    AgreementRelationshipAgreement:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        agreementStatus:
+          $ref: '#/components/schemas/Refdata'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+    AgreementContentType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          $ref: '#/components/schemas/Refdata'
+    ErmResourceResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/ErmResource'
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        normValue:
+          type: string
+        value:
+          type: string
+    LinkedLicense:
+      type: object
+      properties:
+        amendments:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedAmendment'
+        id:
+          type: string
+        owner:
+          type: string
+          format: uuid
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          type: object
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    LinkedAmendment:
+      type: object
+      properties:
+        amendmentId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: string
+          format: uuid
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    Identifier:
+      type: object
+      properties:
+        ns:
+          type: object
+          properties:
+            value:
+              type: string
+        value:
+          type: string
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
+  securitySchemes:
+    okapiToken:
+      type: apiKey
+      in: header
+      name: x-okapi-token
+    accessToken:
+      type: apiKey
+      in: cookie
+      name: folioAccessToken
+x-refined-from:
+- folio-mod-agreements-openapi.json
+- folio-mod-agreements-openapi.yml

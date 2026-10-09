@@ -1,0 +1,259 @@
+openapi: 3.2.0
+info:
+  title: Folio Agency Mappings API
+  version: v1
+  description: 'Operations tagged agency-mappings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: /inn-reach/
+tags:
+- name: agency-mappings
+paths:
+  /central-servers/{centralServerId}/agency-mappings:
+    get:
+      description: Get a list of Inn-Reach Agency to FOLIO location mappings for the given central server
+      operationId: getAgencyMappingsByServerId
+      tags:
+      - agency-mappings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/agencyLocationMappingDTO'
+        '400':
+          $ref: '#/components/responses/trait_response_malformed_query_400'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Get agency mappings by server id
+      x-summary-source: derived
+    put:
+      description: Update (add) INN-Reach Agency to FOLIO location mappings associated with the central server
+      operationId: putAgencyMappings
+      tags:
+      - agency-mappings
+      responses:
+        '204':
+          description: Mapping successfully updated
+        '400':
+          $ref: '#/components/responses/trait_response_validation_400'
+        '409':
+          $ref: '#/components/responses/trait_response_409'
+        '500':
+          $ref: '#/components/responses/trait_response_500'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/agencyLocationMappingDTO'
+        required: true
+      parameters:
+      - $ref: '#/components/parameters/centralServerId'
+      summary: Put agency mappings
+      x-summary-source: derived
+    servers:
+    - url: /inn-reach/
+components:
+  schemas:
+    agencyLocationAcMappingDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: INN-Reach Agency to FOLIO location mapping
+      type: object
+      properties:
+        id:
+          description: Mapping id
+          type: string
+          format: uuid
+        agencyCode:
+          description: Agency code
+          type: string
+          maxLength: 5
+        locationId:
+          description: Location id
+          type: string
+          format: uuid
+        libraryId:
+          description: Library id
+          type: string
+          format: uuid
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - agencyCode
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    agencyLocationMappingDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: INN-Reach Agency to FOLIO locations mapping
+      type: object
+      properties:
+        id:
+          description: Mapping id
+          type: string
+          format: uuid
+        locationId:
+          description: Location id
+          type: string
+          format: uuid
+        libraryId:
+          description: Location id
+          type: string
+          format: uuid
+        localServers:
+          description: Local server mappings
+          type: array
+          items:
+            $ref: '#/components/schemas/agencyLocationLscMappingDTO'
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - locationId
+      - libraryId
+    agencyLocationLscMappingDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: INN-Reach Agency to FOLIO location mapping
+      type: object
+      properties:
+        id:
+          description: Mapping id
+          type: string
+          format: uuid
+        localCode:
+          description: Local server code
+          type: string
+          maxLength: 5
+        locationId:
+          description: Location id
+          type: string
+          format: uuid
+        libraryId:
+          description: Location id
+          type: string
+          format: uuid
+        agencyCodeMappings:
+          description: Agency code mappings
+          type: array
+          items:
+            $ref: '#/components/schemas/agencyLocationAcMappingDTO'
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - localCode
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+  responses:
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_malformed_query_400:
+      description: Bad request, e.g. malformed query parameter.
+      content:
+        application/json:
+          example:
+            value:
+              $ref: examples/error.sample
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_409:
+      description: Item state conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+x-refined-from:
+- folio-mod-inn-reach-settings-openapi.json
+- folio-mod-inn-reach-settings-openapi.yml
