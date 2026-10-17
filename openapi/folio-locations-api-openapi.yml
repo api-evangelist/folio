@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Locations API
   version: '1.0'
-  description: 'Operations tagged locations across 6 of this provider''s published API definitions: folio-edge-inventory-openapi.json, folio-mod-inn-reach-settings-openapi.json, folio-mod-locations-openapi.json, folio-edge-inventory-openapi.yml, folio-mod-inn-reach-settings-openapi.yml, folio-mod-locations-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged locations across 3 of this provider''s published API definitions: folio-edge-inventory-openapi.json, folio-mod-inn-reach-settings-openapi.json, folio-mod-locations-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inventory
 - url: /inn-reach/
@@ -1063,7 +1063,145 @@ paths:
           - etesting-snapshot-2-diku
           - etesting-sprint-fs09000000
 components:
+  responses:
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+  parameters:
+    institution-id:
+      name: institutionId
+      in: path
+      description: Location institution id
+      required: true
+      schema:
+        type: string
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    campus-id:
+      name: campusId
+      in: path
+      description: Library campus id
+      required: true
+      schema:
+        type: string
+    request-query-parameters:
+      name: requestQueryParameters
+      in: query
+      description: Request query parameters(query, limit, offset and etc.) as object.
+      schema:
+        $ref: '#/components/schemas/RequestQueryParameters'
+    library-id:
+      name: libraryId
+      in: path
+      description: Location library id
+      required: true
+      schema:
+        type: string
+    location-id:
+      name: locationId
+      in: path
+      description: Location id
+      required: true
+      schema:
+        type: string
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
   schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          description: Error status code
+          type: integer
+        errorMessage:
+          description: Error message text
+          type: string
     RequestQueryParameters:
       type: object
       properties:
@@ -1091,29 +1229,6 @@ components:
         expand:
           type: string
           description: Whether or not to expand the id fields
-    Error:
-      type: object
-      properties:
-        code:
-          description: Error status code
-          type: integer
-        errorMessage:
-          description: Error message text
-          type: string
-    validationErrorDTO:
-      description: Validation error
-      type: object
-      properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
-      additionalProperties: false
-      required:
-      - fieldName
-      - message
     Error_2:
       type: object
       properties:
@@ -1140,21 +1255,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/validationErrorDTO'
-    innReachLocationsDTO:
-      description: InnReach locations collection
-      type: object
-      properties:
-        totalRecords:
-          description: Total records
-          type: integer
-        locations:
-          description: List of INN-Reach locations
-          type: array
-          items:
-            $ref: '#/components/schemas/innReachLocationDTO'
-      additionalProperties: false
-      required:
-      - locations
     innReachLocationDTO:
       description: InnReach location
       type: object
@@ -1178,6 +1278,21 @@ components:
       additionalProperties: false
       required:
       - code
+    innReachLocationsDTO:
+      description: InnReach locations collection
+      type: object
+      properties:
+        totalRecords:
+          description: Total records
+          type: integer
+        locations:
+          description: List of INN-Reach locations
+          type: array
+          items:
+            $ref: '#/components/schemas/innReachLocationDTO'
+      additionalProperties: false
+      required:
+      - locations
     metadata:
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -1208,6 +1323,234 @@ components:
       additionalProperties: false
       required:
       - createdDate
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    locationsCollection:
+      description: List of locations
+      example:
+        totalRecords: 0
+        locations:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          discoveryDisplayName: discoveryDisplayName
+          libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          description: description
+          isActive: true
+          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isFloatingCollection: true
+          name: name
+          details:
+            key: ''
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+          servicePointIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          discoveryDisplayName: discoveryDisplayName
+          libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          description: description
+          isActive: true
+          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isFloatingCollection: true
+          name: name
+          details:
+            key: ''
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+          servicePointIds:
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        locations:
+          description: List of locations
+          items:
+            $ref: '#/components/schemas/location'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - locations
+      - totalRecords
+      title: Locations Collection
+      type: object
+    errorCollection:
+      description: Collection of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      title: Error Collection
+      type: object
+    institutionsCollection:
+      description: A collection of institutions (top-level location units)
+      example:
+        locinsts:
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        - metadata:
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          code: code
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          isShadow: false
+        totalRecords: 0
+      properties:
+        locinsts:
+          description: List of institution
+          items:
+            $ref: '#/components/schemas/institution'
+          type: array
+        totalRecords:
+          description: Total number of records
+          type: integer
+      required:
+      - locinsts
+      - totalRecords
+      title: Institutions Collection
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      title: Error
+      type: object
+    library:
+      additionalProperties: false
+      description: 'Library: third-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        name: name
+        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of the library
+          format: uuid
+          type: string
+        name:
+          description: Name of the library
+          type: string
+        code:
+          description: Distinct code for the library
+          type: string
+        campusId:
+          description: ID of the campus that the library belongs to
+          format: uuid
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+      required:
+      - campusId
+      - code
+      - name
+      title: Library
+      type: object
+    institution:
+      additionalProperties: false
+      description: 'Institution: highest-level location unit'
+      example:
+        metadata:
+          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          createdDate: '2000-01-23T04:56:07.000+00:00'
+          updatedDate: '2000-01-23T04:56:07.000+00:00'
+          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        code: code
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        isShadow: false
+      properties:
+        id:
+          description: ID of institution
+          format: uuid
+          type: string
+        name:
+          description: Name of institution
+          type: string
+        code:
+          description: Distinct code for institution
+          type: string
+        isShadow:
+          default: false
+          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+      required:
+      - code
+      - name
+      title: Institution
+      type: object
     parameter:
       description: List of key/value parameters of an error
       example:
@@ -1221,6 +1564,34 @@ components:
           description: Parameter value
           type: string
       title: Parameter
+      type: object
+    metadata_2:
+      additionalProperties: false
+      description: Metadata about creation and changes to records
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      readOnly: true
+      title: Metadata
       type: object
     librariesCollection:
       description: A collection of libraries (third-level location units)
@@ -1260,25 +1631,6 @@ components:
       - loclibs
       - totalRecords
       title: Libraries Collection
-      type: object
-    errorCollection:
-      description: Collection of errors
-      example:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-      properties:
-        errors:
-          description: List of errors
-          items:
-            $ref: '#/components/schemas/error'
-          type: array
-        totalRecords:
-          description: Total number of records
-          type: integer
-      title: Error Collection
       type: object
     location:
       additionalProperties: false
@@ -1371,45 +1723,6 @@ components:
       - primaryServicePoint
       title: Location
       type: object
-    campusesCollection:
-      description: A collection of campuses (second-level location units)
-      example:
-        loccamps:
-        - metadata:
-            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            createdDate: '2000-01-23T04:56:07.000+00:00'
-            updatedDate: '2000-01-23T04:56:07.000+00:00'
-            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          code: code
-          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          name: name
-          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          isShadow: false
-        - metadata:
-            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            createdDate: '2000-01-23T04:56:07.000+00:00'
-            updatedDate: '2000-01-23T04:56:07.000+00:00'
-            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          code: code
-          institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          name: name
-          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          isShadow: false
-        totalRecords: 0
-      properties:
-        loccamps:
-          description: List of campuses
-          items:
-            $ref: '#/components/schemas/campus'
-          type: array
-        totalRecords:
-          description: Total number of records
-          type: integer
-      required:
-      - loccamps
-      - totalRecords
-      title: Campuses Collection
-      type: object
     campus:
       additionalProperties: false
       description: 'Campus: second-level location unit'
@@ -1451,11 +1764,10 @@ components:
       - name
       title: Campus
       type: object
-    locationsCollection:
-      description: List of locations
+    campusesCollection:
+      description: A collection of campuses (second-level location units)
       example:
-        totalRecords: 0
-        locations:
+        loccamps:
         - metadata:
             createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
             createdDate: '2000-01-23T04:56:07.000+00:00'
@@ -1463,21 +1775,9 @@ components:
             updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           code: code
           institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          discoveryDisplayName: discoveryDisplayName
-          libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          description: description
-          isActive: true
-          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          isFloatingCollection: true
           name: name
-          details:
-            key: ''
           id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           isShadow: false
-          servicePointIds:
-          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         - metadata:
             createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
             createdDate: '2000-01-23T04:56:07.000+00:00'
@@ -1485,591 +1785,25 @@ components:
             updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           code: code
           institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          discoveryDisplayName: discoveryDisplayName
-          libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          description: description
-          isActive: true
-          primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          isFloatingCollection: true
-          name: name
-          details:
-            key: ''
-          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          isShadow: false
-          servicePointIds:
-          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-      properties:
-        locations:
-          description: List of locations
-          items:
-            $ref: '#/components/schemas/location'
-          type: array
-        totalRecords:
-          description: Total number of records
-          type: integer
-      required:
-      - locations
-      - totalRecords
-      title: Locations Collection
-      type: object
-    institution:
-      additionalProperties: false
-      description: 'Institution: highest-level location unit'
-      example:
-        metadata:
-          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          createdDate: '2000-01-23T04:56:07.000+00:00'
-          updatedDate: '2000-01-23T04:56:07.000+00:00'
-          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        code: code
-        name: name
-        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        isShadow: false
-      properties:
-        id:
-          description: ID of institution
-          format: uuid
-          type: string
-        name:
-          description: Name of institution
-          type: string
-        code:
-          description: Distinct code for institution
-          type: string
-        isShadow:
-          default: false
-          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
-          type: boolean
-        metadata:
-          $ref: '#/components/schemas/metadata_2'
-      required:
-      - code
-      - name
-      title: Institution
-      type: object
-    library:
-      additionalProperties: false
-      description: 'Library: third-level location unit'
-      example:
-        metadata:
-          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          createdDate: '2000-01-23T04:56:07.000+00:00'
-          updatedDate: '2000-01-23T04:56:07.000+00:00'
-          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        code: code
-        name: name
-        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        isShadow: false
-      properties:
-        id:
-          description: ID of the library
-          format: uuid
-          type: string
-        name:
-          description: Name of the library
-          type: string
-        code:
-          description: Distinct code for the library
-          type: string
-        campusId:
-          description: ID of the campus that the library belongs to
-          format: uuid
-          type: string
-        isShadow:
-          default: false
-          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
-          type: boolean
-        metadata:
-          $ref: '#/components/schemas/metadata_2'
-      required:
-      - campusId
-      - code
-      - name
-      title: Library
-      type: object
-    error:
-      description: An error
-      properties:
-        message:
-          description: Error message text
-          type: string
-        type:
-          description: Error message type
-          type: string
-        code:
-          description: Error message code
-          type: string
-        parameters:
-          description: Error parameters
-          items:
-            $ref: '#/components/schemas/parameter'
-          type: array
-      title: Error
-      type: object
-    institutionsCollection:
-      description: A collection of institutions (top-level location units)
-      example:
-        locinsts:
-        - metadata:
-            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            createdDate: '2000-01-23T04:56:07.000+00:00'
-            updatedDate: '2000-01-23T04:56:07.000+00:00'
-            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          code: code
-          name: name
-          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          isShadow: false
-        - metadata:
-            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            createdDate: '2000-01-23T04:56:07.000+00:00'
-            updatedDate: '2000-01-23T04:56:07.000+00:00'
-            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          code: code
           name: name
           id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           isShadow: false
         totalRecords: 0
       properties:
-        locinsts:
-          description: List of institution
+        loccamps:
+          description: List of campuses
           items:
-            $ref: '#/components/schemas/institution'
+            $ref: '#/components/schemas/campus'
           type: array
         totalRecords:
           description: Total number of records
           type: integer
       required:
-      - locinsts
+      - loccamps
       - totalRecords
-      title: Institutions Collection
+      title: Campuses Collection
       type: object
-    metadata_2:
-      additionalProperties: false
-      description: Metadata about creation and changes to records
-      example:
-        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        createdDate: '2000-01-23T04:56:07.000+00:00'
-        updatedDate: '2000-01-23T04:56:07.000+00:00'
-        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          format: date-time
-          type: string
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          format: uuid
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          format: date-time
-          type: string
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          format: uuid
-          type: string
-      readOnly: true
-      title: Metadata
-      type: object
-    Error_3:
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-      additionalProperties: false
-      required:
-      - message
-    location_2:
-      additionalProperties: false
-      description: 'Location: the forth-level location unit below institution, campus, and library'
-      example:
-        metadata:
-          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          createdDate: '2000-01-23T04:56:07.000+00:00'
-          updatedDate: '2000-01-23T04:56:07.000+00:00'
-          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        code: code
-        institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        discoveryDisplayName: discoveryDisplayName
-        libraryId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        description: description
-        isActive: true
-        primaryServicePoint: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        isFloatingCollection: true
-        name: name
-        details:
-          key: ''
-        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        isShadow: false
-        servicePointIds:
-        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-      properties:
-        id:
-          description: ID of the location
-          format: uuid
-          type: string
-        name:
-          description: Name of the location
-          type: string
-        code:
-          description: Code of the location, usually an abbreviation of the name
-          type: string
-        description:
-          description: Description of the location
-          type: string
-        discoveryDisplayName:
-          description: Name of the location to be shown in the discovery
-          type: string
-        isActive:
-          description: Whether this location is active. Inactive locations can no longer been used
-          type: boolean
-        institutionId:
-          description: The ID of the institution, the first-level location unit, this location belongs to
-          format: uuid
-          type: string
-        campusId:
-          description: The ID of the campus, the second-level location unit, this location belongs to
-          format: uuid
-          type: string
-        libraryId:
-          description: The ID of the library, the third-level location unit, this location belongs to
-          format: uuid
-          type: string
-        details:
-          additionalProperties: true
-          description: Details about this location
-          type: object
-        primaryServicePoint:
-          description: The ID of the primary service point of this location
-          format: uuid
-          type: string
-        servicePointIds:
-          description: All service points that this location has
-          items:
-            description: The ID of a service point that belongs to this location
-            format: uuid
-            type: string
-          type: array
-        isFloatingCollection:
-          description: Items checked in/out from this location can be checked in/out to other locations with the same flag
-          type: boolean
-        isShadow:
-          default: false
-          description: Whether this location is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
-          type: boolean
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-      required:
-      - campusId
-      - code
-      - institutionId
-      - libraryId
-      - name
-      - primaryServicePoint
-      title: Location
-      type: object
-    campus_2:
-      additionalProperties: false
-      description: 'Campus: second-level location unit'
-      example:
-        metadata:
-          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          createdDate: '2000-01-23T04:56:07.000+00:00'
-          updatedDate: '2000-01-23T04:56:07.000+00:00'
-          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        code: code
-        institutionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        name: name
-        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        isShadow: false
-      properties:
-        id:
-          description: ID of the campus
-          format: uuid
-          type: string
-        name:
-          description: Name of the campus
-          type: string
-        code:
-          description: Distinct code for the campus
-          type: string
-        institutionId:
-          description: ID of the institution that the campus unit belongs to
-          format: uuid
-          type: string
-        isShadow:
-          default: false
-          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
-          type: boolean
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-      required:
-      - code
-      - institutionId
-      - name
-      title: Campus
-      type: object
-    institution_2:
-      additionalProperties: false
-      description: 'Institution: highest-level location unit'
-      example:
-        metadata:
-          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          createdDate: '2000-01-23T04:56:07.000+00:00'
-          updatedDate: '2000-01-23T04:56:07.000+00:00'
-          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        code: code
-        name: name
-        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        isShadow: false
-      properties:
-        id:
-          description: ID of institution
-          format: uuid
-          type: string
-        name:
-          description: Name of institution
-          type: string
-        code:
-          description: Distinct code for institution
-          type: string
-        isShadow:
-          default: false
-          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
-          type: boolean
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-      required:
-      - code
-      - name
-      title: Institution
-      type: object
-    library_2:
-      additionalProperties: false
-      description: 'Library: third-level location unit'
-      example:
-        metadata:
-          createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          createdDate: '2000-01-23T04:56:07.000+00:00'
-          updatedDate: '2000-01-23T04:56:07.000+00:00'
-          updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        code: code
-        name: name
-        campusId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        isShadow: false
-      properties:
-        id:
-          description: ID of the library
-          format: uuid
-          type: string
-        name:
-          description: Name of the library
-          type: string
-        code:
-          description: Distinct code for the library
-          type: string
-        campusId:
-          description: ID of the campus that the library belongs to
-          format: uuid
-          type: string
-        isShadow:
-          default: false
-          description: Whether this is a shadow location. Shadow locations are used to represent virtual locations that no items are assignable to them. They only relate to external libraries and virtual items.
-          type: boolean
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-      required:
-      - campusId
-      - code
-      - name
-      title: Library
-      type: object
-    metadata_3:
-      additionalProperties: false
-      description: Metadata about creation and changes to records
-      example:
-        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        createdDate: '2000-01-23T04:56:07.000+00:00'
-        updatedDate: '2000-01-23T04:56:07.000+00:00'
-        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          format: date-time
-          type: string
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          format: uuid
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          format: date-time
-          type: string
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          format: uuid
-          type: string
-      readOnly: true
-      title: Metadata
-      type: object
-  parameters:
-    location-id:
-      name: locationId
-      in: path
-      description: Location id
-      required: true
-      schema:
-        type: string
-    campus-id:
-      name: campusId
-      in: path
-      description: Library campus id
-      required: true
-      schema:
-        type: string
-    institution-id:
-      name: institutionId
-      in: path
-      description: Location institution id
-      required: true
-      schema:
-        type: string
-    library-id:
-      name: libraryId
-      in: path
-      description: Location library id
-      required: true
-      schema:
-        type: string
-    x-okapi-token-header:
-      name: x-okapi-token
-      in: header
-      description: x-okapi-token header value
-      required: false
-      schema:
-        type: string
-    request-query-parameters:
-      name: requestQueryParameters
-      in: query
-      description: Request query parameters(query, limit, offset and etc.) as object.
-      schema:
-        $ref: '#/components/schemas/RequestQueryParameters'
-    x-okapi-tenant-header:
-      name: x-okapi-tenant
-      in: header
-      description: x-okapi-tenant header value
-      required: false
-      schema:
-        type: string
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    id:
-      name: id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-    trait_pageable_offset:
-      name: offset
-      in: query
-      description: Skip over a number of elements by specifying an offset value for the query
-      schema:
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-  responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example:
-            code: 500
-            errorMessage: internal error
-          schema:
-            $ref: '#/components/schemas/Error'
-    notFoundResponse:
-      description: Item with a given ID not found
-      content:
-        application/json:
-          example:
-            code: 404
-            errorMessage: Record by given id not found
-          schema:
-            $ref: '#/components/schemas/Error'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          example:
-            code: 400
-            errorMessage: Validation error
-          schema:
-            $ref: '#/components/schemas/Error'
-    notAuthorizedResponse:
-      description: Not authorized to perform requested action
-      content:
-        application/json:
-          example:
-            code: 401
-            errorMessage: Unauthorized request
-          schema:
-            $ref: '#/components/schemas/Error'
-    trait_response_404:
-      description: Item not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    trait_response_validation_400:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/validationErrorsDTO'
-    trait_response_500:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    trait_response_404_2:
-      description: Item not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_3'
-    trait_response_500_2:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_3'
 x-refined-from:
 - folio-edge-inventory-openapi.json
 - folio-mod-inn-reach-settings-openapi.json
 - folio-mod-locations-openapi.json
-- folio-edge-inventory-openapi.yml
-- folio-mod-inn-reach-settings-openapi.yml
-- folio-mod-locations-openapi.yml

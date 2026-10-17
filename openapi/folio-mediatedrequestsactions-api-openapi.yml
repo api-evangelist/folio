@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Mediated Requests Actions API
+  title: Request Mediated Mediated Requests Actions API
   version: v1
-  description: 'Operations tagged mediatedRequestsActions across 2 of this provider''s published API definitions: folio-mod-requests-mediated-openapi.json, folio-mod-requests-mediated-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: mediatedRequestsActions
 paths:
@@ -147,7 +146,50 @@ paths:
       summary: Send item in transit
       x-summary-source: derived
 components:
+  parameters:
+    mediatedRequestId:
+      name: mediatedRequestId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
+    ConfirmItemArrivalRequest:
+      description: Confirm item arrival request
+      type: object
+      properties:
+        itemBarcode:
+          description: Barcode of the confirmed item
+          type: string
+      required:
+      - itemBarcode
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
     sendItemInTransitResponse:
       description: Send item in transit response
       type: object
@@ -356,12 +398,12 @@ components:
         value:
           description: Parameter value
           type: string
-    ConfirmItemArrivalRequest:
-      description: Confirm item arrival request
+    SendItemInTransitRequest:
+      description: Send item in transit request
       type: object
       properties:
         itemBarcode:
-          description: Barcode of the confirmed item
+          description: Barcode of the sent item in transit
           type: string
       required:
       - itemBarcode
@@ -380,41 +422,6 @@ components:
           description: Total number of errors
           type: integer
       additionalProperties: false
-    SendItemInTransitRequest:
-      description: Send item in transit request
-      type: object
-      properties:
-        itemBarcode:
-          description: Barcode of the sent item in transit
-          type: string
-      required:
-      - itemBarcode
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-      additionalProperties: false
-      required:
-      - message
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
     confirmItemArrivalResponse:
       description: Confirm item arrival response
       type: object
@@ -506,16 +513,6 @@ components:
               description: Middle name of the requester
               type: string
   responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Unexpected error
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errors'
     notFoundResponse:
       description: Not found
       content:
@@ -536,14 +533,13 @@ components:
             total_records: 1
           schema:
             $ref: '#/components/schemas/errors'
-  parameters:
-    mediatedRequestId:
-      name: mediatedRequestId
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-x-refined-from:
-- folio-mod-requests-mediated-openapi.json
-- folio-mod-requests-mediated-openapi.yml
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Unexpected error
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'

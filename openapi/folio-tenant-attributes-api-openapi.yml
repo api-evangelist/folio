@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Tenant Attributes API
+  title: Mgr-Tenants Tenant Attributes API
   version: v1
-  description: 'Operations tagged tenant-attributes across 2 of this provider''s published API definitions: folio-mgr-tenants-openapi.json, folio-mgr-tenants-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Tenant Manager API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -61,9 +61,6 @@ paths:
           $ref: '#/components/responses/internalServerError'
       summary: Create tenant attributes
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /tenants/{tenantId}/tenant-attributes/{id}:
     get:
       operationId: getTenantAttribute
@@ -128,13 +125,52 @@ paths:
           $ref: '#/components/responses/internalServerError'
       summary: Delete tenant attribute
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
+  parameters:
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    path-tenant-id:
+      in: path
+      required: true
+      name: tenantId
+      description: Tenant id
+      schema:
+        type: string
+        format: uuid
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
   responses:
-    internalServerError:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+    entityNotFound:
+      description: Error response if entity is not found by id (in json format)
       content:
         application/json:
           schema:
@@ -145,30 +181,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
-    entityNotFound:
-      description: Error response if entity is not found by id (in json format)
+    internalServerError:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
   schemas:
-    tenantAttributes:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: tenantAttributes.json
-      title: Tenant Attributes Schema
-      description: Collection of tenant attributes
-      type: object
-      properties:
-        tenantAttributes:
-          description: List of tenant attributes
-          type: array
-          items:
-            $ref: '#/components/schemas/tenantAttribute'
-        totalRecords:
-          type: integer
-      additionalProperties: false
-      required:
-      - tenantAttributes
     tenantAttribute:
       $schema: http://json-schema.org/draft-04/schema#
       id: tenantAttribute.json
@@ -194,10 +213,6 @@ components:
       required:
       - key
       - value
-    errors:
-      description: A set of errors
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -223,48 +238,24 @@ components:
       additionalProperties: false
       required:
       - createdDate
-  parameters:
-    cql-query:
-      name: query
-      in: query
-      description: A CQL query string with search conditions.
-      schema:
-        type: string
-    query-offset:
-      in: query
-      required: false
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-    path-entity-id:
-      in: path
-      required: true
-      name: id
-      description: Entity id
-      schema:
-        type: string
-        format: uuid
-    query-limit:
-      in: query
-      required: false
-      name: limit
-      description: Limit the number of elements returned in the response.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 500
-        default: 10
-    path-tenant-id:
-      in: path
-      required: true
-      name: tenantId
-      description: Tenant id
-      schema:
-        type: string
-        format: uuid
-x-refined-from:
-- folio-mgr-tenants-openapi.json
-- folio-mgr-tenants-openapi.yml
+    tenantAttributes:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tenantAttributes.json
+      title: Tenant Attributes Schema
+      description: Collection of tenant attributes
+      type: object
+      properties:
+        tenantAttributes:
+          description: List of tenant attributes
+          type: array
+          items:
+            $ref: '#/components/schemas/tenantAttribute'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - tenantAttributes
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object

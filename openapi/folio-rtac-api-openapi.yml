@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio RTAC API
   version: '1.0'
-  description: 'Operations tagged RTAC across 4 of this provider''s published API definitions: folio-edge-rtac-openapi.json, folio-mod-rtac-cache-openapi.json, folio-edge-rtac-openapi.yml, folio-mod-rtac-cache-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged RTAC across 2 of this provider''s published API definitions: folio-edge-rtac-openapi.json, folio-mod-rtac-cache-openapi.json. Each path carries the servers of the definition it was published in.'
 tags:
 - name: RTAC
 paths:
@@ -377,12 +377,67 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
 components:
+  responses:
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+    accessDeniedResponse:
+      description: Access Denied
+      content:
+        application/json:
+          example:
+            code: 403
+            errorMessage: Access denied
+          schema:
+            $ref: '#/components/schemas/Error'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    unprocessableEntityErrorResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 422
+            errorMessage: Unable to be process entity
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
-    apiKey:
-      name: apiKey
-      in: query
-      description: apikey for authorization
-      required: false
+    instance-id-path:
+      name: instanceId
+      in: path
+      description: Course Instance's UUID
+      required: true
       schema:
         type: string
     instanceIds:
@@ -393,32 +448,10 @@ components:
       schema:
         type: string
         pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}[, ]*)+$
-    instance-id-path:
-      name: instanceId
-      in: path
-      description: Course Instance's UUID
-      required: true
-      schema:
-        type: string
-    fullPeriodicals:
-      name: fullPeriodicals
-      in: query
-      description: Flag for including items data
-      required: false
-      schema:
-        type: boolean
-        default: false
-    authorization:
-      name: authorization
+    x-okapi-url-header:
+      name: x-okapi-url
       in: header
-      description: apikey for authorization
-      required: false
-      schema:
-        type: string
-    x-okapi-token-header:
-      name: x-okapi-token
-      in: header
-      description: x-okapi-token header value
+      description: x-okapi-url header value
       required: false
       schema:
         type: string
@@ -429,10 +462,10 @@ components:
       required: false
       schema:
         type: string
-    x-okapi-url-header:
-      name: x-okapi-url
+    authorization:
+      name: authorization
       in: header
-      description: x-okapi-url header value
+      description: apikey for authorization
       required: false
       schema:
         type: string
@@ -446,13 +479,28 @@ components:
         pattern: '[a-zA-Z]{2}'
         default: en
         type: string
-    available-parameter:
-      name: available
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    apiKey:
+      name: apiKey
       in: query
-      description: Filter by holdings that are available
+      description: apikey for authorization
+      required: false
+      schema:
+        type: string
+    fullPeriodicals:
+      name: fullPeriodicals
+      in: query
+      description: Flag for including items data
       required: false
       schema:
         type: boolean
+        default: false
     offset:
       in: query
       name: offset
@@ -462,6 +510,22 @@ components:
         minimum: 0
         maximum: 100000
         default: 0
+    available-parameter:
+      name: available
+      in: query
+      description: Filter by holdings that are available
+      required: false
+      schema:
+        type: boolean
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 100
     sort:
       name: sort
       in: query
@@ -481,31 +545,13 @@ components:
       required: true
       schema:
         type: string
-    limit:
+    available-param:
+      name: available
       in: query
-      name: limit
-      description: Limit the number of elements returned in the response.
+      description: Filter by holdings that are available
+      required: false
       schema:
-        type: integer
-        minimum: 0
-        maximum: 500
-        default: 100
-    offset-param:
-      in: query
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 100000
-        default: 0
-    query-param:
-      name: query
-      in: query
-      description: A search query to find holdings by volume, location name, or call number
-      required: true
-      schema:
-        type: string
+        type: boolean
     sort-param:
       name: sort
       in: query
@@ -524,13 +570,6 @@ components:
           type: string
       style: form
       explode: false
-    available-param:
-      name: available
-      in: query
-      description: Filter by holdings that are available
-      required: false
-      schema:
-        type: boolean
     limit-param:
       in: query
       name: limit
@@ -540,18 +579,68 @@ components:
         minimum: 0
         maximum: 500
         default: 100
+    query-param:
+      name: query
+      in: query
+      description: A search query to find holdings by volume, location name, or call number
+      required: true
+      schema:
+        type: string
+    offset-param:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 100000
+        default: 0
   schemas:
-    Library:
+    HoldingsStatement:
       type: object
       properties:
-        name:
+        statement:
           type: string
-          description: Library name
-        code:
+          description: Statement text
+        note:
           type: string
-          description: Library code
+          description: Note for the statement
+    InstanceHoldings:
+      type: object
+      properties:
+        instanceId:
+          type: string
+          description: The instance identifier
+          xml:
+            name: instanceId
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Holding'
+          xml:
+            name: holding
       xml:
-        name: library
+        name: holdings
+    BatchHoldingsResponse:
+      type: object
+      required:
+      - holdings
+      properties:
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstanceHoldings'
+          xml:
+            wrapped: false
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingsError'
+          xml:
+            name: error
+            wrapped: true
+      xml:
+        name: instances
     HoldingsError:
       type: object
       properties:
@@ -563,6 +652,28 @@ components:
           type: string
       xml:
         name: error
+    Library:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Library name
+        code:
+          type: string
+          description: Library code
+      xml:
+        name: library
+    MaterialType:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Material type identifier
+        name:
+          type: string
+          description: Material type name
+      xml:
+        name: materialType
     HoldingsNote:
       type: object
       properties:
@@ -583,15 +694,6 @@ components:
         errorMessage:
           description: Error message text
           type: string
-    HoldingsStatement:
-      type: object
-      properties:
-        statement:
-          type: string
-          description: Statement text
-        note:
-          type: string
-          description: Note for the statement
     Holding:
       type: object
       required:
@@ -685,53 +787,6 @@ components:
             wrapped: false
       xml:
         name: holding
-    BatchHoldingsResponse:
-      type: object
-      required:
-      - holdings
-      properties:
-        holdings:
-          type: array
-          items:
-            $ref: '#/components/schemas/InstanceHoldings'
-          xml:
-            wrapped: false
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/HoldingsError'
-          xml:
-            name: error
-            wrapped: true
-      xml:
-        name: instances
-    InstanceHoldings:
-      type: object
-      properties:
-        instanceId:
-          type: string
-          description: The instance identifier
-          xml:
-            name: instanceId
-        holdings:
-          type: array
-          items:
-            $ref: '#/components/schemas/Holding'
-          xml:
-            name: holding
-      xml:
-        name: holdings
-    MaterialType:
-      type: object
-      properties:
-        id:
-          type: string
-          description: Material type identifier
-        name:
-          type: string
-          description: Material type name
-      xml:
-        name: materialType
     rtacRequest:
       description: Define format of request data with instances ids
       type: object
@@ -748,19 +803,30 @@ components:
       description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
       type: string
       pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
-    parameter:
-      description: List of key/value parameters of an error
+    rtacSubmitPreWarming:
+      description: Submit pre-warming request
       type: object
       properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
+        instanceIds:
+          description: Inventory instance identifiers to pre-warm
+          type: array
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+    rtacRequest_2:
+      description: Define format of request data with instances ids
+      type: object
+      properties:
+        instanceIds:
+          description: Inventory instances identifiers
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/uuid'
       additionalProperties: false
       required:
-      - key
+      - instanceIds
     rtacPreWarmingJobs:
       title: RtacPreWarmingJobs
       type: object
@@ -777,6 +843,157 @@ components:
           minimum: 0
       required:
       - totalRecords
+      additionalProperties: false
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error parameters
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
+    rtacHoldingsSummary:
+      type: object
+      description: Real Time Availability Check (RTAC) holding summary details
+      additionalProperties: false
+      properties:
+        instanceId:
+          type: string
+          description: The FOLIO instance id
+        hasVolumes:
+          type: boolean
+          description: Indicates if the holding has volume information
+        instanceFormatIds:
+          type: array
+          items:
+            type: string
+          description: The FOLIO ids of the instance's nature of content
+        statusSummaries:
+          type: array
+          description: A summary of all statuses organized by library and location ids
+          items:
+            $ref: '#/components/schemas/statusSummary'
+      required:
+      - instanceId
+      - hasVolumes
+    rtacHoldings:
+      type: object
+      additionalProperties: false
+      description: Collection of holdings
+      properties:
+        instanceId:
+          description: UUID of the instance
+          $ref: '#/components/schemas/uuid'
+        holdings:
+          description: Collection of holdings
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHolding'
+        totalRecords:
+          description: Total number of records available
+          type: integer
+          minimum: 0
+      required:
+      - holdings
+      - instanceId
+      - totalRecords
+    statusSummary:
+      type: object
+      description: Location Availability Summary Schema
+      properties:
+        libraryId:
+          type: string
+          description: The library id of the holding
+        locationId:
+          type: string
+          description: The location id of the holding
+        locationCode:
+          type: string
+          description: The location code of the holding
+        status:
+          type: string
+          description: The FOLIO status for the item, holding or piece
+        statusCount:
+          type: integer
+          description: The count for the status for the library location
+        type:
+          type: string
+          description: The type of the resource (item, holding, piece)
+          enum:
+          - item
+          - piece
+          - holding
+    rtacHoldingsBatch:
+      type: object
+      description: Batch holdings response
+      properties:
+        holdings:
+          description: Real Time Availability Check (RTAC) holding details
+          type: array
+          items:
+            $ref: '#/components/schemas/rtacHoldingsSummary'
+        errors:
+          description: Errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+          minimum: 0
+      additionalItems: false
+      additionalProperties: false
+    rtacPreWarmingJob:
+      title: RtacPreWarmingJob
+      type: object
+      description: Represents a pre-warming job status and metadata.
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Job unique identifier.
+        startDate:
+          type: string
+          format: date-time
+          description: Job start timestamp (UTC).
+        endDate:
+          type: string
+          format: date-time
+          description: Job end timestamp (UTC) if completed or failed.
+        status:
+          type: string
+          description: Current job status.
+          enum:
+          - RUNNING
+          - COMPLETED
+          - FAILED
+        errorMessage:
+          type: string
+          description: Error details if job failed.
+      required:
+      - id
+      - startDate
+      - status
       additionalProperties: false
     rtacHolding:
       type: object
@@ -919,28 +1136,6 @@ components:
       - id
       - type
       - status
-    rtacHoldingsBatch:
-      type: object
-      description: Batch holdings response
-      properties:
-        holdings:
-          description: Real Time Availability Check (RTAC) holding details
-          type: array
-          items:
-            $ref: '#/components/schemas/rtacHoldingsSummary'
-        errors:
-          description: Errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-          minimum: 0
-      additionalItems: false
-      additionalProperties: false
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
     rtacHoldingsStatement:
       $schema: http://json-schema.org/draft-04/schema#
       description: Holdings record statement
@@ -953,221 +1148,11 @@ components:
         note:
           description: Note attached to a holdings statement
           type: string
-    rtacHoldings:
-      type: object
-      additionalProperties: false
-      description: Collection of holdings
-      properties:
-        instanceId:
-          description: UUID of the instance
-          $ref: '#/components/schemas/uuid'
-        holdings:
-          description: Collection of holdings
-          type: array
-          items:
-            $ref: '#/components/schemas/rtacHolding'
-        totalRecords:
-          description: Total number of records available
-          type: integer
-          minimum: 0
-      required:
-      - holdings
-      - instanceId
-      - totalRecords
-    rtacHoldingsSummary:
-      type: object
-      description: Real Time Availability Check (RTAC) holding summary details
-      additionalProperties: false
-      properties:
-        instanceId:
-          type: string
-          description: The FOLIO instance id
-        hasVolumes:
-          type: boolean
-          description: Indicates if the holding has volume information
-        instanceFormatIds:
-          type: array
-          items:
-            type: string
-          description: The FOLIO ids of the instance's nature of content
-        statusSummaries:
-          type: array
-          description: A summary of all statuses organized by library and location ids
-          items:
-            $ref: '#/components/schemas/statusSummary'
-      required:
-      - instanceId
-      - hasVolumes
-    rtacPreWarmingJob:
-      title: RtacPreWarmingJob
-      type: object
-      description: Represents a pre-warming job status and metadata.
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Job unique identifier.
-        startDate:
-          type: string
-          format: date-time
-          description: Job start timestamp (UTC).
-        endDate:
-          type: string
-          format: date-time
-          description: Job end timestamp (UTC) if completed or failed.
-        status:
-          type: string
-          description: Current job status.
-          enum:
-          - RUNNING
-          - COMPLETED
-          - FAILED
-        errorMessage:
-          type: string
-          description: Error details if job failed.
-      required:
-      - id
-      - startDate
-      - status
-      additionalProperties: false
-    rtacSubmitPreWarming:
-      description: Submit pre-warming request
-      type: object
-      properties:
-        instanceIds:
-          description: Inventory instance identifiers to pre-warm
-          type: array
-          items:
-            type: string
-            format: uuid
-      additionalProperties: false
-    statusSummary:
-      type: object
-      description: Location Availability Summary Schema
-      properties:
-        libraryId:
-          type: string
-          description: The library id of the holding
-        locationId:
-          type: string
-          description: The location id of the holding
-        locationCode:
-          type: string
-          description: The location code of the holding
-        status:
-          type: string
-          description: The FOLIO status for the item, holding or piece
-        statusCount:
-          type: integer
-          description: The count for the status for the library location
-        type:
-          type: string
-          description: The type of the resource (item, holding, piece)
-          enum:
-          - item
-          - piece
-          - holding
-    rtacRequest_2:
-      description: Define format of request data with instances ids
-      type: object
-      properties:
-        instanceIds:
-          description: Inventory instances identifiers
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/uuid'
-      additionalProperties: false
-      required:
-      - instanceIds
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error parameters
-          $ref: '#/components/schemas/parameters'
-      required:
-      - message
-    rtacRequest_3:
-      description: Define format of request data with instances ids
-      type: object
-      properties:
-        instanceIds:
-          description: Inventory instances identifiers
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/uuid'
-      additionalProperties: false
-      required:
-      - instanceIds
-  responses:
-    accessDeniedResponse:
-      description: Access Denied
-      content:
-        application/json:
-          example:
-            code: 403
-            errorMessage: Access denied
-          schema:
-            $ref: '#/components/schemas/Error'
-    unprocessableEntityErrorResponse:
-      description: Item with a given ID not found
-      content:
-        application/json:
-          example:
-            code: 422
-            errorMessage: Unable to be process entity
-          schema:
-            $ref: '#/components/schemas/Error'
-    notAuthorizedResponse:
-      description: Not authorized to perform requested action
-      content:
-        application/json:
-          example:
-            code: 401
-            errorMessage: Unauthorized request
-          schema:
-            $ref: '#/components/schemas/Error'
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example:
-            code: 500
-            errorMessage: internal error
-          schema:
-            $ref: '#/components/schemas/Error'
-    notFoundResponse:
-      description: Item with a given ID not found
-      content:
-        application/json:
-          example:
-            code: 404
-            errorMessage: Record by given id not found
-          schema:
-            $ref: '#/components/schemas/Error'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          example:
-            code: 400
-            errorMessage: Validation error
-          schema:
-            $ref: '#/components/schemas/Error'
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
 x-refined-from:
 - folio-edge-rtac-openapi.json
 - folio-mod-rtac-cache-openapi.json
-- folio-edge-rtac-openapi.yml
-- folio-mod-rtac-cache-openapi.yml

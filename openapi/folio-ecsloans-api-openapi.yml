@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Ecs Loans API
+  title: Ecs Loans API
   version: v1
-  description: 'Operations tagged ecsLoans across 2 of this provider''s published API definitions: folio-mod-tlr-ecs-loans-openapi.json, folio-mod-tlr-ecs-loans-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: ecsLoans
 paths:
@@ -101,19 +100,61 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
+    circulation-claim-item-returned-request:
       type: object
+      description: Request body schema for claim item returned API
       properties:
-        key:
-          description: Parameter key
+        itemClaimedReturnedDateTime:
+          description: The date and time when the item is to be claimed returned
           type: string
-        value:
-          description: Parameter value
+          format: date-time
+        comment:
+          description: Comment explaining why the item has been claimed returned
           type: string
       additionalProperties: false
       required:
-      - key
+      - itemClaimedReturnedDateTime
+    circulation-declare-item-lost-request:
+      type: object
+      description: Declare item lost request
+      properties:
+        servicePointId:
+          description: ID of the service point where item is declared lost
+          type: string
+          format: uuid
+        declaredLostDateTime:
+          description: Date and time of the item loss
+          type: string
+          format: date-time
+        comment:
+          description: Additional information about item loss
+          type: string
+      required:
+      - servicePointId
+    declare-item-lost-request:
+      allOf:
+      - $ref: '#/components/schemas/circulation-declare-item-lost-request'
+      - type: object
+        properties:
+          loanId:
+            description: ID of the loan created for the lost item
+            type: string
+            format: uuid
+          itemId:
+            description: ID of the lost item
+            type: string
+            format: uuid
+          userId:
+            description: ID of the user who had lost item on loan
+            type: string
+            format: uuid
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
     declare-claimed-returned-item-as-missing-request:
       allOf:
       - $ref: '#/components/schemas/circulation-declare-claimed-returned-item-as-missing-request'
@@ -131,30 +172,92 @@ components:
             description: ID of the user who claimed the item missing
             type: string
             format: uuid
-    circulation-declare-claimed-returned-item-as-missing-request:
+    error:
+      description: An error
       type: object
-      description: Request body schema for for resolving claim as missing API
       properties:
-        comment:
-          description: Comment explaining why the item is claimed missing
+        message:
           type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
       additionalProperties: false
       required:
-      - comment
-    circulation-claim-item-returned-request:
+      - message
+    check-out-request:
       type: object
-      description: Request body schema for claim item returned API
+      description: Check-out request
       properties:
-        itemClaimedReturnedDateTime:
-          description: The date and time when the item is to be claimed returned
+        itemBarcode:
+          description: Barcode of the item to be lent to the patron
+          type: string
+        userBarcode:
+          description: Barcode of the user (representing the patron) the item is to be lent to
+          type: string
+        proxyUserBarcode:
+          description: Barcode of the user representing a proxy for the patron
+          type: string
+        loanDate:
+          description: When the loan is to begin, defaults to current date and time
           type: string
           format: date-time
-        comment:
-          description: Comment explaining why the item has been claimed returned
+        servicePointId:
+          description: Service point where the item has been checked out
           type: string
-      additionalProperties: false
+          format: uuid
+        forceLoanPolicyId:
+          description: Force loan policy ID
+          type: string
+          format: uuid
+        overrideBlocks:
+          x-class-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS)'
+          description: Blocks to override
+          type: object
+          properties:
+            itemNotLoanableBlock:
+              description: '''Item not loanable'' block'
+              type: object
+              properties:
+                dueDate:
+                  description: Due date for a new loan
+                  type: string
+                  format: date-time
+              required:
+              - dueDate
+            patronBlock:
+              description: Automated patron block
+              type: object
+            itemLimitBlock:
+              description: Item limit block
+              type: object
+            renewalBlock:
+              description: Renewal block
+              type: object
+            renewalDueDateRequiredBlock:
+              description: Override renewal block which requires due date field
+              type: object
+              properties:
+                dueDate:
+                  description: Due date for a new loan
+                  type: string
+                  format: date-time
+              required:
+              - dueDate
+            comment:
+              description: Reason for override
+              type: string
       required:
-      - itemClaimedReturnedDateTime
+      - itemBarcode
+      - userBarcode
+      - servicePointId
     check-out-response:
       type: object
       description: Check-out response
@@ -284,6 +387,19 @@ components:
           description: Metadata about creation and changes to loan, provided by the server (client should not provide)
           type: object
       additionalProperties: true
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
     claim-item-returned-request:
       allOf:
       - $ref: '#/components/schemas/circulation-claim-item-returned-request'
@@ -301,26 +417,16 @@ components:
             description: ID of the user who had claimed item returned
             type: string
             format: uuid
-    error:
-      description: An error
+    circulation-declare-claimed-returned-item-as-missing-request:
       type: object
+      description: Request body schema for for resolving claim as missing API
       properties:
-        message:
+        comment:
+          description: Comment explaining why the item is claimed missing
           type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
       additionalProperties: false
       required:
-      - message
+      - comment
     errors:
       description: A set of errors
       type: object
@@ -336,114 +442,17 @@ components:
           description: Total number of errors
           type: integer
       additionalProperties: false
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-      additionalProperties: false
-    check-out-request:
-      type: object
-      description: Check-out request
-      properties:
-        itemBarcode:
-          description: Barcode of the item to be lent to the patron
-          type: string
-        userBarcode:
-          description: Barcode of the user (representing the patron) the item is to be lent to
-          type: string
-        proxyUserBarcode:
-          description: Barcode of the user representing a proxy for the patron
-          type: string
-        loanDate:
-          description: When the loan is to begin, defaults to current date and time
-          type: string
-          format: date-time
-        servicePointId:
-          description: Service point where the item has been checked out
-          type: string
-          format: uuid
-        forceLoanPolicyId:
-          description: Force loan policy ID
-          type: string
-          format: uuid
-        overrideBlocks:
-          x-class-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS)'
-          description: Blocks to override
-          type: object
-          properties:
-            itemNotLoanableBlock:
-              description: '''Item not loanable'' block'
-              type: object
-              properties:
-                dueDate:
-                  description: Due date for a new loan
-                  type: string
-                  format: date-time
-              required:
-              - dueDate
-            patronBlock:
-              description: Automated patron block
-              type: object
-            itemLimitBlock:
-              description: Item limit block
-              type: object
-            renewalBlock:
-              description: Renewal block
-              type: object
-            renewalDueDateRequiredBlock:
-              description: Override renewal block which requires due date field
-              type: object
-              properties:
-                dueDate:
-                  description: Due date for a new loan
-                  type: string
-                  format: date-time
-              required:
-              - dueDate
-            comment:
-              description: Reason for override
-              type: string
-      required:
-      - itemBarcode
-      - userBarcode
-      - servicePointId
-    declare-item-lost-request:
-      allOf:
-      - $ref: '#/components/schemas/circulation-declare-item-lost-request'
-      - type: object
-        properties:
-          loanId:
-            description: ID of the loan created for the lost item
-            type: string
-            format: uuid
-          itemId:
-            description: ID of the lost item
-            type: string
-            format: uuid
-          userId:
-            description: ID of the user who had lost item on loan
-            type: string
-            format: uuid
-    circulation-declare-item-lost-request:
-      type: object
-      description: Declare item lost request
-      properties:
-        servicePointId:
-          description: ID of the service point where item is declared lost
-          type: string
-          format: uuid
-        declaredLostDateTime:
-          description: Date and time of the item loss
-          type: string
-          format: date-time
-        comment:
-          description: Additional information about item loss
-          type: string
-      required:
-      - servicePointId
   responses:
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
     internalServerErrorResponse:
       description: When unhandled exception occurred during code execution, e.g. NullPointerException
       content:
@@ -464,16 +473,12 @@ components:
             total_records: 1
           schema:
             $ref: '#/components/schemas/errors'
-    notFoundResponse:
-      description: Not found
+    checkOutResponse:
+      description: Check out response
       content:
         application/json:
-          example:
-            errors:
-            - message: Request not found
-            total_records: 1
           schema:
-            $ref: '#/components/schemas/errors'
+            $ref: '#/components/schemas/check-out-response'
     unprocessableEntityResponse:
       description: Validation errors
       content:
@@ -484,12 +489,3 @@ components:
             total_records: 1
           schema:
             $ref: '#/components/schemas/errors'
-    checkOutResponse:
-      description: Check out response
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/check-out-response'
-x-refined-from:
-- folio-mod-tlr-ecs-loans-openapi.json
-- folio-mod-tlr-ecs-loans-openapi.yml

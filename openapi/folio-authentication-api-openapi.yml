@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Authentication API
   version: v1
-  description: 'Operations tagged authentication across 4 of this provider''s published API definitions: folio-edge-inn-reach-openapi.json, folio-mod-inn-reach-settings-openapi.json, folio-edge-inn-reach-openapi.yml, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged authentication across 2 of this provider''s published API definitions: folio-edge-inn-reach-openapi.json, folio-mod-inn-reach-settings-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /innreach/
 - url: /inn-reach/
@@ -80,43 +80,6 @@ paths:
     servers:
     - url: /inn-reach/
 components:
-  parameters:
-    scope:
-      name: scope
-      in: query
-      description: Access token scope
-      schema:
-        type: string
-        pattern: innreach_tp
-      required: true
-      allowEmptyValue: false
-    x-okapi-token:
-      name: x-okapi-token
-      in: header
-      required: true
-      schema:
-        type: string
-    x-okapi-tenant:
-      name: x-okapi-tenant
-      in: header
-      required: true
-      schema:
-        type: string
-    grant_type:
-      name: grant_type
-      in: query
-      description: The authorization grant type
-      schema:
-        type: string
-        pattern: client_credentials
-      required: true
-      allowEmptyValue: false
-    authorization:
-      name: authorization
-      in: header
-      description: Authorization in form <token_type> <access_token> as returned by the authorization request
-      schema:
-        type: string
   schemas:
     accessTokenResponse:
       description: Access token response
@@ -145,20 +108,6 @@ components:
       required:
       - error
       - error_description
-    validationErrorDTO:
-      description: Validation error
-      type: object
-      properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
-      additionalProperties: false
-      required:
-      - fieldName
-      - message
     Error:
       type: object
       properties:
@@ -173,6 +122,31 @@ components:
           description: Error message code
       additionalProperties: false
       required:
+      - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
       - message
     authenticationRequest:
       description: Authentication request
@@ -190,17 +164,43 @@ components:
       required:
       - key
       - secret
-    validationErrorsDTO:
-      type: object
-      properties:
-        code:
-          type: integer
-        message:
-          type: string
-        validationErrors:
-          type: array
-          items:
-            $ref: '#/components/schemas/validationErrorDTO'
+  parameters:
+    scope:
+      name: scope
+      in: query
+      description: Access token scope
+      schema:
+        type: string
+        pattern: innreach_tp
+      required: true
+      allowEmptyValue: false
+    authorization:
+      name: authorization
+      in: header
+      description: Authorization in form <token_type> <access_token> as returned by the authorization request
+      schema:
+        type: string
+    x-okapi-tenant:
+      name: x-okapi-tenant
+      in: header
+      required: true
+      schema:
+        type: string
+    grant_type:
+      name: grant_type
+      in: query
+      description: The authorization grant type
+      schema:
+        type: string
+        pattern: client_credentials
+      required: true
+      allowEmptyValue: false
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: true
+      schema:
+        type: string
   responses:
     trait_response_validation_400:
       description: Bad request
@@ -217,5 +217,3 @@ components:
 x-refined-from:
 - folio-edge-inn-reach-openapi.json
 - folio-mod-inn-reach-settings-openapi.json
-- folio-edge-inn-reach-openapi.yml
-- folio-mod-inn-reach-settings-openapi.yml

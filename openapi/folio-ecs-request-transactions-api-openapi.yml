@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Ecs Request Transactions API
+  title: mod DCB FOLIO Ecs Request Transactions API
+  description: mod DCB FOLIO API
   version: 1.0.0
-  description: 'Operations tagged ecs-request-transactions across 2 of this provider''s published API definitions: folio-mod-dcb-dcb-transaction-openapi.json, folio-mod-dcb-dcb-transaction-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: ecs-request-transactions
 paths:
@@ -50,6 +50,36 @@ paths:
       x-summary-source: derived
 components:
   schemas:
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    DcbPatron:
+      description: Patron metadata required for the transaction
+      type: object
+      properties:
+        id:
+          description: The unique identifier for the patron making the request as known in the requesting library
+          $ref: '#/components/schemas/uuid'
+        group:
+          description: The patron group associated with the requesting patron
+          type: string
+        barcode:
+          description: The barcode of the patron
+          type: string
+        localNames:
+          description: 'The local names for the patron, for example: "[John, Johnny, Doe]"'
+          type: string
     TransactionStatus:
       type: object
       properties:
@@ -73,66 +103,6 @@ components:
           properties:
             claimedReturnedResolution:
               $ref: '#/components/schemas/ClaimedReturnedResolution'
-    Parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
-    DcbPatron:
-      description: Patron metadata required for the transaction
-      type: object
-      properties:
-        id:
-          description: The unique identifier for the patron making the request as known in the requesting library
-          $ref: '#/components/schemas/uuid'
-        group:
-          description: The patron group associated with the requesting patron
-          type: string
-        barcode:
-          description: The barcode of the patron
-          type: string
-        localNames:
-          description: 'The local names for the patron, for example: "[John, Johnny, Doe]"'
-          type: string
-    TransactionStatusResponse:
-      allOf:
-      - $ref: '#/components/schemas/TransactionStatus'
-      - $ref: '#/components/schemas/DcbTransaction'
-    Error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
     DcbPickup:
       description: Pickup Location metadata required for the pickup service point
       type: object
@@ -200,24 +170,6 @@ components:
         holdCount:
           description: The number of holds on the item (Will be returned only for Lender role)
           type: integer
-    ClaimedReturnedResolution:
-      type: string
-      description: Claimed returned resolution
-      enum:
-      - Found by library
-      - Returned by patron
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
     renewalInfo:
       type: object
       properties:
@@ -230,44 +182,85 @@ components:
         renewable:
           description: renewable
           type: boolean
-  responses:
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
     TransactionStatusResponse:
-      description: TransactionStatusResponse object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/TransactionStatusResponse'
-    Conflict:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+      allOf:
+      - $ref: '#/components/schemas/TransactionStatus'
+      - $ref: '#/components/schemas/DcbTransaction'
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    ClaimedReturnedResolution:
+      type: string
+      description: Claimed returned resolution
+      enum:
+      - Found by library
+      - Returned by patron
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+  responses:
     NotFound:
       description: Resource not found
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    ecsRequestTransactionId:
-      in: path
-      name: ecsRequestTransactionId
-      schema:
-        type: string
-      required: true
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TransactionStatusResponse:
+      description: TransactionStatusResponse object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TransactionStatusResponse'
   requestBodies:
     DCBTransaction:
       description: DCB transaction object
@@ -276,6 +269,10 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/DcbTransaction'
-x-refined-from:
-- folio-mod-dcb-dcb-transaction-openapi.json
-- folio-mod-dcb-dcb-transaction-openapi.yml
+  parameters:
+    ecsRequestTransactionId:
+      in: path
+      name: ecsRequestTransactionId
+      schema:
+        type: string
+      required: true

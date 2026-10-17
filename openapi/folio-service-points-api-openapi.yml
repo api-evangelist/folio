@@ -1,10 +1,10 @@
 openapi: 3.2.0
 info:
-  title: Folio Service Points API
-  version: 1.0.0
   contact:
     name: Spitfire team
-  description: 'Operations tagged service-points across 2 of this provider''s published API definitions: folio-mod-locations-openapi.json, folio-mod-locations-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: API for managing locations and service points
+  title: Locations Service Points API
+  version: 1.0.0
 servers:
 - description: Development environments.
   url: https://folio-{environment}.ci.folio.org
@@ -14,6 +14,15 @@ servers:
       enum:
       - edev-spitfire-diku
       - edev-spitfire-consortium
+- description: Reference environments.
+  url: https://folio-{environment}.ci.folio.org
+  variables:
+    environment:
+      default: etesting-snapshot-diku
+      enum:
+      - etesting-snapshot-diku
+      - etesting-snapshot-2-diku
+      - etesting-sprint-fs09000000
 tags:
 - description: Manage service points.
   name: service-points
@@ -90,24 +99,6 @@ paths:
       summary: Create service point
       tags:
       - service-points
-    servers:
-    - description: Development environments.
-      url: https://folio-{environment}.ci.folio.org
-      variables:
-        environment:
-          default: edev-spitfire-diku
-          enum:
-          - edev-spitfire-diku
-          - edev-spitfire-consortium
-    - description: Reference environments.
-      url: https://folio-{environment}.ci.folio.org
-      variables:
-        environment:
-          default: etesting-snapshot-diku
-          enum:
-          - etesting-snapshot-diku
-          - etesting-snapshot-2-diku
-          - etesting-sprint-fs09000000
   /service-point-storage/service-points/{id}:
     delete:
       description: Delete an existing service point by its unique identifier.
@@ -188,40 +179,8 @@ paths:
       summary: Update service point by id
       tags:
       - service-points
-    servers:
-    - description: Development environments.
-      url: https://folio-{environment}.ci.folio.org
-      variables:
-        environment:
-          default: edev-spitfire-diku
-          enum:
-          - edev-spitfire-diku
-          - edev-spitfire-consortium
-    - description: Reference environments.
-      url: https://folio-{environment}.ci.folio.org
-      variables:
-        environment:
-          default: etesting-snapshot-diku
-          enum:
-          - etesting-snapshot-diku
-          - etesting-snapshot-2-diku
-          - etesting-sprint-fs09000000
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      example:
-        key: source
-        value: invalid
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      title: Parameter
-      type: object
     errorCollection:
       description: Collection of errors
       example:
@@ -240,34 +199,6 @@ components:
           description: Total number of records
           type: integer
       title: Error Collection
-      type: object
-    metadata:
-      additionalProperties: false
-      description: Metadata about creation and changes to records
-      example:
-        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        createdDate: '2000-01-23T04:56:07.000+00:00'
-        updatedDate: '2000-01-23T04:56:07.000+00:00'
-        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          format: date-time
-          type: string
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          format: uuid
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          format: date-time
-          type: string
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          format: uuid
-          type: string
-      readOnly: true
-      title: Metadata
       type: object
     servicePoint:
       additionalProperties: false
@@ -356,25 +287,6 @@ components:
       - name
       title: Service Point
       type: object
-    error:
-      description: An error
-      properties:
-        message:
-          description: Error message text
-          type: string
-        type:
-          description: Error message type
-          type: string
-        code:
-          description: Error message code
-          type: string
-        parameters:
-          description: Error parameters
-          items:
-            $ref: '#/components/schemas/parameter'
-          type: array
-      title: Error
-      type: object
     holdShelfExpiryPeriod:
       additionalProperties: false
       description: Expiration period for items on the hold shelf at the service point
@@ -400,24 +312,66 @@ components:
       - intervalId
       title: Hold Shelf Expiry Period
       type: object
-    servicePointStaffSlip:
-      additionalProperties: false
-      description: Service point staff slip
-      example:
-        printByDefault: true
-        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+    error:
+      description: An error
       properties:
-        id:
-          description: The ID of the staff slip
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      title: Error
+      type: object
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: invalid
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      title: Parameter
+      type: object
+    metadata:
+      additionalProperties: false
+      description: Metadata about creation and changes to records
+      example:
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
           format: uuid
           type: string
-        printByDefault:
-          description: Whether or not to print the staff slip by default
-          type: boolean
-      required:
-      - id
-      - printByDefault
-      title: Service Point Staff Slip
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+      readOnly: true
+      title: Metadata
       type: object
     servicePointsCollection:
       description: Collection of service points
@@ -484,6 +438,22 @@ components:
       - totalRecords
       title: Service Points Collection
       type: object
-x-refined-from:
-- folio-mod-locations-openapi.json
-- folio-mod-locations-openapi.yml
+    servicePointStaffSlip:
+      additionalProperties: false
+      description: Service point staff slip
+      example:
+        printByDefault: true
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          description: The ID of the staff slip
+          format: uuid
+          type: string
+        printByDefault:
+          description: Whether or not to print the staff slip by default
+          type: boolean
+      required:
+      - id
+      - printByDefault
+      title: Service Point Staff Slip
+      type: object

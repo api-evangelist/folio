@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Consortia Configuration API
+  title: integration Consortia Configuration API
+  description: Consortia Configuration integration API
   version: 0.0.1
-  description: 'Operations tagged Consortia Configuration across 3 of this provider''s published API definitions: folio-mod-consortia-keycloak-consortia-configuration-openapi.json, folio-mod-consortia-consortia-configuration-openapi.yml, folio-mod-consortia-keycloak-consortia-configuration-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Consortia Configuration
 paths:
@@ -46,34 +46,19 @@ paths:
       tags:
       - Consortia Configuration
 components:
-  responses:
-    ConsortiaConfiguration:
-      description: Consortia configuration object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ConsortiaConfiguration'
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NoContent:
-      description: No content
-    Conflict:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
   schemas:
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
     Error:
       description: An error
       type: object
@@ -106,38 +91,33 @@ components:
       additionalProperties: false
       required:
       - centralTenantId
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
     Parameters:
       description: List of key/value parameters of an error
       type: array
       items:
         $ref: '#/components/schemas/Parameter'
       additionalProperties: false
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
+  responses:
+    ConsortiaConfiguration:
+      description: Consortia configuration object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConsortiaConfiguration'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
             $ref: '#/components/schemas/Error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
+    NoContent:
+      description: No content
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   requestBodies:
     ConfigurationBody:
       description: Consortia configuration object
@@ -146,7 +126,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ConsortiaConfiguration'
-x-refined-from:
-- folio-mod-consortia-keycloak-consortia-configuration-openapi.json
-- folio-mod-consortia-consortia-configuration-openapi.yml
-- folio-mod-consortia-keycloak-consortia-configuration-openapi.yml

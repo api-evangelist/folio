@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Reading Room API
+  title: Reading Room API
+  description: Reading Room API
   version: 1.0.0
-  description: 'Operations tagged Reading Room across 2 of this provider''s published API definitions: folio-mod-reading-room-reading-room-openapi.json, folio-mod-reading-room-reading-room-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Reading Room
 paths:
@@ -121,6 +121,20 @@ paths:
       - Reading Room
 components:
   schemas:
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
     Metadata:
       type: object
       title: Metadata
@@ -138,12 +152,6 @@ components:
         updatedByUserId:
           $ref: '#/components/schemas/common_uuid'
           description: ID of the user who last updated the record
-    Parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
     ServicePoint:
       description: Service point associated to the reading room
       type: object
@@ -159,6 +167,101 @@ components:
       required:
       - value
       - label
+    common_uuid:
+      type: string
+      format: uuid
+    ReadingRoomCollection:
+      type: object
+      description: A JSON schema for the readingroom Collection
+      properties:
+        readingRooms:
+          type: array
+          description: The list of readingroom
+          items:
+            $ref: '#/components/schemas/ReadingRoom'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - readingRooms
+      - totalRecords
+    AccessLogCollection:
+      type: object
+      description: A JSON schema for the accessLog Collection
+      properties:
+        accessLogs:
+          type: array
+          description: The list of accessLog entries
+          items:
+            $ref: '#/components/schemas/AccessLog'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - accessLogs
+      - totalRecords
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    ReadingRoom:
+      description: Reading room
+      type: object
+      properties:
+        id:
+          description: A unique reading room identifier
+          type: string
+          format: UUID
+        name:
+          description: Name of the reading room
+          type: string
+          minLength: 1
+        isPublic:
+          description: A flag to determine whether a reading room is public or not
+          type: boolean
+        servicePoints:
+          description: Service points which are associated to Reading Room
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ServicePoint'
+        metadata:
+          type: object
+          $ref: '#/components/schemas/Metadata'
+      required:
+      - id
+      - name
+      - isPublic
+      - servicePoints
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
     AccessLog:
       description: Access log
       type: object
@@ -192,175 +295,28 @@ components:
           enum:
           - ALLOWED
           - DENIED
-    Error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
-    common_uuid:
-      type: string
-      format: uuid
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    AccessLogCollection:
-      type: object
-      description: A JSON schema for the accessLog Collection
-      properties:
-        accessLogs:
-          type: array
-          description: The list of accessLog entries
-          items:
-            $ref: '#/components/schemas/AccessLog'
-        totalRecords:
-          type: integer
-      additionalProperties: false
-      required:
-      - accessLogs
-      - totalRecords
-    ReadingRoom:
-      description: Reading room
-      type: object
-      properties:
-        id:
-          description: A unique reading room identifier
-          type: string
-          format: UUID
-        name:
-          description: Name of the reading room
-          type: string
-          minLength: 1
-        isPublic:
-          description: A flag to determine whether a reading room is public or not
-          type: boolean
-        servicePoints:
-          description: Service points which are associated to Reading Room
-          type: array
-          uniqueItems: true
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/ServicePoint'
-        metadata:
-          type: object
-          $ref: '#/components/schemas/Metadata'
-      required:
-      - id
-      - name
-      - isPublic
-      - servicePoints
-    ReadingRoomCollection:
-      type: object
-      description: A JSON schema for the readingroom Collection
-      properties:
-        readingRooms:
-          type: array
-          description: The list of readingroom
-          items:
-            $ref: '#/components/schemas/ReadingRoom'
-        totalRecords:
-          type: integer
-      additionalProperties: false
-      required:
-      - readingRooms
-      - totalRecords
-    Parameter:
+    Parameters:
       description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
       additionalProperties: false
-      required:
-      - key
-  responses:
-    readingRoomResponse:
-      description: readingRoom Object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ReadingRoom'
-    accessLogCollectionResponse:
-      description: accessLog Object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/AccessLogCollection'
-    Conflict:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    accessLogResponse:
-      description: accessLog Object
+  requestBodies:
+    accessLogBody:
+      description: access Log
+      required: true
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/AccessLog'
-    InternalServerError:
-      description: Internal server error
+    readingRoomBody:
+      description: reading room
+      required: true
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    readingRoomCollectionResponse:
-      description: Collection of readingroom Object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ReadingRoomCollection'
+            $ref: '#/components/schemas/ReadingRoom'
   parameters:
-    limit:
-      name: limit
-      in: query
-      schema:
-        type: integer
-        default: 1000
-        minimum: 1
-        maximum: 2147483647
-      required: false
-      description: Limit the number of elements returned in the response
     includeDeleted:
       name: includeDeleted
       in: query
@@ -369,6 +325,13 @@ components:
         default: false
       required: false
       description: Flag to include the deleted records
+    readingRoomId:
+      in: path
+      name: readingRoomId
+      schema:
+        $ref: '#/components/schemas/common_uuid'
+      required: true
+      description: Id of the reading room
     offset:
       name: offset
       in: query
@@ -387,28 +350,62 @@ components:
         default: cql.allRecords=1
       required: false
       description: A query expressed as a CQL string
-    readingRoomId:
-      in: path
-      name: readingRoomId
+    limit:
+      name: limit
+      in: query
       schema:
-        $ref: '#/components/schemas/common_uuid'
-      required: true
-      description: Id of the reading room
-  requestBodies:
-    readingRoomBody:
-      description: reading room
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ReadingRoom'
-    accessLogBody:
-      description: access Log
-      required: true
+        type: integer
+        default: 1000
+        minimum: 1
+        maximum: 2147483647
+      required: false
+      description: Limit the number of elements returned in the response
+  responses:
+    accessLogResponse:
+      description: accessLog Object
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/AccessLog'
-x-refined-from:
-- folio-mod-reading-room-reading-room-openapi.json
-- folio-mod-reading-room-reading-room-openapi.yml
+    accessLogCollectionResponse:
+      description: accessLog Object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AccessLogCollection'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    readingRoomResponse:
+      description: readingRoom Object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ReadingRoom'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    readingRoomCollectionResponse:
+      description: Collection of readingroom Object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ReadingRoomCollection'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

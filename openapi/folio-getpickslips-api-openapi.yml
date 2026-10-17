@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Get Pick Slips API
+  title: Circulation BFF requests Get Pick Slips API
   version: v1
-  description: 'Operations tagged getPickSlips across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: getPickSlips
 paths:
@@ -30,7 +29,87 @@ paths:
       summary: Get pick slips
       x-summary-source: derived
 components:
+  examples:
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
   schemas:
+    pickSlipCollection:
+      description: Collection of pick slips
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Total number of pick slips
+        pickSlips:
+          type: array
+          items:
+            $ref: '#/components/schemas/staffSlip'
+      required:
+      - totalRecords
+      - pickSlips
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
     staffSlip:
       description: Staff slip
       type: object
@@ -162,103 +241,7 @@ components:
               type: string
             countryId:
               type: string
-    parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      example:
-        key: source
-        value: 'null'
-    errorResponse:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      example:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-    pickSlipCollection:
-      description: Collection of pick slips
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: Total number of pick slips
-        pickSlips:
-          type: array
-          items:
-            $ref: '#/components/schemas/staffSlip'
-      required:
-      - totalRecords
-      - pickSlips
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: array
-          items:
-            $ref: '#/components/schemas/parameter'
-  examples:
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    unknownError:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-  parameters:
-    servicePointId:
-      name: servicePointId
-      in: path
-      required: true
-      schema:
-        type: string
   responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            unknownError:
-              $ref: '#/components/examples/unknownError'
     notFoundResponse:
       description: Not found
       content:
@@ -278,6 +261,19 @@ components:
           examples:
             response:
               $ref: '#/components/examples/validationErrorResponse'
-x-refined-from:
-- folio-mod-circulation-bff-circulationbff-openapi.json
-- folio-mod-circulation-bff-circulationbff-openapi.yml
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
+  parameters:
+    servicePointId:
+      name: servicePointId
+      in: path
+      required: true
+      schema:
+        type: string

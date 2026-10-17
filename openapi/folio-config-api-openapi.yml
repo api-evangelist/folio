@@ -1,10 +1,12 @@
 openapi: 3.2.0
 info:
-  title: Folio Config API
-  version: v4.1.0
   contact:
     name: Spitfire team
-  description: 'Operations tagged config across 2 of this provider''s published API definitions: folio-mod-search-openapi.json, folio-mod-search-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'API for searching, browsing, and managing facets for various record types, including instances, holdings, and authorities.
+
+    It also provides endpoints for configuring search and browse features, as well as managing the search index.'
+  title: Search Config API
+  version: v4.1.0
 servers:
 - description: Development environments.
   url: https://{environment}-okapi.ci.folio.org
@@ -86,23 +88,6 @@ paths:
       summary: Create Language Configuration
       tags:
       - Config
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /search/config/languages/{code}:
     delete:
       description: Delete all supported languages
@@ -168,23 +153,6 @@ paths:
       summary: Update Language Configuration
       tags:
       - Config
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /search/config/features:
     get:
       description: Get all feature configurations per tenant
@@ -248,23 +216,6 @@ paths:
       summary: Save Feature Configuration
       tags:
       - Config
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /search/config/features/{featureId}:
     delete:
       description: Delete feature configuration by id
@@ -345,23 +296,6 @@ paths:
       summary: Update Feature Configuration
       tags:
       - Config
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /browse/config/{browseType}:
     get:
       description: Get all configurations for browse type
@@ -386,23 +320,6 @@ paths:
       summary: Get Browse Configurations
       tags:
       - Config
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /browse/config/{browseType}/{browseOptionId}:
     put:
       description: Update configuration for browse type
@@ -453,88 +370,8 @@ paths:
       summary: Update Browse Configurations
       tags:
       - Config
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
 components:
-  examples:
-    browseConfigUpdateRequest:
-      value:
-        id: all
-        shelvingAlgorithm: default
-        typeIds:
-        - 7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d
-        - 1faf5a71-01cc-4f14-82e8-38e26b6e3071
-    browseConfigCollectionResponse:
-      value:
-        configs:
-        - id: all
-          shelvingAlgorithm: default
-          typeIds: []
-        - id: dewey
-          shelvingAlgorithm: dewey
-          typeIds: []
-        - id: lc
-          shelvingAlgorithm: lc
-          typeIds: []
-        totalRecords: 3
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    updateCreateFeatureRequest:
-      summary: Disable Search all fields feature.
-      value:
-        feature: search.all.fields
-        enabled: false
-    updateFeatureResponse:
-      summary: Disable Search all fields feature.
-      value:
-        feature: search.all.fields
-        enabled: false
   schemas:
-    tenantConfiguredFeature:
-      description: The feature name.
-      enum:
-      - search.all.fields
-      - browse.contributors
-      - browse.subjects
-      - browse.classifications
-      - browse.call-numbers
-      type: string
-    parameter:
-      description: List of key/value parameters of an error
-      example:
-        key: source
-        value: 'null'
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      type: object
     browseConfig:
       example:
         id: all
@@ -558,59 +395,22 @@ components:
       - id
       - shelvingAlgorithm
       type: object
-    browseOptionType:
-      description: Browse option type
-      enum:
-      - all
-      - lc
-      - dewey
-      - nlm
-      - sudoc
-      - other
-      type: string
-    errorResponse:
-      description: A set of errors
-      example:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-      properties:
-        errors:
-          description: List of errors
-          items:
-            $ref: '#/components/schemas/error'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-        total_records:
-          description: Total number of errors
-          type: integer
-      type: object
-    featureConfigs:
+    languageConfig:
       additionalProperties: false
-      description: Feature configs response per tenant
+      description: Language config
       example:
-        features:
-        - feature: search.all.fields
-          enabled: true
-        - feature: search.all.fields
-          enabled: true
-        totalRecords: 0
+        code: code
+        languageAnalyzer: languageAnalyzer
       properties:
-        features:
-          description: Configured features per tenant
-          items:
-            $ref: '#/components/schemas/featureConfig'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-        totalRecords:
-          description: Total records that matches the query.
-          minimum: 0
-          type: integer
+        code:
+          description: An ISO-639-2/B compatible language code.
+          pattern: '[a-zA-Z]{3}'
+          type: string
+        languageAnalyzer:
+          description: Custom elasticsearch analyzer for language.
+          type: string
       required:
-      - features
-      - totalRecords
+      - code
       type: object
     browseConfigCollection:
       example:
@@ -633,6 +433,51 @@ components:
           type: array
           x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
         totalRecords:
+          type: integer
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      type: object
+    tenantConfiguredFeature:
+      description: The feature name.
+      enum:
+      - search.all.fields
+      - browse.contributors
+      - browse.subjects
+      - browse.classifications
+      - browse.call-numbers
+      type: string
+    errorResponse:
+      description: A set of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        total_records:
+          description: Total number of errors
           type: integer
       type: object
     languageConfigs:
@@ -660,44 +505,43 @@ components:
       - languageConfigs
       - totalRecords
       type: object
-    error:
-      description: An error
-      properties:
-        message:
-          description: Error message text
-          type: string
-        type:
-          description: Error message type
-          type: string
-        code:
-          description: Error message code
-          type: string
-        parameters:
-          items:
-            $ref: '#/components/schemas/parameter'
-          type: array
-      type: object
-    browseType:
-      enum:
-      - instance-classification
-      - instance-call-number
-      type: string
-    languageConfig:
+    featureConfigs:
       additionalProperties: false
-      description: Language config
+      description: Feature configs response per tenant
       example:
-        code: code
-        languageAnalyzer: languageAnalyzer
+        features:
+        - feature: search.all.fields
+          enabled: true
+        - feature: search.all.fields
+          enabled: true
+        totalRecords: 0
       properties:
-        code:
-          description: An ISO-639-2/B compatible language code.
-          pattern: '[a-zA-Z]{3}'
-          type: string
-        languageAnalyzer:
-          description: Custom elasticsearch analyzer for language.
-          type: string
+        features:
+          description: Configured features per tenant
+          items:
+            $ref: '#/components/schemas/featureConfig'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        totalRecords:
+          description: Total records that matches the query.
+          minimum: 0
+          type: integer
       required:
-      - code
+      - features
+      - totalRecords
+      type: object
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: 'null'
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
       type: object
     shelvingOrderAlgorithmType:
       description: Shelving order algorithm
@@ -707,6 +551,21 @@ components:
       - nlm
       - sudoc
       - default
+      type: string
+    browseType:
+      enum:
+      - instance-classification
+      - instance-call-number
+      type: string
+    browseOptionType:
+      description: Browse option type
+      enum:
+      - all
+      - lc
+      - dewey
+      - nlm
+      - sudoc
+      - other
       type: string
     featureConfig:
       additionalProperties: false
@@ -724,6 +583,44 @@ components:
       - enabled
       - feature
       type: object
-x-refined-from:
-- folio-mod-search-openapi.json
-- folio-mod-search-openapi.yml
+  examples:
+    updateFeatureResponse:
+      summary: Disable Search all fields feature.
+      value:
+        feature: search.all.fields
+        enabled: false
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    browseConfigCollectionResponse:
+      value:
+        configs:
+        - id: all
+          shelvingAlgorithm: default
+          typeIds: []
+        - id: dewey
+          shelvingAlgorithm: dewey
+          typeIds: []
+        - id: lc
+          shelvingAlgorithm: lc
+          typeIds: []
+        totalRecords: 3
+    updateCreateFeatureRequest:
+      summary: Disable Search all fields feature.
+      value:
+        feature: search.all.fields
+        enabled: false
+    browseConfigUpdateRequest:
+      value:
+        id: all
+        shelvingAlgorithm: default
+        typeIds:
+        - 7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d
+        - 1faf5a71-01cc-4f14-82e8-38e26b6e3071

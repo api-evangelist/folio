@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Extended Mappings API
+  title: Remote storages Extended Mappings API
   version: v1
-  description: 'Operations tagged Extended Mappings across 2 of this provider''s published API definitions: folio-mod-remote-storage-openapi.json, folio-mod-remote-storage-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /remote-storage/
 tags:
@@ -72,8 +71,6 @@ paths:
       - Extended Mappings
       summary: Get extended remote location configuration mappings
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
   /extended-mappings/{finalLocationId}:
     parameters:
     - name: finalLocationId
@@ -108,8 +105,6 @@ paths:
       - Extended Mappings
       summary: Get extended remote location configuration mappings by id
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
   /extended-mappings/{remoteStorageConfigurationId}/{originalLocationId}:
     delete:
       responses:
@@ -150,8 +145,6 @@ paths:
       - Extended Mappings
       summary: Delete original location by remote storage configuration id and original…
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
   /extended-mappings/locations:
     get:
       responses:
@@ -178,10 +171,50 @@ paths:
       - Extended Mappings
       summary: Get extended remote location configuration mappings locations
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
 components:
   schemas:
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Regexp pattern for UUID validation
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
     baseCollection:
       $schema: http://json-schema.org/draft-04/schema#
       description: Basic object to create pageable responses
@@ -204,67 +237,6 @@ components:
       additionalProperties: false
       required:
       - key
-    parameters:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-      additionalProperties: false
-    extendedRemoteLocationConfigurationMappings:
-      allOf:
-      - $ref: '#/components/schemas/baseCollection'
-      - type: object
-        properties:
-          mappings:
-            type: array
-            items:
-              $ref: '#/components/schemas/extendedRemoteLocationConfigurationMapping'
-        required:
-        - mappings
-    uuid:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Regexp pattern for UUID validation
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
-    error:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-      additionalProperties: false
-      required:
-      - message
-    errors:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
     extendedRemoteLocationConfigurationMapping:
       $schema: http://json-schema.org/draft-04/schema#
       description: Mapping between remote and Folio locations with original location
@@ -284,20 +256,30 @@ components:
       - finalLocationId
       - remoteConfigurationId
       - originalLocationId
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+    extendedRemoteLocationConfigurationMappings:
+      allOf:
+      - $ref: '#/components/schemas/baseCollection'
+      - type: object
+        properties:
+          mappings:
+            type: array
+            items:
+              $ref: '#/components/schemas/extendedRemoteLocationConfigurationMapping'
+        required:
+        - mappings
   parameters:
-    trait_pageable_limit:
-      name: limit
+    trait_queryable_original_location_id:
+      name: originalLocationId
       in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    trait_queryable_final_location_id:
-      name: finalLocationId
-      in: query
-      description: Final location id
+      description: Original location id
       schema:
         type: string
     trait_pageable_offset:
@@ -309,12 +291,21 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-    trait_queryable_original_location_id:
-      name: originalLocationId
+    trait_queryable_final_location_id:
+      name: finalLocationId
       in: query
-      description: Original location id
+      description: Final location id
       schema:
         type: string
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
     trait_queryable_configuration_id:
       name: remoteStorageConfigurationId
       in: query
@@ -329,6 +320,3 @@ components:
           example: examples/errors.sample
           schema:
             $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mod-remote-storage-openapi.json
-- folio-mod-remote-storage-openapi.yml

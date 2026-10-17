@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Module Discovery API
+  title: Manager Applications Module Discovery API
   version: v1
-  description: 'Operations tagged module-discovery across 2 of this provider''s published API definitions: folio-mgr-applications-am-openapi.json, folio-mgr-applications-am-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Manager Applications API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -57,9 +57,6 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Create module discoveries
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /modules/{id}/discovery:
     get:
       operationId: getModuleDiscovery
@@ -150,61 +147,53 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Delete module discovery
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
-  responses:
-    bad-request:
-      description: Error response if request body contains validation error (in json format)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    entity-not-found:
-      description: Error response if entity is not found by id (in json format)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    internal-server-error:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
+  parameters:
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity/document id
+      schema:
+        type: string
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: false
+      description: An OKAPI authentication token
+      schema:
+        type: string
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
+    version:
       $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-    moduleDiscovery:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Module discovery information
-      x-implements:
-      - org.folio.common.domain.model.Artifact
-      allOf:
-      - $ref: '#/components/schemas/artifact'
-      properties:
-        location:
-          description: A url address of module where its been deployed
-          type: string
-      required:
-      - location
-    parameters:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^(\d+)\.(\d+)\.(\d+)(?:-([\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*))?(?:\+[\dA-Za-z-]+)?$
     errors:
       description: A set of errors
       $schema: http://json-schema.org/draft-04/schema#
@@ -219,11 +208,23 @@ components:
         total_records:
           description: Total number of errors
           type: integer
-    version:
+    error:
+      description: An error
       $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^(\d+)\.(\d+)\.(\d+)(?:-([\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*))?(?:\+[\dA-Za-z-]+)?$
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          description: Error message code
+          $ref: '#/components/schemas/errorCode'
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
     errorCode:
       $schema: http://json-schema.org/draft-04/schema#
       type: string
@@ -234,6 +235,35 @@ components:
       - validation_error
       - not_found_error
       - found_error
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    moduleDiscoveries:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Collection of discovery information for modules that comprise an application
+      properties:
+        discovery:
+          description: Discovery information for the modules that comprise this application
+          type: array
+          id: moduleDiscovery
+          items:
+            $ref: '#/components/schemas/moduleDiscovery'
+        totalRecords:
+          readOnly: true
+          description: The total number of records matching the provided criteria
+          type: integer
+          format: int64
+      required:
+      - discovery
     artifact:
       $schema: http://json-schema.org/draft-04/schema#
       title: Application Artifact Schema
@@ -253,81 +283,42 @@ components:
       required:
       - name
       - version
-    error:
-      description: An error
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    moduleDiscovery:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
+      description: Module discovery information
+      x-implements:
+      - org.folio.common.domain.model.Artifact
+      allOf:
+      - $ref: '#/components/schemas/artifact'
       properties:
-        message:
+        location:
+          description: A url address of module where its been deployed
           type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          description: Error message code
-          $ref: '#/components/schemas/errorCode'
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-    moduleDiscoveries:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Collection of discovery information for modules that comprise an application
-      properties:
-        discovery:
-          description: Discovery information for the modules that comprise this application
-          type: array
-          id: moduleDiscovery
-          items:
-            $ref: '#/components/schemas/moduleDiscovery'
-        totalRecords:
-          readOnly: true
-          description: The total number of records matching the provided criteria
-          type: integer
-          format: int64
       required:
-      - discovery
-  parameters:
-    x-okapi-token:
-      name: x-okapi-token
-      in: header
-      required: false
-      description: An OKAPI authentication token
-      schema:
-        type: string
-    query-offset:
-      in: query
-      required: false
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-    path-entity-id:
-      in: path
-      required: true
-      name: id
-      description: Entity/document id
-      schema:
-        type: string
-    query-limit:
-      in: query
-      required: false
-      name: limit
-      description: Limit the number of elements returned in the response.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 500
-        default: 10
-    cql-query:
-      name: query
-      in: query
-      description: A CQL query string with search conditions.
-      schema:
-        type: string
-x-refined-from:
-- folio-mgr-applications-am-openapi.json
-- folio-mgr-applications-am-openapi.yml
+      - location
+  responses:
+    bad-request:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    entity-not-found:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internal-server-error:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'

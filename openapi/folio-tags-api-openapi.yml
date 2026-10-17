@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Tags API
+  title: Tags API
   version: 1.1.0
-  description: 'Operations tagged Tags across 2 of this provider''s published API definitions: folio-mod-tags-openapi.json, folio-mod-tags-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Tags
 paths:
@@ -128,76 +127,7 @@ paths:
       summary: Delete tag by id
       x-summary-source: derived
 components:
-  responses:
-    Unauthorized:
-      description: Not authorized to perform requested action
-      content:
-        text/plain:
-          example: unable to perform action -- unauthorized
-    UnprocessableEntity:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    Tag:
-      description: Returns a tag
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/tagDto'
-    NotFound:
-      description: Item with a given ID not found
-      content:
-        text/plain:
-          example: tag not found
-    TagCollection:
-      description: Returns a tag collectiom
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/tagDtoCollection'
   schemas:
-    errors:
-      type: object
-      example:
-        Error:
-          value:
-            errors:
-            - message: may not be null
-              type: 1
-              code: -1
-              parameters:
-              - key: moduleTo
-                value: null
-    uuid:
-      type: string
-      pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
-      example: 46669e09-8b45-4ede-afbd-ca73bb89cdb3
-    tagDtoCollection:
-      type: object
-      title: Collection of tags
-      description: Tag that can be attached to various objects
-      properties:
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/tagDto'
-        totalRecords:
-          type: integer
-          readOnly: true
-          description: Total amount of tags
-      required:
-      - tags
-      example:
-        tags:
-        - id: 118dbd8c-5ba0-47a9-a850-34bbb1dbf3b7
-          label: important
-          description: This is important stuff.
-        - id: 46669e09-8b45-4ede-afbd-ca73bb89cdb3
-          label: urgent
-          description: This is urgent stuff.
-        totalRecords: 2
     tagDto:
       type: object
       title: Tag
@@ -222,6 +152,22 @@ components:
         id: 118dbd8c-5ba0-47a9-a850-34bbb1dbf3b7
         label: important
         description: This is important stuff.
+    uuid:
+      type: string
+      pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+      example: 46669e09-8b45-4ede-afbd-ca73bb89cdb3
+    errors:
+      type: object
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
     metadata:
       type: object
       title: Metadata
@@ -243,6 +189,30 @@ components:
           description: ID of the user who last updated the record
       required:
       - createdDate
+    tagDtoCollection:
+      type: object
+      title: Collection of tags
+      description: Tag that can be attached to various objects
+      properties:
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/tagDto'
+        totalRecords:
+          type: integer
+          readOnly: true
+          description: Total amount of tags
+      required:
+      - tags
+      example:
+        tags:
+        - id: 118dbd8c-5ba0-47a9-a850-34bbb1dbf3b7
+          label: important
+          description: This is important stuff.
+        - id: 46669e09-8b45-4ede-afbd-ca73bb89cdb3
+          label: urgent
+          description: This is urgent stuff.
+        totalRecords: 2
   requestBodies:
     TagBody:
       description: Tag object
@@ -254,6 +224,32 @@ components:
           example:
             label: urgent
             description: This is urgent stuff
-x-refined-from:
-- folio-mod-tags-openapi.json
-- folio-mod-tags-openapi.yml
+  responses:
+    Tag:
+      description: Returns a tag
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/tagDto'
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    NotFound:
+      description: Item with a given ID not found
+      content:
+        text/plain:
+          example: tag not found
+    Unauthorized:
+      description: Not authorized to perform requested action
+      content:
+        text/plain:
+          example: unable to perform action -- unauthorized
+    TagCollection:
+      description: Returns a tag collectiom
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/tagDtoCollection'

@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Get Circulation Requests API
+  title: Circulation BFF requests Get Circulation Requests API
   version: v1
-  description: 'Operations tagged getCirculationRequests across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: getCirculationRequests
 paths:
@@ -83,52 +82,68 @@ paths:
       summary: Get requests
       x-summary-source: derived
 components:
-  parameters:
-    offset:
-      name: offset
-      in: query
-      required: false
-      schema:
-        type: integer
-        description: Skip over a number of elements by specifying an offset value for the query
-        default: 0
-        example: 0
-        minimum: 0
-        maximum: 2147483647
-    totalRecords:
-      name: totalRecords
-      in: query
-      required: false
-      schema:
-        type: string
-        description: "How to calculate the totalRecords property.\n  - \"exact\" for the correct number\n  - \"estimated\" for an estimation\n  - \"auto\" to automatically select \"exact\" or \"estimated\"\n  - \"none\" for suppressing the totalRecords property.\nFor details see https://github.com/folio-org/raml-module-builder#estimated-totalrecords\n"
-        default: auto
-        pattern: exact|estimated|none|auto
-    limit:
-      name: limit
-      in: query
-      required: false
-      schema:
-        type: integer
-        description: "Limit the number of elements returned in the response.\nUsing limit=0 will return totalRecords with the exact value.\nFor details about totalRecords see:\n  - https://github.com/folio-org/raml-module-builder#estimated-totalrecords\n"
-        default: 10
-        example: 10
-        minimum: 0
-        maximum: 2147483647
+  examples:
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
+    overrideBlocks:
+      $schema: http://json-schema.org/draft-04/schema#
       type: object
+      description: Blocks to override (e.g. during checkout or renewal)
       properties:
-        key:
-          description: Parameter key
+        itemNotLoanableBlock:
+          description: '''Item not loanable'' block'
+          type: object
+          properties:
+            dueDate:
+              description: Due date for a new loan
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - dueDate
+        patronBlock:
+          description: Automated patron block
+          type: object
+          additionalProperties: false
+        itemLimitBlock:
+          description: Item limit block
+          type: object
+          additionalProperties: false
+        renewalBlock:
+          description: Renewal block
+          type: object
+          additionalProperties: false
+        renewalDueDateRequiredBlock:
+          description: Override renewal block which requires due date field
+          type: object
+          properties:
+            dueDate:
+              description: Due date for a new loan
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - dueDate
+        comment:
+          description: Reason for override
           type: string
-        value:
-          description: Parameter value
-          type: string
-      example:
-        key: source
-        value: 'null'
+      additionalProperties: false
     request:
       description: Request for an item that might be at a different location or already checked out to another patron
       type: object
@@ -447,6 +462,37 @@ components:
       - requestType
       - requestDate
       - fulfillmentPreference
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    patronGroup:
+      description: patron group
+      type: object
+      properties:
+        id:
+          description: ID of the patron group
+          type: string
+          $ref: '#/components/schemas/uuid'
+        group:
+          description: The unique name of the patron group
+          type: string
+        desc:
+          description: A description of the patron group
+          type: string
     errorResponse:
       description: A set of errors
       type: object
@@ -465,6 +511,24 @@ components:
           type: IllegalArgumentException
           code: unknown_error
         total_records: 1
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
     requestSearchIndex:
       $schema: http://json-schema.org/draft-04/schema#
       description: Request fields used for search
@@ -491,85 +555,6 @@ components:
           description: The name of the request pickup service point
           type: string
       additionalProperties: false
-    patronGroup:
-      description: patron group
-      type: object
-      properties:
-        id:
-          description: ID of the patron group
-          type: string
-          $ref: '#/components/schemas/uuid'
-        group:
-          description: The unique name of the patron group
-          type: string
-        desc:
-          description: A description of the patron group
-          type: string
-    overrideBlocks:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Blocks to override (e.g. during checkout or renewal)
-      properties:
-        itemNotLoanableBlock:
-          description: '''Item not loanable'' block'
-          type: object
-          properties:
-            dueDate:
-              description: Due date for a new loan
-              type: string
-              format: date-time
-          additionalProperties: false
-          required:
-          - dueDate
-        patronBlock:
-          description: Automated patron block
-          type: object
-          additionalProperties: false
-        itemLimitBlock:
-          description: Item limit block
-          type: object
-          additionalProperties: false
-        renewalBlock:
-          description: Renewal block
-          type: object
-          additionalProperties: false
-        renewalDueDateRequiredBlock:
-          description: Override renewal block which requires due date field
-          type: object
-          properties:
-            dueDate:
-              description: Due date for a new loan
-              type: string
-              format: date-time
-          additionalProperties: false
-          required:
-          - dueDate
-        comment:
-          description: Reason for override
-          type: string
-      additionalProperties: false
-    uuid:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: array
-          items:
-            $ref: '#/components/schemas/parameter'
     requests:
       description: Collection of Item Requests
       type: object
@@ -608,24 +593,38 @@ components:
         updatedByUsername:
           description: Username of the user who last updated the record (when available)
           type: string
-  examples:
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    unknownError:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
+  parameters:
+    offset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        description: Skip over a number of elements by specifying an offset value for the query
+        default: 0
+        example: 0
+        minimum: 0
+        maximum: 2147483647
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        description: "Limit the number of elements returned in the response.\nUsing limit=0 will return totalRecords with the exact value.\nFor details about totalRecords see:\n  - https://github.com/folio-org/raml-module-builder#estimated-totalrecords\n"
+        default: 10
+        example: 10
+        minimum: 0
+        maximum: 2147483647
+    totalRecords:
+      name: totalRecords
+      in: query
+      required: false
+      schema:
+        type: string
+        description: "How to calculate the totalRecords property.\n  - \"exact\" for the correct number\n  - \"estimated\" for an estimation\n  - \"auto\" to automatically select \"exact\" or \"estimated\"\n  - \"none\" for suppressing the totalRecords property.\nFor details see https://github.com/folio-org/raml-module-builder#estimated-totalrecords\n"
+        default: auto
+        pattern: exact|estimated|none|auto
   responses:
     internalServerErrorResponse:
       description: When unhandled exception occurred during code execution, e.g. NullPointerException.
@@ -636,15 +635,6 @@ components:
           examples:
             unknownError:
               $ref: '#/components/examples/unknownError'
-    unprocessableEntityResponse:
-      description: Validation error for the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            response:
-              $ref: '#/components/examples/validationErrorResponse'
     badRequestResponse:
       description: Validation errors
       content:
@@ -654,6 +644,12 @@ components:
           examples:
             validationErrorResponse:
               $ref: '#/components/examples/validationErrorResponse'
-x-refined-from:
-- folio-mod-circulation-bff-circulationbff-openapi.json
-- folio-mod-circulation-bff-circulationbff-openapi.yml
+    unprocessableEntityResponse:
+      description: Validation error for the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            response:
+              $ref: '#/components/examples/validationErrorResponse'

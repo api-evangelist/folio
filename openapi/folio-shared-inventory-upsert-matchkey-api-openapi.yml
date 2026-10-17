@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Shared Inventory Upsert Matchkey API
+  title: Inventory update Shared Inventory Upsert Matchkey API
   version: v5.0
-  description: 'Operations tagged Shared Inventory Upsert Matchkey across 2 of this provider''s published API definitions: folio-mod-inventory-update-inventory-update-5-0-openapi.json, folio-mod-inventory-update-inventory-update-5-0-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Shared Inventory Upsert Matchkey
 paths:
@@ -124,69 +123,60 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    holdings-record:
+    metrics:
       type: object
-      description: A holdings record in compliance with the schema of the given version of the underlying `holdings-storage` API, optionally with embedded items.
+      description: Report on the number of operations performed, by record type, transaction type, and outcome.
       properties:
-        items:
-          type: array
-          description: Inventory items listed by the holdings record
-          items:
-            $ref: '#/components/schemas/item'
-    inventory-record-set:
-      type: object
-      description: An instance record and an array of holdings records with embedded items.
-      properties:
-        instance:
-          $ref: '#/components/schemas/instance'
-        holdingsRecords:
-          type: array
-          description: Collection of holdings of the instance, each holdings record with embedded items.
-          items:
-            $ref: '#/components/schemas/holdings-record'
-        processing:
+        INSTANCE:
           type: object
-          description: An object holding supporting pieces of data and/or processing instructions for Inventory update processing.
+          description: Reports the number of operations performed on instance records by transaction type and outcome.
           properties:
-            institutionId:
-              type: string
-              description: The FOLIO UUID of the institution that provided the source records for the update; necessary for certain clean-up tasks in a shared inventory.
-            localIdentifier:
-              type: string
-              description: The source system's unique identifier for the source record of this update request; necessary for certain clean-up tasks in a shared inventory.
-            identifierTypeId:
-              type: string
-              description: The FOLIO UUID for the identifier type for the local record IDs coming from the given library.
-    error-response:
-      type: object
-      description: Response on a unsuccessful upsert request for a single record.
-      properties:
-        category:
-          type: string
-          description: Type of problem, typically error category STORAGE.
-        statusCode:
-          type: string
-          description: The HTTP status code assigned to the error.
-        message:
-          anyOf:
-          - type: string
-          - type: object
-          description: Error message returned by Inventory storage.
-        shortMessage:
-          type: string
-          description: A short error message that might be used by the client to count similar error occurrences.
-        entityType:
-          type: string
-          description: The record type for which a problem occurred.
-        transaction:
-          type: string
-          description: Type of REST operation for which the problem occurred.
-        entity:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            UPDATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+        HOLDINGS_RECORD:
           type: object
-          description: The JSON object that was pushed to Inventory storage when the problem occurred.
-        details:
+          description: Reports the number of operations performed on holdings records by transaction type and outcome.
+          properties:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            UPDATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+        ITEM:
           type: object
-          description: Any further details, i.e. additional context for the problem.
+          description: Reports the number of operations performed on item records by transaction type and outcome.
+          properties:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            UPDATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+        INSTANCE_RELATION_SHIP:
+          type: object
+          description: Reports the number of operations performed for the instance's parent-child relationships.
+          properties:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+            PROVISIONAL_INSTANCE:
+              $ref: '#/components/schemas/outcomes'
+        INSTANCE_TITLE_SUCCESSION:
+          type: object
+          description: Reports the number of operations performed for the instance's preceding-succeeding relationships.
+          properties:
+            CREATED:
+              $ref: '#/components/schemas/outcomes'
+            DELETED:
+              $ref: '#/components/schemas/outcomes'
+            PROVISIONAL_INSTANCE:
+              $ref: '#/components/schemas/outcomes'
     upsert-response-200-207:
       type: object
       description: Response on a successful or partially successful single record upsert request
@@ -270,60 +260,12 @@ components:
           description: If status is 207, a list of problems encountered during upsert request
           items:
             $ref: '#/components/schemas/error-response'
-    metrics:
+    instance:
       type: object
-      description: Report on the number of operations performed, by record type, transaction type, and outcome.
-      properties:
-        INSTANCE:
-          type: object
-          description: Reports the number of operations performed on instance records by transaction type and outcome.
-          properties:
-            CREATED:
-              $ref: '#/components/schemas/outcomes'
-            UPDATED:
-              $ref: '#/components/schemas/outcomes'
-            DELETED:
-              $ref: '#/components/schemas/outcomes'
-        HOLDINGS_RECORD:
-          type: object
-          description: Reports the number of operations performed on holdings records by transaction type and outcome.
-          properties:
-            CREATED:
-              $ref: '#/components/schemas/outcomes'
-            UPDATED:
-              $ref: '#/components/schemas/outcomes'
-            DELETED:
-              $ref: '#/components/schemas/outcomes'
-        ITEM:
-          type: object
-          description: Reports the number of operations performed on item records by transaction type and outcome.
-          properties:
-            CREATED:
-              $ref: '#/components/schemas/outcomes'
-            UPDATED:
-              $ref: '#/components/schemas/outcomes'
-            DELETED:
-              $ref: '#/components/schemas/outcomes'
-        INSTANCE_RELATION_SHIP:
-          type: object
-          description: Reports the number of operations performed for the instance's parent-child relationships.
-          properties:
-            CREATED:
-              $ref: '#/components/schemas/outcomes'
-            DELETED:
-              $ref: '#/components/schemas/outcomes'
-            PROVISIONAL_INSTANCE:
-              $ref: '#/components/schemas/outcomes'
-        INSTANCE_TITLE_SUCCESSION:
-          type: object
-          description: Reports the number of operations performed for the instance's preceding-succeeding relationships.
-          properties:
-            CREATED:
-              $ref: '#/components/schemas/outcomes'
-            DELETED:
-              $ref: '#/components/schemas/outcomes'
-            PROVISIONAL_INSTANCE:
-              $ref: '#/components/schemas/outcomes'
+      description: An instance record in compliance with the schema of the given version of the underlying `instance-storage` API.
+    item:
+      type: object
+      description: An item record in compliance with the schema of the given version of the underlying `item-storage` API.
     outcomes:
       type: object
       description: Reports the number of different outcomes of operations of a given type per entity type.
@@ -412,6 +354,69 @@ components:
                   precedingInstanceId:
                     type: string
                     description: UUID of a preceding title (= this instance).
+    inventory-record-set:
+      type: object
+      description: An instance record and an array of holdings records with embedded items.
+      properties:
+        instance:
+          $ref: '#/components/schemas/instance'
+        holdingsRecords:
+          type: array
+          description: Collection of holdings of the instance, each holdings record with embedded items.
+          items:
+            $ref: '#/components/schemas/holdings-record'
+        processing:
+          type: object
+          description: An object holding supporting pieces of data and/or processing instructions for Inventory update processing.
+          properties:
+            institutionId:
+              type: string
+              description: The FOLIO UUID of the institution that provided the source records for the update; necessary for certain clean-up tasks in a shared inventory.
+            localIdentifier:
+              type: string
+              description: The source system's unique identifier for the source record of this update request; necessary for certain clean-up tasks in a shared inventory.
+            identifierTypeId:
+              type: string
+              description: The FOLIO UUID for the identifier type for the local record IDs coming from the given library.
+    holdings-record:
+      type: object
+      description: A holdings record in compliance with the schema of the given version of the underlying `holdings-storage` API, optionally with embedded items.
+      properties:
+        items:
+          type: array
+          description: Inventory items listed by the holdings record
+          items:
+            $ref: '#/components/schemas/item'
+    error-response:
+      type: object
+      description: Response on a unsuccessful upsert request for a single record.
+      properties:
+        category:
+          type: string
+          description: Type of problem, typically error category STORAGE.
+        statusCode:
+          type: string
+          description: The HTTP status code assigned to the error.
+        message:
+          anyOf:
+          - type: string
+          - type: object
+          description: Error message returned by Inventory storage.
+        shortMessage:
+          type: string
+          description: A short error message that might be used by the client to count similar error occurrences.
+        entityType:
+          type: string
+          description: The record type for which a problem occurred.
+        transaction:
+          type: string
+          description: Type of REST operation for which the problem occurred.
+        entity:
+          type: object
+          description: The JSON object that was pushed to Inventory storage when the problem occurred.
+        details:
+          type: object
+          description: Any further details, i.e. additional context for the problem.
     shared-index-deletion:
       type: object
       description: Deletion record for deleting a library's contributions to an instance in a shared index.
@@ -437,24 +442,18 @@ components:
         - institutionId
         - oaiIdentifier
         - identifierTypeId
-    item:
-      type: object
-      description: An item record in compliance with the schema of the given version of the underlying `item-storage` API.
-    instance:
-      type: object
-      description: An instance record in compliance with the schema of the given version of the underlying `instance-storage` API.
   parameters:
-    okapi_tenant:
-      in: header
-      name: X-Okapi-Tenant
-      description: Okapi Tenant
-      required: false
-      schema:
-        type: string
     okapi_url:
       in: header
       name: X-Okapi-Url
       description: Okapi URL
+      required: false
+      schema:
+        type: string
+    okapi_tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
       required: false
       schema:
         type: string
@@ -465,6 +464,3 @@ components:
       required: false
       schema:
         type: string
-x-refined-from:
-- folio-mod-inventory-update-inventory-update-5-0-openapi.json
-- folio-mod-inventory-update-inventory-update-5-0-openapi.yml

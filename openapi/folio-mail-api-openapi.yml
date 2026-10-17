@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Mail API
+  title: Batch printing Mail API
   version: v1
-  description: 'Operations tagged Mail across 2 of this provider''s published API definitions: folio-mod-batch-print-batchprint-openapi.json, folio-mod-batch-print-batchprint-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Mail
 paths:
@@ -38,73 +37,6 @@ paths:
       summary: Save mail
       x-summary-source: derived
 components:
-  responses:
-    trait_400:
-      description: Bad request
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Invalid JSON in request
-        application/json:
-          schema:
-            type: object
-            example:
-              error: Invalid JSON in request
-    trait_500:
-      description: Internal error
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Internal server error, contact administrator
-    trait_403:
-      description: Forbidden
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Insufficient permissions to access resource
-        application/json:
-          schema:
-            type: object
-            example:
-              error: Insufficient permissions to access resource
-  schemas:
-    messageResponse:
-      description: Mail message response
-      type: object
-      properties:
-        id:
-          description: Identifier
-          type: string
-          format: uuid
-      additionalProperties: true
-      required:
-      - id
-    messageRequest:
-      description: The mail message that can be sent via mail
-      title: Mail Entity Schema
-      type: object
-      properties:
-        notificationId:
-          description: notification ID
-          type: string
-        from:
-          description: sender's address
-          type: string
-        to:
-          description: receiver's address
-          type: string
-        outputFormat:
-          description: 'format type: `text/html` or `text/plain`'
-          type: string
-        body:
-          description: text of email
-          type: string
-      additionalProperties: true
-      required:
-      - body
   parameters:
     okapi_tenant:
       in: header
@@ -134,6 +66,70 @@ components:
       required: false
       schema:
         type: string
-x-refined-from:
-- folio-mod-batch-print-batchprint-openapi.json
-- folio-mod-batch-print-batchprint-openapi.yml
+  schemas:
+    messageRequest:
+      description: The mail message that can be sent via mail
+      title: Mail Entity Schema
+      type: object
+      properties:
+        notificationId:
+          description: notification ID
+          type: string
+        from:
+          description: sender's address
+          type: string
+        to:
+          description: receiver's address
+          type: string
+        outputFormat:
+          description: 'format type: `text/html` or `text/plain`'
+          type: string
+        body:
+          description: text of email
+          type: string
+      additionalProperties: true
+      required:
+      - body
+    messageResponse:
+      description: Mail message response
+      type: object
+      properties:
+        id:
+          description: Identifier
+          type: string
+          format: uuid
+      additionalProperties: true
+      required:
+      - id
+  responses:
+    trait_403:
+      description: Forbidden
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Insufficient permissions to access resource
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Insufficient permissions to access resource
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Invalid JSON in request

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Authority Storage Reindex API
+  description: Entity Links API
+  title: Entities Links Authority Storage Reindex API
   version: v1.0
-  description: 'Operations tagged authority-storage-reindex across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://localhost:8081
 tags:
@@ -87,8 +87,6 @@ paths:
       - authority-storage-reindex
       summary: Submit reindex job
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
   /authority-storage/reindex/{id}:
     delete:
       operationId: deleteReindexJob
@@ -164,38 +162,8 @@ paths:
       - authority-storage-reindex
       summary: Get reindex job
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
 components:
   schemas:
-    reindexJobDtoCollection:
-      description: A collection of reindex jobs
-      example:
-        reindexJobs:
-        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          published: 0
-          jobStatus: In progress
-          resourceName: Authority
-          submittedDate: '2000-01-23T04:56:07.000+00:00'
-        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          published: 0
-          jobStatus: In progress
-          resourceName: Authority
-          submittedDate: '2000-01-23T04:56:07.000+00:00'
-        totalRecords: 6
-      properties:
-        reindexJobs:
-          description: List of reindex jobs
-          items:
-            $ref: '#/components/schemas/reindexJobDto'
-          type: array
-        totalRecords:
-          description: Estimated or exact total number of records
-          type: integer
-      required:
-      - reindexJobs
-      - totalRecords
-      type: object
     error_parameters_inner:
       properties:
         key:
@@ -221,25 +189,6 @@ components:
           description: Error parameters
           items:
             $ref: '#/components/schemas/error_parameters_inner'
-          type: array
-      type: object
-    errors:
-      description: Errors response
-      example:
-        Error:
-          value:
-            errors:
-            - message: may not be null
-              type: 1
-              code: -1
-              parameters:
-              - key: moduleTo
-                value: null
-      properties:
-        errors:
-          description: List of errors
-          items:
-            $ref: '#/components/schemas/error'
           type: array
       type: object
     reindexJobDto:
@@ -277,6 +226,50 @@ components:
           format: date-time
           type: string
       type: object
-x-refined-from:
-- folio-mod-entities-links-openapi.json
-- folio-mod-entities-links-openapi.yml
+    reindexJobDtoCollection:
+      description: A collection of reindex jobs
+      example:
+        reindexJobs:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          published: 0
+          jobStatus: In progress
+          resourceName: Authority
+          submittedDate: '2000-01-23T04:56:07.000+00:00'
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          published: 0
+          jobStatus: In progress
+          resourceName: Authority
+          submittedDate: '2000-01-23T04:56:07.000+00:00'
+        totalRecords: 6
+      properties:
+        reindexJobs:
+          description: List of reindex jobs
+          items:
+            $ref: '#/components/schemas/reindexJobDto'
+          type: array
+        totalRecords:
+          description: Estimated or exact total number of records
+          type: integer
+      required:
+      - reindexJobs
+      - totalRecords
+      type: object
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object

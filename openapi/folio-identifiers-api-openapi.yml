@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Identifiers API
   version: 7.3.0
+  title: Folio ERM Agreements Identifiers API
+  description: API for the Folio library services platform mod-agreements app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Identifiers across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -58,10 +58,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/identifiers/{identifierId}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -94,10 +90,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/identifiers/namespaces:
     description: 'Supports search of Identifier Namespace records (e.g. ISBN, ISSN, DOI). GET only: namespaces are created implicitly when an identifier using a new namespace is linked elsewhere, not through this path directly.'
     parameters:
@@ -135,168 +127,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
-  parameters:
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    identifierId:
-      in: path
-      name: identifierId
-      description: UUID for an Identifier
-      required: true
-      schema:
-        type: string
-        format: uuid
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
-    stats:
-      in: query
-      name: stats
-      required: false
-      schema:
-        type: boolean
-    match:
-      in: query
-      name: match
-      required: false
-      schema:
-        type: string
   schemas:
-    IdentifierNamespace:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        value:
-          type: string
-    GrailsErrorResponse:
-      type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
-      required:
-      - error
-      - timestamp
-      - message
-      properties:
-        error:
-          type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
-        message:
-          type: string
-        exception:
-          type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
-    IdentifierListItem:
-      description: Shape of an Identifier as returned by GET /erm/identifiers. Distinct from the plain Identifier schema, which is what's embedded when an identifier appears nested inside another resource (e.g. via IdentifierOccurrence on an ErmResource) -- id and occurrenceCount are only rendered when an identifier is fetched directly through its own endpoint.
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/Identifier'
-      - type: object
-        properties:
-          id:
-            type: string
-            format: uuid
-          occurrenceCount:
-            type: integer
-            description: Number of occurrences of this identifier.
-    IdentifierResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/IdentifierListItem'
-    Refdata:
-      type: object
-      properties:
-        id:
-          type: string
-        label:
-          type: string
-        value:
-          type: string
-    IdentifierResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/IdentifierResultsArray'
-    ResultsMeta:
-      type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    IdentifierNamespaceResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/IdentifierNamespace'
-    HttpError:
-      type: object
-      properties:
-        message:
-          type: string
-        error:
-          type: integer
     IdentifierRecord:
       description: Shape of an Identifier as returned by GET /erm/identifiers/{identifierId}. Distinct from the plain Identifier schema, which is what's embedded when an identifier appears nested inside another resource (e.g. via IdentifierOccurrence on an ErmResource) -- id and occurrences are only rendered when an identifier is fetched directly through its own endpoint.
       type: object
@@ -331,6 +163,16 @@ components:
                     class:
                       type: string
                       description: Fully-qualified class name of the linked resource (e.g. a Work or Package subtype).
+    IdentifierResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/IdentifierResultsArray'
     IdentifierNamespaceResults:
       type: object
       required:
@@ -341,6 +183,89 @@ components:
       - properties:
           results:
             $ref: '#/components/schemas/IdentifierNamespaceResultsArray'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    IdentifierNamespaceResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/IdentifierNamespace'
+    IdentifierResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/IdentifierListItem'
+    IdentifierNamespace:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        value:
+          type: string
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    IdentifierListItem:
+      description: Shape of an Identifier as returned by GET /erm/identifiers. Distinct from the plain Identifier schema, which is what's embedded when an identifier appears nested inside another resource (e.g. via IdentifierOccurrence on an ErmResource) -- id and occurrenceCount are only rendered when an identifier is fetched directly through its own endpoint.
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/Identifier'
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+          occurrenceCount:
+            type: integer
+            description: Number of occurrences of this identifier.
     Identifier:
       type: object
       properties:
@@ -351,6 +276,69 @@ components:
               type: string
         value:
           type: string
+  parameters:
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    identifierId:
+      in: path
+      name: identifierId
+      description: UUID for an Identifier
+      required: true
+      schema:
+        type: string
+        format: uuid
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -360,6 +348,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-agreements-openapi.json
-- folio-mod-agreements-openapi.yml

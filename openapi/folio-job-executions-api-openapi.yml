@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Job Executions API
+  title: Data export Job Executions API
   version: v1
-  description: 'Operations tagged Job Executions across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Data export API
 servers:
 - url: /data-export/
 tags:
@@ -75,8 +75,6 @@ paths:
       - Job Executions
       summary: Get job executions by query
       x-summary-source: derived
-    servers:
-    - url: /data-export/
   /job-executions/{jobExecutionId}:
     delete:
       description: Delete a specific job execution
@@ -109,8 +107,6 @@ paths:
       - Job Executions
       summary: Delete job execution by id
       x-summary-source: derived
-    servers:
-    - url: /data-export/
   /job-executions/{jobExecutionId}/download/{exportFileId}:
     get:
       description: API for getting the link to download files
@@ -150,19 +146,14 @@ paths:
       - Job Executions
       summary: Get link to download files
       x-summary-source: derived
-    servers:
-    - url: /data-export/
 components:
   parameters:
-    trait_pageable_limit:
-      name: limit
+    trait_queryable:
+      name: query
       in: query
-      description: Limit the number of elements returned in the response
+      description: A query string to filter rules based on matching criteria in fields.
       schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
+        type: string
     trait_pageable_offset:
       name: offset
       in: query
@@ -172,13 +163,37 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-    trait_queryable:
-      name: query
+    trait_pageable_limit:
+      name: limit
       in: query
-      description: A query string to filter rules based on matching criteria in fields.
+      description: Limit the number of elements returned in the response
       schema:
-        type: string
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
   schemas:
+    jobExecutionCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of execution jobs
+      type: object
+      additionalProperties: false
+      properties:
+        jobExecutions:
+          description: List of execution jobs
+          type: array
+          id: jobExecutionList
+          items:
+            type: object
+            $ref: '#/components/schemas/jobExecution'
+        totalRecords:
+          type: integer
+      required:
+      - jobExecutions
+      - totalRecords
+    uuid:
+      type: string
+      format: uuid
     jobExecution:
       $schema: http://json-schema.org/draft-04/schema#
       description: Job Execution Schema
@@ -278,27 +293,21 @@ components:
           $ref: '#/components/schemas/metadata'
       required:
       - status
-    uuid:
-      type: string
-      format: uuid
-    jobExecutionCollection:
+    fileDownload:
       $schema: http://json-schema.org/draft-04/schema#
-      description: Collection of execution jobs
+      description: File that should be exported
       type: object
-      additionalProperties: false
       properties:
-        jobExecutions:
-          description: List of execution jobs
-          type: array
-          id: jobExecutionList
-          items:
-            type: object
-            $ref: '#/components/schemas/jobExecution'
-        totalRecords:
-          type: integer
+        fileId:
+          description: File unique identifier
+          type: string
+          format: uuid
+        link:
+          description: Download link to the file
+          type: string
       required:
-      - jobExecutions
-      - totalRecords
+      - fileId
+      - link
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -330,21 +339,3 @@ components:
       additionalProperties: false
       required:
       - createdDate
-    fileDownload:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: File that should be exported
-      type: object
-      properties:
-        fileId:
-          description: File unique identifier
-          type: string
-          format: uuid
-        link:
-          description: Download link to the file
-          type: string
-      required:
-      - fileId
-      - link
-x-refined-from:
-- folio-mod-data-export-openapi.json
-- folio-mod-data-export-openapi.yml

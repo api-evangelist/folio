@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Notes API
+  title: Notes API
   version: 3.0.0
-  description: 'Operations tagged notes across 2 of this provider''s published API definitions: folio-mod-notes-openapi.json, folio-mod-notes-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Notes
 paths:
@@ -180,93 +179,82 @@ paths:
       summary: Get note collection by link
       x-summary-source: derived
 components:
-  responses:
-    UnprocessableEntity:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    Note:
-      description: Returns a note
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/note'
-    Unauthorized:
-      description: Not authorized to perform requested action
-      content:
-        text/plain:
-          example: unable to perform action -- unauthorized
-    NoteCollection:
-      description: Returns a note collectiom
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/noteCollection'
-    NotFound:
-      description: Resource with a given ID not found
-      content:
-        text/plain:
-          example: resource not found
-  parameters:
-    objectType:
-      name: objectType
-      in: path
-      required: true
-      schema:
-        type: string
-      description: The type of link's object
-    limit:
-      name: limit
-      in: query
-      schema:
-        type: integer
-        default: 1000
-        minimum: 1
-        maximum: 2147483647
-      required: false
-      description: Limit the number of elements returned in the response
-    offset:
-      name: offset
-      in: query
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-      required: false
-      description: Skip over a number of elements by specifying an offset value for the query
-    domain:
-      name: domain
-      in: path
-      required: true
-      schema:
-        type: string
-      description: The domain of note
-    resourceId:
-      name: id
-      in: path
-      required: true
-      schema:
-        $ref: '#/components/schemas/uuid'
-      description: The UUID of a resource
-    objectId:
-      name: objectId
-      in: path
-      required: true
-      schema:
-        type: string
-      description: The ID of link's object
-    cqlQueryNote:
-      name: query
-      in: query
-      schema:
-        type: string
-        default: cql.allRecords=1
-      required: false
-      description: A query expressed as a CQL string, for details see [Notes API](https://github.com/folio-org/mod-notes/blob/master/docs/api-guide.md#notes-api)
   schemas:
+    note:
+      type: object
+      description: Notes about all kind of objects
+      properties:
+        id:
+          $ref: '#/components/schemas/uuid'
+          description: Unique generated identifier for the note
+          x-fqm-value-getter: ${source}.id
+          x-fqm-filter-value-getter: ${source}.id
+          x-fqm-visibility: all
+          x-fqm-visible-by-default: false
+          x-fqm-essential: true
+        typeId:
+          $ref: '#/components/schemas/uuid'
+          description: Type id of note
+          x-fqm-value-getter: ${source}.type_id
+          x-fqm-filter-value-getter: ${source}.type_id
+          x-fqm-visibility: hidden
+          x-fqm-essential: true
+          x-fqm-joins-to:
+          - targetModule: mod-notes
+            targetEntity: note_type
+            targetField: id
+            type: equality-cast-uuid
+        type:
+          type: string
+          description: Type of note (configured in settings)
+        title:
+          type: string
+          description: Note title
+          x-fqm-value-getter: ${source}.title
+          x-fqm-visibility: all
+          x-fqm-visible-by-default: true
+          x-fqm-essential: true
+        domain:
+          type: string
+          description: Domain associated with this note
+          x-fqm-value-getter: ${source}.domain
+          x-fqm-visibility: all
+          x-fqm-visible-by-default: true
+          x-fqm-essential: true
+        content:
+          type: string
+          description: Content of the note
+          x-fqm-value-getter: ${source}.content
+          x-fqm-visibility: all
+          x-fqm-essential: true
+        popUpOnCheckOut:
+          type: boolean
+          description: Flag that specify need of pop-up on check-out app
+          x-fqm-value-getter: ${source}.pop_up_on_check_out
+          x-fqm-visibility: all
+          x-fqm-essential: true
+        popUpOnUser:
+          type: boolean
+          description: Flag that specify need of pop-up on users app
+          x-fqm-value-getter: ${source}.pop_up_on_user
+          x-fqm-visibility: all
+          x-fqm-essential: true
+        links:
+          type: array
+          description: Collection of links to associated objects
+          items:
+            $ref: '#/components/schemas/link'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - typeId
+      - domain
+      - title
+    orderDirection:
+      type: string
+      enum:
+      - asc
+      - desc
     errors:
       type: object
       example:
@@ -279,6 +267,119 @@ components:
               parameters:
               - key: moduleTo
                 value: null
+    linkStatus:
+      type: string
+      enum:
+      - ASSIGNED
+      - UNASSIGNED
+    noteLinkUpdate:
+      type: object
+      description: A note link
+      properties:
+        id:
+          description: A UUID identifying a note
+          $ref: '#/components/schemas/uuid'
+        status:
+          description: New status for link to this note
+          $ref: '#/components/schemas/linkStatus'
+      required:
+      - id
+      - status
+    uuid:
+      type: string
+      format: uuid
+    link:
+      type: object
+      title: Note link
+      description: Link to object associated with a note
+      properties:
+        id:
+          type: string
+          description: Id of object linked to note
+          x-fqm-value-getter: ${source}.object_id
+          x-fqm-is-id-column: false
+          x-fqm-visibility: hidden
+          x-fqm-essential: true
+          x-fqm-joins-to-raw:
+          - targetId: bb058933-cd06-4539-bd3a-6f248ff98ee2
+            targetField: id
+            direction: left
+            type: equality-cast-uuid
+          - targetId: f2615ea6-450b-425d-804d-6a495afd9308
+            targetField: id
+            direction: left
+            type: equality-cast-uuid
+        type:
+          type: string
+          description: Type of object linked to note
+          x-fqm-value-getter: ${source}.object_type
+          x-fqm-visibility: hidden
+          x-fqm-essential: true
+      required:
+      - id
+      - type
+      example:
+        id: 1234-5678
+        type: package
+    noteCollection:
+      type: object
+      title: Collection of notes
+      description: Collection of notes
+      properties:
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/note'
+        totalRecords:
+          type: integer
+          readOnly: true
+          description: Total amount of notes
+      required:
+      - notes
+    notesOrderBy:
+      type: string
+      enum:
+      - title
+      - content
+      - noteType
+      - updatedDate
+    userInfo:
+      type: object
+      description: User Display Information
+      properties:
+        lastName:
+          type: string
+          readOnly: true
+          description: Last name of the user
+        firstName:
+          type: string
+          readOnly: true
+          description: First name of the user
+        middleName:
+          type: string
+          readOnly: true
+          description: Middle name or initial of the user
+      example:
+        lastName: Doe
+        firstName: John
+        middleName: X.
+    linkStatusFilter:
+      type: string
+      enum:
+      - assigned
+      - unassigned
+      - all
+      default: all
+    noteLinkUpdateCollection:
+      type: object
+      description: Collection of note links
+      properties:
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/noteLinkUpdate'
+      required:
+      - notes
     metadata:
       type: object
       title: Metadata
@@ -350,202 +451,93 @@ components:
           x-fqm-ignore: true
       required:
       - createdDate
-    userInfo:
-      type: object
-      description: User Display Information
-      properties:
-        lastName:
-          type: string
-          readOnly: true
-          description: Last name of the user
-        firstName:
-          type: string
-          readOnly: true
-          description: First name of the user
-        middleName:
-          type: string
-          readOnly: true
-          description: Middle name or initial of the user
-      example:
-        lastName: Doe
-        firstName: John
-        middleName: X.
-    linkStatusFilter:
-      type: string
-      enum:
-      - assigned
-      - unassigned
-      - all
-      default: all
-    note:
-      type: object
-      description: Notes about all kind of objects
-      properties:
-        id:
-          $ref: '#/components/schemas/uuid'
-          description: Unique generated identifier for the note
-          x-fqm-value-getter: ${source}.id
-          x-fqm-filter-value-getter: ${source}.id
-          x-fqm-visibility: all
-          x-fqm-visible-by-default: false
-          x-fqm-essential: true
-        typeId:
-          $ref: '#/components/schemas/uuid'
-          description: Type id of note
-          x-fqm-value-getter: ${source}.type_id
-          x-fqm-filter-value-getter: ${source}.type_id
-          x-fqm-visibility: hidden
-          x-fqm-essential: true
-          x-fqm-joins-to:
-          - targetModule: mod-notes
-            targetEntity: note_type
-            targetField: id
-            type: equality-cast-uuid
-        type:
-          type: string
-          description: Type of note (configured in settings)
-        title:
-          type: string
-          description: Note title
-          x-fqm-value-getter: ${source}.title
-          x-fqm-visibility: all
-          x-fqm-visible-by-default: true
-          x-fqm-essential: true
-        domain:
-          type: string
-          description: Domain associated with this note
-          x-fqm-value-getter: ${source}.domain
-          x-fqm-visibility: all
-          x-fqm-visible-by-default: true
-          x-fqm-essential: true
-        content:
-          type: string
-          description: Content of the note
-          x-fqm-value-getter: ${source}.content
-          x-fqm-visibility: all
-          x-fqm-essential: true
-        popUpOnCheckOut:
-          type: boolean
-          description: Flag that specify need of pop-up on check-out app
-          x-fqm-value-getter: ${source}.pop_up_on_check_out
-          x-fqm-visibility: all
-          x-fqm-essential: true
-        popUpOnUser:
-          type: boolean
-          description: Flag that specify need of pop-up on users app
-          x-fqm-value-getter: ${source}.pop_up_on_user
-          x-fqm-visibility: all
-          x-fqm-essential: true
-        links:
-          type: array
-          description: Collection of links to associated objects
-          items:
-            $ref: '#/components/schemas/link'
-        metadata:
-          $ref: '#/components/schemas/metadata'
-      required:
-      - typeId
-      - domain
-      - title
-    noteCollection:
-      type: object
-      title: Collection of notes
-      description: Collection of notes
-      properties:
-        notes:
-          type: array
-          items:
-            $ref: '#/components/schemas/note'
-        totalRecords:
-          type: integer
-          readOnly: true
-          description: Total amount of notes
-      required:
-      - notes
-    linkStatus:
-      type: string
-      enum:
-      - ASSIGNED
-      - UNASSIGNED
-    noteLinkUpdateCollection:
-      type: object
-      description: Collection of note links
-      properties:
-        notes:
-          type: array
-          items:
-            $ref: '#/components/schemas/noteLinkUpdate'
-      required:
-      - notes
-    noteLinkUpdate:
-      type: object
-      description: A note link
-      properties:
-        id:
-          description: A UUID identifying a note
-          $ref: '#/components/schemas/uuid'
-        status:
-          description: New status for link to this note
-          $ref: '#/components/schemas/linkStatus'
-      required:
-      - id
-      - status
-    uuid:
-      type: string
-      format: uuid
-    notesOrderBy:
-      type: string
-      enum:
-      - title
-      - content
-      - noteType
-      - updatedDate
-    link:
-      type: object
-      title: Note link
-      description: Link to object associated with a note
-      properties:
-        id:
-          type: string
-          description: Id of object linked to note
-          x-fqm-value-getter: ${source}.object_id
-          x-fqm-is-id-column: false
-          x-fqm-visibility: hidden
-          x-fqm-essential: true
-          x-fqm-joins-to-raw:
-          - targetId: bb058933-cd06-4539-bd3a-6f248ff98ee2
-            targetField: id
-            direction: left
-            type: equality-cast-uuid
-          - targetId: f2615ea6-450b-425d-804d-6a495afd9308
-            targetField: id
-            direction: left
-            type: equality-cast-uuid
-        type:
-          type: string
-          description: Type of object linked to note
-          x-fqm-value-getter: ${source}.object_type
-          x-fqm-visibility: hidden
-          x-fqm-essential: true
-      required:
-      - id
-      - type
-      example:
-        id: 1234-5678
-        type: package
-    orderDirection:
-      type: string
-      enum:
-      - asc
-      - desc
-  requestBodies:
-    NoteBody:
-      description: Note object
-      required: true
+  responses:
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    NotFound:
+      description: Resource with a given ID not found
+      content:
+        text/plain:
+          example: resource not found
+    Unauthorized:
+      description: Not authorized to perform requested action
+      content:
+        text/plain:
+          example: unable to perform action -- unauthorized
+    Note:
+      description: Returns a note
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/note'
+    NoteCollection:
+      description: Returns a note collectiom
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/noteCollection'
+  parameters:
+    objectId:
+      name: objectId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: The ID of link's object
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+      required: false
+      description: Skip over a number of elements by specifying an offset value for the query
+    cqlQueryNote:
+      name: query
+      in: query
+      schema:
+        type: string
+        default: cql.allRecords=1
+      required: false
+      description: A query expressed as a CQL string, for details see [Notes API](https://github.com/folio-org/mod-notes/blob/master/docs/api-guide.md#notes-api)
+    domain:
+      name: domain
+      in: path
+      required: true
+      schema:
+        type: string
+      description: The domain of note
+    resourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/uuid'
+      description: The UUID of a resource
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 1000
+        minimum: 1
+        maximum: 2147483647
+      required: false
+      description: Limit the number of elements returned in the response
+    objectType:
+      name: objectType
+      in: path
+      required: true
+      schema:
+        type: string
+      description: The type of link's object
+  requestBodies:
     NoteLinksPutBody:
       description: Collection of note links
       required: true
@@ -553,6 +545,10 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/noteLinkUpdateCollection'
-x-refined-from:
-- folio-mod-notes-openapi.json
-- folio-mod-notes-openapi.yml
+    NoteBody:
+      description: Note object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/note'

@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio API
+  title: Tenant API
   version: v2
-  description: 'Operations tagged across 2 of this provider''s published API definitions: folio-folio-vertx-lib-tenant-2-0-openapi.json, folio-folio-vertx-lib-tenant-2-0-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: ''
 paths:
@@ -100,7 +99,63 @@ paths:
       summary: Delete tenant job
       x-summary-source: derived
 components:
+  responses:
+    trait_413:
+      description: Payload Too large
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Payload Too Large
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
+    trait_validate_422:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          examples:
+            response:
+              value: examples/errors.sample
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Invalid JSON in request
   schemas:
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
     parameter:
       description: List of key/value parameters of an error
       type: object
@@ -158,26 +213,13 @@ components:
           type: array
           items:
             type: string
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
+    parameters:
+      description: List of key/value parameters
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
       additionalProperties: false
-      required:
-      - message
     errors:
       description: A set of errors
       type: object
@@ -192,22 +234,7 @@ components:
           description: Total number of errors
           type: integer
       additionalProperties: false
-    parameters:
-      description: List of key/value parameters
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-      additionalProperties: false
   parameters:
-    okapi-tenant:
-      in: header
-      name: X-Okapi-Tenant
-      description: Okapi Tenant
-      required: true
-      schema:
-        type: string
-        pattern: ^[_a-z][_a-z0-9]*$
     okapi-url:
       in: header
       name: X-Okapi-Url
@@ -222,42 +249,11 @@ components:
       required: false
       schema:
         type: string
-  responses:
-    trait_500:
-      description: Internal error
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Internal server error, contact administrator
-    trait_validate_422:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          examples:
-            response:
-              value: examples/errors.sample
-    trait_413:
-      description: Payload Too large
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Payload Too Large
-    trait_400:
-      description: Bad request
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Invalid JSON in request
-        application/json:
-          schema:
-            type: object
-            example:
-              error: Invalid JSON in request
-x-refined-from:
-- folio-folio-vertx-lib-tenant-2-0-openapi.json
-- folio-folio-vertx-lib-tenant-2-0-openapi.yml
+    okapi-tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: true
+      schema:
+        type: string
+        pattern: ^[_a-z][_a-z0-9]*$

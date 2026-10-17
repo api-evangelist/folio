@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Accessions API
+  title: Remote storages Accessions API
   version: v1
-  description: 'Operations tagged Accessions across 2 of this provider''s published API definitions: folio-mod-remote-storage-openapi.json, folio-mod-remote-storage-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /remote-storage/
 tags:
@@ -72,8 +71,6 @@ paths:
       - Accessions
       summary: Get accessions
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
   /accessions/id/{accessionId}:
     put:
       responses:
@@ -96,8 +93,6 @@ paths:
       - Accessions
       summary: Set accessioned by id
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
   /accessions/barcode/{barcode}:
     put:
       responses:
@@ -120,32 +115,8 @@ paths:
       - Accessions
       summary: Set accessioned by barcode
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
 components:
   schemas:
-    baseCollection:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Basic object to create pageable responses
-      type: object
-      properties:
-        totalRecords:
-          description: total records value
-          type: integer
-    parameter:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          description: Key of the parameter
-        value:
-          type: string
-          description: Value of the parameter
-      additionalProperties: false
-      required:
-      - key
     accessionQueue:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -232,14 +203,6 @@ components:
           $ref: '#/components/schemas/metadata'
       additionalProperties: false
       required: []
-    parameters:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-      additionalProperties: false
     accessionQueueNote:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -256,20 +219,21 @@ components:
           type: boolean
       additionalProperties: false
       required: []
-    accessionQueues:
-      allOf:
-      - $ref: '#/components/schemas/baseCollection'
-      - type: object
-        properties:
-          accessions:
-            type: array
-            items:
-              $ref: '#/components/schemas/accessionQueue'
-    uuid:
+    accessionRequest:
       $schema: http://json-schema.org/draft-04/schema#
-      description: Regexp pattern for UUID validation
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+      type: object
+      description: Accession request body
+      properties:
+        itemBarcode:
+          description: Barcode of the item to be accessioned
+          type: string
+        remoteStorageId:
+          description: Remote storage id
+          $ref: '#/components/schemas/uuid'
+      additionalProperties: false
+      required:
+      - itemBarcode
+      - remoteStorageId
     errors:
       $schema: http://json-schema.org/draft-04/schema#
       description: A set of errors
@@ -307,21 +271,42 @@ components:
       additionalProperties: false
       required:
       - message
-    accessionRequest:
+    uuid:
       $schema: http://json-schema.org/draft-04/schema#
+      description: Regexp pattern for UUID validation
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    baseCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Basic object to create pageable responses
       type: object
-      description: Accession request body
       properties:
-        itemBarcode:
-          description: Barcode of the item to be accessioned
+        totalRecords:
+          description: total records value
+          type: integer
+    parameter:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
           type: string
-        remoteStorageId:
-          description: Remote storage id
-          $ref: '#/components/schemas/uuid'
+          description: Key of the parameter
+        value:
+          type: string
+          description: Value of the parameter
       additionalProperties: false
       required:
-      - itemBarcode
-      - remoteStorageId
+      - key
+    accessionQueues:
+      allOf:
+      - $ref: '#/components/schemas/baseCollection'
+      - type: object
+        properties:
+          accessions:
+            type: array
+            items:
+              $ref: '#/components/schemas/accessionQueue'
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -351,28 +336,27 @@ components:
       additionalProperties: false
       required:
       - createdDate
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
   parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
     trait_queryable_storage_id:
       name: storageId
       in: query
       description: Remote storage id
       schema:
         type: string
-    trait_queryable_accessioned:
-      name: accessioned
+    trait_queryable_created_date:
+      name: createdDate
       in: query
-      description: Flag to indicate, that accession queue record was accessioned and has accesion date
+      description: Date of accession queue record creation
       schema:
-        type: boolean
+        type: string
     trait_pageable_offset:
       name: offset
       in: query
@@ -382,12 +366,21 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-    trait_queryable_created_date:
-      name: createdDate
+    trait_queryable_accessioned:
+      name: accessioned
       in: query
-      description: Date of accession queue record creation
+      description: Flag to indicate, that accession queue record was accessioned and has accesion date
       schema:
-        type: string
+        type: boolean
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
   responses:
     trait_validate_422:
       description: Validation errors
@@ -396,6 +389,3 @@ components:
           example: examples/errors.sample
           schema:
             $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mod-remote-storage-openapi.json
-- folio-mod-remote-storage-openapi.yml

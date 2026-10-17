@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Packages API
   version: 7.3.0
+  title: Folio ERM Agreements Packages API
+  description: API for the Folio library services platform mod-agreements app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Packages across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -49,10 +49,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/packages/{packageId}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -109,10 +105,6 @@ paths:
                 $ref: '#/components/schemas/HttpError'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/packages/{packageId}/content:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -152,10 +144,6 @@ paths:
                 $ref: '#/components/schemas/HttpError'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/packages/{packageId}/content/{packageSubset}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -196,10 +184,6 @@ paths:
                 $ref: '#/components/schemas/HttpError'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/packages/{packageId}/metadata:
     description: Supports retrieval of ingress metadata for specified package
     parameters:
@@ -229,10 +213,6 @@ paths:
                 $ref: '#/components/schemas/HttpError'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/packages/import:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -260,10 +240,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/packages/sources:
     description: Supports retrieval of a deduplicated list of distinct, non-null source values from all Pkg (Package) records
     parameters:
@@ -288,10 +264,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/packages/controlSync:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -341,10 +313,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/packages/metadata:
     description: Supports search and creation of package ingress metadata records
     parameters:
@@ -378,10 +346,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/packages/metadata/{metadataId}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -410,74 +374,160 @@ paths:
                 $ref: '#/components/schemas/HttpError'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   schemas:
-    ImportPlatformTitleInstance:
-      type: object
-      description: 'Either platform or platformUrl must be provided.
-
-        '
-      required:
-      - titleInstance
-      properties:
-        platform:
-          type: string
-        platformUrl:
-          type: string
-          format: uri
-        url:
-          type: string
-          format: uri
-        titleInstance:
-          $ref: '#/components/schemas/ImportTitleInstance'
-    IdentifierOccurrence:
-      type: object
-      properties:
-        title:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-        identifier:
-          $ref: '#/components/schemas/Identifier'
-        status:
-          $ref: '#/components/schemas/Refdata'
-    Embargo:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        movingWallStart:
-          $ref: '#/components/schemas/EmbargoStatement'
-        movingWallEnd:
-          $ref: '#/components/schemas/EmbargoStatement'
-    PackageDescriptionUrl:
+    AlternateResourceName:
       type: object
       required:
       - id
+      - name
       properties:
         id:
           type: string
           format: uuid
-        url:
+        name:
           type: string
-          format: uri
-    ImportIdentifier:
+    PackageIngressMetadataResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/PackageIngressMetadata'
+    ImportPackageRecords:
+      type: object
+      description: Envelope for importing one or more packages using the mod-agreements-package schema v2
+      required:
+      - records
+      properties:
+        records:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ImportPackage'
+    ImportPackageSuccess:
+      type: object
+      properties:
+        packageId:
+          type: string
+          format: uuid
+    Package:
       type: object
       required:
-      - namespace
-      - value
+      - name
+      - source
+      - reference
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.Pkg
+          source:
+            type: string
+          sourceDataCreated:
+            type: string
+            format: date-time
+          sourceDataUpdated:
+            type: string
+            format: date-time
+          sourceTitleCount:
+            type: integer
+          syncContentsFromSource:
+            type: boolean
+          reference:
+            type: string
+          nominalPlatform:
+            $ref: '#/components/schemas/Platform'
+          vendor:
+            $ref: '#/components/schemas/Organisation'
+          lifecycleStatus:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          availabilityScope:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          packageDescriptionUrls:
+            type: array
+            items:
+              $ref: '#/components/schemas/PackageDescriptionUrl'
+          contentTypes:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContentType'
+          availabilityConstraints:
+            type: array
+            items:
+              $ref: '#/components/schemas/AvailabilityConstraint'
+          resourceCount:
+            type: integer
+    TitleInstance:
+      type: object
+      required:
+      - name
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.TitleInstance
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          identifiers:
+            type: array
+            items:
+              $ref: '#/components/schemas/IdentifierOccurrence'
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+          relatedTitles:
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/TitleInstanceRef'
+    PackageResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/PackageResultsArray'
+    PackageResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Package'
+    Organisation:
+      type: object
       properties:
-        namespace:
+        id:
           type: string
-        value:
+          format: uuid
+        name:
           type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
     TitleInstanceRef:
       description: A lightweight representation of a title instance, used where a title references another title (e.g. `TitleInstance.relatedTitles`). Unlike the full `TitleInstance` representation, fields such as `class`, `dateCreated` and `coverage` are not populated on this partial view, and it does not nest further `relatedTitles`.
       allOf:
@@ -500,6 +550,70 @@ components:
           work:
             type: object
             properties:
+              id:
+                type: string
+                format: uuid
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    PackageContentItemResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/PackageContentItemResultsArray'
+    AvailabilityConstraint:
+      type: object
+      required:
+      - id
+      - body
+      properties:
+        id:
+          type: string
+          format: uuid
+        body:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    Platform:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        locators:
+          type: array
+          items:
+            type: object
+            properties:
+              domainName:
+                type: string
               id:
                 type: string
                 format: uuid
@@ -597,69 +711,324 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/ImportContentItem'
-    Package:
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        normValue:
+          type: string
+        value:
+          type: string
+    PackageDescriptionUrl:
       type: object
       required:
-      - name
-      - source
-      - reference
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+    PackageIngressMetadataResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/PackageIngressMetadataResultsArray'
+    ImportIdentifier:
+      type: object
+      required:
+      - namespace
+      - value
+      properties:
+        namespace:
+          type: string
+        value:
+          type: string
+    Embargo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        movingWallStart:
+          $ref: '#/components/schemas/EmbargoStatement'
+        movingWallEnd:
+          $ref: '#/components/schemas/EmbargoStatement'
+    ImportTitleInstance:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        subType:
+          type: string
+        publicationType:
+          type: string
+        dateMonographPublished:
+          type: string
+        firstAuthor:
+          type: string
+        firstEditor:
+          type: string
+        monographEdition:
+          type: string
+        monographVolume:
+          type: string
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportIdentifier'
+    IdentifierOccurrence:
+      type: object
+      properties:
+        title:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        identifier:
+          $ref: '#/components/schemas/Identifier'
+        status:
+          $ref: '#/components/schemas/Refdata'
+    EmbargoStatement:
+      type: object
+      properties:
+        unit:
+          type: string
+          enum:
+          - days
+          - months
+          - years
+        length:
+          type: integer
+    PackageContentItemResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/PackageContentItem'
+    ImportPlatformTitleInstance:
+      type: object
+      description: 'Either platform or platformUrl must be provided.
+
+        '
+      required:
+      - titleInstance
+      properties:
+        platform:
+          type: string
+        platformUrl:
+          type: string
+          format: uri
+        url:
+          type: string
+          format: uri
+        titleInstance:
+          $ref: '#/components/schemas/ImportTitleInstance'
+    PackageIngressMetadata:
+      type: object
+      required:
+      - resource
+      properties:
+        id:
+          type: string
+          format: uuid
+        resource:
+          $ref: '#/components/schemas/ErmResource'
+        ingressType:
+          type: string
+          enum:
+          - PUSHKB
+          - HARVEST
+          - JSON_IMPORT
+          - KBART_IMPORT
+        ingressId:
+          type: string
+        ingressUrl:
+          type: string
+          format: uri
+        contentIngressId:
+          type: string
+        contentIngressUrl:
+          type: string
+          format: uri
+        dateCreated:
+          type: integer
+          readOnly: true
+        lastUpdated:
+          type: integer
+          readOnly: true
+    PackageContentItem:
+      type: object
+      required:
       - class
       allOf:
       - $ref: '#/components/schemas/ErmResource'
       - properties:
           class:
             enum:
-            - org.olf.kb.Pkg
-          source:
+            - org.olf.kb.PackageContentItem
+          accessStart:
             type: string
-          sourceDataCreated:
+            format: date
+          accessEnd:
             type: string
-            format: date-time
-          sourceDataUpdated:
-            type: string
-            format: date-time
-          sourceTitleCount:
+            format: date
+          addedTimestamp:
             type: integer
-          syncContentsFromSource:
-            type: boolean
-          reference:
+          depth:
             type: string
-          nominalPlatform:
+          lastSeenTimestamp:
+            type: integer
+          longName:
+            type: string
+          note:
+            type: string
+          removedTimestamp:
+            type: integer
+          embargo:
+            $ref: '#/components/schemas/Embargo'
+          pkg:
+            $ref: '#/components/schemas/Package'
+          pti:
+            $ref: '#/components/schemas/PlatformTitleInstance'
+    PlatformTitleInstance:
+      type: object
+      required:
+      - platform
+      - titleInstance
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PlatformTitleInstance
+          longName:
+            type: string
+          platform:
             $ref: '#/components/schemas/Platform'
-          vendor:
-            $ref: '#/components/schemas/Organisation'
-          lifecycleStatus:
-            oneOf:
-            - type: string
-            - $ref: '#/components/schemas/Refdata'
-          availabilityScope:
-            oneOf:
-            - type: string
-            - $ref: '#/components/schemas/Refdata'
-          packageDescriptionUrls:
-            type: array
-            items:
-              $ref: '#/components/schemas/PackageDescriptionUrl'
-          contentTypes:
-            type: array
-            items:
-              $ref: '#/components/schemas/ContentType'
-          availabilityConstraints:
-            type: array
-            items:
-              $ref: '#/components/schemas/AvailabilityConstraint'
-          resourceCount:
-            type: integer
-    AlternateResourceName:
+          titleInstance:
+            $ref: '#/components/schemas/TitleInstance'
+          url:
+            type: string
+            format: uri
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    ContentType:
       type: object
       required:
       - id
-      - name
+      - contentType
       properties:
         id:
           type: string
           format: uuid
-        name:
+        contentType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    CoverageStatement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        summary:
+          type: string
+        startVolume:
+          type: string
+        startIssue:
+          type: string
+        endVolume:
+          type: string
+        endIssue:
+          type: string
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    ImportContentItem:
+      type: object
+      required:
+      - sourceIdentifier
+      - sourceIdentifierNamespace
+      - platformTitleInstance
+      properties:
+        sourceIdentifier:
+          type: string
+        sourceIdentifierNamespace:
+          type: string
+        note:
+          type: string
+        depth:
+          type: string
+        accessStart:
+          type: string
+          format: date
+        accessEnd:
+          type: string
+          format: date
+        embargo:
+          type: string
+        removedTimestamp:
+          type: integer
+          format: int64
+        coverage:
+          type: array
+          items:
+            type: object
+            required:
+            - startDate
+            properties:
+              startDate:
+                type: string
+                format: date
+              endDate:
+                type: string
+                format: date
+              startVolume:
+                type: string
+              startIssue:
+                type: string
+              endVolume:
+                type: string
+              endIssue:
+                type: string
+        platformTitleInstance:
+          $ref: '#/components/schemas/ImportPlatformTitleInstance'
+    Identifier:
+      type: object
+      properties:
+        ns:
+          type: object
+          properties:
+            value:
+              type: string
+        value:
           type: string
     ErmResource:
       type: object
@@ -733,470 +1102,11 @@ components:
               org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
               org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
               org.olf.kb.Pkg: '#/components/schemas/Package'
-    PackageContentItemResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/PackageContentItem'
-    PackageIngressMetadataResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/PackageIngressMetadataResultsArray'
-    PackageResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/PackageResultsArray'
-    PackageContentItemResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/PackageContentItemResultsArray'
-    TitleInstance:
-      type: object
-      required:
-      - name
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.TitleInstance
-          dateMonographPublished:
-            type: string
-            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
-          firstAuthor:
-            type: string
-          firstEditor:
-            type: string
-          identifiers:
-            type: array
-            items:
-              $ref: '#/components/schemas/IdentifierOccurrence'
-          longName:
-            type: string
-            readOnly: true
-          monographEdition:
-            type: string
-          monographVolume:
-            type: string
-          work:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-          relatedTitles:
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/TitleInstanceRef'
-    CoverageStatement:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        summary:
-          type: string
-        startVolume:
-          type: string
-        startIssue:
-          type: string
-        endVolume:
-          type: string
-        endIssue:
-          type: string
-    PackageContentItem:
-      type: object
-      required:
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.PackageContentItem
-          accessStart:
-            type: string
-            format: date
-          accessEnd:
-            type: string
-            format: date
-          addedTimestamp:
-            type: integer
-          depth:
-            type: string
-          lastSeenTimestamp:
-            type: integer
-          longName:
-            type: string
-          note:
-            type: string
-          removedTimestamp:
-            type: integer
-          embargo:
-            $ref: '#/components/schemas/Embargo'
-          pkg:
-            $ref: '#/components/schemas/Package'
-          pti:
-            $ref: '#/components/schemas/PlatformTitleInstance'
-    ImportPackageSuccess:
-      type: object
-      properties:
-        packageId:
-          type: string
-          format: uuid
-    PackageIngressMetadata:
-      type: object
-      required:
-      - resource
-      properties:
-        id:
-          type: string
-          format: uuid
-        resource:
-          $ref: '#/components/schemas/ErmResource'
-        ingressType:
-          type: string
-          enum:
-          - PUSHKB
-          - HARVEST
-          - JSON_IMPORT
-          - KBART_IMPORT
-        ingressId:
-          type: string
-        ingressUrl:
-          type: string
-          format: uri
-        contentIngressId:
-          type: string
-        contentIngressUrl:
-          type: string
-          format: uri
-        dateCreated:
-          type: integer
-          readOnly: true
-        lastUpdated:
-          type: integer
-          readOnly: true
-    PlatformTitleInstance:
-      type: object
-      required:
-      - platform
-      - titleInstance
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.PlatformTitleInstance
-          longName:
-            type: string
-          platform:
-            $ref: '#/components/schemas/Platform'
-          titleInstance:
-            $ref: '#/components/schemas/TitleInstance'
-          url:
-            type: string
-            format: uri
-    Refdata:
-      type: object
-      properties:
-        id:
-          type: string
-        label:
-          type: string
-        value:
-          type: string
-    ImportTitleInstance:
-      type: object
-      properties:
-        name:
-          type: string
-        type:
-          type: string
-        subType:
-          type: string
-        publicationType:
-          type: string
-        dateMonographPublished:
-          type: string
-        firstAuthor:
-          type: string
-        firstEditor:
-          type: string
-        monographEdition:
-          type: string
-        monographVolume:
-          type: string
-        identifiers:
-          type: array
-          items:
-            $ref: '#/components/schemas/ImportIdentifier'
-    PackageIngressMetadataResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/PackageIngressMetadata'
-    EmbargoStatement:
-      type: object
-      properties:
-        unit:
-          type: string
-          enum:
-          - days
-          - months
-          - years
-        length:
-          type: integer
-    AvailabilityConstraint:
-      type: object
-      required:
-      - id
-      - body
-      properties:
-        id:
-          type: string
-          format: uuid
-        body:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-    ImportPackageRecords:
-      type: object
-      description: Envelope for importing one or more packages using the mod-agreements-package schema v2
-      required:
-      - records
-      properties:
-        records:
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/ImportPackage'
-    PackageResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/Package'
-    ImportContentItem:
-      type: object
-      required:
-      - sourceIdentifier
-      - sourceIdentifierNamespace
-      - platformTitleInstance
-      properties:
-        sourceIdentifier:
-          type: string
-        sourceIdentifierNamespace:
-          type: string
-        note:
-          type: string
-        depth:
-          type: string
-        accessStart:
-          type: string
-          format: date
-        accessEnd:
-          type: string
-          format: date
-        embargo:
-          type: string
-        removedTimestamp:
-          type: integer
-          format: int64
-        coverage:
-          type: array
-          items:
-            type: object
-            required:
-            - startDate
-            properties:
-              startDate:
-                type: string
-                format: date
-              endDate:
-                type: string
-                format: date
-              startVolume:
-                type: string
-              startIssue:
-                type: string
-              endVolume:
-                type: string
-              endIssue:
-                type: string
-        platformTitleInstance:
-          $ref: '#/components/schemas/ImportPlatformTitleInstance'
-    ContentType:
-      type: object
-      required:
-      - id
-      - contentType
-      properties:
-        id:
-          type: string
-          format: uuid
-        contentType:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-    Platform:
-      type: object
-      required:
-      - name
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        dateCreated:
-          type: string
-          format: date-time
-        lastUpdated:
-          type: string
-          format: date-time
-        locators:
-          type: array
-          items:
-            type: object
-            properties:
-              domainName:
-                type: string
-              id:
-                type: string
-                format: uuid
-    ResultsMeta:
-      type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    HttpError:
-      type: object
-      properties:
-        message:
-          type: string
-        error:
-          type: integer
-    Tag:
-      type: object
-      properties:
-        id:
-          type: integer
-        normValue:
-          type: string
-        value:
-          type: string
-    Identifier:
-      type: object
-      properties:
-        ns:
-          type: object
-          properties:
-            value:
-              type: string
-        value:
-          type: string
-    Organisation:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        orgsUuid:
-          type: string
-          format: uuid
-        orgsUuid_object:
-          type: object
   parameters:
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
     packageId:
       in: path
       name: packageId
       description: UUID for a Package
-      required: true
-      schema:
-        type: string
-        format: uuid
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
-    metadataId:
-      in: path
-      name: metadataId
-      description: UUID for a PackageIngressMetadata record
       required: true
       schema:
         type: string
@@ -1207,6 +1117,38 @@ components:
       required: false
       schema:
         type: boolean
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    metadataId:
+      in: path
+      name: metadataId
+      description: UUID for a PackageIngressMetadata record
+      required: true
+      schema:
+        type: string
+        format: uuid
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
     packageSubset:
       in: path
       name: packageSubset
@@ -1218,6 +1160,24 @@ components:
         - dropped
         - future
         - all
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
     match:
       in: query
       name: match
@@ -1233,6 +1193,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-agreements-openapi.json
-- folio-mod-agreements-openapi.yml

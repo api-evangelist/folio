@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Entitlement Log API
   version: 7.3.0
+  title: Folio ERM Agreements Entitlement Log API
+  description: API for the Folio library services platform mod-agreements app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Entitlement Log across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -49,10 +49,6 @@ paths:
           description: Forbidden
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/entitlementLogEntry/{entitlementLogEntryId}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -81,16 +77,8 @@ paths:
                 $ref: '#/components/schemas/HttpError'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   schemas:
-    EntitlementLogEntryResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/EntitlementLogEntry'
     EntitlementLogEntry:
       type: object
       properties:
@@ -157,6 +145,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TemplatedUrl'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    EntitlementLogEntryResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/EntitlementLogEntryResultsArray'
     IdentifierOccurrence:
       type: object
       properties:
@@ -170,6 +183,17 @@ components:
           $ref: '#/components/schemas/Identifier'
         status:
           $ref: '#/components/schemas/Refdata'
+    EntitlementLogEntryResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/EntitlementLogEntry'
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
     TemplatedUrl:
       type: object
       required:
@@ -183,16 +207,6 @@ components:
         url:
           type: string
           format: uri
-    EntitlementLogEntryResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/EntitlementLogEntryResultsArray'
     CoverageStatement:
       type: object
       properties:
@@ -224,28 +238,6 @@ components:
           type: string
         value:
           type: string
-    ResultsMeta:
-      type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    HttpError:
-      type: object
-      properties:
-        message:
-          type: string
-        error:
-          type: integer
     Identifier:
       type: object
       properties:
@@ -257,15 +249,15 @@ components:
         value:
           type: string
   parameters:
-    filters:
+    stats:
       in: query
-      name: filters
+      name: stats
       required: false
       schema:
-        type: string
-    page:
+        type: boolean
+    perPage:
       in: query
-      name: page
+      name: perPage
       required: false
       schema:
         type: integer
@@ -275,16 +267,10 @@ components:
       required: false
       schema:
         type: string
-    perPage:
+    filters:
       in: query
-      name: perPage
+      name: filters
       required: false
-      schema:
-        type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
       schema:
         type: string
     entitlementLogEntryId:
@@ -307,12 +293,18 @@ components:
       required: false
       schema:
         type: string
-    stats:
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
       in: query
-      name: stats
+      name: page
       required: false
       schema:
-        type: boolean
+        type: integer
     match:
       in: query
       name: match
@@ -328,6 +320,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-agreements-openapi.json
-- folio-mod-agreements-openapi.yml

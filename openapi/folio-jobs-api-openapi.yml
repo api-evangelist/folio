@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Jobs API
   version: '1.0'
-  description: 'Operations tagged Jobs across 4 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-data-export-spring-jobs-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-data-export-spring-jobs-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Jobs across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-data-export-spring-jobs-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -981,141 +981,36 @@ paths:
     servers:
     - url: /data-export-spring/
 components:
-  parameters:
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    jobId:
-      in: path
-      name: jobId
-      description: UUID for a persistent job
-      required: true
-      schema:
-        type: string
-        format: uuid
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
-    stats:
-      in: query
-      name: stats
-      required: false
-      schema:
-        type: boolean
-    jobType:
-      in: path
-      name: jobType
-      description: Unlike job creation, listing by type is not restricted to the types postable via /erm/jobs/{jobType} -- any PersistentJob subtype can be filtered on here, including types only ever created internally
-      required: true
-      schema:
-        type: string
-        enum:
-        - comparison
-        - coverageRegeneration
-        - packageImport
-        - kbartImport
-        - packageIngest
-        - supplementaryDocumentsCleaning
-        - externalEntitlementSync
-        - packageTriggerResync
-        - titleIngest
-        - resourceDeletion
-        - eHoldingsEntitlementSync
-        - identifierReassignment
-    match:
-      in: query
-      name: match
-      required: false
-      schema:
-        type: string
-    trait_queryable_query:
-      name: query
-      in: query
-      description: A query string to filter rules based on matching criteria in fields.
-      schema:
-        type: string
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    trait_pageable_offset:
-      name: offset
-      in: query
-      description: Skip over a number of elements by specifying an offset value for the query
-      schema:
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-        type: integer
   schemas:
-    LogEntryResultsArray:
+    PersistentJobResultsArray:
       type: array
       items:
-        $ref: '#/components/schemas/LogEntry'
-    GrailsErrorResponse:
+        $ref: '#/components/schemas/PersistentJob'
+    LogEntryResults:
       type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
       required:
-      - error
-      - timestamp
-      - message
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/LogEntryResultsArray'
+    ResultsMeta:
+      type: object
       properties:
-        error:
+        meta:
+          type: object
+        page:
           type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
-        message:
-          type: string
-        exception:
-          type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
     PersistentJob:
       type: object
       properties:
@@ -1181,6 +1076,91 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ComparisonPoint'
+    LogEntryResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/LogEntry'
+    File:
+      type: object
+      required:
+      - id
+      - name
+      - size
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          type: string
+          description: MIME type of the uploaded file
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          description: Original filename of the uploaded file
+        size:
+          type: integer
+          description: Size of the uploaded file in bytes
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    ComparisonPoint:
+      type: object
+      properties:
+        titleList:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date-time
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
     CreatePackageImportJobBody:
       type: object
       description: Used for jobType packageImport. Requires either fileUpload or payload to supply the package file
@@ -1201,77 +1181,15 @@ components:
         fileTitle:
           description: Optional file name to use when payload is supplied instead of fileUpload
           type: string
-    PersistentJobResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/PersistentJob'
-    ComparisonPoint:
+    Refdata:
       type: object
       properties:
-        titleList:
+        id:
           type: string
-          format: uuid
-        date:
+        label:
           type: string
-          format: date-time
-    CreateComparisonJobBody:
-      type: object
-      description: Used for jobType comparison
-      required:
-      - name
-      - comparisonPoints
-      properties:
-        name:
+        value:
           type: string
-        comparisonPoints:
-          type: array
-          minItems: 2
-          items:
-            $ref: '#/components/schemas/ComparisonPoint'
-    CreateKbartImportJobBody:
-      type: object
-      description: Used for jobType kbartImport. Requires either fileUpload or payload to supply the KBART file, plus package identification fields
-      required:
-      - packageName
-      - packageSource
-      - packageReference
-      properties:
-        name:
-          description: Derived from the uploaded file's name if omitted
-          type: string
-        fileUpload:
-          description: Reference to a file already uploaded via /erm/files
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-        payload:
-          description: Raw JSON payload. If provided without fileUpload, it is automatically wrapped into a file server-side
-          type: object
-        fileTitle:
-          description: Optional file name to use when payload is supplied instead of fileUpload
-          type: string
-        packageName:
-          type: string
-        packageSource:
-          type: string
-        packageReference:
-          type: string
-        packageProvider:
-          type: string
-        trustedSourceTI:
-          type: boolean
-    LogEntryResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/LogEntryResultsArray'
     ComparisonJob:
       type: object
       properties:
@@ -1324,97 +1242,54 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ComparisonPoint'
-    Refdata:
+    CreateComparisonJobBody:
       type: object
+      description: Used for jobType comparison
+      required:
+      - name
+      - comparisonPoints
       properties:
-        id:
+        name:
           type: string
-        label:
-          type: string
-        value:
-          type: string
-    ApplicationError:
-      type: object
-      properties:
-        total:
-          type: integer
-        errors:
+        comparisonPoints:
           type: array
+          minItems: 2
           items:
-            type: object
-            properties:
-              code:
-                type: string
-              i18n_code:
-                type: string
-              message:
-                type: string
-              object:
-                type: string
-    ResultsMeta:
+            $ref: '#/components/schemas/ComparisonPoint'
+    CreateKbartImportJobBody:
       type: object
+      description: Used for jobType kbartImport. Requires either fileUpload or payload to supply the KBART file, plus package identification fields
+      required:
+      - packageName
+      - packageSource
+      - packageReference
       properties:
-        meta:
+        name:
+          description: Derived from the uploaded file's name if omitted
+          type: string
+        fileUpload:
+          description: Reference to a file already uploaded via /erm/files
           type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    CreateSimpleJobBody:
-      type: object
-      description: Used for jobType values coverageRegeneration, packageIngest, and supplementaryDocumentsCleaning -- these job types take no extra input beyond a name
-      required:
-      - name
-      properties:
-        name:
+          properties:
+            id:
+              type: string
+              format: uuid
+        payload:
+          description: Raw JSON payload. If provided without fileUpload, it is automatically wrapped into a file server-side
+          type: object
+        fileTitle:
+          description: Optional file name to use when payload is supplied instead of fileUpload
           type: string
-    File:
-      type: object
-      required:
-      - id
-      - name
-      - size
-      properties:
-        id:
+        packageName:
           type: string
-          format: uuid
-          readOnly: true
-        contentType:
+        packageSource:
           type: string
-          description: MIME type of the uploaded file
-        modified:
+        packageReference:
           type: string
-          format: date-time
-          readOnly: true
-        name:
+        packageProvider:
           type: string
-          description: Original filename of the uploaded file
-        size:
-          type: integer
-          description: Size of the uploaded file in bytes
-    HttpError:
-      type: object
-      properties:
-        message:
-          type: string
-        error:
-          type: integer
-    PersistentJobResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/PersistentJobResultsArray'
+        trustedSourceTI:
+          type: boolean
     LogEntry:
       type: object
       properties:
@@ -1440,51 +1315,24 @@ components:
               type: string
             tenantId:
               type: string
-    bursarExportFilter:
-      description: Filter for bursar export job
-      oneOf:
-      - $ref: '#/components/schemas/bursarExportFilterAge'
-      - $ref: '#/components/schemas/bursarExportFilterAmount'
-      - $ref: '#/components/schemas/bursarExportFilterFeeType'
-      - $ref: '#/components/schemas/bursarExportFilterLocation'
-      - $ref: '#/components/schemas/bursarExportFilterPatronGroup'
-      - $ref: '#/components/schemas/bursarExportFilterServicePoint'
-      - $ref: '#/components/schemas/bursarExportFilterCondition'
-      - $ref: '#/components/schemas/bursarExportFilterNegation'
-      - $ref: '#/components/schemas/bursarExportFilterPass'
-      - $ref: '#/components/schemas/bursarExportFilterFeeFineOwner'
-      discriminator:
-        propertyName: type
-        mapping:
-          Age: '#/components/schemas/bursarExportFilterAge'
-          Amount: '#/components/schemas/bursarExportFilterAmount'
-          FeeType: '#/components/schemas/bursarExportFilterFeeType'
-          FeeFineOwner: '#/components/schemas/bursarExportFilterFeeFineOwner'
-          Location: '#/components/schemas/bursarExportFilterLocation'
-          PatronGroup: '#/components/schemas/bursarExportFilterPatronGroup'
-          ServicePoint: '#/components/schemas/bursarExportFilterServicePoint'
-          Condition: '#/components/schemas/bursarExportFilterCondition'
-          Negation: '#/components/schemas/bursarExportFilterNegation'
-          Pass: '#/components/schemas/bursarExportFilterPass'
-    AuthorityControlExportConfig:
+    PersistentJobResults:
       type: object
-      properties:
-        fromDate:
-          description: Report date range start
-          type: string
-          format: date
-        toDate:
-          description: Report date range end
-          type: string
-          format: date
       required:
-      - fromDate
-      - toDate
-    ErrorType:
-      type: string
-      enum:
-      - ERROR
-      - WARNING
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/PersistentJobResultsArray'
+    CreateSimpleJobBody:
+      type: object
+      description: Used for jobType values coverageRegeneration, packageIngest, and supplementaryDocumentsCleaning -- these job types take no extra input beyond a name
+      required:
+      - name
+      properties:
+        name:
+          type: string
     bursarExportTransferCriteria:
       description: Transfer criteria
       type: object
@@ -1521,27 +1369,61 @@ components:
       required:
       - conditions
       - else
-    bursarExportTokenFeeAmount:
-      description: Token to represent fee amount
+    bursarExportJob:
+      description: Bursar export job schema
       type: object
       properties:
-        type:
-          description: Type of data token
-          type: string
-          default: FeeAmount
-        decimal:
-          description: Whether to return value with decimal
+        filter:
+          description: Filter to use for the regular export
+          $ref: '#/components/schemas/bursarExportFilter'
+        groupByPatron:
+          description: Choose whether to group fee/fines by patron
           type: boolean
-        lengthControl:
-          description: Control length of the token
-          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+        groupByPatronFilter:
+          description: Filter to use for the export when grouping by patron
+          $ref: '#/components/schemas/bursarExportFilterAggregate'
+        header:
+          description: Header format for the export file
+          type: array
+          items:
+            $ref: '#/components/schemas/bursarExportHeaderFooterToken'
+        data:
+          description: Data format for the export file
+          type: array
+          items:
+            $ref: '#/components/schemas/bursarExportDataToken'
+        footer:
+          description: Footer format for the export file
+          type: array
+          items:
+            $ref: '#/components/schemas/bursarExportHeaderFooterToken'
+        transferInfo:
+          description: Transfer information for the export
+          $ref: '#/components/schemas/bursarExportTransferCriteria'
       additionalProperties: false
       required:
-      - type
-      - decimal
-    UUID:
-      type: string
-      format: uuid
+      - filter
+      - groupByPatron
+      - header
+      - data
+      - footer
+      - transferInfo
+    Errors:
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_error_records:
+          description: Total number of errors
+          type: integer
+        total_warning_records:
+          description: Total number of warnings
+          type: integer
+      additionalProperties: false
     Metadata:
       type: object
       title: Metadata Schema
@@ -1571,203 +1453,79 @@ components:
           type: string
           maxLength: 50
       additionalProperties: false
-    Parameters:
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
-    bursarExportTokenUserData:
-      description: Token to represent user data
+    bursarExportFilterFeeFineOwner:
+      description: Filter by fee fine owner
       type: object
       properties:
         type:
-          description: Type of data token
+          description: Type of filter
           type: string
-          default: UserData
-        value:
-          description: User data to represent
+          default: FeeFineOwner
+        feeFineOwner:
+          description: Id of fee/fine owner to filter by
           type: string
-          enum:
-          - FOLIO_ID
-        lengthControl:
-          description: Control length of token
-          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+          format: uuid
       additionalProperties: false
       required:
       - type
-      - value
-    bursarExportTokenFeeMetadata:
-      description: Token to represent fee metadata
+      - feeFineOwner
+    AuthorityControlExportConfig:
+      type: object
+      properties:
+        fromDate:
+          description: Report date range start
+          type: string
+          format: date
+        toDate:
+          description: Report date range end
+          type: string
+          format: date
+      required:
+      - fromDate
+      - toDate
+    bursarExportFilterFeeType:
+      description: Filter by fee type
       type: object
       properties:
         type:
-          description: Type of data token
+          description: Type of filter
           type: string
-          default: FeeMetadata
-        value:
-          description: Metadata to represent
+          default: FeeType
+        feeFineTypeId:
+          description: Id of fee/fine type to filter by
           type: string
-          enum:
-          - FEE_FINE_TYPE_ID
-          - FEE_FINE_TYPE_NAME
-        lengthControl:
-          description: Control length of token
-          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+          format: uuid
       additionalProperties: false
       required:
       - type
-      - value
-    bursarExportTokenLengthControl:
-      description: Token to fill in or truncate the length of another token
-      type: object
-      properties:
-        character:
-          description: Character to fill in with
-          type: string
-          maxLength: 1
-        length:
-          description: Desired length for the token
-          type: integer
-        direction:
-          description: Direction to fill in or truncate from
-          type: string
-          enum:
-          - FRONT
-          - BACK
-        truncate:
-          description: Whether to truncate the token if it is longer than the desired length
-          type: boolean
-      additionalProperties: false
-      required:
-      - character
-      - length
-      - direction
-      - truncate
-    Error:
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          description: Error message type
-          $ref: '#/components/schemas/ErrorType'
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
-    JobCollection:
-      type: object
-      properties:
-        jobRecords:
-          type: array
-          description: Jobs
-          items:
-            $ref: '#/components/schemas/Job'
-        totalRecords:
-          type: integer
-      required:
-      - jobRecords
-      - totalRecords
-    Errors:
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error'
-        total_error_records:
-          description: Total number of errors
-          type: integer
-        total_warning_records:
-          description: Total number of warnings
-          type: integer
-      additionalProperties: false
-    ExportTypeSpecificParameters:
-      type: object
-      properties:
-        bursarFeeFines:
-          $ref: '#/components/schemas/bursarExportJob'
-        vendorEdiOrdersExportConfig:
-          $ref: '#/components/schemas/VendorEdiOrdersExportConfig'
-        query:
-          description: CQL query to be passed to the module which data is being exported. Use it to filter data.
-          type: string
-          maxLength: 5000
-        eHoldingsExportConfig:
-          $ref: '#/components/schemas/EHoldingsExportConfig'
-        authorityControlExportConfig:
-          $ref: '#/components/schemas/AuthorityControlExportConfig'
-    Progress:
-      type: object
-      properties:
-        total:
-          type: integer
-          minimum: 0
-          default: 0
-          description: Total number of records being processed
-        processed:
-          type: integer
-          minimum: 0
-          default: 0
-          description: Current number of records already processed
-        progress:
-          type: integer
-          minimum: 0
-          maximum: 100
-          default: 0
-          description: Current progress in %
-        success:
-          type: integer
-          minimum: 0
-          maximum: 0
-          default: 0
-          description: Current number of success processed records
-        errors:
-          type: integer
-          minimum: 0
-          maximum: 0
-          default: 0
-          description: Current number of errors
-        warnings:
-          type: integer
-          minimum: 0
-          maximum: 0
-          default: 0
-          description: Current number of warnings
-    bursarExportTokenAggregate:
-      description: Token to represent aggregated result of multiple fees
+      - feeFineTypeId
+    bursarExportFilterLocation:
+      description: Filter by location
       type: object
       properties:
         type:
-          description: Type of data token
+          description: Type of filter
           type: string
-          default: Aggregate
-        value:
-          description: Data to represent
+          default: Location
+        locationId:
+          description: Id of location to filter by
           type: string
-          enum:
-          - NUM_ROWS
-          - TOTAL_AMOUNT
-        decimal:
-          type: boolean
-          description: Whether to return value with decimal. Only applicable for total amount
-        lengthControl:
-          description: Control length of the token
-          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+          format: uuid
       additionalProperties: false
       required:
       - type
-      - value
-      - decimal
+      - locationId
+    bursarExportFilterPass:
+      description: Filter that is always true
+      type: object
+      properties:
+        type:
+          description: Type of filter
+          type: string
+          default: Pass
+      additionalProperties: false
+      required:
+      - type
     bursarExportFilterAge:
       description: Filter by fees within certain days range
       type: object
@@ -1793,82 +1551,84 @@ components:
       - type
       - numDays
       - condition
-    bursarExportFilterLocation:
-      description: Filter by location
+    ScheduleParameters:
       type: object
       properties:
-        type:
-          description: Type of filter
-          type: string
-          default: Location
-        locationId:
-          description: Id of location to filter by
+        id:
+          description: Schedule unique identifier
           type: string
           format: uuid
-      additionalProperties: false
-      required:
-      - type
-      - locationId
-    bursarExportHeaderFooterToken:
-      description: Token permitted in header/footer
-      oneOf:
-      - $ref: '#/components/schemas/bursarExportTokenAggregate'
-      - $ref: '#/components/schemas/bursarExportTokenConstant'
-      - $ref: '#/components/schemas/bursarExportTokenCurrentDate'
-      discriminator:
-        propertyName: type
-        mapping:
-          Aggregate: '#/components/schemas/bursarExportTokenAggregate'
-          Constant: '#/components/schemas/bursarExportTokenConstant'
-          CurrentDate: '#/components/schemas/bursarExportTokenCurrentDate'
-    bursarExportFilterNegation:
-      description: Negation of filter for bursar export
+        scheduleFrequency:
+          type: integer
+          description: Number of time periods
+        schedulePeriod:
+          type: string
+          description: Time period for repeating job
+          enum:
+          - MONTH
+          - WEEK
+          - DAY
+          - HOUR
+          - EXACT_DATE
+          - NONE
+        schedulingDate:
+          description: The date (MM/DD/YYYY) for this job to start running
+          format: date-time
+          type: string
+        scheduleTime:
+          type: string
+          description: Time to run the job
+        scheduleDay:
+          type: integer
+          description: Day of month to run the job (One-based)
+        weekDays:
+          type: array
+          description: Day of week to run the job
+          items:
+            type: string
+            description: Day of week
+            enum:
+            - MONDAY
+            - TUESDAY
+            - WEDNESDAY
+            - THURSDAY
+            - FRIDAY
+            - SATURDAY
+            - SUNDAY
+        timeZone:
+          type: string
+          description: Schedule time zone
+          default: UTC
+    EHoldingsExportConfig:
       type: object
       properties:
-        type:
-          description: Type of filter
+        recordId:
+          description: Unique identifier of package - combination of providerId-packageId
+          example: 91525-1152699-659590
           type: string
-          default: Negation
-        criteria:
-          description: Filter to negate
-          $ref: '#/components/schemas/bursarExportFilter'
-      additionalProperties: false
+        recordType:
+          type: string
+          description: The record type
+          enum:
+          - PACKAGE
+          - RESOURCE
+        titleSearchFilters:
+          description: The filters needed to filter package titles
+          example: filter[name]=title&sort=name
+          type: string
+        packageFields:
+          description: The list of package fields for export
+          type: array
+          items:
+            type: string
+        titleFields:
+          description: The list of title fields for export
+          type: array
+          items:
+            type: string
       required:
-      - type
-      - criteria
-    ExportType:
-      type: string
-      enum:
-      - CIRCULATION_LOG
-      - BURSAR_FEES_FINES
-      - BATCH_VOUCHER_EXPORT
-      - EDIFACT_ORDERS_EXPORT
-      - CLAIMS
-      - ORDERS_EXPORT
-      - INVOICE_EXPORT
-      - BULK_EDIT_IDENTIFIERS
-      - BULK_EDIT_QUERY
-      - BULK_EDIT_UPDATE
-      - E_HOLDINGS
-      - AUTH_HEADINGS_UPDATES
-      - FAILED_LINKED_BIB_UPDATES
-      default: BURSAR_FEES_FINES
-    bursarExportFilterServicePoint:
-      description: Filter by service point
-      type: object
-      properties:
-        type:
-          description: Type of filter
-          type: string
-          default: ServicePoint
-        servicePointId:
-          description: Id of service point to filter by
-          type: string
-          format: uuid
-      additionalProperties: false
-      required:
-      - type
-      - servicePointId
+      - recordId
+      - recordType
     EdiConfig:
       type: object
       properties:
@@ -1924,57 +1684,202 @@ components:
           description: If true then invoice support
           type: boolean
           default: false
-    bursarExportFilterCondition:
-      description: Filter conditional operations
+    bursarExportTokenUserDataOptional:
+      description: Token to represent optional user data
       type: object
       properties:
         type:
-          description: Type of filter
+          description: Type of data token
           type: string
-          default: Condition
-        operation:
-          description: Conditional operation of the filter
+          default: UserDataOptional
+        value:
+          description: Optional user data to represent
           type: string
           enum:
-          - AND
-          - OR
-        criteria:
-          description: Criteria to apply of the filter
-          type: array
-          items:
-            $ref: '#/components/schemas/bursarExportFilter'
+          - BARCODE
+          - USERNAME
+          - FIRST_NAME
+          - MIDDLE_NAME
+          - LAST_NAME
+          - PATRON_GROUP_ID
+          - EXTERNAL_SYSTEM_ID
+        placeholder:
+          description: Placeholder text to display when no value is present
+          type: string
+        lengthControl:
+          description: Control length of token
+          $ref: '#/components/schemas/bursarExportTokenLengthControl'
       additionalProperties: false
       required:
       - type
-      - operation
-      - criteria
-    bursarExportFilterFeeFineOwner:
-      description: Filter by fee fine owner
+      - value
+      - placeholder
+    ExportTypeSpecificParameters:
+      type: object
+      properties:
+        bursarFeeFines:
+          $ref: '#/components/schemas/bursarExportJob'
+        vendorEdiOrdersExportConfig:
+          $ref: '#/components/schemas/VendorEdiOrdersExportConfig'
+        query:
+          description: CQL query to be passed to the module which data is being exported. Use it to filter data.
+          type: string
+          maxLength: 5000
+        eHoldingsExportConfig:
+          $ref: '#/components/schemas/EHoldingsExportConfig'
+        authorityControlExportConfig:
+          $ref: '#/components/schemas/AuthorityControlExportConfig'
+    bursarExportTokenUserData:
+      description: Token to represent user data
+      type: object
+      properties:
+        type:
+          description: Type of data token
+          type: string
+          default: UserData
+        value:
+          description: User data to represent
+          type: string
+          enum:
+          - FOLIO_ID
+        lengthControl:
+          description: Control length of token
+          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+      additionalProperties: false
+      required:
+      - type
+      - value
+    bursarExportFilterServicePoint:
+      description: Filter by service point
       type: object
       properties:
         type:
           description: Type of filter
           type: string
-          default: FeeFineOwner
-        feeFineOwner:
-          description: Id of fee/fine owner to filter by
+          default: ServicePoint
+        servicePointId:
+          description: Id of service point to filter by
           type: string
           format: uuid
       additionalProperties: false
       required:
       - type
-      - feeFineOwner
-    bursarExportFilterPass:
-      description: Filter that is always true
+      - servicePointId
+    bursarExportTokenFeeDate:
+      description: Token to represent part of date about a fee
+      type: object
+      properties:
+        type:
+          description: Type of data token
+          type: string
+          default: FeeDate
+        property:
+          description: Property of fee to be represented by token
+          type: string
+          enum:
+          - CREATED
+          - UPDATED
+          - DUE
+          - RETURNED
+        value:
+          description: Type of date value to represent
+          $ref: '#/components/schemas/bursarExportTokenDateType'
+        placeholder:
+          description: Placeholder value to use if date is not available
+          type: string
+        timezone:
+          description: Timezone to use for date
+          type: string
+        lengthControl:
+          description: Control length of token
+          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+      additionalProperties: false
+      required:
+      - type
+      - property
+      - value
+      - placeholder
+      - timezone
+    ErrorType:
+      type: string
+      enum:
+      - ERROR
+      - WARNING
+    bursarExportHeaderFooterToken:
+      description: Token permitted in header/footer
+      oneOf:
+      - $ref: '#/components/schemas/bursarExportTokenAggregate'
+      - $ref: '#/components/schemas/bursarExportTokenConstant'
+      - $ref: '#/components/schemas/bursarExportTokenCurrentDate'
+      discriminator:
+        propertyName: type
+        mapping:
+          Aggregate: '#/components/schemas/bursarExportTokenAggregate'
+          Constant: '#/components/schemas/bursarExportTokenConstant'
+          CurrentDate: '#/components/schemas/bursarExportTokenCurrentDate'
+    bursarExportDataToken:
+      description: Usable token for bursar export
+      oneOf:
+      - $ref: '#/components/schemas/bursarExportTokenAggregate'
+      - $ref: '#/components/schemas/bursarExportTokenConstant'
+      - $ref: '#/components/schemas/bursarExportTokenCurrentDate'
+      - $ref: '#/components/schemas/bursarExportTokenFeeDate'
+      - $ref: '#/components/schemas/bursarExportTokenFeeAmount'
+      - $ref: '#/components/schemas/bursarExportTokenFeeMetadata'
+      - $ref: '#/components/schemas/bursarExportTokenItemData'
+      - $ref: '#/components/schemas/bursarExportTokenUserData'
+      - $ref: '#/components/schemas/bursarExportTokenUserDataOptional'
+      - $ref: '#/components/schemas/bursarExportTokenConditional'
+      discriminator:
+        propertyName: type
+        mapping:
+          Aggregate: '#/components/schemas/bursarExportTokenAggregate'
+          Constant: '#/components/schemas/bursarExportTokenConstant'
+          CurrentDate: '#/components/schemas/bursarExportTokenCurrentDate'
+          FeeDate: '#/components/schemas/bursarExportTokenFeeDate'
+          FeeAmount: '#/components/schemas/bursarExportTokenFeeAmount'
+          FeeMetadata: '#/components/schemas/bursarExportTokenFeeMetadata'
+          ItemData: '#/components/schemas/bursarExportTokenItemData'
+          UserData: '#/components/schemas/bursarExportTokenUserData'
+          UserDataOptional: '#/components/schemas/bursarExportTokenUserDataOptional'
+          Conditional: '#/components/schemas/bursarExportTokenConditional'
+    bursarExportFilterPatronGroup:
+      description: Filter by patron group
       type: object
       properties:
         type:
           description: Type of filter
           type: string
-          default: Pass
+          default: PatronGroup
+        patronGroupId:
+          description: Id of patron group to filter by
+          type: string
+          format: uuid
       additionalProperties: false
       required:
       - type
+      - patronGroupId
+    bursarExportTokenFeeMetadata:
+      description: Token to represent fee metadata
+      type: object
+      properties:
+        type:
+          description: Type of data token
+          type: string
+          default: FeeMetadata
+        value:
+          description: Metadata to represent
+          type: string
+          enum:
+          - FEE_FINE_TYPE_ID
+          - FEE_FINE_TYPE_NAME
+        lengthControl:
+          description: Control length of token
+          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+      additionalProperties: false
+      required:
+      - type
+      - value
     bursarExportTokenItemData:
       description: Token to represent item data
       type: object
@@ -2005,6 +1910,383 @@ components:
       - type
       - value
       - placeholder
+    bursarExportTokenLengthControl:
+      description: Token to fill in or truncate the length of another token
+      type: object
+      properties:
+        character:
+          description: Character to fill in with
+          type: string
+          maxLength: 1
+        length:
+          description: Desired length for the token
+          type: integer
+        direction:
+          description: Direction to fill in or truncate from
+          type: string
+          enum:
+          - FRONT
+          - BACK
+        truncate:
+          description: Whether to truncate the token if it is longer than the desired length
+          type: boolean
+      additionalProperties: false
+      required:
+      - character
+      - length
+      - direction
+      - truncate
+    JobCollection:
+      type: object
+      properties:
+        jobRecords:
+          type: array
+          description: Jobs
+          items:
+            $ref: '#/components/schemas/Job'
+        totalRecords:
+          type: integer
+      required:
+      - jobRecords
+      - totalRecords
+    bursarExportTokenCurrentDate:
+      description: Token to represent part of date
+      type: object
+      properties:
+        type:
+          description: Type of data token
+          type: string
+          default: Date
+        value:
+          description: Type of date value to represent
+          $ref: '#/components/schemas/bursarExportTokenDateType'
+        timezone:
+          description: Timezone to use for date
+          type: string
+        lengthControl:
+          description: Control length of the token
+          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+      additionalProperties: false
+      required:
+      - type
+      - value
+      - timezone
+    bursarExportTokenConditional:
+      description: Token to represent other data tokens depending on certain conditions
+      type: object
+      properties:
+        type:
+          description: Type of the data token
+          type: string
+          default: Conditional
+        conditions:
+          description: Conditions to apply to the token
+          type: array
+          items:
+            type: object
+            properties:
+              condition:
+                description: Condition to apply to the item
+                $ref: '#/components/schemas/bursarExportFilter'
+              value:
+                description: Data to represent if the condition is true
+                $ref: '#/components/schemas/bursarExportDataToken'
+            additionalProperties: false
+            required:
+            - condition
+            - value
+        else:
+          description: Data to represent if no condition is true
+          $ref: '#/components/schemas/bursarExportDataToken'
+      additionalProperties: false
+      required:
+      - type
+      - conditions
+      - else
+    bursarExportTokenAggregate:
+      description: Token to represent aggregated result of multiple fees
+      type: object
+      properties:
+        type:
+          description: Type of data token
+          type: string
+          default: Aggregate
+        value:
+          description: Data to represent
+          type: string
+          enum:
+          - NUM_ROWS
+          - TOTAL_AMOUNT
+        decimal:
+          type: boolean
+          description: Whether to return value with decimal. Only applicable for total amount
+        lengthControl:
+          description: Control length of the token
+          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+      additionalProperties: false
+      required:
+      - type
+      - value
+      - decimal
+    bursarExportFilterAmount:
+      description: Filter by fee amount
+      type: object
+      properties:
+        type:
+          description: Type of filter
+          type: string
+          default: Amount
+        amount:
+          description: Amount to filter by
+          type: integer
+        condition:
+          description: Condition to filter by
+          type: string
+          enum:
+          - LESS_THAN_EQUAL
+          - LESS_THAN
+          - GREATER_THAN
+          - GREATER_THAN_EQUAL
+      additionalProperties: false
+      required:
+      - type
+      - amount
+      - condition
+    ExportType:
+      type: string
+      enum:
+      - CIRCULATION_LOG
+      - BURSAR_FEES_FINES
+      - BATCH_VOUCHER_EXPORT
+      - EDIFACT_ORDERS_EXPORT
+      - CLAIMS
+      - ORDERS_EXPORT
+      - INVOICE_EXPORT
+      - BULK_EDIT_IDENTIFIERS
+      - BULK_EDIT_QUERY
+      - BULK_EDIT_UPDATE
+      - E_HOLDINGS
+      - AUTH_HEADINGS_UPDATES
+      - FAILED_LINKED_BIB_UPDATES
+      default: BURSAR_FEES_FINES
+    JobStatus:
+      type: string
+      enum:
+      - SCHEDULED
+      - IN_PROGRESS
+      - SUCCESSFUL
+      - FAILED
+    Parameter:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    bursarExportTokenDateType:
+      description: Schema to represent the type of date information
+      type: string
+      enum:
+      - YEAR_LONG
+      - YEAR_SHORT
+      - MONTH
+      - DATE
+      - HOUR
+      - MINUTE
+      - SECOND
+      - QUARTER
+      - WEEK_OF_YEAR_ISO
+      - WEEK_YEAR_ISO
+      - DAY_OF_YEAR
+      - YYYYMMDD
+      - YYYY-MM-DD
+      - MMDDYYYY
+      - DDMMYYYY
+    bursarExportTokenFeeAmount:
+      description: Token to represent fee amount
+      type: object
+      properties:
+        type:
+          description: Type of data token
+          type: string
+          default: FeeAmount
+        decimal:
+          description: Whether to return value with decimal
+          type: boolean
+        lengthControl:
+          description: Control length of the token
+          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+      additionalProperties: false
+      required:
+      - type
+      - decimal
+    IdentifierType:
+      type: string
+      enum:
+      - ID
+      - BARCODE
+      - HRID
+      - FORMER_IDS
+      - ACCESSION_NUMBER
+      - HOLDINGS_RECORD_ID
+      - USER_NAME
+      - EXTERNAL_SYSTEM_ID
+      - INSTANCE_HRID
+      - ITEM_BARCODE
+      - ISBN
+      - ISSN
+    EdiFtp:
+      type: object
+      properties:
+        ftpConnMode:
+          description: The FTP connection mode for this EDI
+          type: string
+          enum:
+          - Active
+          - Passive
+        ftpFormat:
+          description: The FTP format for this EDI
+          type: string
+          enum:
+          - SFTP
+          - FTP
+        ftpMode:
+          description: The FTP mode for this EDI
+          type: string
+          enum:
+          - ASCII
+          - Binary
+        ftpPort:
+          description: The port for this EDI
+          type: integer
+        invoiceDirectory:
+          description: The invoice directory for this EDI
+          type: string
+        isPrimaryTransmissionMethod:
+          description: Primary transmission method
+          type: boolean
+        notes:
+          description: The notes for this EDI
+          type: string
+        orderDirectory:
+          description: The order directory for this EDI
+          type: string
+        password:
+          description: The login password for this EDI
+          type: string
+        serverAddress:
+          description: The server address for this EDI
+          type: string
+        username:
+          description: The login username for this EDI
+          type: string
+    UUID:
+      type: string
+      format: uuid
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          description: Error message type
+          $ref: '#/components/schemas/ErrorType'
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    bursarExportFilter:
+      description: Filter for bursar export job
+      oneOf:
+      - $ref: '#/components/schemas/bursarExportFilterAge'
+      - $ref: '#/components/schemas/bursarExportFilterAmount'
+      - $ref: '#/components/schemas/bursarExportFilterFeeType'
+      - $ref: '#/components/schemas/bursarExportFilterLocation'
+      - $ref: '#/components/schemas/bursarExportFilterPatronGroup'
+      - $ref: '#/components/schemas/bursarExportFilterServicePoint'
+      - $ref: '#/components/schemas/bursarExportFilterCondition'
+      - $ref: '#/components/schemas/bursarExportFilterNegation'
+      - $ref: '#/components/schemas/bursarExportFilterPass'
+      - $ref: '#/components/schemas/bursarExportFilterFeeFineOwner'
+      discriminator:
+        propertyName: type
+        mapping:
+          Age: '#/components/schemas/bursarExportFilterAge'
+          Amount: '#/components/schemas/bursarExportFilterAmount'
+          FeeType: '#/components/schemas/bursarExportFilterFeeType'
+          FeeFineOwner: '#/components/schemas/bursarExportFilterFeeFineOwner'
+          Location: '#/components/schemas/bursarExportFilterLocation'
+          PatronGroup: '#/components/schemas/bursarExportFilterPatronGroup'
+          ServicePoint: '#/components/schemas/bursarExportFilterServicePoint'
+          Condition: '#/components/schemas/bursarExportFilterCondition'
+          Negation: '#/components/schemas/bursarExportFilterNegation'
+          Pass: '#/components/schemas/bursarExportFilterPass'
+    bursarExportFilterCondition:
+      description: Filter conditional operations
+      type: object
+      properties:
+        type:
+          description: Type of filter
+          type: string
+          default: Condition
+        operation:
+          description: Conditional operation of the filter
+          type: string
+          enum:
+          - AND
+          - OR
+        criteria:
+          description: Criteria to apply of the filter
+          type: array
+          items:
+            $ref: '#/components/schemas/bursarExportFilter'
+      additionalProperties: false
+      required:
+      - type
+      - operation
+      - criteria
+    bursarExportFilterAggregate:
+      description: Filter by aggregate data
+      type: object
+      properties:
+        type:
+          description: Type of filter
+          type: string
+          default: Aggregate
+        property:
+          description: Property to filter on
+          type: string
+          enum:
+          - NUM_ROWS
+          - TOTAL_AMOUNT
+        amount:
+          description: Amount to filter on
+          type: integer
+        condition:
+          description: Condition to filter on
+          type: string
+          enum:
+          - LESS_THAN_EQUAL
+          - LESS_THAN
+          - GREATER_THAN
+          - GREATER_THAN_EQUAL
+      additionalProperties: false
+      required:
+      - type
+      - property
+      - amount
+      - condition
     Job:
       type: object
       properties:
@@ -2077,102 +2359,40 @@ components:
       required:
       - type
       - exportTypeSpecificParameters
-    JobStatus:
+    EntityType:
       type: string
       enum:
-      - SCHEDULED
-      - IN_PROGRESS
-      - SUCCESSFUL
-      - FAILED
-    bursarExportTokenFeeDate:
-      description: Token to represent part of date about a fee
+      - USER
+      - ITEM
+      - HOLDINGS_RECORD
+      - INSTANCE
+    bursarExportFilterNegation:
+      description: Negation of filter for bursar export
       type: object
       properties:
         type:
-          description: Type of data token
+          description: Type of filter
           type: string
-          default: FeeDate
-        property:
-          description: Property of fee to be represented by token
-          type: string
-          enum:
-          - CREATED
-          - UPDATED
-          - DUE
-          - RETURNED
-        value:
-          description: Type of date value to represent
-          $ref: '#/components/schemas/bursarExportTokenDateType'
-        placeholder:
-          description: Placeholder value to use if date is not available
-          type: string
-        timezone:
-          description: Timezone to use for date
-          type: string
-        lengthControl:
-          description: Control length of token
-          $ref: '#/components/schemas/bursarExportTokenLengthControl'
+          default: Negation
+        criteria:
+          description: Filter to negate
+          $ref: '#/components/schemas/bursarExportFilter'
       additionalProperties: false
       required:
       - type
-      - property
-      - value
-      - placeholder
-      - timezone
-    IdentifierType:
-      type: string
-      enum:
-      - ID
-      - BARCODE
-      - HRID
-      - FORMER_IDS
-      - ACCESSION_NUMBER
-      - HOLDINGS_RECORD_ID
-      - USER_NAME
-      - EXTERNAL_SYSTEM_ID
-      - INSTANCE_HRID
-      - ITEM_BARCODE
-      - ISBN
-      - ISSN
-    bursarExportJob:
-      description: Bursar export job schema
+      - criteria
+    EdiSchedule:
       type: object
       properties:
-        filter:
-          description: Filter to use for the regular export
-          $ref: '#/components/schemas/bursarExportFilter'
-        groupByPatron:
-          description: Choose whether to group fee/fines by patron
+        enableScheduledExport:
+          description: Whether or not to enable scheduled for exports
           type: boolean
-        groupByPatronFilter:
-          description: Filter to use for the export when grouping by patron
-          $ref: '#/components/schemas/bursarExportFilterAggregate'
-        header:
-          description: Header format for the export file
-          type: array
-          items:
-            $ref: '#/components/schemas/bursarExportHeaderFooterToken'
-        data:
-          description: Data format for the export file
-          type: array
-          items:
-            $ref: '#/components/schemas/bursarExportDataToken'
-        footer:
-          description: Footer format for the export file
-          type: array
-          items:
-            $ref: '#/components/schemas/bursarExportHeaderFooterToken'
-        transferInfo:
-          description: Transfer information for the export
-          $ref: '#/components/schemas/bursarExportTransferCriteria'
-      additionalProperties: false
-      required:
-      - filter
-      - groupByPatron
-      - header
-      - data
-      - footer
-      - transferInfo
+          default: false
+        scheduleParameters:
+          $ref: '#/components/schemas/ScheduleParameters'
+        schedulingNotes:
+          description: The schedule notes for this EDI job
+          type: string
     bursarExportTokenConstant:
       description: Token to represent a constant used as an arbitrary string
       type: object
@@ -2188,255 +2408,48 @@ components:
       required:
       - type
       - value
-    bursarExportFilterFeeType:
-      description: Filter by fee type
-      type: object
-      properties:
-        type:
-          description: Type of filter
-          type: string
-          default: FeeType
-        feeFineTypeId:
-          description: Id of fee/fine type to filter by
-          type: string
-          format: uuid
+    Parameters:
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
       additionalProperties: false
-      required:
-      - type
-      - feeFineTypeId
-    bursarExportFilterAggregate:
-      description: Filter by aggregate data
+    Progress:
       type: object
       properties:
-        type:
-          description: Type of filter
-          type: string
-          default: Aggregate
-        property:
-          description: Property to filter on
-          type: string
-          enum:
-          - NUM_ROWS
-          - TOTAL_AMOUNT
-        amount:
-          description: Amount to filter on
+        total:
           type: integer
-        condition:
-          description: Condition to filter on
-          type: string
-          enum:
-          - LESS_THAN_EQUAL
-          - LESS_THAN
-          - GREATER_THAN
-          - GREATER_THAN_EQUAL
-      additionalProperties: false
-      required:
-      - type
-      - property
-      - amount
-      - condition
-    bursarExportFilterPatronGroup:
-      description: Filter by patron group
-      type: object
-      properties:
-        type:
-          description: Type of filter
-          type: string
-          default: PatronGroup
-        patronGroupId:
-          description: Id of patron group to filter by
-          type: string
-          format: uuid
-      additionalProperties: false
-      required:
-      - type
-      - patronGroupId
-    EdiFtp:
-      type: object
-      properties:
-        ftpConnMode:
-          description: The FTP connection mode for this EDI
-          type: string
-          enum:
-          - Active
-          - Passive
-        ftpFormat:
-          description: The FTP format for this EDI
-          type: string
-          enum:
-          - SFTP
-          - FTP
-        ftpMode:
-          description: The FTP mode for this EDI
-          type: string
-          enum:
-          - ASCII
-          - Binary
-        ftpPort:
-          description: The port for this EDI
+          minimum: 0
+          default: 0
+          description: Total number of records being processed
+        processed:
           type: integer
-        invoiceDirectory:
-          description: The invoice directory for this EDI
-          type: string
-        isPrimaryTransmissionMethod:
-          description: Primary transmission method
-          type: boolean
-        notes:
-          description: The notes for this EDI
-          type: string
-        orderDirectory:
-          description: The order directory for this EDI
-          type: string
-        password:
-          description: The login password for this EDI
-          type: string
-        serverAddress:
-          description: The server address for this EDI
-          type: string
-        username:
-          description: The login username for this EDI
-          type: string
-    bursarExportFilterAmount:
-      description: Filter by fee amount
-      type: object
-      properties:
-        type:
-          description: Type of filter
-          type: string
-          default: Amount
-        amount:
-          description: Amount to filter by
+          minimum: 0
+          default: 0
+          description: Current number of records already processed
+        progress:
           type: integer
-        condition:
-          description: Condition to filter by
-          type: string
-          enum:
-          - LESS_THAN_EQUAL
-          - LESS_THAN
-          - GREATER_THAN
-          - GREATER_THAN_EQUAL
-      additionalProperties: false
-      required:
-      - type
-      - amount
-      - condition
-    ScheduleParameters:
-      type: object
-      properties:
-        id:
-          description: Schedule unique identifier
-          type: string
-          format: uuid
-        scheduleFrequency:
+          minimum: 0
+          maximum: 100
+          default: 0
+          description: Current progress in %
+        success:
           type: integer
-          description: Number of time periods
-        schedulePeriod:
-          type: string
-          description: Time period for repeating job
-          enum:
-          - MONTH
-          - WEEK
-          - DAY
-          - HOUR
-          - EXACT_DATE
-          - NONE
-        schedulingDate:
-          description: The date (MM/DD/YYYY) for this job to start running
-          format: date-time
-          type: string
-        scheduleTime:
-          type: string
-          description: Time to run the job
-        scheduleDay:
+          minimum: 0
+          maximum: 0
+          default: 0
+          description: Current number of success processed records
+        errors:
           type: integer
-          description: Day of month to run the job (One-based)
-        weekDays:
-          type: array
-          description: Day of week to run the job
-          items:
-            type: string
-            description: Day of week
-            enum:
-            - MONDAY
-            - TUESDAY
-            - WEDNESDAY
-            - THURSDAY
-            - FRIDAY
-            - SATURDAY
-            - SUNDAY
-        timeZone:
-          type: string
-          description: Schedule time zone
-          default: UTC
-    bursarExportDataToken:
-      description: Usable token for bursar export
-      oneOf:
-      - $ref: '#/components/schemas/bursarExportTokenAggregate'
-      - $ref: '#/components/schemas/bursarExportTokenConstant'
-      - $ref: '#/components/schemas/bursarExportTokenCurrentDate'
-      - $ref: '#/components/schemas/bursarExportTokenFeeDate'
-      - $ref: '#/components/schemas/bursarExportTokenFeeAmount'
-      - $ref: '#/components/schemas/bursarExportTokenFeeMetadata'
-      - $ref: '#/components/schemas/bursarExportTokenItemData'
-      - $ref: '#/components/schemas/bursarExportTokenUserData'
-      - $ref: '#/components/schemas/bursarExportTokenUserDataOptional'
-      - $ref: '#/components/schemas/bursarExportTokenConditional'
-      discriminator:
-        propertyName: type
-        mapping:
-          Aggregate: '#/components/schemas/bursarExportTokenAggregate'
-          Constant: '#/components/schemas/bursarExportTokenConstant'
-          CurrentDate: '#/components/schemas/bursarExportTokenCurrentDate'
-          FeeDate: '#/components/schemas/bursarExportTokenFeeDate'
-          FeeAmount: '#/components/schemas/bursarExportTokenFeeAmount'
-          FeeMetadata: '#/components/schemas/bursarExportTokenFeeMetadata'
-          ItemData: '#/components/schemas/bursarExportTokenItemData'
-          UserData: '#/components/schemas/bursarExportTokenUserData'
-          UserDataOptional: '#/components/schemas/bursarExportTokenUserDataOptional'
-          Conditional: '#/components/schemas/bursarExportTokenConditional'
-    bursarExportTokenConditional:
-      description: Token to represent other data tokens depending on certain conditions
-      type: object
-      properties:
-        type:
-          description: Type of the data token
-          type: string
-          default: Conditional
-        conditions:
-          description: Conditions to apply to the token
-          type: array
-          items:
-            type: object
-            properties:
-              condition:
-                description: Condition to apply to the item
-                $ref: '#/components/schemas/bursarExportFilter'
-              value:
-                description: Data to represent if the condition is true
-                $ref: '#/components/schemas/bursarExportDataToken'
-            additionalProperties: false
-            required:
-            - condition
-            - value
-        else:
-          description: Data to represent if no condition is true
-          $ref: '#/components/schemas/bursarExportDataToken'
-      additionalProperties: false
-      required:
-      - type
-      - conditions
-      - else
-    Parameter:
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
+          minimum: 0
+          maximum: 0
+          default: 0
+          description: Current number of errors
+        warnings:
+          type: integer
+          minimum: 0
+          maximum: 0
+          default: 0
+          description: Current number of warnings
     VendorEdiOrdersExportConfig:
       type: object
       properties:
@@ -2489,126 +2502,113 @@ components:
           items:
             description: UUID of the piece
             type: string
-    bursarExportTokenUserDataOptional:
-      description: Token to represent optional user data
-      type: object
-      properties:
-        type:
-          description: Type of data token
-          type: string
-          default: UserDataOptional
-        value:
-          description: Optional user data to represent
-          type: string
-          enum:
-          - BARCODE
-          - USERNAME
-          - FIRST_NAME
-          - MIDDLE_NAME
-          - LAST_NAME
-          - PATRON_GROUP_ID
-          - EXTERNAL_SYSTEM_ID
-        placeholder:
-          description: Placeholder text to display when no value is present
-          type: string
-        lengthControl:
-          description: Control length of token
-          $ref: '#/components/schemas/bursarExportTokenLengthControl'
-      additionalProperties: false
-      required:
-      - type
-      - value
-      - placeholder
-    EdiSchedule:
-      type: object
-      properties:
-        enableScheduledExport:
-          description: Whether or not to enable scheduled for exports
-          type: boolean
-          default: false
-        scheduleParameters:
-          $ref: '#/components/schemas/ScheduleParameters'
-        schedulingNotes:
-          description: The schedule notes for this EDI job
-          type: string
-    EntityType:
-      type: string
-      enum:
-      - USER
-      - ITEM
-      - HOLDINGS_RECORD
-      - INSTANCE
-    bursarExportTokenDateType:
-      description: Schema to represent the type of date information
-      type: string
-      enum:
-      - YEAR_LONG
-      - YEAR_SHORT
-      - MONTH
-      - DATE
-      - HOUR
-      - MINUTE
-      - SECOND
-      - QUARTER
-      - WEEK_OF_YEAR_ISO
-      - WEEK_YEAR_ISO
-      - DAY_OF_YEAR
-      - YYYYMMDD
-      - YYYY-MM-DD
-      - MMDDYYYY
-      - DDMMYYYY
-    bursarExportTokenCurrentDate:
-      description: Token to represent part of date
-      type: object
-      properties:
-        type:
-          description: Type of data token
-          type: string
-          default: Date
-        value:
-          description: Type of date value to represent
-          $ref: '#/components/schemas/bursarExportTokenDateType'
-        timezone:
-          description: Timezone to use for date
-          type: string
-        lengthControl:
-          description: Control length of the token
-          $ref: '#/components/schemas/bursarExportTokenLengthControl'
-      additionalProperties: false
-      required:
-      - type
-      - value
-      - timezone
-    EHoldingsExportConfig:
-      type: object
-      properties:
-        recordId:
-          description: Unique identifier of package - combination of providerId-packageId
-          example: 91525-1152699-659590
-          type: string
-        recordType:
-          type: string
-          description: The record type
-          enum:
-          - PACKAGE
-          - RESOURCE
-        titleSearchFilters:
-          description: The filters needed to filter package titles
-          example: filter[name]=title&sort=name
-          type: string
-        packageFields:
-          description: The list of package fields for export
-          type: array
-          items:
-            type: string
-        titleFields:
-          description: The list of title fields for export
-          type: array
-          items:
-            type: string
-      required:
-      - recordId
-      - recordType
+  parameters:
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    jobType:
+      in: path
+      name: jobType
+      description: Unlike job creation, listing by type is not restricted to the types postable via /erm/jobs/{jobType} -- any PersistentJob subtype can be filtered on here, including types only ever created internally
+      required: true
+      schema:
+        type: string
+        enum:
+        - comparison
+        - coverageRegeneration
+        - packageImport
+        - kbartImport
+        - packageIngest
+        - supplementaryDocumentsCleaning
+        - externalEntitlementSync
+        - packageTriggerResync
+        - titleIngest
+        - resourceDeletion
+        - eHoldingsEntitlementSync
+        - identifierReassignment
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    jobId:
+      in: path
+      name: jobId
+      description: UUID for a persistent job
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    trait_queryable_query:
+      name: query
+      in: query
+      description: A query string to filter rules based on matching criteria in fields.
+      schema:
+        type: string
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -2621,5 +2621,3 @@ components:
 x-refined-from:
 - folio-mod-agreements-openapi.json
 - folio-mod-data-export-spring-jobs-openapi.json
-- folio-mod-agreements-openapi.yml
-- folio-mod-data-export-spring-jobs-openapi.yml

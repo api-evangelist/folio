@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Location Mappings API
+  title: INN-Reach Settings Location Mappings API
   version: v1
-  description: 'Operations tagged location-mappings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -57,8 +56,6 @@ paths:
       - $ref: '#/components/parameters/libraryId'
       summary: Put location mappings
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
   /central-servers/{centralServerId}/libraries/locations/location-mappings/:
     get:
       description: Get a list of libraries locations to Inn-Reach location mappings for the given central server
@@ -82,24 +79,11 @@ paths:
       - $ref: '#/components/parameters/centralServerId'
       summary: Get location mappings for all libraries by server id
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
   schemas:
-    validationErrorDTO:
-      description: Validation error
-      type: object
-      properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
-      additionalProperties: false
-      required:
-      - fieldName
-      - message
+    UUID:
+      type: string
+      format: uuid
     Error:
       type: object
       properties:
@@ -126,9 +110,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/validationErrorDTO'
-    UUID:
-      type: string
-      format: uuid
     locationMappingDTO:
       $schema: http://json-schema.org/draft-04/schema#
       description: Location mapping
@@ -203,6 +184,20 @@ components:
       additionalProperties: false
       required:
       - locationMappings
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
   responses:
     trait_response_validation_400:
       description: Bad request
@@ -232,21 +227,19 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
     libraryId:
       name: libraryId
       in: path
       required: true
       schema:
         $ref: '#/components/schemas/UUID'
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
     trait_pageable_offset:
       name: offset
       in: query
@@ -256,13 +249,12 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-    centralServerId:
-      name: centralServerId
-      in: path
-      required: true
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
       schema:
-        type: string
-        format: uuid
-x-refined-from:
-- folio-mod-inn-reach-settings-openapi.json
-- folio-mod-inn-reach-settings-openapi.yml
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer

@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Custom Property Definitions API
   version: 7.3.0
+  title: Folio ERM Agreements Custom Property Definitions API
+  description: API for the Folio library services platform mod-agreements app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Custom Property Definitions across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -87,10 +87,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/custprops/{custpropId}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -187,10 +183,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/custprops/contexts:
     get:
       tags:
@@ -219,42 +211,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   parameters:
-    filters:
+    stats:
       in: query
-      name: filters
+      name: stats
       required: false
       schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
+        type: boolean
     perPage:
       in: query
       name: perPage
       required: false
       schema:
         type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
     custpropId:
       in: path
       name: custpropId
@@ -263,6 +233,18 @@ components:
       schema:
         type: string
         format: uuid
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
     offset:
       in: query
       name: offset
@@ -275,12 +257,18 @@ components:
       required: false
       schema:
         type: string
-    stats:
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
       in: query
-      name: stats
+      name: page
       required: false
       schema:
-        type: boolean
+        type: integer
     match:
       in: query
       name: match
@@ -288,73 +276,10 @@ components:
       schema:
         type: string
   schemas:
-    GrailsErrorResponse:
-      type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
-      required:
-      - error
-      - timestamp
-      - message
-      properties:
-        error:
-          type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
-        message:
-          type: string
-        exception:
-          type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
     CustomPropertyDefinitionResultsArray:
       type: array
       items:
         $ref: '#/components/schemas/CustomPropertyDefinition'
-    Refdata:
-      type: object
-      properties:
-        id:
-          type: string
-        label:
-          type: string
-        value:
-          type: string
-    RefdataCategory:
-      type: object
-      properties:
-        desc:
-          type: string
-        id:
-          type: string
-        internal:
-          type: boolean
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/Refdata'
-    ApplicationError:
-      type: object
-      properties:
-        total:
-          type: integer
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              code:
-                type: string
-              i18n_code:
-                type: string
-              message:
-                type: string
-              object:
-                type: string
     ResultsMeta:
       type: object
       properties:
@@ -369,6 +294,26 @@ components:
         totalPages:
           type: integer
         totalRecords:
+          type: integer
+    RefdataCategory:
+      type: object
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refdata'
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
           type: integer
     CustomPropertyDefinition:
       type: object
@@ -394,13 +339,24 @@ components:
           description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
         category:
           $ref: '#/components/schemas/RefdataCategory'
-    HttpError:
+    ApplicationError:
       type: object
       properties:
-        message:
-          type: string
-        error:
+        total:
           type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
     CustomPropertyDefinitionResults:
       type: object
       required:
@@ -411,6 +367,38 @@ components:
       - properties:
           results:
             $ref: '#/components/schemas/CustomPropertyDefinitionResultsArray'
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -420,6 +408,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-agreements-openapi.json
-- folio-mod-agreements-openapi.yml

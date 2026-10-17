@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Tenant Controller API
   version: v0
-  description: 'Operations tagged tenant-controller across 4 of this provider''s published API definitions: folio-mod-camunda-openapi-openapi.json, folio-mod-workflow-openapi-openapi.json, folio-mod-camunda-openapi-openapi.yml, folio-mod-workflow-openapi-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged tenant-controller across 2 of this provider''s published API definitions: folio-mod-camunda-openapi-openapi.json, folio-mod-workflow-openapi-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: http://localhost:9000
   description: Generated server url
@@ -123,12 +123,12 @@ components:
         total_records:
           type: integer
           format: int32
-    Parameter:
+    TenantAttributes:
       type: object
       properties:
-        key:
+        moduleTo:
           type: string
-        value:
+        moduleFrom:
           type: string
     Error:
       required:
@@ -145,13 +145,33 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Parameter'
-    TenantAttributes:
+    Parameter:
       type: object
       properties:
-        moduleTo:
+        key:
           type: string
-        moduleFrom:
+        value:
           type: string
+    error:
+      type: object
+      description: An error message
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          description: List of key/value parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+      required:
+      - message
     parameter:
       type: object
       description: Key/value parameter
@@ -182,26 +202,6 @@ components:
           description: List of key/value parameters
           items:
             $ref: '#/components/schemas/parameter'
-    error:
-      type: object
-      description: An error message
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: array
-          description: List of key/value parameters
-          items:
-            $ref: '#/components/schemas/parameter'
-      required:
-      - message
     errors:
       type: object
       description: A set of error messages
@@ -218,5 +218,3 @@ components:
 x-refined-from:
 - folio-mod-camunda-openapi-openapi.json
 - folio-mod-workflow-openapi-openapi.json
-- folio-mod-camunda-openapi-openapi.yml
-- folio-mod-workflow-openapi-openapi.yml

@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Note Types API
+  title: Notes Note Types API
   version: 3.0.0
-  description: 'Operations tagged note-types across 2 of this provider''s published API definitions: folio-mod-notes-openapi.json, folio-mod-notes-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: note-types
 paths:
@@ -101,6 +100,71 @@ paths:
       summary: Delete note type
       x-summary-source: derived
 components:
+  responses:
+    NoteTypeCollection:
+      description: Returns a note types collectiom
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/noteTypeCollection'
+    NotFound:
+      description: Resource with a given ID not found
+      content:
+        text/plain:
+          example: resource not found
+    NoteType:
+      description: Returns a note type
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/noteType'
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    Unauthorized:
+      description: Not authorized to perform requested action
+      content:
+        text/plain:
+          example: unable to perform action -- unauthorized
+  parameters:
+    cqlQueryNoteType:
+      name: query
+      in: query
+      schema:
+        type: string
+        default: cql.allRecords=1
+      required: false
+      description: A query expressed as a CQL string, for details see [Note Types API](https://github.com/folio-org/mod-notes/blob/master/docs/api-guide.md#note-types-api)
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+      required: false
+      description: Skip over a number of elements by specifying an offset value for the query
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 1000
+        minimum: 1
+        maximum: 2147483647
+      required: false
+      description: Limit the number of elements returned in the response
+    resourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/uuid'
+      description: The UUID of a resource
   schemas:
     userInfo:
       type: object
@@ -122,28 +186,6 @@ components:
         lastName: Doe
         firstName: John
         middleName: X.
-    noteTypeCollection:
-      type: object
-      title: Collection of note types
-      description: Collection of note types
-      properties:
-        noteTypes:
-          type: array
-          items:
-            $ref: '#/components/schemas/noteType'
-        totalRecords:
-          type: integer
-          readOnly: true
-          description: Total amount of note types
-      required:
-      - noteTypes
-      example:
-        noteTypes:
-        - id: 118dbd8c-5ba0-47a9-a850-34bbb1dbf3b7
-          name: Important Note
-        - id: 46669e09-8b45-4ede-afbd-ca73bb89cdb3
-          label: Urgent Note
-        totalRecords: 2
     uuid:
       type: string
       format: uuid
@@ -275,71 +317,28 @@ components:
           x-fqm-ignore: true
       required:
       - createdDate
-  parameters:
-    offset:
-      name: offset
-      in: query
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-      required: false
-      description: Skip over a number of elements by specifying an offset value for the query
-    cqlQueryNoteType:
-      name: query
-      in: query
-      schema:
-        type: string
-        default: cql.allRecords=1
-      required: false
-      description: A query expressed as a CQL string, for details see [Note Types API](https://github.com/folio-org/mod-notes/blob/master/docs/api-guide.md#note-types-api)
-    resourceId:
-      name: id
-      in: path
-      required: true
-      schema:
-        $ref: '#/components/schemas/uuid'
-      description: The UUID of a resource
-    limit:
-      name: limit
-      in: query
-      schema:
-        type: integer
-        default: 1000
-        minimum: 1
-        maximum: 2147483647
-      required: false
-      description: Limit the number of elements returned in the response
-  responses:
-    Unauthorized:
-      description: Not authorized to perform requested action
-      content:
-        text/plain:
-          example: unable to perform action -- unauthorized
-    UnprocessableEntity:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    NoteType:
-      description: Returns a note type
-      content:
-        application/json:
-          schema:
+    noteTypeCollection:
+      type: object
+      title: Collection of note types
+      description: Collection of note types
+      properties:
+        noteTypes:
+          type: array
+          items:
             $ref: '#/components/schemas/noteType'
-    NoteTypeCollection:
-      description: Returns a note types collectiom
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/noteTypeCollection'
-    NotFound:
-      description: Resource with a given ID not found
-      content:
-        text/plain:
-          example: resource not found
+        totalRecords:
+          type: integer
+          readOnly: true
+          description: Total amount of note types
+      required:
+      - noteTypes
+      example:
+        noteTypes:
+        - id: 118dbd8c-5ba0-47a9-a850-34bbb1dbf3b7
+          name: Important Note
+        - id: 46669e09-8b45-4ede-afbd-ca73bb89cdb3
+          label: Urgent Note
+        totalRecords: 2
   requestBodies:
     NoteTypeBody:
       description: Note type object
@@ -348,6 +347,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/noteType'
-x-refined-from:
-- folio-mod-notes-openapi.json
-- folio-mod-notes-openapi.yml

@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Statistics API
   version: 7.3.0
+  title: Folio ERM Agreements Statistics API
+  description: API for the Folio library services platform mod-agreements app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Statistics across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -56,10 +56,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/statistics/sasCount:
     get:
       tags:
@@ -92,11 +88,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
+  parameters:
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
   schemas:
     GrailsErrorResponse:
       type: object
@@ -121,13 +120,6 @@ components:
           type: array
           items:
             type: string
-  parameters:
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -137,6 +129,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-agreements-openapi.json
-- folio-mod-agreements-openapi.yml

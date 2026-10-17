@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Permissions Users API
+  title: Mod Roles Keycloak Permissions Users API
   version: v1
-  description: 'Operations tagged permissions-users across 2 of this provider''s published API definitions: folio-mod-roles-keycloak-openapi.json, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Mod Roles Keycloak API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -35,9 +35,6 @@ paths:
           $ref: '#/components/responses/notImplementedResponse'
       summary: Get permissions user
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
   parameters:
     entitledOnly:
@@ -48,18 +45,6 @@ components:
       schema:
         type: boolean
         default: false
-    desiredPermissions:
-      in: query
-      name: desiredPermissions
-      description: A list of permissions to filter by
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-      example:
-      - users.item.get
-      - users.collection.*
     pathEntityId:
       in: path
       required: true
@@ -77,7 +62,40 @@ components:
         type: boolean
         default: false
       example: false
+    desiredPermissions:
+      in: query
+      name: desiredPermissions
+      description: A list of permissions to filter by
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      example:
+      - users.item.get
+      - users.collection.*
+  responses:
+    notImplementedResponse:
+      description: Operation is not supported error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/notImplementedResponse'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
   schemas:
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
     permissions_user:
       $schema: http://json-schema.org/draft-04/schema#
       title: Permissions User Schema
@@ -98,40 +116,3 @@ components:
       required:
       - userId
       - permissions
-    errors:
-      description: A set of errors
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-  responses:
-    internalServerErrorResponse:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            $ref: '#/components/examples/internalServerErrorResponse'
-    notImplementedResponse:
-      description: Operation is not supported error response in JSON format for validation errors.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            $ref: '#/components/examples/notImplementedResponse'
-  examples:
-    permissionsUserResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    notImplementedResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    internalServerErrorResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-x-refined-from:
-- folio-mod-roles-keycloak-openapi.json
-- folio-mod-roles-keycloak-openapi.yml

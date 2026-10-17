@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Retrievals API
+  title: Remote storages Retrievals API
   version: v1
-  description: 'Operations tagged Retrievals across 2 of this provider''s published API definitions: folio-mod-remote-storage-openapi.json, folio-mod-remote-storage-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /remote-storage/
 tags:
@@ -36,8 +35,6 @@ paths:
       - Retrievals
       summary: Get retrievals
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
   /retrievals/id/{retrievalId}:
     put:
       responses:
@@ -60,8 +57,6 @@ paths:
       - Retrievals
       summary: Set retrieved by id
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
   /retrievals/barcode/{barcode}:
     put:
       responses:
@@ -84,18 +79,22 @@ paths:
       - Retrievals
       summary: Set retrieved by barcode
       x-summary-source: derived
-    servers:
-    - url: /remote-storage/
 components:
   schemas:
-    baseCollection:
+    retrievalQueues:
+      allOf:
+      - $ref: '#/components/schemas/baseCollection'
+      - type: object
+        properties:
+          retrievals:
+            type: array
+            items:
+              $ref: '#/components/schemas/retrievalQueue'
+    uuid:
       $schema: http://json-schema.org/draft-04/schema#
-      description: Basic object to create pageable responses
-      type: object
-      properties:
-        totalRecords:
-          description: total records value
-          type: integer
+      description: Regexp pattern for UUID validation
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
     retrievalQueue:
       $schema: http://json-schema.org/draft-04/schema#
       description: Retrieval queue
@@ -154,20 +153,14 @@ components:
           $ref: '#/components/schemas/metadata'
       additionalProperties: false
       required: []
-    uuid:
+    baseCollection:
       $schema: http://json-schema.org/draft-04/schema#
-      description: Regexp pattern for UUID validation
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
-    retrievalQueues:
-      allOf:
-      - $ref: '#/components/schemas/baseCollection'
-      - type: object
-        properties:
-          retrievals:
-            type: array
-            items:
-              $ref: '#/components/schemas/retrievalQueue'
+      description: Basic object to create pageable responses
+      type: object
+      properties:
+        totalRecords:
+          description: total records value
+          type: integer
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -198,27 +191,24 @@ components:
       required:
       - createdDate
   parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    trait_queryable_storage_id:
-      name: storageId
-      in: query
-      description: Remote storage id
-      schema:
-        type: string
     trait_queryable_retrieved:
       name: retrieved
       in: query
       description: Flag to indicate, that retrievals queue record was retrieved and has retrievals date
       schema:
         type: boolean
+    trait_queryable_storage_id:
+      name: storageId
+      in: query
+      description: Remote storage id
+      schema:
+        type: string
+    trait_queryable_created_date:
+      name: createdDate
+      in: query
+      description: Date of accession queue record creation
+      schema:
+        type: string
     trait_pageable_offset:
       name: offset
       in: query
@@ -228,12 +218,12 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-    trait_queryable_created_date:
-      name: createdDate
+    trait_pageable_limit:
+      name: limit
       in: query
-      description: Date of accession queue record creation
+      description: Limit the number of elements returned in the response
       schema:
-        type: string
-x-refined-from:
-- folio-mod-remote-storage-openapi.json
-- folio-mod-remote-storage-openapi.yml
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer

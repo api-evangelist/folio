@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Batch Job API
+  title: Linked Data Batch Job API
   version: v1
-  description: 'Operations tagged batchJob across 2 of this provider''s published API definitions: folio-mod-linked-data-openapi.json, folio-mod-linked-data-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Linked Data service API
 tags:
 - name: batchJob
 paths:
@@ -90,32 +90,6 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-    errors:
-      description: A set of errors
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
     batchJobStatusDto:
       $schema: http://json-schema.org/draft-04/schema#
       description: Batch job status DTO
@@ -156,6 +130,13 @@ components:
         status:
           type: string
           description: Current status of the batch job (e.g. STARTED, COMPLETED, FAILED)
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
     error:
       description: An error
       $schema: http://json-schema.org/draft-04/schema#
@@ -174,36 +155,33 @@ components:
           type: object
           description: Error message parameters
           $ref: '#/components/schemas/parameters'
-    parameters:
+    parameter:
       description: List of key/value parameters of an error
       $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-  responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example: example/unknownError.sample
-          schema:
-            $ref: '#/components/schemas/errors'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          example: examples/validationErrorResponse.sample
-          schema:
-            $ref: '#/components/schemas/errors'
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
   parameters:
-    resourceType:
-      name: resourceType
-      in: query
-      required: false
-      description: 'The specified resource type to be re-indexed. Available options: HUB, WORK'
-      schema:
-        type: string
     jobExecutionId:
       name: jobExecutionId
       in: query
@@ -212,6 +190,25 @@ components:
       schema:
         type: integer
         format: int64
-x-refined-from:
-- folio-mod-linked-data-openapi.json
-- folio-mod-linked-data-openapi.yml
+    resourceType:
+      name: resourceType
+      in: query
+      required: false
+      description: 'The specified resource type to be re-indexed. Available options: HUB, WORK'
+      schema:
+        type: string
+  responses:
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example: examples/validationErrorResponse.sample
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example: example/unknownError.sample
+          schema:
+            $ref: '#/components/schemas/errors'

@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio String Templates API
   version: 7.3.0
+  title: Folio ERM Agreements String Templates API
+  description: API for the Folio library services platform mod-agreements app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged String Templates across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -87,10 +87,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/sts/{stringTemplateId}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -187,10 +183,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/sts/template:
     get:
       tags:
@@ -217,10 +209,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/sts/template/{platformId}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -248,40 +236,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   parameters:
-    filters:
-      in: query
-      name: filters
-      required: false
+    stringTemplateId:
+      in: path
+      name: stringTemplateId
+      description: UUID for a string template
+      required: true
       schema:
         type: string
-    page:
+        format: uuid
+    stats:
       in: query
-      name: page
+      name: stats
       required: false
       schema:
-        type: integer
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
+        type: boolean
     perPage:
       in: query
       name: perPage
       required: false
       schema:
         type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
+    platformId:
+      in: path
+      name: platformId
+      description: UUID for a Platform
       required: true
+      schema:
+        type: string
+        format: uuid
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
       schema:
         type: string
     offset:
@@ -296,28 +290,18 @@ components:
       required: false
       schema:
         type: string
-    stringTemplateId:
-      in: path
-      name: stringTemplateId
-      description: UUID for a string template
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
       required: true
       schema:
         type: string
-        format: uuid
-    platformId:
-      in: path
-      name: platformId
-      description: UUID for a Platform
-      required: true
-      schema:
-        type: string
-        format: uuid
-    stats:
+    page:
       in: query
-      name: stats
+      name: page
       required: false
       schema:
-        type: boolean
+        type: integer
     match:
       in: query
       name: match
@@ -325,6 +309,106 @@ components:
       schema:
         type: string
   schemas:
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    StringTemplatesForPlatform:
+      type: object
+      description: String templates applicable to a given Platform, split by how they're applied when generating a templated URL.
+      properties:
+        urlProxiers:
+          type: array
+          description: Templates with context `urlProxier` applicable to this platform.
+          items:
+            $ref: '#/components/schemas/StringTemplate'
+        urlCustomisers:
+          type: array
+          description: Templates with context `urlCustomiser` applicable to this platform.
+          items:
+            $ref: '#/components/schemas/StringTemplate'
+    StringTemplateResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/StringTemplate'
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    StringTemplateResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/StringTemplateResultsArray'
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
     StringTemplate:
       type: object
       required:
@@ -359,106 +443,6 @@ components:
           items:
             type: string
             format: uuid
-    GrailsErrorResponse:
-      type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
-      required:
-      - error
-      - timestamp
-      - message
-      properties:
-        error:
-          type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
-        message:
-          type: string
-        exception:
-          type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
-    StringTemplateResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/StringTemplate'
-    StringTemplatesForPlatform:
-      type: object
-      description: String templates applicable to a given Platform, split by how they're applied when generating a templated URL.
-      properties:
-        urlProxiers:
-          type: array
-          description: Templates with context `urlProxier` applicable to this platform.
-          items:
-            $ref: '#/components/schemas/StringTemplate'
-        urlCustomisers:
-          type: array
-          description: Templates with context `urlCustomiser` applicable to this platform.
-          items:
-            $ref: '#/components/schemas/StringTemplate'
-    StringTemplateResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/StringTemplateResultsArray'
-    Refdata:
-      type: object
-      properties:
-        id:
-          type: string
-        label:
-          type: string
-        value:
-          type: string
-    ApplicationError:
-      type: object
-      properties:
-        total:
-          type: integer
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              code:
-                type: string
-              i18n_code:
-                type: string
-              message:
-                type: string
-              object:
-                type: string
-    ResultsMeta:
-      type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    HttpError:
-      type: object
-      properties:
-        message:
-          type: string
-        error:
-          type: integer
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -468,6 +452,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-agreements-openapi.json
-- folio-mod-agreements-openapi.yml

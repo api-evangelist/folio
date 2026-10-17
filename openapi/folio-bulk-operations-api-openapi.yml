@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Bulk Operations API
+  title: Bulk Operations API
   version: v1
-  description: 'Operations tagged Bulk Operations across 2 of this provider''s published API definitions: folio-mod-bulk-operations-openapi.json, folio-mod-bulk-operations-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Bulk operations API
 tags:
 - name: Bulk Operations
 paths:
@@ -778,6 +778,207 @@ paths:
       - Bulk Operations
 components:
   schemas:
+    BulkOperationStep:
+      type: string
+      enum:
+      - UPLOAD
+      - EDIT
+      - COMMIT
+      - DELETE
+    DataType:
+      type: string
+      enum:
+      - NUMERIC
+      - DATE_TIME
+      - STRING
+    MarcRuleDetails:
+      type: object
+      properties:
+        tag:
+          description: MARC field tag
+          type: string
+        ind1:
+          description: MARC field indicator 1
+          type: string
+          pattern: '[a-z0-9#\\]'
+        ind2:
+          description: MARC field indicator 2
+          type: string
+          pattern: '[a-z0-9#\\]'
+        subfield:
+          description: MARC subfield code
+          type: string
+          pattern: '[a-z0-9]*'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcAction'
+          minItems: 1
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcParameter'
+        subfields:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcSubfieldAction'
+        updateOption:
+          description: Option to change
+          $ref: '#/components/schemas/UpdateOptionType'
+      required:
+      - tag
+      - ind1
+      - ind2
+      - actions
+      additionalProperties: false
+    RuleDetails:
+      properties:
+        option:
+          description: Option to change
+          $ref: '#/components/schemas/UpdateOptionType'
+        tenants:
+          type: array
+          items:
+            type: string
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+          minItems: 1
+      additionalProperties: false
+    cell:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Data cell representation
+      type: object
+      properties:
+        value:
+          description: Cell value
+          type: string
+        dataType:
+          description: Data type
+          $ref: '#/components/schemas/DataType'
+        visible:
+          description: Column visibility
+          type: boolean
+          default: 'true'
+        forceVisible:
+          description: Column visibility (forced to display in preview)
+          type: boolean
+          default: 'false'
+        ignoreTranslation:
+          description: Ignore translation
+          type: boolean
+          default: 'false'
+      additionalProperties: false
+      required:
+      - value
+      - dataType
+    BulkOperationRuleCollection:
+      type: object
+      properties:
+        bulkOperationRules:
+          description: List of bulk operation rules
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkOperationRule'
+        totalRecords:
+          type: integer
+      required:
+      - bulkOperationRules
+      - totalRecords
+      additionalProperties: false
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        totalRecords:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    MarcAction:
+      description: MARC record bulk edit rule action
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/UpdateActionType'
+        data:
+          type: array
+          items:
+            description: MARC rule action data
+            type: object
+            properties:
+              key:
+                $ref: '#/components/schemas/MarcDataType'
+              value:
+                description: Action value
+                type: string
+      required:
+      - name
+      additionalProperties: false
+    user:
+      description: User who runs bulk edit
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User's ID
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        preferredFirstName:
+          type: string
+          description: User's preferred first name
+        middleName:
+          type: string
+          description: User's middle name
+      additionalProperties: false
+      required:
+      - id
+    Start:
+      type: object
+      properties:
+        step:
+          description: Bulk operation step
+          $ref: '#/components/schemas/BulkOperationStep'
+        approach:
+          description: Bulk Operation approach type
+          $ref: '#/components/schemas/ApproachType'
+        entityType:
+          description: Entity type
+          $ref: '#/components/schemas/EntityType'
+        entityCustomIdentifierType:
+          description: Entity custom identifier type
+          $ref: '#/components/schemas/IdentifierType'
+        query:
+          description: CQL query for
+          type: string
+    MarcSubfieldAction:
+      description: MARC record subfield rule action
+      type: object
+      properties:
+        subfield:
+          description: MARC subfield code
+          type: string
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcAction'
+          minItems: 1
+      required:
+      - subfield
+      - actions
+      additionalProperties: false
     parameter:
       description: List of key/value parameters
       type: object
@@ -791,37 +992,61 @@ components:
       additionalProperties: false
       required:
       - key
+    BulkOperationCollection:
+      type: object
+      properties:
+        bulkOperations:
+          description: List of bulk operations
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkOperationDto'
+          minItems: 1
+        totalRecords:
+          type: integer
+      required:
+      - bulkOperations
+      - totalRecords
+      additionalProperties: false
+    BulkOperationRule:
+      type: object
+      properties:
+        id:
+          description: Bulk operation rule ID
+          type: string
+          format: uuid
+        bulkOperationId:
+          description: Bulk operation ID
+          type: string
+          format: uuid
+        rule_details:
+          description: Rule details
+          $ref: '#/components/schemas/RuleDetails'
+      required:
+      - bulkOperationId
+      - rule_details
+      additionalProperties: false
+    FileContentType:
+      type: string
+      enum:
+      - TRIGGERING_FILE
+      - TRIGGERING_QUERY_FILE
+      - MATCHED_RECORDS_FILE
+      - RECORD_MATCHING_ERROR_FILE
+      - PROPOSED_CHANGES_FILE
+      - PROPOSED_CHANGES_MARC_FILE
+      - COMMITTED_RECORDS_FILE
+      - COMMITTED_RECORDS_MARC_FILE
+      - COMMITTING_CHANGES_ERROR_FILE
     ErrorType:
       type: string
       enum:
       - ERROR
       - WARNING
-    UUID:
-      type: string
-      format: uuid
-    MarcParameter:
-      description: MARC rule parameter data
-      type: object
-      properties:
-        key:
-          $ref: '#/components/schemas/MarcParameterType'
-        value:
-          description: MARC rule parameter value
-          type: string
-      required:
-      - key
-      additionalProperties: false
-    OperationType:
+    MarcDataType:
       type: string
       enum:
-      - UPDATE
-      - DELETE
-    DataType:
-      type: string
-      enum:
-      - NUMERIC
-      - DATE_TIME
-      - STRING
+      - VALUE
+      - SUBFIELD
     tenantNotePair:
       $schema: http://json-schema.org/draft-04/schema#
       description: NoteType name for which (tenantId)
@@ -841,28 +1066,29 @@ components:
       - tenantId
       - noteTypeName
       - noteTypeId
-    errors:
-      description: A set of errors
+    unified_table:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Unified table representation of data
       type: object
       properties:
-        errors:
-          description: List of errors
-          id: errors
+        header:
+          description: Header
           type: array
           items:
-            type: object
-            $ref: '#/components/schemas/error'
-        totalRecords:
-          description: Total number of errors
-          type: integer
+            $ref: '#/components/schemas/cell'
+        rows:
+          description: Rows
+          type: array
+          items:
+            $ref: '#/components/schemas/row'
       additionalProperties: false
-    parameters:
-      description: List of key/value parameters
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-      additionalProperties: false
+      required:
+      - header
+      - rows
+    MarcParameterType:
+      type: string
+      enum:
+      - OVERRIDE_PROTECTED
     profiles_dto:
       $schema: https://json-schema.org/draft/2020-12/schema
       description: List summary results for profiles
@@ -881,6 +1107,164 @@ components:
       required:
       - content
       - totalRecords
+    OperationType:
+      type: string
+      enum:
+      - UPDATE
+      - DELETE
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          description: Error message type
+          $ref: '#/components/schemas/ErrorType'
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+        field:
+          type: string
+          description: Name of failed field
+      additionalProperties: false
+      required:
+      - message
+    UpdateOptionType:
+      type: string
+      enum:
+      - ADMINISTRATIVE_NOTE
+      - CHECK_IN_NOTE
+      - CHECK_OUT_NOTE
+      - ELECTRONIC_ACCESS_LINK_TEXT
+      - ELECTRONIC_ACCESS_MATERIALS_SPECIFIED
+      - ELECTRONIC_ACCESS_URI
+      - ELECTRONIC_ACCESS_URL_PUBLIC_NOTE
+      - ELECTRONIC_ACCESS_URL_RELATIONSHIP
+      - EMAIL_ADDRESS
+      - EXPIRATION_DATE
+      - HOLDINGS_NOTE
+      - INSTANCE_NOTE
+      - ITEM_NOTE
+      - MATERIAL_TYPE
+      - PATRON_GROUP
+      - PERMANENT_LOAN_TYPE
+      - PERMANENT_LOCATION
+      - SET_RECORDS_FOR_DELETE
+      - STAFF_SUPPRESS
+      - STATISTICAL_CODE
+      - STATUS
+      - SUPPRESS_FROM_DISCOVERY
+      - TEMPORARY_LOAN_TYPE
+      - TEMPORARY_LOCATION
+    ApproachType:
+      type: string
+      enum:
+      - MANUAL
+      - IN_APP
+      - QUERY
+    QueryRequest:
+      description: Query request body
+      type: object
+      properties:
+        queryId:
+          description: FQL query identifier
+          type: string
+          format: uuid
+        fqlQuery:
+          description: FQL string
+          type: string
+        userFriendlyQuery:
+          description: User-friendly representation of FQL query
+          type: string
+        entityTypeId:
+          description: Entity type identifier
+          type: string
+          format: uuid
+      required:
+      - queryId
+      - entityTypeId
+      additionalProperties: false
+    UpdateActionType:
+      type: string
+      enum:
+      - ADD_TO_EXISTING
+      - CLEAR_FIELD
+      - FIND
+      - FIND_AND_REMOVE_THESE
+      - REPLACE_WITH
+      - FIND_AND_REPLACE
+      - SET_TO_TRUE
+      - SET_TO_FALSE
+      - SET_TO_TRUE_INCLUDING_ITEMS
+      - SET_TO_FALSE_INCLUDING_ITEMS
+      - MARK_AS_STAFF_ONLY
+      - REMOVE_MARK_AS_STAFF_ONLY
+      - REMOVE_ALL
+      - CHANGE_TYPE
+      - DUPLICATE
+      - APPEND
+      - ADDITIONAL_SUBFIELD
+      - REMOVE_FIELD
+      - REMOVE_SUBFIELD
+      - ''
+      - REMOVE_SOME
+    profile_dto:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: Profile DTO
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+        name:
+          description: The name of the profile, used for identification and display.
+          type: string
+        description:
+          description: Indicates description of the profile.
+          type: string
+        locked:
+          description: Indicates whether the profile is locked and cannot be modified.
+          type: boolean
+        entityType:
+          description: Entity type
+          $ref: '#/components/schemas/EntityType'
+        ruleDetails:
+          description: Rule Collection
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleDetails'
+        marcRuleDetails:
+          description: Bulk Operation Marc Rule Collection
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcRuleDetails'
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdBy:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: UUID
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedBy:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: UUID
+      additionalProperties: false
+      required:
+      - id
+      - name
+      - entityType
     OperationStatusType:
       type: string
       enum:
@@ -903,12 +1287,118 @@ components:
       - SAVED_IDENTIFIERS
       - REVIEWED_NO_MARC_RECORDS
       - DELETING_RECORDS
-    ApproachType:
+    Parameter:
+      description: Parameter for action
+      type: object
+      properties:
+        key:
+          description: Key of parameter
+          type: string
+        value:
+          description: Value of parameter
+          type: string
+      required:
+      - key
+      - value
+      additionalProperties: false
+    IdentifierType:
       type: string
       enum:
-      - MANUAL
-      - IN_APP
-      - QUERY
+      - ID
+      - BARCODE
+      - HRID
+      - FORMER_IDS
+      - ACCESSION_NUMBER
+      - HOLDINGS_RECORD_ID
+      - USER_NAME
+      - EXTERNAL_SYSTEM_ID
+      - INSTANCE_HRID
+      - ITEM_BARCODE
+      - ISBN
+      - ISSN
+    UUID:
+      type: string
+      format: uuid
+    row:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Row representation
+      type: object
+      properties:
+        row:
+          description: Row value
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+      required:
+      - row
+    profile_request:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: Profile Entity
+      type: object
+      properties:
+        name:
+          description: The name of the profile, used for identification and display.
+          type: string
+        description:
+          description: Indicates description of the profile.
+          type: string
+        locked:
+          description: Indicates whether the profile is locked and cannot be modified.
+          type: boolean
+        entityType:
+          description: Entity type
+          $ref: '#/components/schemas/EntityType'
+        ruleDetails:
+          description: Rule Collection
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleDetails'
+        marcRuleDetails:
+          description: Bulk Operation Marc Rule Collection
+          type: array
+          items:
+            $ref: '#/components/schemas/MarcRuleDetails'
+      additionalProperties: false
+      required:
+      - name
+      - entityType
+      - locked
+    users:
+      description: A set of users
+      type: object
+      properties:
+        users:
+          description: Set of users
+          id: users
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/user'
+        total_records:
+          description: Total number of users
+          type: integer
+      additionalProperties: false
+    MarcParameter:
+      description: MARC rule parameter data
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/MarcParameterType'
+        value:
+          description: MARC rule parameter value
+          type: string
+      required:
+      - key
+      additionalProperties: false
+    EntityType:
+      type: string
+      enum:
+      - USER
+      - ITEM
+      - HOLDINGS_RECORD
+      - INSTANCE
+      - INSTANCE_MARC
     Action:
       description: Rule action
       type: object
@@ -936,47 +1426,6 @@ components:
       required:
       - type
       additionalProperties: false
-    BulkOperationRule:
-      type: object
-      properties:
-        id:
-          description: Bulk operation rule ID
-          type: string
-          format: uuid
-        bulkOperationId:
-          description: Bulk operation ID
-          type: string
-          format: uuid
-        rule_details:
-          description: Rule details
-          $ref: '#/components/schemas/RuleDetails'
-      required:
-      - bulkOperationId
-      - rule_details
-      additionalProperties: false
-    user:
-      description: User who runs bulk edit
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: User's ID
-        firstName:
-          type: string
-          description: User's first name
-        lastName:
-          type: string
-          description: User's last name
-        preferredFirstName:
-          type: string
-          description: User's preferred first name
-        middleName:
-          type: string
-          description: User's middle name
-      additionalProperties: false
-      required:
-      - id
     BulkOperationDto:
       type: object
       properties:
@@ -1134,310 +1583,25 @@ components:
       additionalProperties: false
       required:
       - type
-    Start:
-      type: object
-      properties:
-        step:
-          description: Bulk operation step
-          $ref: '#/components/schemas/BulkOperationStep'
-        approach:
-          description: Bulk Operation approach type
-          $ref: '#/components/schemas/ApproachType'
-        entityType:
-          description: Entity type
-          $ref: '#/components/schemas/EntityType'
-        entityCustomIdentifierType:
-          description: Entity custom identifier type
-          $ref: '#/components/schemas/IdentifierType'
-        query:
-          description: CQL query for
-          type: string
-    users:
-      description: A set of users
-      type: object
-      properties:
-        users:
-          description: Set of users
-          id: users
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/user'
-        total_records:
-          description: Total number of users
-          type: integer
+    BulkOperationMarcRule:
+      allOf:
+      - $ref: '#/components/schemas/MarcRuleDetails'
+      - type: object
+        properties:
+          bulkOperationId:
+            description: Bulk operation ID
+            type: string
+            format: uuid
+        required:
+        - bulkOperationId
+        additionalProperties: false
+    parameters:
+      description: List of key/value parameters
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
       additionalProperties: false
-    profile_request:
-      $schema: https://json-schema.org/draft/2020-12/schema
-      description: Profile Entity
-      type: object
-      properties:
-        name:
-          description: The name of the profile, used for identification and display.
-          type: string
-        description:
-          description: Indicates description of the profile.
-          type: string
-        locked:
-          description: Indicates whether the profile is locked and cannot be modified.
-          type: boolean
-        entityType:
-          description: Entity type
-          $ref: '#/components/schemas/EntityType'
-        ruleDetails:
-          description: Rule Collection
-          type: array
-          items:
-            $ref: '#/components/schemas/RuleDetails'
-        marcRuleDetails:
-          description: Bulk Operation Marc Rule Collection
-          type: array
-          items:
-            $ref: '#/components/schemas/MarcRuleDetails'
-      additionalProperties: false
-      required:
-      - name
-      - entityType
-      - locked
-    BulkOperationCollection:
-      type: object
-      properties:
-        bulkOperations:
-          description: List of bulk operations
-          type: array
-          items:
-            $ref: '#/components/schemas/BulkOperationDto'
-          minItems: 1
-        totalRecords:
-          type: integer
-      required:
-      - bulkOperations
-      - totalRecords
-      additionalProperties: false
-    IdentifierType:
-      type: string
-      enum:
-      - ID
-      - BARCODE
-      - HRID
-      - FORMER_IDS
-      - ACCESSION_NUMBER
-      - HOLDINGS_RECORD_ID
-      - USER_NAME
-      - EXTERNAL_SYSTEM_ID
-      - INSTANCE_HRID
-      - ITEM_BARCODE
-      - ISBN
-      - ISSN
-    UpdateActionType:
-      type: string
-      enum:
-      - ADD_TO_EXISTING
-      - CLEAR_FIELD
-      - FIND
-      - FIND_AND_REMOVE_THESE
-      - REPLACE_WITH
-      - FIND_AND_REPLACE
-      - SET_TO_TRUE
-      - SET_TO_FALSE
-      - SET_TO_TRUE_INCLUDING_ITEMS
-      - SET_TO_FALSE_INCLUDING_ITEMS
-      - MARK_AS_STAFF_ONLY
-      - REMOVE_MARK_AS_STAFF_ONLY
-      - REMOVE_ALL
-      - CHANGE_TYPE
-      - DUPLICATE
-      - APPEND
-      - ADDITIONAL_SUBFIELD
-      - REMOVE_FIELD
-      - REMOVE_SUBFIELD
-      - ''
-      - REMOVE_SOME
-    BulkOperationStep:
-      type: string
-      enum:
-      - UPLOAD
-      - EDIT
-      - COMMIT
-      - DELETE
-    QueryRequest:
-      description: Query request body
-      type: object
-      properties:
-        queryId:
-          description: FQL query identifier
-          type: string
-          format: uuid
-        fqlQuery:
-          description: FQL string
-          type: string
-        userFriendlyQuery:
-          description: User-friendly representation of FQL query
-          type: string
-        entityTypeId:
-          description: Entity type identifier
-          type: string
-          format: uuid
-      required:
-      - queryId
-      - entityTypeId
-      additionalProperties: false
-    MarcAction:
-      description: MARC record bulk edit rule action
-      type: object
-      properties:
-        name:
-          $ref: '#/components/schemas/UpdateActionType'
-        data:
-          type: array
-          items:
-            description: MARC rule action data
-            type: object
-            properties:
-              key:
-                $ref: '#/components/schemas/MarcDataType'
-              value:
-                description: Action value
-                type: string
-      required:
-      - name
-      additionalProperties: false
-    profile_dto:
-      $schema: https://json-schema.org/draft/2020-12/schema
-      description: Profile DTO
-      type: object
-      properties:
-        id:
-          type: string
-          format: UUID
-        name:
-          description: The name of the profile, used for identification and display.
-          type: string
-        description:
-          description: Indicates description of the profile.
-          type: string
-        locked:
-          description: Indicates whether the profile is locked and cannot be modified.
-          type: boolean
-        entityType:
-          description: Entity type
-          $ref: '#/components/schemas/EntityType'
-        ruleDetails:
-          description: Rule Collection
-          type: array
-          items:
-            $ref: '#/components/schemas/RuleDetails'
-        marcRuleDetails:
-          description: Bulk Operation Marc Rule Collection
-          type: array
-          items:
-            $ref: '#/components/schemas/MarcRuleDetails'
-        createdDate:
-          description: Date and time when the record was created
-          type: string
-          format: date-time
-        createdBy:
-          description: ID of the user who created the record (when available)
-          type: string
-          format: UUID
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-          format: date-time
-        updatedBy:
-          description: ID of the user who last updated the record (when available)
-          type: string
-          format: UUID
-      additionalProperties: false
-      required:
-      - id
-      - name
-      - entityType
-    unified_table:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Unified table representation of data
-      type: object
-      properties:
-        header:
-          description: Header
-          type: array
-          items:
-            $ref: '#/components/schemas/cell'
-        rows:
-          description: Rows
-          type: array
-          items:
-            $ref: '#/components/schemas/row'
-      additionalProperties: false
-      required:
-      - header
-      - rows
-    MarcSubfieldAction:
-      description: MARC record subfield rule action
-      type: object
-      properties:
-        subfield:
-          description: MARC subfield code
-          type: string
-        actions:
-          type: array
-          items:
-            $ref: '#/components/schemas/MarcAction'
-          minItems: 1
-      required:
-      - subfield
-      - actions
-      additionalProperties: false
-    MarcDataType:
-      type: string
-      enum:
-      - VALUE
-      - SUBFIELD
-    BulkOperationRuleCollection:
-      type: object
-      properties:
-        bulkOperationRules:
-          description: List of bulk operation rules
-          type: array
-          items:
-            $ref: '#/components/schemas/BulkOperationRule'
-        totalRecords:
-          type: integer
-      required:
-      - bulkOperationRules
-      - totalRecords
-      additionalProperties: false
-    MarcParameterType:
-      type: string
-      enum:
-      - OVERRIDE_PROTECTED
-    UpdateOptionType:
-      type: string
-      enum:
-      - ADMINISTRATIVE_NOTE
-      - CHECK_IN_NOTE
-      - CHECK_OUT_NOTE
-      - ELECTRONIC_ACCESS_LINK_TEXT
-      - ELECTRONIC_ACCESS_MATERIALS_SPECIFIED
-      - ELECTRONIC_ACCESS_URI
-      - ELECTRONIC_ACCESS_URL_PUBLIC_NOTE
-      - ELECTRONIC_ACCESS_URL_RELATIONSHIP
-      - EMAIL_ADDRESS
-      - EXPIRATION_DATE
-      - HOLDINGS_NOTE
-      - INSTANCE_NOTE
-      - ITEM_NOTE
-      - MATERIAL_TYPE
-      - PATRON_GROUP
-      - PERMANENT_LOAN_TYPE
-      - PERMANENT_LOCATION
-      - SET_RECORDS_FOR_DELETE
-      - STAFF_SUPPRESS
-      - STATISTICAL_CODE
-      - STATUS
-      - SUPPRESS_FROM_DISCOVERY
-      - TEMPORARY_LOAN_TYPE
-      - TEMPORARY_LOCATION
     BulkOperationMarcRuleCollection:
       type: object
       properties:
@@ -1452,170 +1616,3 @@ components:
       - bulkOperationMarcRules
       - totalRecords
       additionalProperties: false
-    row:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Row representation
-      type: object
-      properties:
-        row:
-          description: Row value
-          type: array
-          items:
-            type: string
-      additionalProperties: false
-      required:
-      - row
-    BulkOperationMarcRule:
-      allOf:
-      - $ref: '#/components/schemas/MarcRuleDetails'
-      - type: object
-        properties:
-          bulkOperationId:
-            description: Bulk operation ID
-            type: string
-            format: uuid
-        required:
-        - bulkOperationId
-        additionalProperties: false
-    MarcRuleDetails:
-      type: object
-      properties:
-        tag:
-          description: MARC field tag
-          type: string
-        ind1:
-          description: MARC field indicator 1
-          type: string
-          pattern: '[a-z0-9#\\]'
-        ind2:
-          description: MARC field indicator 2
-          type: string
-          pattern: '[a-z0-9#\\]'
-        subfield:
-          description: MARC subfield code
-          type: string
-          pattern: '[a-z0-9]*'
-        actions:
-          type: array
-          items:
-            $ref: '#/components/schemas/MarcAction'
-          minItems: 1
-        parameters:
-          type: array
-          items:
-            $ref: '#/components/schemas/MarcParameter'
-        subfields:
-          type: array
-          items:
-            $ref: '#/components/schemas/MarcSubfieldAction'
-        updateOption:
-          description: Option to change
-          $ref: '#/components/schemas/UpdateOptionType'
-      required:
-      - tag
-      - ind1
-      - ind2
-      - actions
-      additionalProperties: false
-    Parameter:
-      description: Parameter for action
-      type: object
-      properties:
-        key:
-          description: Key of parameter
-          type: string
-        value:
-          description: Value of parameter
-          type: string
-      required:
-      - key
-      - value
-      additionalProperties: false
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          description: Error message type
-          $ref: '#/components/schemas/ErrorType'
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-        field:
-          type: string
-          description: Name of failed field
-      additionalProperties: false
-      required:
-      - message
-    EntityType:
-      type: string
-      enum:
-      - USER
-      - ITEM
-      - HOLDINGS_RECORD
-      - INSTANCE
-      - INSTANCE_MARC
-    cell:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Data cell representation
-      type: object
-      properties:
-        value:
-          description: Cell value
-          type: string
-        dataType:
-          description: Data type
-          $ref: '#/components/schemas/DataType'
-        visible:
-          description: Column visibility
-          type: boolean
-          default: 'true'
-        forceVisible:
-          description: Column visibility (forced to display in preview)
-          type: boolean
-          default: 'false'
-        ignoreTranslation:
-          description: Ignore translation
-          type: boolean
-          default: 'false'
-      additionalProperties: false
-      required:
-      - value
-      - dataType
-    RuleDetails:
-      properties:
-        option:
-          description: Option to change
-          $ref: '#/components/schemas/UpdateOptionType'
-        tenants:
-          type: array
-          items:
-            type: string
-        actions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Action'
-          minItems: 1
-      additionalProperties: false
-    FileContentType:
-      type: string
-      enum:
-      - TRIGGERING_FILE
-      - TRIGGERING_QUERY_FILE
-      - MATCHED_RECORDS_FILE
-      - RECORD_MATCHING_ERROR_FILE
-      - PROPOSED_CHANGES_FILE
-      - PROPOSED_CHANGES_MARC_FILE
-      - COMMITTED_RECORDS_FILE
-      - COMMITTED_RECORDS_MARC_FILE
-      - COMMITTING_CHANGES_ERROR_FILE
-x-refined-from:
-- folio-mod-bulk-operations-openapi.json
-- folio-mod-bulk-operations-openapi.yml

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Links Suggestions API
+  description: Entity Links API
+  title: Entities Links Links Suggestions API
   version: v1.0
-  description: 'Operations tagged links-suggestions across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://localhost:8081
 tags:
@@ -59,54 +59,34 @@ paths:
       - links-suggestions
       summary: Suggest links for marc record
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
 components:
   schemas:
-    AuthoritySearchParameter:
-      default: NATURAL_ID
-      description: Authority search parameter for link suggestions
-      enum:
-      - ID
-      - NATURAL_ID
-      type: string
-    linkStatus:
-      description: Link status
-      enum:
-      - ACTUAL
-      - ERROR
-      - NEW
-      type: string
-    FieldContent_value:
-      example:
-        ind1: ind1
-        ind2: ind2
-        subfields:
-        - key: subfields
-        - key: subfields
-        linkDetails:
-          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          authorityNaturalId: authorityNaturalId
-          status: ACTUAL
-          linkingRuleId: 0
-          errorCause: errorCause
+    error_parameters_inner:
       properties:
-        ind1:
-          description: Identifier 1
+        key:
+          description: Parameter key
           type: string
-        ind2:
-          description: Identifier 2
+        value:
+          description: Parameter value
           type: string
-        subfields:
-          description: List of subfields
+      type: object
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
           items:
-            additionalProperties:
-              type: string
-            description: Map of subfields
-            type: object
+            $ref: '#/components/schemas/error_parameters_inner'
           type: array
-        linkDetails:
-          $ref: '#/components/schemas/linkDetails'
       type: object
     parsedRecordContent:
       additionalProperties: false
@@ -156,32 +136,43 @@ components:
       - fields
       - leader
       type: object
-    error_parameters_inner:
+    AuthoritySearchParameter:
+      default: NATURAL_ID
+      description: Authority search parameter for link suggestions
+      enum:
+      - ID
+      - NATURAL_ID
+      type: string
+    FieldContent_value:
+      example:
+        ind1: ind1
+        ind2: ind2
+        subfields:
+        - key: subfields
+        - key: subfields
+        linkDetails:
+          authorityId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          authorityNaturalId: authorityNaturalId
+          status: ACTUAL
+          linkingRuleId: 0
+          errorCause: errorCause
       properties:
-        key:
-          description: Parameter key
+        ind1:
+          description: Identifier 1
           type: string
-        value:
-          description: Parameter value
+        ind2:
+          description: Identifier 2
           type: string
-      type: object
-    error:
-      description: Error object
-      properties:
-        message:
-          description: Error message
-          type: string
-        type:
-          description: Error type
-          type: string
-        code:
-          description: Error code
-          type: string
-        parameters:
-          description: Error parameters
+        subfields:
+          description: List of subfields
           items:
-            $ref: '#/components/schemas/error_parameters_inner'
+            additionalProperties:
+              type: string
+            description: Map of subfields
+            type: object
           type: array
+        linkDetails:
+          $ref: '#/components/schemas/linkDetails'
       type: object
     linkDetails:
       description: Collection of SRS records content
@@ -207,25 +198,6 @@ components:
         errorCause:
           description: Error status code
           type: string
-      type: object
-    errors:
-      description: Errors response
-      example:
-        Error:
-          value:
-            errors:
-            - message: may not be null
-              type: 1
-              code: -1
-              parameters:
-              - key: moduleTo
-                value: null
-      properties:
-        errors:
-          description: List of errors
-          items:
-            $ref: '#/components/schemas/error'
-          type: array
       type: object
     parsedRecordContentCollection:
       description: Collection of SRS records content
@@ -290,6 +262,29 @@ components:
             $ref: '#/components/schemas/parsedRecordContent'
           type: array
       type: object
-x-refined-from:
-- folio-mod-entities-links-openapi.json
-- folio-mod-entities-links-openapi.yml
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object
+    linkStatus:
+      description: Link status
+      enum:
+      - ACTUAL
+      - ERROR
+      - NEW
+      type: string

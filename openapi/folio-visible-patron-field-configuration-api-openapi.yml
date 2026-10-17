@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Visible Patron Field Configuration API
+  title: INN-Reach Settings Visible Patron Field Configuration API
   version: v1
-  description: 'Operations tagged visible-patron-field-configuration across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -78,24 +77,27 @@ paths:
       - $ref: '#/components/parameters/centralServerId'
       summary: Create configuration
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
+  responses:
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    validationErrorDTO:
-      description: Validation error
-      type: object
-      properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
-      additionalProperties: false
-      required:
-      - fieldName
-      - message
     Error:
       type: object
       properties:
@@ -122,29 +124,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/validationErrorDTO'
-    visiblePatronFieldConfigurationDTO:
-      description: Visible Patron Field Configuration
-      type: object
-      properties:
-        id:
-          description: Visible Patron Field Configuration id
-          type: string
-          format: UUID
-        fields:
-          description: An array of Visible Patron Fields
-          type: array
-          items:
-            $ref: '#/components/schemas/visiblePatronFieldEnum'
-        userCustomFields:
-          description: An array of User Custom Fields refIds
-          type: array
-          items:
-            type: string
-        metadata:
-          description: Entity metadata
-          type: object
-          $ref: '#/components/schemas/metadata'
-      additionalProperties: false
     visiblePatronFieldEnum:
       $schema: http://json-schema.org/draft-04/schema#
       title: Visible Patron Field enum
@@ -157,6 +136,20 @@ components:
       - FOLIO_RECORD_NUMBER
       - USERNAME
       - USER_CUSTOM_FIELDS
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
     metadata:
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -187,25 +180,29 @@ components:
       additionalProperties: false
       required:
       - createdDate
-  responses:
-    trait_response_404:
-      description: Item not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    trait_response_validation_400:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/validationErrorsDTO'
-    trait_response_500:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+    visiblePatronFieldConfigurationDTO:
+      description: Visible Patron Field Configuration
+      type: object
+      properties:
+        id:
+          description: Visible Patron Field Configuration id
+          type: string
+          format: UUID
+        fields:
+          description: An array of Visible Patron Fields
+          type: array
+          items:
+            $ref: '#/components/schemas/visiblePatronFieldEnum'
+        userCustomFields:
+          description: An array of User Custom Fields refIds
+          type: array
+          items:
+            type: string
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
   parameters:
     centralServerId:
       name: centralServerId
@@ -214,6 +211,3 @@ components:
       schema:
         type: string
         format: uuid
-x-refined-from:
-- folio-mod-inn-reach-settings-openapi.json
-- folio-mod-inn-reach-settings-openapi.yml

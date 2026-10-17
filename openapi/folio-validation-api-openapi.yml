@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Validation API
   version: 7.3.0
+  title: Folio ERM Agreements Validation API
+  description: API for the Folio library services platform mod-agreements app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Validation across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -50,10 +50,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/validate/subscriptionAgreement/{prop}:
     description: 'Validates a single named property on a Subscription Agreement record against domain constraints without persisting it. This is what the FOLIO UI actually uses in practice: ui-agreements posts here with `prop=name` on blur, to asynchronously check a proposed agreement name.'
     parameters:
@@ -90,10 +86,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/validate/remoteKB:
     description: Validates a full Remote Knowledge Base record against domain constraints without persisting it.
     parameters:
@@ -128,10 +120,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/validate/remoteKB/{prop}:
     description: Validates a single named property on a Remote Knowledge Base record against domain constraints without persisting it.
     parameters:
@@ -168,70 +156,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   schemas:
-    AlternateName:
-      type: object
-      required:
-      - name
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        name:
-          type: string
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-          readOnly: true
-          description: Agreements that owns the alternate name
-    UsageDataProvider:
-      type: object
-      properties:
-        id:
-          type: string
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-        remoteId:
-          type: string
-          format: uuid
-        remoteId_object:
-          type: object
-    GrailsErrorResponse:
-      type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
-      required:
-      - error
-      - timestamp
-      - message
-      properties:
-        error:
-          type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
-        message:
-          type: string
-        exception:
-          type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
     CustomPropertyValue:
       type: object
       properties:
@@ -251,25 +177,19 @@ components:
           - $ref: '#/components/schemas/Refdata'
         type:
           $ref: '#/components/schemas/CustomPropertyDefinition'
-    InternalContact:
+    Organisation:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-        role:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-        user:
+        name:
+          type: string
+        orgsUuid:
           type: string
           format: uuid
+        orgsUuid_object:
+          type: object
     Agreement:
       type: object
       required:
@@ -426,6 +346,318 @@ components:
           $ref: '#/components/schemas/AgreementRelationshipAgreement'
         inward:
           $ref: '#/components/schemas/AgreementRelationshipAgreement'
+    RefdataCategory:
+      type: object
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refdata'
+    InternalContact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        role:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        user:
+          type: string
+          format: uuid
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        normValue:
+          type: string
+        value:
+          type: string
+    DocumentAttachment:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        location:
+          type: string
+        url:
+          type: string
+          format: uri
+        note:
+          type: string
+        atType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        fileUpload:
+          $ref: '#/components/schemas/File'
+    File:
+      type: object
+      required:
+      - id
+      - name
+      - size
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          type: string
+          description: MIME type of the uploaded file
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          description: Original filename of the uploaded file
+        size:
+          type: integer
+          description: Size of the uploaded file in bytes
+    AlternateName:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: Agreements that owns the alternate name
+    UsageDataProvider:
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          type: object
+    CustomPropertyDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        primary:
+          type: boolean
+        defaultInternal:
+          type: boolean
+        retired:
+          type: boolean
+        weight:
+          type: integer
+        type:
+          type: string
+          description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
+        category:
+          $ref: '#/components/schemas/RefdataCategory'
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    LinkedLicense:
+      type: object
+      properties:
+        amendments:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedAmendment'
+        id:
+          type: string
+        owner:
+          type: string
+          format: uuid
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          type: object
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    AgreementContentType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          $ref: '#/components/schemas/Refdata'
+    AgreementRelationshipAgreement:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        agreementStatus:
+          $ref: '#/components/schemas/Refdata'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+    LinkedAmendment:
+      type: object
+      properties:
+        amendmentId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: string
+          format: uuid
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    AgreementOrg:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: Agreement that owns the organisation
+        org:
+          $ref: '#/components/schemas/Organisation'
+        primaryOrg:
+          type: boolean
+          description: Whether this is the primary organisation for the agreement
+          default: false
+        note:
+          type: string
+          description: A note about this organisation's relationship to the agreement
+        roles:
+          type: array
+          description: The roles this organisation plays in relation to the agreement
+          items:
+            type: object
+            required:
+            - id
+            - role
+            properties:
+              id:
+                type: string
+                format: uuid
+                readOnly: true
+              owner:
+                $ref: '#/components/schemas/AgreementOrg'
+                readOnly: true
+              role:
+                description: The role (e.g. Content provider)
+                oneOf:
+                - type: string
+                - $ref: '#/components/schemas/Refdata'
+              note:
+                type: string
     Kb:
       type: object
       required:
@@ -489,265 +721,17 @@ components:
         uri:
           type: string
           format: uri
-    Refdata:
-      type: object
-      properties:
-        id:
-          type: string
-        label:
-          type: string
-        value:
-          type: string
-    RefdataCategory:
-      type: object
-      properties:
-        desc:
-          type: string
-        id:
-          type: string
-        internal:
-          type: boolean
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/Refdata'
-    ApplicationError:
-      type: object
-      properties:
-        total:
-          type: integer
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              code:
-                type: string
-              i18n_code:
-                type: string
-              message:
-                type: string
-              object:
-                type: string
-    DocumentAttachment:
-      type: object
-      required:
-      - id
-      - name
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        dateCreated:
-          type: string
-          format: date-time
-        lastUpdated:
-          type: string
-          format: date-time
-        location:
-          type: string
-        url:
-          type: string
-          format: uri
-        note:
-          type: string
-        atType:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-        fileUpload:
-          $ref: '#/components/schemas/File'
-    File:
-      type: object
-      required:
-      - id
-      - name
-      - size
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        contentType:
-          type: string
-          description: MIME type of the uploaded file
-        modified:
-          type: string
-          format: date-time
-          readOnly: true
-        name:
-          type: string
-          description: Original filename of the uploaded file
-        size:
-          type: integer
-          description: Size of the uploaded file in bytes
-    CustomPropertyDefinition:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        label:
-          type: string
-        description:
-          type: string
-        primary:
-          type: boolean
-        defaultInternal:
-          type: boolean
-        retired:
-          type: boolean
-        weight:
-          type: integer
-        type:
-          type: string
-          description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
-        category:
-          $ref: '#/components/schemas/RefdataCategory'
-    AgreementOrg:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-          readOnly: true
-          description: Agreement that owns the organisation
-        org:
-          $ref: '#/components/schemas/Organisation'
-        primaryOrg:
-          type: boolean
-          description: Whether this is the primary organisation for the agreement
-          default: false
-        note:
-          type: string
-          description: A note about this organisation's relationship to the agreement
-        roles:
-          type: array
-          description: The roles this organisation plays in relation to the agreement
-          items:
-            type: object
-            required:
-            - id
-            - role
-            properties:
-              id:
-                type: string
-                format: uuid
-                readOnly: true
-              owner:
-                $ref: '#/components/schemas/AgreementOrg'
-                readOnly: true
-              role:
-                description: The role (e.g. Content provider)
-                oneOf:
-                - type: string
-                - $ref: '#/components/schemas/Refdata'
-              note:
-                type: string
-    AgreementRelationshipAgreement:
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        agreementStatus:
-          $ref: '#/components/schemas/Refdata'
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-    AgreementContentType:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        contentType:
-          $ref: '#/components/schemas/Refdata'
-    Tag:
-      type: object
-      properties:
-        id:
-          type: integer
-        normValue:
-          type: string
-        value:
-          type: string
-    LinkedLicense:
-      type: object
-      properties:
-        amendments:
-          type: array
-          items:
-            $ref: '#/components/schemas/LinkedAmendment'
-        id:
-          type: string
-        owner:
-          type: string
-          format: uuid
-        remoteId:
-          type: string
-          format: uuid
-        remoteId_object:
-          type: object
-        status:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-    LinkedAmendment:
-      type: object
-      properties:
-        amendmentId:
-          type: string
-          format: uuid
-        id:
-          type: string
-          format: uuid
-        owner:
-          type: string
-          format: uuid
-        status:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-    Organisation:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        orgsUuid:
-          type: string
-          format: uuid
-        orgsUuid_object:
-          type: object
   parameters:
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
     validateProp:
       in: path
       name: prop
       description: Name of the single property to validate, e.g. `name` on `subscriptionAgreement`. Only this property is checked -- other constraints on the domain class (e.g. other required fields not present in the request body) are not evaluated.
+      required: true
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
       required: true
       schema:
         type: string
@@ -760,6 +744,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-agreements-openapi.json
-- folio-mod-agreements-openapi.yml

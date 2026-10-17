@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Mapping Profiles API
+  title: Data export Mapping Profiles API
   version: v1
-  description: 'Operations tagged Mapping Profiles across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Data export API
 servers:
 - url: /data-export/
 tags:
@@ -149,8 +149,6 @@ paths:
       - Mapping Profiles
       summary: Post mapping profile
       x-summary-source: derived
-    servers:
-    - url: /data-export/
   /mapping-profiles/{mappingProfileId}:
     get:
       description: Get specific mapping profile
@@ -298,137 +296,8 @@ paths:
       - Mapping Profiles
       summary: Delete mapping profile by id
       x-summary-source: derived
-    servers:
-    - url: /data-export/
 components:
   schemas:
-    userInfo:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: User information
-      type: object
-      additionalProperties: false
-      properties:
-        firstName:
-          description: User first name
-          type: string
-        lastName:
-          description: User last name
-          type: string
-        userName:
-          description: User name (nickname)
-          type: string
-    mappingProfileCollection:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Collection of Mapping Profiles
-      type: object
-      additionalProperties: false
-      properties:
-        mappingProfiles:
-          description: List of Mapping Profiles
-          type: array
-          id: mappingProfileList
-          items:
-            type: object
-            $ref: '#/components/schemas/mappingProfile'
-        totalRecords:
-          description: Total number of Mapping Profiles
-          type: integer
-      required:
-      - mappingProfiles
-      - totalRecords
-    errors:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Error collection
-      properties:
-        errors:
-          description: list of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total records
-          type: integer
-    uuid:
-      type: string
-      format: uuid
-    error:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Error
-      properties:
-        message:
-          description: Error message
-          type: string
-        type:
-          description: Error type
-          type: string
-        code:
-          description: Error code
-          type: string
-        parameters:
-          description: Error parameters
-          type: object
-          $ref: '#/components/schemas/parameters'
-      required:
-      - message
-    transformations:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Mapping transformations detail
-      type: object
-      javaType: org.folio.rest.jaxrs.model.Transformations
-      additionalProperties: false
-      properties:
-        fieldId:
-          description: Field identifier
-          type: string
-        path:
-          description: JSON path to set mapped value
-          type: string
-        enabled:
-          description: Indicates whether field should be mapped
-          type: boolean
-          default: false
-        transformation:
-          description: Mapping expression
-          type: string
-        recordType:
-          description: Mapping Profile type
-          type: string
-          $ref: '#/components/schemas/recordTypes'
-        metadataParameters:
-          description: Additional parameters used for mapping
-          type: object
-          additionalProperties:
-            type: string
-      required:
-      - fieldId
-      - recordType
-    parameters:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      description: Error parameters
-      items:
-        type: object
-        properties:
-          key:
-            type: string
-          value:
-            type: string
-    recordTypes:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Enum of entity (record) types
-      type: string
-      additionalProperties: false
-      enum:
-      - INSTANCE
-      - HOLDINGS
-      - ITEM
-      - AUTHORITY
-      - SRS
-      - LINKED_DATA
     mappingProfile:
       $schema: http://json-schema.org/draft-04/schema#
       description: Mapping Profile schema
@@ -499,6 +368,63 @@ components:
       required:
       - name
       - recordTypes
+    mappingProfileCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of Mapping Profiles
+      type: object
+      additionalProperties: false
+      properties:
+        mappingProfiles:
+          description: List of Mapping Profiles
+          type: array
+          id: mappingProfileList
+          items:
+            type: object
+            $ref: '#/components/schemas/mappingProfile'
+        totalRecords:
+          description: Total number of Mapping Profiles
+          type: integer
+      required:
+      - mappingProfiles
+      - totalRecords
+    userInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: User information
+      type: object
+      additionalProperties: false
+      properties:
+        firstName:
+          description: User first name
+          type: string
+        lastName:
+          description: User last name
+          type: string
+        userName:
+          description: User name (nickname)
+          type: string
+    uuid:
+      type: string
+      format: uuid
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -530,16 +456,77 @@ components:
       additionalProperties: false
       required:
       - createdDate
+    transformations:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Mapping transformations detail
+      type: object
+      javaType: org.folio.rest.jaxrs.model.Transformations
+      additionalProperties: false
+      properties:
+        fieldId:
+          description: Field identifier
+          type: string
+        path:
+          description: JSON path to set mapped value
+          type: string
+        enabled:
+          description: Indicates whether field should be mapped
+          type: boolean
+          default: false
+        transformation:
+          description: Mapping expression
+          type: string
+        recordType:
+          description: Mapping Profile type
+          type: string
+          $ref: '#/components/schemas/recordTypes'
+        metadataParameters:
+          description: Additional parameters used for mapping
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - fieldId
+      - recordType
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    recordTypes:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Enum of entity (record) types
+      type: string
+      additionalProperties: false
+      enum:
+      - INSTANCE
+      - HOLDINGS
+      - ITEM
+      - AUTHORITY
+      - SRS
+      - LINKED_DATA
   parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
     trait_queryable:
       name: query
       in: query
@@ -555,6 +542,12 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-x-refined-from:
-- folio-mod-data-export-openapi.json
-- folio-mod-data-export-openapi.yml
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Consortia API
+  title: Consortium integration Consortia API
+  description: Consortium integration API
   version: 0.0.1
-  description: 'Operations tagged Consortia across 3 of this provider''s published API definitions: folio-mod-consortia-keycloak-consortia-openapi.json, folio-mod-consortia-keycloak-consortia-openapi.yml, folio-mod-consortia-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Consortia
 paths:
@@ -69,52 +69,33 @@ paths:
       tags:
       - Consortia
 components:
-  responses:
-    ConsortiumCollection:
-      description: Collection of Consortium Object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ConsortiumCollection'
-    Consortium:
-      description: Consortium Object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Consortium'
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Conflict:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-  parameters:
-    consortiumId:
-      in: path
-      name: consortiumId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: true
-      description: The ID of consortium
   schemas:
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
     Error:
       description: An error
       type: object
@@ -135,32 +116,9 @@ components:
       additionalProperties: false
       required:
       - message
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
+    uuid:
+      type: string
+      format: uuid
     ConsortiumCollection:
       type: object
       description: A JSON schema for the Consortium Collection
@@ -183,9 +141,6 @@ components:
       items:
         $ref: '#/components/schemas/Parameter'
       additionalProperties: false
-    uuid:
-      type: string
-      format: uuid
     Consortium:
       type: object
       description: Consortium
@@ -199,6 +154,43 @@ components:
       required:
       - id
       - name
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ConsortiumCollection:
+      description: Collection of Consortium Object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConsortiumCollection'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    Consortium:
+      description: Consortium Object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Consortium'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   requestBodies:
     ConsortiumBody:
       description: Consortium object
@@ -207,7 +199,11 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Consortium'
-x-refined-from:
-- folio-mod-consortia-keycloak-consortia-openapi.json
-- folio-mod-consortia-keycloak-consortia-openapi.yml
-- folio-mod-consortia-openapi.yml
+  parameters:
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium

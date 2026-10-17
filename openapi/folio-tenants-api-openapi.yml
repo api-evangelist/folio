@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Tenants API
   version: '1.0'
-  description: 'Operations tagged tenants across 5 of this provider''s published API definitions: folio-mgr-tenants-openapi.json, folio-mod-consortia-keycloak-tenants-openapi.json, folio-mgr-tenants-openapi.yml, folio-mod-consortia-keycloak-tenants-openapi.yml, folio-mod-consortia-tenants-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged tenants across 2 of this provider''s published API definitions: folio-mgr-tenants-openapi.json, folio-mod-consortia-keycloak-tenants-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -311,71 +311,94 @@ paths:
     servers:
     - url: /consortia/{consortiumId}/
 components:
-  responses:
-    internalServerError:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    badRequest:
-      description: Error response if request body contains validation error (in json format)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    entityNotFound:
-      description: Error response if entity is not found by id (in json format)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    NoContent:
-      description: No content
-    TenantCollection:
-      description: Returns a tenant collection object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/TenantCollection'
-    Conflict:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Tenant:
-      description: Returns a tenant object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Tenant'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    Created:
-      description: Created
-    TenantDetails:
-      description: Returns a tenant details object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/TenantDetails'
+  parameters:
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
+    purgeKafkaTopics:
+      name: purgeKafkaTopics
+      in: query
+      description: 'If set to true, the tenant''s Kafka topics will be purged.
+
+        '
+      schema:
+        type: boolean
+        default: false
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    adminUserId:
+      in: query
+      name: adminUserId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      description: The ID of adminUser
+    tenantId:
+      in: path
+      name: tenantId
+      schema:
+        type: string
+      required: true
+      description: The ID of the tenant
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 100
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    centralTenantId:
+      in: query
+      name: centralTenantId
+      schema:
+        type: string
+      required: true
+      description: The ID of the central tenant
   schemas:
     tenant:
       $schema: http://json-schema.org/draft-04/schema#
@@ -413,19 +436,10 @@ components:
       additionalProperties: false
       required:
       - name
-    tenantType:
+    errors:
+      description: A set of errors
       $schema: http://json-schema.org/draft-04/schema#
-      id: tenantType.json
-      title: Tenant Type Schema
-      description: Tenant type
-      default: default
-      type: string
-      enum:
-      - default
-      - virtual
-      x-enum-varnames:
-      - DEFAULT
-      - VIRTUAL
+      type: object
     tenantAttribute:
       $schema: http://json-schema.org/draft-04/schema#
       id: tenantAttribute.json
@@ -451,27 +465,6 @@ components:
       required:
       - key
       - value
-    tenants:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: tenants.json
-      title: Tenants Schema
-      description: Collection of tenants
-      type: object
-      properties:
-        tenants:
-          description: List of tenants
-          type: array
-          items:
-            $ref: '#/components/schemas/tenant'
-        totalRecords:
-          type: integer
-      additionalProperties: false
-      required:
-      - tenants
-    errors:
-      description: A set of errors
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -497,47 +490,36 @@ components:
       additionalProperties: false
       required:
       - createdDate
-    TenantCollection:
+    tenantType:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tenantType.json
+      title: Tenant Type Schema
+      description: Tenant type
+      default: default
+      type: string
+      enum:
+      - default
+      - virtual
+      x-enum-varnames:
+      - DEFAULT
+      - VIRTUAL
+    tenants:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: tenants.json
+      title: Tenants Schema
+      description: Collection of tenants
       type: object
       properties:
         tenants:
+          description: List of tenants
           type: array
-          description: Tenants
           items:
-            type: object
-            $ref: '#/components/schemas/Tenant'
+            $ref: '#/components/schemas/tenant'
         totalRecords:
           type: integer
       additionalProperties: false
       required:
       - tenants
-      - totalRecords
-    Parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
-    Error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
     Errors:
       description: A set of errors
       type: object
@@ -573,59 +555,24 @@ components:
       required:
       - deleteType
       - deleteOptions
-    Tenant:
+    uuid:
+      type: string
+      format: uuid
+    TenantCollection:
       type: object
       properties:
-        id:
-          type: string
-        code:
-          type: string
-          minLength: 2
-          maxLength: 5
-          pattern: ^[a-zA-Z0-9]*$
-        name:
-          type: string
-          minLength: 2
-          maxLength: 150
-        isCentral:
-          type: boolean
-        isDeleted:
-          type: boolean
+        tenants:
+          type: array
+          description: Tenants
+          items:
+            type: object
+            $ref: '#/components/schemas/Tenant'
+        totalRecords:
+          type: integer
       additionalProperties: false
       required:
-      - id
-      - code
-      - name
-      - isCentral
-    IdentityProviderCreateRequest:
-      type: object
-      properties:
-        createProvider:
-          type: boolean
-          default: true
-        migrateUsers:
-          type: boolean
-          default: true
-        baseUrl:
-          type: string
-          description: Keycloak base URL to build identity provider URLs with (e.g. https://keycloak.example.org). Overrides KC_IDENTITY_PROVIDER_BASE_URL if provided
-          pattern: ^(\s*|https?://.+)$
-      additionalProperties: false
-      required:
-      - createProvider
-      - migrateUsers
-    TenantDetails:
-      allOf:
-      - $ref: '#/components/schemas/Tenant'
-      - type: object
-        properties:
-          setupStatus:
-            type: string
-            enum:
-            - IN_PROGRESS
-            - COMPLETED
-            - COMPLETED_WITH_ERRORS
-            - FAILED
+      - tenants
+      - totalRecords
     SyncPrimaryAffiliationBody:
       description: Primary affiliation DTO
       type: object
@@ -641,9 +588,18 @@ components:
       additionalProperties: false
       required:
       - tenantId
-    uuid:
-      type: string
-      format: uuid
+    TenantDetails:
+      allOf:
+      - $ref: '#/components/schemas/Tenant'
+      - type: object
+        properties:
+          setupStatus:
+            type: string
+            enum:
+            - IN_PROGRESS
+            - COMPLETED
+            - COMPLETED_WITH_ERRORS
+            - FAILED
     SyncUser:
       description: Users item
       type: object
@@ -670,6 +626,23 @@ components:
           description: The user's barcode
           type: string
       additionalProperties: false
+    IdentityProviderCreateRequest:
+      type: object
+      properties:
+        createProvider:
+          type: boolean
+          default: true
+        migrateUsers:
+          type: boolean
+          default: true
+        baseUrl:
+          type: string
+          description: Keycloak base URL to build identity provider URLs with (e.g. https://keycloak.example.org). Overrides KC_IDENTITY_PROVIDER_BASE_URL if provided
+          pattern: ^(\s*|https?://.+)$
+      additionalProperties: false
+      required:
+      - createProvider
+      - migrateUsers
     Parameter:
       description: List of key/value parameters of an error
       type: object
@@ -682,94 +655,121 @@ components:
       additionalProperties: false
       required:
       - key
-  parameters:
-    query-offset:
-      in: query
-      required: false
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-    purgeKafkaTopics:
-      name: purgeKafkaTopics
-      in: query
-      description: 'If set to true, the tenant''s Kafka topics will be purged.
-
-        '
-      schema:
-        type: boolean
-        default: false
-    path-entity-id:
-      in: path
-      required: true
-      name: id
-      description: Entity id
-      schema:
-        type: string
-        format: uuid
-    query-limit:
-      in: query
-      required: false
-      name: limit
-      description: Limit the number of elements returned in the response.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 500
-        default: 10
-    cql-query:
-      name: query
-      in: query
-      description: A CQL query string with search conditions.
-      schema:
-        type: string
-    adminUserId:
-      in: query
-      name: adminUserId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      description: The ID of adminUser
-    centralTenantId:
-      in: query
-      name: centralTenantId
-      schema:
-        type: string
-      required: true
-      description: The ID of the central tenant
-    tenantId:
-      in: path
-      name: tenantId
-      schema:
-        type: string
-      required: true
-      description: The ID of the tenant
-    consortiumId:
-      in: path
-      name: consortiumId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: true
-      description: The ID of consortium
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 100
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    trait_pageable_offset:
-      name: offset
-      in: query
-      description: Skip over a number of elements by specifying an offset value for the query
-      schema:
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-        type: integer
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+          minLength: 2
+          maxLength: 5
+          pattern: ^[a-zA-Z0-9]*$
+        name:
+          type: string
+          minLength: 2
+          maxLength: 150
+        isCentral:
+          type: boolean
+        isDeleted:
+          type: boolean
+      additionalProperties: false
+      required:
+      - id
+      - code
+      - name
+      - isCentral
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+  responses:
+    entityNotFound:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerError:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    badRequest:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    Created:
+      description: Created
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Tenant:
+      description: Returns a tenant object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tenant'
+    TenantCollection:
+      description: Returns a tenant collection object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TenantCollection'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    TenantDetails:
+      description: Returns a tenant details object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TenantDetails'
+    NoContent:
+      description: No content
   requestBodies:
     SyncPrimaryAffiliationsRequest:
       description: SyncPrimaryAffiliationsRequest object
@@ -778,12 +778,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/SyncPrimaryAffiliationBody'
-    TenantDeleteRequest:
-      description: Deletes tenant based on delete options
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/TenantDeleteRequest'
     IdentityProviderCreateRequest:
       description: IdentityProviderCreateRequest object
       required: true
@@ -791,6 +785,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/IdentityProviderCreateRequest'
+    TenantDeleteRequest:
+      description: Deletes tenant based on delete options
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TenantDeleteRequest'
     TenantBody:
       description: Tenant object
       required: true
@@ -801,6 +801,3 @@ components:
 x-refined-from:
 - folio-mgr-tenants-openapi.json
 - folio-mod-consortia-keycloak-tenants-openapi.json
-- folio-mgr-tenants-openapi.yml
-- folio-mod-consortia-keycloak-tenants-openapi.yml
-- folio-mod-consortia-tenants-openapi.yml

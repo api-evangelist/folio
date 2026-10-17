@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Staff Slips API
+  title: Staff Slips API
   version: v1
-  description: 'Operations tagged staffSlips across 2 of this provider''s published API definitions: folio-mod-tlr-staff-slips-openapi.json, folio-mod-tlr-staff-slips-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /tlr/staff-slips
 tags:
@@ -26,8 +25,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Get pick slips
       x-summary-source: derived
-    servers:
-    - url: /tlr/staff-slips
   /search-slips/{servicePointId}:
     get:
       operationId: getSearchSlips
@@ -46,10 +43,103 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Get search slips
       x-summary-source: derived
-    servers:
-    - url: /tlr/staff-slips
 components:
+  responses:
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    pick-slips:
+      description: Pick slips response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/pickSlipsResponse'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request is invalid
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    search-slips:
+      description: Search slips response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/searchSlipsResponse'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Unexpected error
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
   schemas:
+    searchSlipsResponse:
+      description: Search slips response
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Total number of search slips
+        searchSlips:
+          type: array
+          description: Collection of search clips
+          items:
+            $ref: '#/components/schemas/staffSlip'
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
     staffSlip:
       description: Staff slip
       type: object
@@ -181,31 +271,6 @@ components:
               type: string
             countryId:
               type: string
-    parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      additionalProperties: false
-      required:
-      - key
-    pickSlipsResponse:
-      description: Pick slips response
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: Total number of pick slips
-        pickSlips:
-          type: array
-          description: Collection of pick clips
-          items:
-            $ref: '#/components/schemas/staffSlip'
     errors:
       description: A set of errors
       type: object
@@ -221,45 +286,18 @@ components:
           description: Total number of errors
           type: integer
       additionalProperties: false
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-      additionalProperties: false
-      required:
-      - message
-    searchSlipsResponse:
-      description: Search slips response
+    pickSlipsResponse:
+      description: Pick slips response
       type: object
       properties:
         totalRecords:
           type: integer
-          description: Total number of search slips
-        searchSlips:
+          description: Total number of pick slips
+        pickSlips:
           type: array
-          description: Collection of search clips
+          description: Collection of pick clips
           items:
             $ref: '#/components/schemas/staffSlip'
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-      additionalProperties: false
   parameters:
     servicePointId:
       name: servicePointId
@@ -268,49 +306,3 @@ components:
       schema:
         type: string
         format: uuid
-  responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Unexpected error
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errors'
-    notFoundResponse:
-      description: Not found
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Request not found
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errors'
-    search-slips:
-      description: Search slips response
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/searchSlipsResponse'
-    pick-slips:
-      description: Pick slips response
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/pickSlipsResponse'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Request is invalid
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mod-tlr-staff-slips-openapi.json
-- folio-mod-tlr-staff-slips-openapi.yml

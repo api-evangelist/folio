@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Bib Info D2ir API
+  title: INN-Reach Circulation Bib Info D2ir API
   version: v1
-  description: 'Operations tagged bib-info-d2ir across 2 of this provider''s published API definitions: folio-mod-inn-reach-circulation-openapi.json, folio-mod-inn-reach-circulation-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -28,8 +27,6 @@ paths:
       - $ref: '#/components/parameters/centralCode'
       summary: Get bib record
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
   schemas:
     bibInfo:
@@ -66,6 +63,28 @@ components:
       - bibId
       - marc21BibFormat
       - marc21BibData
+    innReachResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: D2IR response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        status:
+          description: Status
+          type: string
+        reason:
+          description: Reason
+          type: string
+        errors:
+          description: Errors
+          type: array
+          items:
+            $ref: '#/components/schemas/innReachError'
+      additionalProperties: false
+      required:
+      - status
+      - reason
+      - errors
     Error:
       type: object
       properties:
@@ -81,6 +100,20 @@ components:
       additionalProperties: false
       required:
       - message
+    bibInfoResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/innReachResponseDTO'
+      description: D2IR Bib info response
+      type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
+      properties:
+        bibInfo:
+          description: D2IR Bib info
+          $ref: '#/components/schemas/bibInfo'
+      additionalProperties: false
+      required:
+      - bibInfo
     innReachError:
       description: D2IR error
       type: object
@@ -107,53 +140,10 @@ components:
       additionalProperties: false
       required:
       - reason
-    bibInfoResponseDTO:
-      $schema: http://json-schema.org/draft-04/schema#
-      allOf:
-      - $ref: '#/components/schemas/innReachResponseDTO'
-      description: D2IR Bib info response
-      type: object
-      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
-      properties:
-        bibInfo:
-          description: D2IR Bib info
-          $ref: '#/components/schemas/bibInfo'
-      additionalProperties: false
-      required:
-      - bibInfo
     code:
       type: string
       pattern: '[a-z,0-9]{3,5}'
-    innReachResponseDTO:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: D2IR response
-      type: object
-      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
-      properties:
-        status:
-          description: Status
-          type: string
-        reason:
-          description: Reason
-          type: string
-        errors:
-          description: Errors
-          type: array
-          items:
-            $ref: '#/components/schemas/innReachError'
-      additionalProperties: false
-      required:
-      - status
-      - reason
-      - errors
   parameters:
-    bibId:
-      name: bibId
-      description: 32-character, alphanumeric id corresponding to a FOLIO instance record HRID
-      in: path
-      required: true
-      schema:
-        type: string
     centralCode:
       name: centralCode
       description: Unique code that identifies the central server (match against value stored in Central Server settings, used to determine contribution status)
@@ -161,6 +151,13 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/code'
+    bibId:
+      name: bibId
+      description: 32-character, alphanumeric id corresponding to a FOLIO instance record HRID
+      in: path
+      required: true
+      schema:
+        type: string
   responses:
     trait_response_500:
       description: Internal server error
@@ -168,6 +165,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-x-refined-from:
-- folio-mod-inn-reach-circulation-openapi.json
-- folio-mod-inn-reach-circulation-openapi.yml

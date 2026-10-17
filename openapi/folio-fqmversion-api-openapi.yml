@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Fqm Version API
+  title: mod-fqm-manager Fqm Version API
   version: v1
-  description: 'Operations tagged fqmVersion across 2 of this provider''s published API definitions: folio-mod-fqm-manager-openapi.json, folio-mod-fqm-manager-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: mod-fqm-manager API
 servers:
 - url: https://folio-etesting-snapshot-kong.ci.folio.org/
 tags:
@@ -25,8 +25,6 @@ paths:
           $ref: '#/components/responses/badRequestResponse'
       summary: Get fqm version
       x-summary-source: derived
-    servers:
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
   /fqm/migrate:
     post:
       summary: fqm migrate request
@@ -53,25 +51,8 @@ paths:
                 format: FqmMigrateResponse
         4XX:
           $ref: '#/components/responses/badRequestResponse'
-    servers:
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
 components:
-  responses:
-    badRequestResponse:
-      description: Invalid request
-      content:
-        application/json:
-          example:
-            message: Entity type ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
-            code: entity.type.not.found
-          schema:
-            $ref: '#/components/schemas/error'
   schemas:
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
     error:
       description: An error
       type: object
@@ -102,6 +83,11 @@ components:
       required:
       - message
       - code
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
     parameter:
       description: List of key/value parameters of an error
       type: object
@@ -115,6 +101,13 @@ components:
       additionalProperties: false
       required:
       - key
-x-refined-from:
-- folio-mod-fqm-manager-openapi.json
-- folio-mod-fqm-manager-openapi.yml
+  responses:
+    badRequestResponse:
+      description: Invalid request
+      content:
+        application/json:
+          example:
+            message: Entity type ID 6c611396-b6bc-56a7-aada-3a90683d559c was not found
+            code: entity.type.not.found
+          schema:
+            $ref: '#/components/schemas/error'

@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Agency Mappings API
+  title: INN-Reach Settings Agency Mappings API
   version: v1
-  description: 'Operations tagged agency-mappings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -53,8 +52,6 @@ paths:
       - $ref: '#/components/parameters/centralServerId'
       summary: Put agency mappings
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
   schemas:
     agencyLocationAcMappingDTO:
@@ -85,76 +82,6 @@ components:
       additionalProperties: false
       required:
       - agencyCode
-    validationErrorDTO:
-      description: Validation error
-      type: object
-      properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
-      additionalProperties: false
-      required:
-      - fieldName
-      - message
-    Error:
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-      additionalProperties: false
-      required:
-      - message
-    validationErrorsDTO:
-      type: object
-      properties:
-        code:
-          type: integer
-        message:
-          type: string
-        validationErrors:
-          type: array
-          items:
-            $ref: '#/components/schemas/validationErrorDTO'
-    agencyLocationMappingDTO:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: INN-Reach Agency to FOLIO locations mapping
-      type: object
-      properties:
-        id:
-          description: Mapping id
-          type: string
-          format: uuid
-        locationId:
-          description: Location id
-          type: string
-          format: uuid
-        libraryId:
-          description: Location id
-          type: string
-          format: uuid
-        localServers:
-          description: Local server mappings
-          type: array
-          items:
-            $ref: '#/components/schemas/agencyLocationLscMappingDTO'
-        metadata:
-          description: Entity metadata
-          type: object
-          $ref: '#/components/schemas/metadata'
-      additionalProperties: false
-      required:
-      - locationId
-      - libraryId
     agencyLocationLscMappingDTO:
       $schema: http://json-schema.org/draft-04/schema#
       description: INN-Reach Agency to FOLIO location mapping
@@ -188,6 +115,62 @@ components:
       additionalProperties: false
       required:
       - localCode
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+      additionalProperties: false
+      required:
+      - message
+    agencyLocationMappingDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: INN-Reach Agency to FOLIO locations mapping
+      type: object
+      properties:
+        id:
+          description: Mapping id
+          type: string
+          format: uuid
+        locationId:
+          description: Location id
+          type: string
+          format: uuid
+        libraryId:
+          description: Location id
+          type: string
+          format: uuid
+        localServers:
+          description: Local server mappings
+          type: array
+          items:
+            $ref: '#/components/schemas/agencyLocationLscMappingDTO'
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - locationId
+      - libraryId
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
     metadata:
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -218,6 +201,20 @@ components:
       additionalProperties: false
       required:
       - createdDate
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
   responses:
     trait_response_validation_400:
       description: Bad request
@@ -234,14 +231,14 @@ components:
               $ref: examples/error.sample
           schema:
             $ref: '#/components/schemas/Error'
-    trait_response_500:
-      description: Internal server error
+    trait_response_409:
+      description: Item state conflict
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    trait_response_409:
-      description: Item state conflict
+    trait_response_500:
+      description: Internal server error
       content:
         application/json:
           schema:
@@ -254,6 +251,3 @@ components:
       schema:
         type: string
         format: uuid
-x-refined-from:
-- folio-mod-inn-reach-settings-openapi.json
-- folio-mod-inn-reach-settings-openapi.yml

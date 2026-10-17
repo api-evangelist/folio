@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio M A R C Transformation Options Settings API
+  title: INN-Reach Settings M A R C Transformation Options Settings…
   version: v1
-  description: 'Operations tagged M-A-R-C-transformation-options-settings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -94,8 +93,6 @@ paths:
       - $ref: '#/components/parameters/centralServerId'
       summary: Delete MARC transformation options settings
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
   /central-servers/marc-transformation-options:
     get:
       tags:
@@ -116,24 +113,33 @@ paths:
       - $ref: '#/components/parameters/trait_pageable_limit'
       summary: Get all MARC transformation options settings
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
   schemas:
-    validationErrorDTO:
-      description: Validation error
+    fieldConfigurationDTO:
+      description: Field Configuration
       type: object
       properties:
-        fieldName:
+        id:
+          description: Field configuration id
           type: string
-          description: Field name
-        message:
+          format: UUID
+        resourceIdentifierTypeId:
+          description: Resource identifier type id
           type: string
-          description: Validation error message text
+          format: UUID
+        stripPrefix:
+          description: Strip prefix
+          type: boolean
+        ignorePrefixes:
+          description: Array of strings that if present as prefixes will cause the identifier to be ignored
+          type: array
+          items:
+            type: string
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
       additionalProperties: false
-      required:
-      - fieldName
-      - message
     Error:
       type: object
       properties:
@@ -160,32 +166,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/validationErrorDTO'
-    MARCTransformationOptionsSettingsDTO:
-      description: MARC Transformation Options Settings
-      type: object
-      properties:
-        id:
-          description: MARC Transformation Options Settings id
-          type: string
-          format: UUID
-        configIsActive:
-          description: A Boolean indicating whether the configuration is active
-          type: boolean
-        modifiedFieldsForContributedRecords:
-          description: An ordered array of field configurations
-          type: array
-          items:
-            $ref: '#/components/schemas/fieldConfigurationDTO'
-        excludedMARCFields:
-          description: An array of MARC fields/subfields to exclude from transformed MARC records
-          type: array
-          items:
-            type: string
-        metadata:
-          description: Entity metadata
-          type: object
-          $ref: '#/components/schemas/metadata'
-      additionalProperties: false
     MARCTransformationOptionsSettingsListDTO:
       description: MARC Transformation Options Settings collection
       type: object
@@ -201,31 +181,20 @@ components:
       additionalProperties: false
       required:
       - MARCTransformOptSetList
-    fieldConfigurationDTO:
-      description: Field Configuration
+    validationErrorDTO:
+      description: Validation error
       type: object
       properties:
-        id:
-          description: Field configuration id
+        fieldName:
           type: string
-          format: UUID
-        resourceIdentifierTypeId:
-          description: Resource identifier type id
+          description: Field name
+        message:
           type: string
-          format: UUID
-        stripPrefix:
-          description: Strip prefix
-          type: boolean
-        ignorePrefixes:
-          description: Array of strings that if present as prefixes will cause the identifier to be ignored
-          type: array
-          items:
-            type: string
-        metadata:
-          description: Entity metadata
-          type: object
-          $ref: '#/components/schemas/metadata'
+          description: Validation error message text
       additionalProperties: false
+      required:
+      - fieldName
+      - message
     metadata:
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -256,19 +225,45 @@ components:
       additionalProperties: false
       required:
       - createdDate
+    MARCTransformationOptionsSettingsDTO:
+      description: MARC Transformation Options Settings
+      type: object
+      properties:
+        id:
+          description: MARC Transformation Options Settings id
+          type: string
+          format: UUID
+        configIsActive:
+          description: A Boolean indicating whether the configuration is active
+          type: boolean
+        modifiedFieldsForContributedRecords:
+          description: An ordered array of field configurations
+          type: array
+          items:
+            $ref: '#/components/schemas/fieldConfigurationDTO'
+        excludedMARCFields:
+          description: An array of MARC fields/subfields to exclude from transformed MARC records
+          type: array
+          items:
+            type: string
+        metadata:
+          description: Entity metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
   responses:
-    trait_response_404:
-      description: Item not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     trait_response_validation_400:
       description: Bad request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     trait_response_500:
       description: Internal server error
       content:
@@ -276,15 +271,13 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
       schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
+        type: string
+        format: uuid
     trait_pageable_offset:
       name: offset
       in: query
@@ -294,13 +287,12 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-    centralServerId:
-      name: centralServerId
-      in: path
-      required: true
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
       schema:
-        type: string
-        format: uuid
-x-refined-from:
-- folio-mod-inn-reach-settings-openapi.json
-- folio-mod-inn-reach-settings-openapi.yml
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer

@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Custom Properties API
   version: 7.3.0
+  title: Folio Licenses Custom Properties API
+  description: API for the Folio library services platform mod-licenses app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Custom Properties across 2 of this provider''s published API definitions: folio-mod-licenses-openapi.json, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -91,10 +91,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /licenses/custprops/{custPropId}:
     get:
       tags:
@@ -189,10 +185,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /licenses/custprops/contexts:
     get:
       tags:
@@ -223,188 +215,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
-  parameters:
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    custPropId:
-      in: path
-      name: custPropId
-      description: ID for a custom property definition
-      required: true
-      schema:
-        type: string
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
-    stats:
-      in: query
-      name: stats
-      required: false
-      schema:
-        type: boolean
-    match:
-      in: query
-      name: match
-      required: false
-      schema:
-        type: string
   schemas:
-    GrailsErrorResponse:
-      type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
-      required:
-      - error
-      - timestamp
-      - message
-      properties:
-        error:
-          type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
-        message:
-          type: string
-        exception:
-          type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
-    ValidationErrorResponse:
-      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
-      oneOf:
-      - $ref: '#/components/schemas/ValidationError'
-      - type: object
-        required:
-        - total
-        - _embedded
-        properties:
-          total:
-            type: integer
-          _embedded:
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ValidationError'
-    RefData:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          readOnly: true
-        label:
-          type: string
-        value:
-          type: string
-        owner:
-          $ref: '#/components/schemas/RefDataCategory'
-    CustomPropertyDefinitionResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/CustomPropertyDefinition'
-    RefDataCategory:
-      type: object
-      required:
-      - id
-      properties:
-        desc:
-          type: string
-        id:
-          type: string
-          readOnly: true
-        internal:
-          type: boolean
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/RefData'
-    ResultsMeta:
-      type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    CustomPropertyDefinition:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        label:
-          type: string
-        description:
-          type: string
-        primary:
-          type: boolean
-        defaultInternal:
-          type: boolean
-        retired:
-          type: boolean
-        weight:
-          type: integer
-        type:
-          type: string
-          description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
-        category:
-          $ref: '#/components/schemas/RefDataCategory'
     ValidationError:
       type: object
       required:
@@ -429,6 +241,97 @@ components:
                 href:
                   type: string
                   format: uri
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+    CustomPropertyDefinitionResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/CustomPropertyDefinition'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    RefData:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+        owner:
+          $ref: '#/components/schemas/RefDataCategory'
+    RefDataCategory:
+      type: object
+      required:
+      - id
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+          readOnly: true
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefData'
+    CustomPropertyDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        primary:
+          type: boolean
+        defaultInternal:
+          type: boolean
+        retired:
+          type: boolean
+        weight:
+          type: integer
+        type:
+          type: string
+          description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
+        category:
+          $ref: '#/components/schemas/RefDataCategory'
     CustomPropertyDefinitionResults:
       type: object
       required:
@@ -439,6 +342,91 @@ components:
       - properties:
           results:
             $ref: '#/components/schemas/CustomPropertyDefinitionResultsArray'
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+  parameters:
+    custPropId:
+      in: path
+      name: custPropId
+      description: ID for a custom property definition
+      required: true
+      schema:
+        type: string
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -448,6 +436,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-licenses-openapi.json
-- folio-mod-licenses-openapi.yml

@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Courses API
+  title: Courses API
   version: v1
-  description: 'Operations tagged Courses across 2 of this provider''s published API definitions: folio-edge-courses-openapi.json, folio-edge-courses-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /courses/
 tags:
@@ -34,8 +33,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       tags:
       - Courses
-    servers:
-    - url: /courses/
   /courses/reserves:
     get:
       operationId: getReservesByQuery
@@ -62,8 +59,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       tags:
       - Courses
-    servers:
-    - url: /courses/
   /courses/departments:
     get:
       operationId: getDepartments
@@ -89,8 +84,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       tags:
       - Courses
-    servers:
-    - url: /courses/
   /courses/instructors:
     get:
       operationId: getInstructors
@@ -113,8 +106,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       tags:
       - Courses
-    servers:
-    - url: /courses/
   /courses/courselistings/{instanceId}/reserves:
     get:
       operationId: getReservesByInstanceId
@@ -142,37 +133,46 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       tags:
       - Courses
-    servers:
-    - url: /courses/
 components:
+  parameters:
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    instance-id-path:
+      name: instanceId
+      in: path
+      description: Course Instance's UUID
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+    request-query-parameters:
+      name: requestQueryParameters
+      in: query
+      description: Request query parameters(query, limit, offset and etc.) as object.
+      schema:
+        $ref: '#/components/schemas/RequestQueryParameters'
+    sort-by:
+      name: sortBy
+      in: query
+      description: Param to sort collection results by a specific field
+      required: false
+      example: sortBy=name/sort.descending
+      schema:
+        type: string
+        pattern: ^(name|id)\/sort\.(ascending|descending)$
   schemas:
-    RequestQueryParameters:
-      type: object
-      properties:
-        query:
-          type: string
-          description: A CQL query string with search conditions.
-          minLength: 1
-        limit:
-          type: integer
-          description: Limit the number of elements returned in the response
-          maximum: 2147483647
-          minimum: 0
-          default: 10
-        offset:
-          type: integer
-          description: Skip over a number of elements by specifying an offset value for the query
-          maximum: 2147483647
-          minimum: 0
-          default: 0
-        lang:
-          type: string
-          description: Requested language
-          default: en
-          pattern: '[a-zA-Z]{2}'
-        expand:
-          type: string
-          description: Whether or not to expand the id fields
     Error:
       type: object
       properties:
@@ -201,6 +201,33 @@ components:
           description: The name of this instructor
       required:
       - name
+    RequestQueryParameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: A CQL query string with search conditions.
+          minLength: 1
+        limit:
+          type: integer
+          description: Limit the number of elements returned in the response
+          maximum: 2147483647
+          minimum: 0
+          default: 10
+        offset:
+          type: integer
+          description: Skip over a number of elements by specifying an offset value for the query
+          maximum: 2147483647
+          minimum: 0
+          default: 0
+        lang:
+          type: string
+          description: Requested language
+          default: en
+          pattern: '[a-zA-Z]{2}'
+        expand:
+          type: string
+          description: Whether or not to expand the id fields
     instructors:
       description: A collection of records
       type: object
@@ -218,15 +245,6 @@ components:
       - instructors
       - totalRecords
   responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example:
-            code: 500
-            errorMessage: internal error
-          schema:
-            $ref: '#/components/schemas/Error'
     badRequestResponse:
       description: Validation errors
       content:
@@ -236,44 +254,12 @@ components:
             errorMessage: Validation error
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    sort-by:
-      name: sortBy
-      in: query
-      description: Param to sort collection results by a specific field
-      required: false
-      example: sortBy=name/sort.descending
-      schema:
-        type: string
-        pattern: ^(name|id)\/sort\.(ascending|descending)$
-    x-okapi-token-header:
-      name: x-okapi-token
-      in: header
-      description: x-okapi-token header value
-      required: false
-      schema:
-        type: string
-    request-query-parameters:
-      name: requestQueryParameters
-      in: query
-      description: Request query parameters(query, limit, offset and etc.) as object.
-      schema:
-        $ref: '#/components/schemas/RequestQueryParameters'
-    instance-id-path:
-      name: instanceId
-      in: path
-      description: Course Instance's UUID
-      required: true
-      schema:
-        type: string
-        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
-    x-okapi-tenant-header:
-      name: x-okapi-tenant
-      in: header
-      description: x-okapi-tenant header value
-      required: false
-      schema:
-        type: string
-x-refined-from:
-- folio-edge-courses-openapi.json
-- folio-edge-courses-openapi.yml
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'

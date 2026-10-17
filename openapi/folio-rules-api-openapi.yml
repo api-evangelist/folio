@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Rules API
+  title: Validator Registry Rules API
   version: v1
-  description: 'Operations tagged Rules across 2 of this provider''s published API definitions: folio-mod-password-validator-validator-registry-openapi.json, folio-mod-password-validator-validator-registry-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /tenant/
 tags:
@@ -113,8 +112,6 @@ paths:
       - Rules
       summary: Put tenant rule
       x-summary-source: derived
-    servers:
-    - url: /tenant/
   /rules/{ruleId}:
     parameters:
     - name: ruleId
@@ -149,87 +146,8 @@ paths:
       - Rules
       summary: Get tenant rule by id
       x-summary-source: derived
-    servers:
-    - url: /tenant/
 components:
   schemas:
-    parameter:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      additionalProperties: false
-      required:
-      - key
-    validationRules:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Rules Collection
-      type: object
-      properties:
-        rules:
-          description: List of rules
-          type: array
-          id: ruleList
-          items:
-            type: object
-            $ref: '#/components/schemas/validationRule'
-        totalRecords:
-          type: integer
-      additionalProperties: false
-      required:
-      - rules
-      - totalRecords
-    error:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-      additionalProperties: false
-      required:
-      - message
-    errors:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    parameters:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-      additionalProperties: false
     validationRule:
       $schema: http://json-schema.org/draft-04/schema#
       description: Rule Schema
@@ -293,6 +211,59 @@ components:
       - state
       - moduleName
       - orderNo
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    parameter:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    validationRules:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Rules Collection
+      type: object
+      properties:
+        rules:
+          description: List of rules
+          type: array
+          id: ruleList
+          items:
+            type: object
+            $ref: '#/components/schemas/validationRule'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - rules
+      - totalRecords
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -324,16 +295,31 @@ components:
       additionalProperties: false
       required:
       - createdDate
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+      additionalProperties: false
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
   parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
     trait_queryable_query:
       name: query
       in: query
@@ -349,6 +335,15 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
   responses:
     trait_validate_422:
       description: Validation errors
@@ -356,6 +351,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mod-password-validator-validator-registry-openapi.json
-- folio-mod-password-validator-validator-registry-openapi.yml

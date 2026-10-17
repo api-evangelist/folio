@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Batch License Terms API
+  title: Batch License Terms API
   version: v1
-  description: 'Operations tagged batchLicenseTerms across 2 of this provider''s published API definitions: folio-edge-erm-openapi.json, folio-edge-erm-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /erm/
 tags:
@@ -40,10 +39,21 @@ paths:
           $ref: '#/components/responses/notFoundResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
-    servers:
-    - url: /erm/
 components:
   schemas:
+    license-terms-batch:
+      description: License terms response
+      type: object
+      properties:
+        results:
+          type: array
+          description: license term items found by provided ids
+          items:
+            type: object
+            description: license term item response
+            $ref: '#/components/schemas/license-terms-batch-item'
+      required:
+      - results
     Error:
       type: object
       properties:
@@ -53,6 +63,36 @@ components:
         errorMessage:
           description: Error message text
           type: string
+    license-terms-batch-item:
+      description: License term item response
+      type: object
+      properties:
+        id:
+          type: string
+          description: id field
+        licenseTerms:
+          description: Array of license term objects with found values
+          type: array
+          items:
+            type: object
+            description: license term item object
+            $ref: '#/components/schemas/license-term-item'
+      required:
+      - id
+      - licenseTerms
+    request-ids:
+      type: object
+      description: Request body for batch license term request
+      properties:
+        ids:
+          description: List of request ids
+          type: array
+          items:
+            type: string
+      required:
+      - ids
+      uniqueItems: true
+      additionalProperties: false
     license-term-item:
       description: License term item record
       type: object
@@ -94,50 +134,25 @@ components:
       - value
       - weight
       - publicNote
-    license-terms-batch-item:
-      description: License term item response
-      type: object
-      properties:
-        id:
-          type: string
-          description: id field
-        licenseTerms:
-          description: Array of license term objects with found values
-          type: array
-          items:
-            type: object
-            description: license term item object
-            $ref: '#/components/schemas/license-term-item'
-      required:
-      - id
-      - licenseTerms
-    license-terms-batch:
-      description: License terms response
-      type: object
-      properties:
-        results:
-          type: array
-          description: license term items found by provided ids
-          items:
-            type: object
-            description: license term item response
-            $ref: '#/components/schemas/license-terms-batch-item'
-      required:
-      - results
-    request-ids:
-      type: object
-      description: Request body for batch license term request
-      properties:
-        ids:
-          description: List of request ids
-          type: array
-          items:
-            type: string
-      required:
-      - ids
-      uniqueItems: true
-      additionalProperties: false
   responses:
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
     accessDeniedResponse:
       description: Access Denied
       content:
@@ -154,24 +169,6 @@ components:
           example:
             code: 500
             errorMessage: internal error
-          schema:
-            $ref: '#/components/schemas/Error'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          example:
-            code: 400
-            errorMessage: Validation error
-          schema:
-            $ref: '#/components/schemas/Error'
-    notFoundResponse:
-      description: Item with a given ID not found
-      content:
-        application/json:
-          example:
-            code: 404
-            errorMessage: Record by given id not found
           schema:
             $ref: '#/components/schemas/Error'
     notAuthorizedResponse:
@@ -198,6 +195,3 @@ components:
       required: false
       schema:
         type: string
-x-refined-from:
-- folio-edge-erm-openapi.json
-- folio-edge-erm-openapi.yml

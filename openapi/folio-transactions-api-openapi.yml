@@ -1,10 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Transactions API
+  title: mod DCB FOLIO Transactions API
+  description: mod DCB FOLIO API
   version: 1.0.0
-  description: 'Operations tagged transactions across 3 of this provider''s published API definitions: folio-mod-dcb-dcb-transaction-openapi.json, folio-edge-dcb-openapi.yml, folio-mod-dcb-dcb-transaction-openapi.yml. Each path carries the servers of the definition it was published in.'
-servers:
-- url: /dcbService/
 tags:
 - name: Transactions
 paths:
@@ -162,50 +160,44 @@ paths:
       summary: Unblock item renewal by transaction id
       x-summary-source: derived
 components:
-  responses:
-    UnprocessableEntity:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    TransactionStatusResponseCollection:
-      description: List of TransactionResponse object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/TransactionStatusResponseCollection'
-    TransactionStatusResponse:
-      description: TransactionStatusResponse object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/TransactionStatusResponse'
-    Conflict:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
+    TransactionStatusResponseList:
+      properties:
+        id:
+          description: Unique identifier of a transaction
+          $ref: '#/components/schemas/uuid'
+      allOf:
+      - $ref: '#/components/schemas/TransactionStatusResponse'
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    DcbPatron:
+      description: Patron metadata required for the transaction
+      type: object
+      properties:
+        id:
+          description: The unique identifier for the patron making the request as known in the requesting library
+          $ref: '#/components/schemas/uuid'
+        group:
+          description: The patron group associated with the requesting patron
+          type: string
+        barcode:
+          description: The barcode of the patron
+          type: string
+        localNames:
+          description: 'The local names for the patron, for example: "[John, Johnny, Doe]"'
+          type: string
     TransactionStatus:
       type: object
       properties:
@@ -229,32 +221,47 @@ components:
           properties:
             claimedReturnedResolution:
               $ref: '#/components/schemas/ClaimedReturnedResolution'
-    Parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
-    DcbPatron:
-      description: Patron metadata required for the transaction
+    DcbUpdateItem:
+      description: Item metadata required for updating the existing transaction
       type: object
       properties:
-        id:
-          description: The unique identifier for the patron making the request as known in the requesting library
-          $ref: '#/components/schemas/uuid'
-        group:
-          description: The patron group associated with the requesting patron
-          type: string
         barcode:
-          description: The barcode of the patron
+          description: The barcode of the item as specified in the lending library
           type: string
-        localNames:
-          description: 'The local names for the patron, for example: "[John, Johnny, Doe]"'
+        materialType:
+          description: The “hub-normalized” form of the item item type, used in the circulation rules for determining the correct loan policy.
           type: string
-    TransactionStatusResponse:
-      allOf:
-      - $ref: '#/components/schemas/TransactionStatus'
-      - $ref: '#/components/schemas/DcbTransaction'
+        lendingLibraryCode:
+          description: The code which identifies the lending library
+          type: string
+      additionalProperties: false
+      required:
+      - barcode
+      - materialType
+      - lendingLibraryCode
+    DcbUpdateTransaction:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/DcbUpdateItem'
+    DcbPickup:
+      description: Pickup Location metadata required for the pickup service point
+      type: object
+      properties:
+        libraryCode:
+          description: The code which identifies the pickup library
+          type: string
+        servicePointId:
+          description: UUID of the pickup service point
+          type: string
+        servicePointName:
+          description: The name of the pickup service point
+          type: string
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
     TransactionStatusResponseCollection:
       type: object
       properties:
@@ -275,88 +282,6 @@ components:
         totalRecords:
           description: total number of records which are matched to the current search
           type: integer
-    Error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    DcbUpdateTransaction:
-      type: object
-      properties:
-        item:
-          $ref: '#/components/schemas/DcbUpdateItem'
-    DcbPickup:
-      description: Pickup Location metadata required for the pickup service point
-      type: object
-      properties:
-        libraryCode:
-          description: The code which identifies the pickup library
-          type: string
-        servicePointId:
-          description: UUID of the pickup service point
-          type: string
-        servicePointName:
-          description: The name of the pickup service point
-          type: string
-    DcbUpdateItem:
-      description: Item metadata required for updating the existing transaction
-      type: object
-      properties:
-        barcode:
-          description: The barcode of the item as specified in the lending library
-          type: string
-        materialType:
-          description: The “hub-normalized” form of the item item type, used in the circulation rules for determining the correct loan policy.
-          type: string
-        lendingLibraryCode:
-          description: The code which identifies the lending library
-          type: string
-      additionalProperties: false
-      required:
-      - barcode
-      - materialType
-      - lendingLibraryCode
-    uuid:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
-    TransactionStatusResponseList:
-      properties:
-        id:
-          description: Unique identifier of a transaction
-          $ref: '#/components/schemas/uuid'
-      allOf:
-      - $ref: '#/components/schemas/TransactionStatusResponse'
     DcbTransaction:
       type: object
       properties:
@@ -406,24 +331,6 @@ components:
         holdCount:
           description: The number of holds on the item (Will be returned only for Lender role)
           type: integer
-    ClaimedReturnedResolution:
-      type: string
-      description: Claimed returned resolution
-      enum:
-      - Found by library
-      - Returned by patron
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
     renewalInfo:
       type: object
       properties:
@@ -436,13 +343,119 @@ components:
         renewable:
           description: renewable
           type: boolean
-  parameters:
-    dcbTransactionId:
-      in: path
-      name: dcbTransactionId
-      schema:
-        type: string
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    TransactionStatusResponse:
+      allOf:
+      - $ref: '#/components/schemas/TransactionStatus'
+      - $ref: '#/components/schemas/DcbTransaction'
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    ClaimedReturnedResolution:
+      type: string
+      description: Claimed returned resolution
+      enum:
+      - Found by library
+      - Returned by patron
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+  requestBodies:
+    TransactionStatusBody:
+      description: TransactionStatus object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TransactionStatus'
+    DCBTransaction:
+      description: DCB transaction object
       required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DcbTransaction'
+    DcbUpdateTransaction:
+      description: DCB transaction update object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DcbUpdateTransaction'
+  responses:
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TransactionStatusResponseCollection:
+      description: List of TransactionResponse object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TransactionStatusResponseCollection'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TransactionStatusResponse:
+      description: TransactionStatusResponse object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TransactionStatusResponse'
+  parameters:
     pageSize:
       in: query
       name: pageSize
@@ -453,6 +466,28 @@ components:
         minimum: 1
         maximum: 2147483647
       required: false
+    fromDate:
+      in: query
+      name: fromDate
+      description: Start date for filtering transactions
+      schema:
+        type: string
+        format: date-time
+      required: true
+    toDate:
+      in: query
+      name: toDate
+      description: End date for filtering transactions
+      schema:
+        type: string
+        format: date-time
+      required: true
+    dcbTransactionId:
+      in: path
+      name: dcbTransactionId
+      schema:
+        type: string
+      required: true
     pageNumber:
       in: query
       name: pageNumber
@@ -463,44 +498,3 @@ components:
         minimum: 0
         maximum: 2147483647
       required: false
-    toDate:
-      in: query
-      name: toDate
-      description: End date for filtering transactions
-      schema:
-        type: string
-        format: date-time
-      required: true
-    fromDate:
-      in: query
-      name: fromDate
-      description: Start date for filtering transactions
-      schema:
-        type: string
-        format: date-time
-      required: true
-  requestBodies:
-    TransactionStatusBody:
-      description: TransactionStatus object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/TransactionStatus'
-    DcbUpdateTransaction:
-      description: DCB transaction update object
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/DcbUpdateTransaction'
-    DCBTransaction:
-      description: DCB transaction object
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/DcbTransaction'
-x-refined-from:
-- folio-mod-dcb-dcb-transaction-openapi.json
-- folio-edge-dcb-openapi.yml
-- folio-mod-dcb-dcb-transaction-openapi.yml

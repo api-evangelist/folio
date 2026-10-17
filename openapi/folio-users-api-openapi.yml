@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Users API
   version: v1
-  description: 'Operations tagged Users across 4 of this provider''s published API definitions: folio-edge-users-openapi.json, folio-mod-users-keycloak-openapi.json, folio-edge-users-openapi.yml, folio-mod-users-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Users across 2 of this provider''s published API definitions: folio-edge-users-openapi.json, folio-mod-users-keycloak-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /users/
 - url: http://localhost:8081
@@ -314,43 +314,158 @@ paths:
     - url: http://localhost:8081
       description: Locally deployed server
 components:
+  responses:
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    notAuthorizedResponse:
+      description: Not authorized to perform requested action
+      content:
+        application/json:
+          example:
+            code: 401
+            errorMessage: Unauthorized request
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequest:
+      description: Bad request, e.g. malformed request body or query parameter
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    entityNotFound:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    unprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerError:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+  parameters:
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    request-query-parameters:
+      name: requestQueryParameters
+      in: query
+      description: Request query parameters(query, limit, offset and etc.) as object.
+      schema:
+        $ref: '#/components/schemas/RequestQueryParameters'
+    lang:
+      name: lang
+      in: query
+      description: Requested language
+      required: false
+      example: en
+      schema:
+        pattern: '[a-zA-Z]{2}'
+        default: en
+        type: string
+    query-expand-permissions:
+      in: query
+      required: false
+      name: expandPermissions
+      description: Whether or not to expand permissions listings
+      schema:
+        type: boolean
+        default: false
+    keycloak-only:
+      in: query
+      required: false
+      name: keycloakOnly
+      description: Create auth user only during user creation
+      schema:
+        type: boolean
+        default: false
+    query-include:
+      in: query
+      required: false
+      name: include
+      description: Indicates which referenced fields should be populated (de-referenced) by the service
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/includedField'
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
+    desired-permissions:
+      in: query
+      required: true
+      name: desiredPermissions
+      description: Permissions of permission prefix to filter by
+      schema:
+        type: array
+        items:
+          type: string
+      example:
+      - users.collection.get
+      - users.item.*
+    query-override-user:
+      in: query
+      required: false
+      name: overrideUser
+      description: When set to true the real user will be retrieved for ECS login into member tenants
+      schema:
+        type: boolean
+        default: false
   schemas:
-    RequestQueryParameters:
-      type: object
-      properties:
-        query:
-          type: string
-          description: A CQL query string with search conditions.
-          minLength: 1
-        limit:
-          type: integer
-          description: Limit the number of elements returned in the response
-          maximum: 2147483647
-          minimum: 0
-          default: 10
-        offset:
-          type: integer
-          description: Skip over a number of elements by specifying an offset value for the query
-          maximum: 2147483647
-          minimum: 0
-          default: 0
-        lang:
-          type: string
-          description: Requested language
-          default: en
-          pattern: '[a-zA-Z]{2}'
-        expand:
-          type: string
-          description: Whether or not to expand the id fields
-    Error:
-      type: object
-      properties:
-        code:
-          description: Error status code
-          type: integer
-        errorMessage:
-          description: Error message text
-          type: string
     tags:
       title: tags
       description: List of simple tags that can be added to an object
@@ -506,56 +621,15 @@ components:
           type: object
           additionalProperties: true
       additionalProperties: false
-    result-info:
-      description: Faceting of result sets
+    Error:
       type: object
       properties:
-        totalRecords:
+        code:
+          description: Error status code
           type: integer
-          description: Total number of records
-        responseTime:
-          type: number
-          description: Response time
-        diagnostics:
-          type: array
-          description: Array of diagnostic information
-          items:
-            type: object
-            description: Diagnostic information
-            properties:
-              source:
-                type: string
-                description: Source reporting the diagnostic information
-              code:
-                type: string
-                description: Diagnostic Code
-              message:
-                type: string
-                description: Diagnostic Message
-              module:
-                type: string
-                description: Module reporting diagnostic information
-              recordCount:
-                type: integer
-                description: Record Count for diagnostics
-              query:
-                type: string
-                description: CQL Query associated with results
-    patron-pin-with-id:
-      title: Patron Pin Schema
-      description: Patron Pin
-      type: object
-      properties:
-        id:
-          description: UUID of the user
+        errorMessage:
+          description: Error message text
           type: string
-          $ref: '#/components/schemas/uuid'
-        pin:
-          description: PIN of the user
-          type: string
-      required:
-      - id
-      - pin
     uuid:
       description: UUID
       type: string
@@ -606,55 +680,171 @@ components:
       additionalProperties: false
       required:
       - createdDate
-    parameter:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
+    RequestQueryParameters:
       type: object
       properties:
-        key:
-          description: Parameter key
+        query:
           type: string
-        value:
-          description: Parameter value
+          description: A CQL query string with search conditions.
+          minLength: 1
+        limit:
+          type: integer
+          description: Limit the number of elements returned in the response
+          maximum: 2147483647
+          minimum: 0
+          default: 10
+        offset:
+          type: integer
+          description: Skip over a number of elements by specifying an offset value for the query
+          maximum: 2147483647
+          minimum: 0
+          default: 0
+        lang:
           type: string
-    tags_2:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: tags
-      description: List of simple tags that can be added to an object
+          description: Requested language
+          default: en
+          pattern: '[a-zA-Z]{2}'
+        expand:
+          type: string
+          description: Whether or not to expand the id fields
+    result-info:
+      description: Faceting of result sets
       type: object
       properties:
-        tagList:
-          description: List of tags
+        totalRecords:
+          type: integer
+          description: Total number of records
+        responseTime:
+          type: number
+          description: Response time
+        diagnostics:
           type: array
+          description: Array of diagnostic information
+          items:
+            type: object
+            description: Diagnostic information
+            properties:
+              source:
+                type: string
+                description: Source reporting the diagnostic information
+              code:
+                type: string
+                description: Diagnostic Code
+              message:
+                type: string
+                description: Diagnostic Message
+              module:
+                type: string
+                description: Module reporting diagnostic information
+              recordCount:
+                type: integer
+                description: Record Count for diagnostics
+              query:
+                type: string
+                description: CQL Query associated with results
+    patron-pin-with-id:
+      title: Patron Pin Schema
+      description: Patron Pin
+      type: object
+      properties:
+        id:
+          description: UUID of the user
+          type: string
+          $ref: '#/components/schemas/uuid'
+        pin:
+          description: PIN of the user
+          type: string
+      required:
+      - id
+      - pin
+    servicePoint:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Service point
+      properties:
+        id:
+          type: string
+          description: id
+        name:
+          type: string
+          description: Service point name
+        code:
+          type: string
+          description: Service point code
+        discoveryDisplayName:
+          type: string
+          description: Service point discovery name
+        description:
+          type: string
+          description: Service point description
+        shelvingLagTime:
+          type: integer
+          description: Shelving lag time
+        pickupLocation:
+          type: boolean
+          description: Pick up location
+        staffSlips:
+          type: array
+          description: List of staff slips for this service point
+          items:
+            $ref: '#/components/schemas/staffSlip'
+        locationIds:
+          type: array
+          description: Location Ids
           items:
             type: string
-      additionalProperties: false
-    compositeUser:
+            format: uuid
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+          readonly: true
+          description: Metadata
+      required:
+      - name
+      - code
+      - discoveryDisplayName
+    permissions:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
-      description: Composite user object
+      description: Permissions container
       properties:
-        user:
-          description: User object
-          $ref: '#/components/schemas/user'
-        patronGroup:
-          description: Patron group object
-          $ref: '#/components/schemas/userGroup'
         permissions:
-          description: Permissions object
-          $ref: '#/components/schemas/permissionUser'
-        proxiesFor:
           type: array
-          description: Proxies for, array
-          id: proxyFor
+          description: Permissions array
           items:
-            $ref: '#/components/schemas/proxyFor'
-        servicePointsUser:
-          description: Service point user
-          $ref: '#/components/schemas/servicePointUser'
-        originalTenantId:
-          description: An original tenant id to redirect member tenant to
+            type: string
+    servicePointUser:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Service points expanded user
+      properties:
+        id:
           type: string
+          description: Id
+        userId:
+          type: string
+          description: User Id
+        servicePointsIds:
+          type: array
+          description: Service Points Ids
+          items:
+            type: string
+        servicePoints:
+          type: array
+          description: Service Points
+          items:
+            $ref: '#/components/schemas/servicePoint'
+        defaultServicePointId:
+          type: string
+          description: Default Service Point Id
+        defaultServicePoint:
+          description: Default Service Point Object
+          $ref: '#/components/schemas/servicePoint'
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+          readonly: true
+      additionalProperties: false
+      required:
+      - userId
     errors:
       description: A set of errors
       $schema: http://json-schema.org/draft-04/schema#
@@ -669,43 +859,6 @@ components:
         total_records:
           description: Total number of errors
           type: integer
-    parameters:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
-    metadata_2:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: Metadata Schema
-      description: Metadata about creation and changes to records, provided by the server (client should not provide)
-      type: object
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          type: string
-          format: date-time
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          type: string
-          format: uuid
-        createdByUsername:
-          description: Username of the user who created the record (when available)
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-          format: date-time
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          type: string
-          format: uuid
-        updatedByUsername:
-          description: Username of the user who last updated the record (when available)
-          type: string
-      additionalProperties: false
-      required:
-      - createdDate
     user:
       $schema: http://json-schema.org/draft-04/schema#
       title: User Schema
@@ -789,6 +942,153 @@ components:
           uniqueItems: true
           description: Preferred email communication types
       additionalProperties: false
+    tags_2:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: tags
+      description: List of simple tags that can be added to an object
+      type: object
+      properties:
+        tagList:
+          description: List of tags
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    proxyFor:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: ProxyFor Schema
+      description: Proxy For Schema
+      type: object
+      properties:
+        userId:
+          type: string
+          description: User Id
+        proxyUserId:
+          type: string
+          description: Proxy User Id
+        id:
+          type: string
+          description: Id
+        requestForSponsor:
+          type: string
+          description: Request For Sponsor
+        createdDate:
+          type: string
+          format: date-time
+          description: Created Date
+        notificationsTo:
+          type: string
+          description: Notifications To
+        accrueTo:
+          type: string
+          description: Accrue To
+        status:
+          type: string
+          description: Status
+        expirationDate:
+          type: string
+          format: date-time
+          description: Expiration Date
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+          readonly: true
+      additionalProperties: false
+    userGroup:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: User Group Schema
+      description: User group schema
+      type: object
+      properties:
+        group:
+          type: string
+          description: group
+        desc:
+          type: string
+          description: description
+        id:
+          type: string
+          description: id
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+          readonly: true
+          description: Metadata
+      required:
+      - group
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    staffSlip:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Staff slip Schema
+      description: Staff slip
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID of the staff slip
+        printByDefault:
+          type: boolean
+          description: Whether or not to print the staff slip by default
+      additionalProperties: false
+      required:
+      - id
+      - printByDefault
+    permissionUser:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Permission User Object
+      properties:
+        id:
+          type: string
+          description: Id
+        userId:
+          type: string
+          description: User Id
+        permissions:
+          type: array
+          description: Permissions array
+          items:
+            type: object
+        metadata:
+          $ref: '#/components/schemas/metadata_2'
+          description: Metadata
+      additionalProperties: false
+    includedField:
+      type: string
+      title: Included field
+      enum:
+      - groups
+      - perms
+      - proxiesfor
+      - servicepoints
+      - expanded_perms
+      - expanded_servicepoints
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: List of key/value parameters of an error
+          $ref: '#/components/schemas/parameters'
     address:
       $schema: http://json-schema.org/draft-04/schema#
       title: Address Schema
@@ -826,132 +1126,6 @@ components:
       required:
       - addressTypeId
       additionalProperties: false
-    servicePointUser:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Service points expanded user
-      properties:
-        id:
-          type: string
-          description: Id
-        userId:
-          type: string
-          description: User Id
-        servicePointsIds:
-          type: array
-          description: Service Points Ids
-          items:
-            type: string
-        servicePoints:
-          type: array
-          description: Service Points
-          items:
-            $ref: '#/components/schemas/servicePoint'
-        defaultServicePointId:
-          type: string
-          description: Default Service Point Id
-        defaultServicePoint:
-          description: Default Service Point Object
-          $ref: '#/components/schemas/servicePoint'
-        metadata:
-          $ref: '#/components/schemas/metadata_2'
-          readonly: true
-      additionalProperties: false
-      required:
-      - userId
-    permissions:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Permissions container
-      properties:
-        permissions:
-          type: array
-          description: Permissions array
-          items:
-            type: string
-    servicePoint:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Service point
-      properties:
-        id:
-          type: string
-          description: id
-        name:
-          type: string
-          description: Service point name
-        code:
-          type: string
-          description: Service point code
-        discoveryDisplayName:
-          type: string
-          description: Service point discovery name
-        description:
-          type: string
-          description: Service point description
-        shelvingLagTime:
-          type: integer
-          description: Shelving lag time
-        pickupLocation:
-          type: boolean
-          description: Pick up location
-        staffSlips:
-          type: array
-          description: List of staff slips for this service point
-          items:
-            $ref: '#/components/schemas/staffSlip'
-        locationIds:
-          type: array
-          description: Location Ids
-          items:
-            type: string
-            format: uuid
-        metadata:
-          $ref: '#/components/schemas/metadata_2'
-          readonly: true
-          description: Metadata
-      required:
-      - name
-      - code
-      - discoveryDisplayName
-    userGroup:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: User Group Schema
-      description: User group schema
-      type: object
-      properties:
-        group:
-          type: string
-          description: group
-        desc:
-          type: string
-          description: description
-        id:
-          type: string
-          description: id
-        metadata:
-          $ref: '#/components/schemas/metadata_2'
-          readonly: true
-          description: Metadata
-      required:
-      - group
-    staffSlip:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: Staff slip Schema
-      description: Staff slip
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: The ID of the staff slip
-        printByDefault:
-          type: boolean
-          description: Whether or not to print the staff slip by default
-      additionalProperties: false
-      required:
-      - id
-      - printByDefault
     personal:
       $schema: http://json-schema.org/draft-04/schema#
       title: Personal Schema
@@ -1009,105 +1183,33 @@ components:
       additionalProperties: false
       required:
       - lastName
-    proxyFor:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: ProxyFor Schema
-      description: Proxy For Schema
-      type: object
-      properties:
-        userId:
-          type: string
-          description: User Id
-        proxyUserId:
-          type: string
-          description: Proxy User Id
-        id:
-          type: string
-          description: Id
-        requestForSponsor:
-          type: string
-          description: Request For Sponsor
-        createdDate:
-          type: string
-          format: date-time
-          description: Created Date
-        notificationsTo:
-          type: string
-          description: Notifications To
-        accrueTo:
-          type: string
-          description: Accrue To
-        status:
-          type: string
-          description: Status
-        expirationDate:
-          type: string
-          format: date-time
-          description: Expiration Date
-        metadata:
-          $ref: '#/components/schemas/metadata_2'
-          readonly: true
-      additionalProperties: false
-    includedField:
-      type: string
-      title: Included field
-      enum:
-      - groups
-      - perms
-      - proxiesfor
-      - servicepoints
-      - expanded_perms
-      - expanded_servicepoints
-    permissionUser:
+    compositeUser:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
-      description: Permission User Object
+      description: Composite user object
       properties:
-        id:
-          type: string
-          description: Id
-        userId:
-          type: string
-          description: User Id
+        user:
+          description: User object
+          $ref: '#/components/schemas/user'
+        patronGroup:
+          description: Patron group object
+          $ref: '#/components/schemas/userGroup'
         permissions:
+          description: Permissions object
+          $ref: '#/components/schemas/permissionUser'
+        proxiesFor:
           type: array
-          description: Permissions array
+          description: Proxies for, array
+          id: proxyFor
           items:
-            type: object
-        metadata:
-          $ref: '#/components/schemas/metadata_2'
-          description: Metadata
-      additionalProperties: false
-    error:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: An error
-      type: object
-      properties:
-        message:
+            $ref: '#/components/schemas/proxyFor'
+        servicePointsUser:
+          description: Service point user
+          $ref: '#/components/schemas/servicePointUser'
+        originalTenantId:
+          description: An original tenant id to redirect member tenant to
           type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: List of key/value parameters of an error
-          $ref: '#/components/schemas/parameters'
-    tags_3:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: tags
-      description: List of simple tags that can be added to an object
-      type: object
-      properties:
-        tagList:
-          description: List of tags
-          type: array
-          items:
-            type: string
-      additionalProperties: false
-    metadata_3:
+    metadata_2:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -1138,400 +1240,12 @@ components:
       additionalProperties: false
       required:
       - createdDate
-    user_2:
+    parameters:
+      description: List of key/value parameters of an error
       $schema: http://json-schema.org/draft-04/schema#
-      title: User Schema
-      description: A user
-      type: object
-      properties:
-        username:
-          description: A unique name belonging to a user. Typically used for login
-          type: string
-        id:
-          description: A globally unique (UUID) identifier for the user
-          type: string
-          format: uuid
-        externalSystemId:
-          description: A unique ID that corresponds to an external authority
-          type: string
-        barcode:
-          description: The unique library barcode for this user
-          type: string
-        active:
-          description: A flag to determine if the user's account is effective and not expired. The tenant configuration can require the user to be active for login. Active is different from the loan patron block
-          type: boolean
-        type:
-          description: The class of user like staff or patron; this is different from patronGroup
-          type: string
-        patronGroup:
-          description: A UUID corresponding to the group the user belongs to, see /groups API, example groups are undergraduate and faculty; loan rules, patron blocks, fees/fines and expiration days can use the patron group
-          type: string
-          format: uuid
-        departments:
-          description: A list of UUIDs corresponding to the departments the user belongs to, see /departments API
-          type: array
-          uniqueItems: true
-          items:
-            type: string
-            format: uuid
-        meta:
-          description: Deprecated
-          type: object
-        proxyFor:
-          description: Deprecated
-          type: array
-          items:
-            type: string
-        personal:
-          description: Personal information about the user
-          $ref: '#/components/schemas/personal'
-        enrollmentDate:
-          description: The date in which the user joined the organization
-          type: string
-          format: date-time
-        expirationDate:
-          description: The date for when the user becomes inactive
-          type: string
-          format: date-time
-        createdDate:
-          description: Deprecated
-          type: string
-          format: date-time
-        updatedDate:
-          description: Deprecated
-          type: string
-          format: date-time
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-        tags:
-          $ref: '#/components/schemas/tags_3'
-        customFields:
-          description: Object that contains custom field
-          type: object
-          additionalProperties: true
-        preferredEmailCommunication:
-          type: array
-          items:
-            type: string
-            enum:
-            - Support
-            - Programs
-            - Services
-          maxItems: 3
-          uniqueItems: true
-          description: Preferred email communication types
-      additionalProperties: false
-    servicePointUser_2:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Service points expanded user
-      properties:
-        id:
-          type: string
-          description: Id
-        userId:
-          type: string
-          description: User Id
-        servicePointsIds:
-          type: array
-          description: Service Points Ids
-          items:
-            type: string
-        servicePoints:
-          type: array
-          description: Service Points
-          items:
-            $ref: '#/components/schemas/servicePoint_2'
-        defaultServicePointId:
-          type: string
-          description: Default Service Point Id
-        defaultServicePoint:
-          description: Default Service Point Object
-          $ref: '#/components/schemas/servicePoint_2'
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-          readonly: true
-      additionalProperties: false
-      required:
-      - userId
-    servicePoint_2:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Service point
-      properties:
-        id:
-          type: string
-          description: id
-        name:
-          type: string
-          description: Service point name
-        code:
-          type: string
-          description: Service point code
-        discoveryDisplayName:
-          type: string
-          description: Service point discovery name
-        description:
-          type: string
-          description: Service point description
-        shelvingLagTime:
-          type: integer
-          description: Shelving lag time
-        pickupLocation:
-          type: boolean
-          description: Pick up location
-        staffSlips:
-          type: array
-          description: List of staff slips for this service point
-          items:
-            $ref: '#/components/schemas/staffSlip'
-        locationIds:
-          type: array
-          description: Location Ids
-          items:
-            type: string
-            format: uuid
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-          readonly: true
-          description: Metadata
-      required:
-      - name
-      - code
-      - discoveryDisplayName
-    userGroup_2:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: User Group Schema
-      description: User group schema
-      type: object
-      properties:
-        group:
-          type: string
-          description: group
-        desc:
-          type: string
-          description: description
-        id:
-          type: string
-          description: id
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-          readonly: true
-          description: Metadata
-      required:
-      - group
-    proxyFor_2:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: ProxyFor Schema
-      description: Proxy For Schema
-      type: object
-      properties:
-        userId:
-          type: string
-          description: User Id
-        proxyUserId:
-          type: string
-          description: Proxy User Id
-        id:
-          type: string
-          description: Id
-        requestForSponsor:
-          type: string
-          description: Request For Sponsor
-        createdDate:
-          type: string
-          format: date-time
-          description: Created Date
-        notificationsTo:
-          type: string
-          description: Notifications To
-        accrueTo:
-          type: string
-          description: Accrue To
-        status:
-          type: string
-          description: Status
-        expirationDate:
-          type: string
-          format: date-time
-          description: Expiration Date
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-          readonly: true
-      additionalProperties: false
-    permissionUser_2:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Permission User Object
-      properties:
-        id:
-          type: string
-          description: Id
-        userId:
-          type: string
-          description: User Id
-        permissions:
-          type: array
-          description: Permissions array
-          items:
-            type: object
-        metadata:
-          $ref: '#/components/schemas/metadata_3'
-          description: Metadata
-      additionalProperties: false
-  responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example:
-            code: 500
-            errorMessage: internal error
-          schema:
-            $ref: '#/components/schemas/Error'
-    notFoundResponse:
-      description: Item with a given ID not found
-      content:
-        application/json:
-          example:
-            code: 404
-            errorMessage: Record by given id not found
-          schema:
-            $ref: '#/components/schemas/Error'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          example:
-            code: 400
-            errorMessage: Validation error
-          schema:
-            $ref: '#/components/schemas/Error'
-    notAuthorizedResponse:
-      description: Not authorized to perform requested action
-      content:
-        application/json:
-          example:
-            code: 401
-            errorMessage: Unauthorized request
-          schema:
-            $ref: '#/components/schemas/Error'
-    forbidden:
-      description: Access denied
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    unprocessableEntity:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    badRequest:
-      description: Bad request, e.g. malformed request body or query parameter
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    entityNotFound:
-      description: Error response if entity is not found by id (in json format)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    internalServerError:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-  parameters:
-    x-okapi-token-header:
-      name: x-okapi-token
-      in: header
-      description: x-okapi-token header value
-      required: false
-      schema:
-        type: string
-    lang:
-      name: lang
-      in: query
-      description: Requested language
-      required: false
-      example: en
-      schema:
-        pattern: '[a-zA-Z]{2}'
-        default: en
-        type: string
-    request-query-parameters:
-      name: requestQueryParameters
-      in: query
-      description: Request query parameters(query, limit, offset and etc.) as object.
-      schema:
-        $ref: '#/components/schemas/RequestQueryParameters'
-    x-okapi-tenant-header:
-      name: x-okapi-tenant
-      in: header
-      description: x-okapi-tenant header value
-      required: false
-      schema:
-        type: string
-    query-expand-permissions:
-      in: query
-      required: false
-      name: expandPermissions
-      description: Whether or not to expand permissions listings
-      schema:
-        type: boolean
-        default: false
-    desired-permissions:
-      in: query
-      required: true
-      name: desiredPermissions
-      description: Permissions of permission prefix to filter by
-      schema:
-        type: array
-        items:
-          type: string
-      example:
-      - users.collection.get
-      - users.item.*
-    keycloak-only:
-      in: query
-      required: false
-      name: keycloakOnly
-      description: Create auth user only during user creation
-      schema:
-        type: boolean
-        default: false
-    path-entity-id:
-      in: path
-      required: true
-      name: id
-      description: Entity id
-      schema:
-        type: string
-        format: uuid
-    query-include:
-      in: query
-      required: false
-      name: include
-      description: Indicates which referenced fields should be populated (de-referenced) by the service
-      schema:
-        type: array
-        items:
-          $ref: '#/components/schemas/includedField'
-    query-override-user:
-      in: query
-      required: false
-      name: overrideUser
-      description: When set to true the real user will be retrieved for ECS login into member tenants
-      schema:
-        type: boolean
-        default: false
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
 x-refined-from:
 - folio-edge-users-openapi.json
 - folio-mod-users-keycloak-openapi.json
-- folio-edge-users-openapi.yml
-- folio-mod-users-keycloak-openapi.yml

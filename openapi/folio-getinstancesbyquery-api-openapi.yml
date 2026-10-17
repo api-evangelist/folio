@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Get Instances By Query API
+  title: Circulation BFF requests Get Instances By Query API
   version: v1
-  description: 'Operations tagged getInstancesByQuery across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: getInstancesByQuery
 paths:
@@ -32,32 +31,17 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
+    note:
+      description: Bibliographic or administrative note for instance/item/holding
       type: object
       properties:
-        key:
-          description: Parameter key
+        note:
           type: string
-        value:
-          description: Parameter value
-          type: string
-      example:
-        key: source
-        value: 'null'
-    bffSearchItemCallNumberComponents:
-      type: object
-      description: Elements of a full call number generated from the item or holding
-      properties:
-        callNumber:
-          type: string
-          description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item
-        prefix:
-          type: string
-          description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item
-        suffix:
-          type: string
-          description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item
+          description: Text content of the note
+        staffOnly:
+          type: boolean
+          description: If true, determines that the note should not be visible for others than staff
+          default: false
     baseSearchInstance:
       type: object
       description: Base search instance schema
@@ -193,300 +177,6 @@ components:
       - electronicAccess
       - notes
       - holdings
-    identifier:
-      type: object
-      description: Resource identifier
-      properties:
-        value:
-          type: string
-          description: Resource identifier value
-        identifierTypeId:
-          type: string
-          description: Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)
-    dates:
-      type: object
-      description: Instance Dates
-      properties:
-        dateTypeId:
-          type: string
-          description: Date type ID
-        date1:
-          type: string
-          description: Date1 value
-        date2:
-          type: string
-          description: Date2 value
-    tags:
-      title: tags
-      description: List of simple tags that can be added to an object
-      type: object
-      properties:
-        tagList:
-          description: List of tags
-          type: array
-          items:
-            type: string
-    bffSearchInstance:
-      type: object
-      description: custom search instance schema
-      allOf:
-      - $ref: '#/components/schemas/baseSearchInstance'
-      properties:
-        items:
-          description: List of instance items
-          type: array
-          items:
-            $ref: '#/components/schemas/bffSearchItem'
-        editions:
-          description: The edition statement, imprint and other publication source information
-          type: array
-          uniqueItems: true
-          items:
-            type: string
-      required:
-      - items
-    bffSearchItemInTransitDestinationServicePoint:
-      type: object
-      description: Service point an item is intended to be transited to (should only be present when in transit)
-      properties:
-        id:
-          description: The ID of the service point
-          type: string
-          format: uuid
-        name:
-          description: Name of the service point
-          type: string
-    metadata:
-      type: object
-      description: Record metadata
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          type: string
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          type: string
-        createdByUsername:
-          description: Username of the user who created the record (when available)
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          type: string
-        updatedByUsername:
-          description: Username of the user who last updated the record (when available)
-          type: string
-    errorResponse:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      example:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-    alternativeTitle:
-      type: object
-      description: An alternative title description
-      properties:
-        alternativeTitleTypeId:
-          type: string
-          description: UUID for an alternative title qualifier
-        alternativeTitle:
-          type: string
-          description: An alternative title for the resource
-        authorityId:
-          type: string
-          description: UUID of authority record that controls an alternative title
-    note:
-      description: Bibliographic or administrative note for instance/item/holding
-      type: object
-      properties:
-        note:
-          type: string
-          description: Text content of the note
-        staffOnly:
-          type: boolean
-          description: If true, determines that the note should not be visible for others than staff
-          default: false
-    electronicAccess:
-      description: Electronic access object
-      type: object
-      properties:
-        uri:
-          type: string
-          description: Uniform Resource Identifier (URI) is a string of characters designed for unambiguous identification of resources
-        linkText:
-          type: string
-          description: 'The value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated'
-        materialsSpecification:
-          type: string
-          description: Materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)
-        publicNote:
-          type: string
-          description: URL public note to be displayed in the discovery
-    subject:
-      type: object
-      description: A subject heading description
-      properties:
-        value:
-          type: string
-          description: Subject heading value
-        authorityId:
-          type: string
-          description: UUID of authority record that controls a subject heading
-    seriesItem:
-      type: object
-      description: A series item description
-      properties:
-        value:
-          type: string
-          description: Series title value
-        authorityId:
-          type: string
-          description: UUID of authority record that controls a series title
-    classification:
-      type: object
-      description: Classification object
-      properties:
-        classificationNumber:
-          description: Classification (e.g. classification scheme, classification schedule)
-          type: string
-        classificationTypeId:
-          description: Classification type ID
-          type: string
-    searchHolding:
-      description: Holding description
-      type: object
-      properties:
-        id:
-          type: string
-          description: Unique ID of the holding record
-        tenantId:
-          description: Tenant ID
-          type: string
-        permanentLocationId:
-          type: string
-          description: The permanent shelving location in which an item resides.
-        discoverySuppress:
-          type: boolean
-          description: Indicates that the record should not be displayed in a discovery system
-        hrid:
-          type: string
-          description: the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID
-        sourceId:
-          description: (A reference to) the source of a holdings record
-          type: string
-        formerIds:
-          type: array
-          description: Previous identifiers assigned to the holding
-          items:
-            type: string
-        statisticalCodeIds:
-          type: array
-          description: List of statistical code IDs
-          items:
-            type: string
-            description: UUID for a statistical code
-        tags:
-          $ref: '#/components/schemas/tags'
-        holdingsTypeId:
-          type: string
-          description: unique ID for the type of this holdings record, a UUID
-        callNumberPrefix:
-          type: string
-          description: Prefix of the call number on the holding level.
-        callNumber:
-          type: string
-          description: Call Number is an identifier assigned to an item, usually printed on a label attached to the item.
-        callNumberSuffix:
-          type: string
-          description: Suffix of the call number on the holding level.
-        copyNumber:
-          type: string
-          description: Item/Piece ID (usually barcode) for systems that do not use item records.
-        electronicAccess:
-          type: array
-          description: List of electronic access items
-          items:
-            $ref: '#/components/schemas/electronicAccess'
-        administrativeNotes:
-          type: array
-          description: Administrative notes
-          items:
-            type: string
-        notes:
-          type: array
-          description: Notes about action, copy, binding etc.
-          items:
-            $ref: '#/components/schemas/note'
-        metadata:
-          $ref: '#/components/schemas/metadata'
-      required:
-      - electronicAccess
-      - notes
-    contributor:
-      type: object
-      description: A contributor description
-      properties:
-        name:
-          type: string
-          description: Personal name, corporate name, meeting name
-        contributorTypeId:
-          type: string
-          description: ID for the contributor type term defined as a reference table in settings
-        contributorTypeText:
-          type: string
-          description: Free text element for adding contributor type terms other than those defined by the MARC code list for relators
-        contributorNameTypeId:
-          type: string
-          description: Contributor type terms defined by the MARC code list for relators
-        authorityId:
-          type: string
-          description: ID of authority record that controls the contributor
-        primary:
-          type: boolean
-          description: Whether this is the primary contributor
-    publication:
-      type: object
-      properties:
-        publisher:
-          description: Name of publisher, distributor, etc.
-          type: string
-        dateOfPublication:
-          description: Date (year YYYY) of publication, distribution, etc.
-          type: string
-        place:
-          description: Place of publication, distribution, etc.
-          type: string
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: array
-          items:
-            $ref: '#/components/schemas/parameter'
     bffSearchItem:
       description: Item description
       type: object
@@ -593,14 +283,323 @@ components:
         accessionNumber:
           type: string
           description: Also called inventory number
-  examples:
-    unknownError:
-      value:
+    bffSearchItemCallNumberComponents:
+      type: object
+      description: Elements of a full call number generated from the item or holding
+      properties:
+        callNumber:
+          type: string
+          description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item
+        prefix:
+          type: string
+          description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item
+        suffix:
+          type: string
+          description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item
+    contributor:
+      type: object
+      description: A contributor description
+      properties:
+        name:
+          type: string
+          description: Personal name, corporate name, meeting name
+        contributorTypeId:
+          type: string
+          description: ID for the contributor type term defined as a reference table in settings
+        contributorTypeText:
+          type: string
+          description: Free text element for adding contributor type terms other than those defined by the MARC code list for relators
+        contributorNameTypeId:
+          type: string
+          description: Contributor type terms defined by the MARC code list for relators
+        authorityId:
+          type: string
+          description: ID of authority record that controls the contributor
+        primary:
+          type: boolean
+          description: Whether this is the primary contributor
+    electronicAccess:
+      description: Electronic access object
+      type: object
+      properties:
+        uri:
+          type: string
+          description: Uniform Resource Identifier (URI) is a string of characters designed for unambiguous identification of resources
+        linkText:
+          type: string
+          description: 'The value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated'
+        materialsSpecification:
+          type: string
+          description: Materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)
+        publicNote:
+          type: string
+          description: URL public note to be displayed in the discovery
+    classification:
+      type: object
+      description: Classification object
+      properties:
+        classificationNumber:
+          description: Classification (e.g. classification scheme, classification schedule)
+          type: string
+        classificationTypeId:
+          description: Classification type ID
+          type: string
+    tags:
+      title: tags
+      description: List of simple tags that can be added to an object
+      type: object
+      properties:
+        tagList:
+          description: List of tags
+          type: array
+          items:
+            type: string
+    subject:
+      type: object
+      description: A subject heading description
+      properties:
+        value:
+          type: string
+          description: Subject heading value
+        authorityId:
+          type: string
+          description: UUID of authority record that controls a subject heading
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
+    alternativeTitle:
+      type: object
+      description: An alternative title description
+      properties:
+        alternativeTitleTypeId:
+          type: string
+          description: UUID for an alternative title qualifier
+        alternativeTitle:
+          type: string
+          description: An alternative title for the resource
+        authorityId:
+          type: string
+          description: UUID of authority record that controls an alternative title
+    searchHolding:
+      description: Holding description
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID of the holding record
+        tenantId:
+          description: Tenant ID
+          type: string
+        permanentLocationId:
+          type: string
+          description: The permanent shelving location in which an item resides.
+        discoverySuppress:
+          type: boolean
+          description: Indicates that the record should not be displayed in a discovery system
+        hrid:
+          type: string
+          description: the human readable ID, also called eye readable ID. A system-assigned sequential ID which maps to the Instance ID
+        sourceId:
+          description: (A reference to) the source of a holdings record
+          type: string
+        formerIds:
+          type: array
+          description: Previous identifiers assigned to the holding
+          items:
+            type: string
+        statisticalCodeIds:
+          type: array
+          description: List of statistical code IDs
+          items:
+            type: string
+            description: UUID for a statistical code
+        tags:
+          $ref: '#/components/schemas/tags'
+        holdingsTypeId:
+          type: string
+          description: unique ID for the type of this holdings record, a UUID
+        callNumberPrefix:
+          type: string
+          description: Prefix of the call number on the holding level.
+        callNumber:
+          type: string
+          description: Call Number is an identifier assigned to an item, usually printed on a label attached to the item.
+        callNumberSuffix:
+          type: string
+          description: Suffix of the call number on the holding level.
+        copyNumber:
+          type: string
+          description: Item/Piece ID (usually barcode) for systems that do not use item records.
+        electronicAccess:
+          type: array
+          description: List of electronic access items
+          items:
+            $ref: '#/components/schemas/electronicAccess'
+        administrativeNotes:
+          type: array
+          description: Administrative notes
+          items:
+            type: string
+        notes:
+          type: array
+          description: Notes about action, copy, binding etc.
+          items:
+            $ref: '#/components/schemas/note'
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - electronicAccess
+      - notes
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    publication:
+      type: object
+      properties:
+        publisher:
+          description: Name of publisher, distributor, etc.
+          type: string
+        dateOfPublication:
+          description: Date (year YYYY) of publication, distribution, etc.
+          type: string
+        place:
+          description: Place of publication, distribution, etc.
+          type: string
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
         errors:
         - message: Illegal argument error
           type: IllegalArgumentException
           code: unknown_error
         total_records: 1
+    bffSearchInstance:
+      type: object
+      description: custom search instance schema
+      allOf:
+      - $ref: '#/components/schemas/baseSearchInstance'
+      properties:
+        items:
+          description: List of instance items
+          type: array
+          items:
+            $ref: '#/components/schemas/bffSearchItem'
+        editions:
+          description: The edition statement, imprint and other publication source information
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+      required:
+      - items
+    seriesItem:
+      type: object
+      description: A series item description
+      properties:
+        value:
+          type: string
+          description: Series title value
+        authorityId:
+          type: string
+          description: UUID of authority record that controls a series title
+    dates:
+      type: object
+      description: Instance Dates
+      properties:
+        dateTypeId:
+          type: string
+          description: Date type ID
+        date1:
+          type: string
+          description: Date1 value
+        date2:
+          type: string
+          description: Date2 value
+    bffSearchItemInTransitDestinationServicePoint:
+      type: object
+      description: Service point an item is intended to be transited to (should only be present when in transit)
+      properties:
+        id:
+          description: The ID of the service point
+          type: string
+          format: uuid
+        name:
+          description: Name of the service point
+          type: string
+    metadata:
+      type: object
+      description: Record metadata
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+    identifier:
+      type: object
+      description: Resource identifier
+      properties:
+        value:
+          type: string
+          description: Resource identifier value
+        identifierTypeId:
+          type: string
+          description: Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)
+  parameters:
+    query:
+      name: query
+      in: query
+      required: true
+      schema:
+        type: string
+  examples:
     validationErrorResponse:
       value:
         errors:
@@ -610,6 +609,13 @@ components:
           parameters:
           - key: parameter
             value: 'null'
+        total_records: 1
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
         total_records: 1
   responses:
     internalServerErrorResponse:
@@ -639,13 +645,3 @@ components:
           examples:
             validationErrorResponse:
               $ref: '#/components/examples/validationErrorResponse'
-  parameters:
-    query:
-      name: query
-      in: query
-      required: true
-      schema:
-        type: string
-x-refined-from:
-- folio-mod-circulation-bff-circulationbff-openapi.json
-- folio-mod-circulation-bff-circulationbff-openapi.yml

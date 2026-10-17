@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Declare Item Lost API
+  title: Circulation BFF requests Declare Item Lost API
   version: v1
-  description: 'Operations tagged declareItemLost across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: declareItemLost
 paths:
@@ -38,20 +37,71 @@ paths:
       summary: Declare item lost
       x-summary-source: derived
 components:
+  examples:
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+  responses:
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
+    unprocessableEntityResponse:
+      description: Validation error for the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            response:
+              $ref: '#/components/examples/validationErrorResponse'
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
+    error:
+      description: An error
       type: object
       properties:
-        key:
-          description: Parameter key
+        message:
           type: string
-        value:
-          description: Parameter value
+          description: Error message text
+        type:
           type: string
-      example:
-        key: source
-        value: 'null'
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
     errorResponse:
       description: A set of errors
       type: object
@@ -70,6 +120,19 @@ components:
           type: IllegalArgumentException
           code: unknown_error
         total_records: 1
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
     declareItemLostRequest:
       type: object
       description: Request body schema for declare item lost API
@@ -89,70 +152,3 @@ components:
       required:
       - declaredLostDateTime
       - servicePointId
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: array
-          items:
-            $ref: '#/components/schemas/parameter'
-  examples:
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    unknownError:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-  responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            unknownError:
-              $ref: '#/components/examples/unknownError'
-    notFoundResponse:
-      description: Not found
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Not found
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-    unprocessableEntityResponse:
-      description: Validation error for the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            response:
-              $ref: '#/components/examples/validationErrorResponse'
-x-refined-from:
-- folio-mod-circulation-bff-circulationbff-openapi.json
-- folio-mod-circulation-bff-circulationbff-openapi.yml

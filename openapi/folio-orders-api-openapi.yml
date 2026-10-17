@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Orders API
   version: 0.0.1
-  description: 'Operations tagged Orders across 4 of this provider''s published API definitions: folio-mod-ebsconet-openapi.json, folio-mod-mosaic-openapi.json, folio-mod-ebsconet-openapi.yml, folio-mod-mosaic-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Orders across 2 of this provider''s published API definitions: folio-mod-ebsconet-openapi.json, folio-mod-mosaic-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /ebsconet/
 - url: /mosaic
@@ -123,15 +123,22 @@ paths:
     - url: /mosaic
 components:
   schemas:
-    workflow_status:
+    order_line_number:
+      id: po_line_number
       $schema: http://json-schema.org/draft-04/schema#
-      description: Composite workflow status
+      description: A human readable number, assigned to this product order line
       type: string
-      enum:
-      - Pending
-      - Open
-      - Closed
-      default: Pending
+      pattern: ^[a-zA-Z0-9]{1,22}-[0-9]{1,3}$
+    Parameter:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
     Error:
       type: object
       properties:
@@ -150,22 +157,11 @@ components:
       additionalProperties: false
       required:
       - message
-    order_line_number:
-      id: po_line_number
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A human readable number, assigned to this product order line
-      type: string
-      pattern: ^[a-zA-Z0-9]{1,22}-[0-9]{1,3}$
-    Parameter:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
+    Parameters:
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
       additionalProperties: false
-      required:
-      - key
     reference_number_item:
       id: reference_number_item
       $schema: http://json-schema.org/draft-04/schema#
@@ -271,10 +267,39 @@ components:
       required:
       - currency
       - poLineNumber
-    Parameters:
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
+    workflow_status:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Composite workflow status
+      type: string
+      enum:
+      - Pending
+      - Open
+      - Closed
+      default: Pending
+    Parameter_2:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/Error_2'
+        total_records:
+          description: Total number of errors
+          type: integer
       additionalProperties: false
     Error_2:
       description: An error
@@ -423,31 +448,6 @@ components:
         metadata:
           type: object
           description: Metadata about creation and changes to records
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/Error_2'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    Parameter_2:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
     MosaicOrderRequest:
       type: object
       properties:
@@ -464,56 +464,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Parameter_2'
-    Error_3:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters_3'
-      additionalProperties: false
-      required:
-      - message
-    Errors_2:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/Error_3'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    Parameter_3:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
-    Parameters_3:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter_3'
   responses:
     InternalServerError:
       description: Internal server error, e.g. due to misconfiguration
@@ -538,5 +488,3 @@ components:
 x-refined-from:
 - folio-mod-ebsconet-openapi.json
 - folio-mod-mosaic-openapi.json
-- folio-mod-ebsconet-openapi.yml
-- folio-mod-mosaic-openapi.yml

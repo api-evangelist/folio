@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Shared Inventory Batch Upsert Matchkey API
+  title: Inventory update Shared Inventory Batch Upsert Matchkey API
   version: v5.0
-  description: 'Operations tagged Shared Inventory Batch Upsert Matchkey across 2 of this provider''s published API definitions: folio-mod-inventory-update-inventory-update-5-0-openapi.json, folio-mod-inventory-update-inventory-update-5-0-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Shared Inventory Batch Upsert Matchkey
 paths:
@@ -57,69 +56,6 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    holdings-record:
-      type: object
-      description: A holdings record in compliance with the schema of the given version of the underlying `holdings-storage` API, optionally with embedded items.
-      properties:
-        items:
-          type: array
-          description: Inventory items listed by the holdings record
-          items:
-            $ref: '#/components/schemas/item'
-    inventory-record-set:
-      type: object
-      description: An instance record and an array of holdings records with embedded items.
-      properties:
-        instance:
-          $ref: '#/components/schemas/instance'
-        holdingsRecords:
-          type: array
-          description: Collection of holdings of the instance, each holdings record with embedded items.
-          items:
-            $ref: '#/components/schemas/holdings-record'
-        processing:
-          type: object
-          description: An object holding supporting pieces of data and/or processing instructions for Inventory update processing.
-          properties:
-            institutionId:
-              type: string
-              description: The FOLIO UUID of the institution that provided the source records for the update; necessary for certain clean-up tasks in a shared inventory.
-            localIdentifier:
-              type: string
-              description: The source system's unique identifier for the source record of this update request; necessary for certain clean-up tasks in a shared inventory.
-            identifierTypeId:
-              type: string
-              description: The FOLIO UUID for the identifier type for the local record IDs coming from the given library.
-    error-response:
-      type: object
-      description: Response on a unsuccessful upsert request for a single record.
-      properties:
-        category:
-          type: string
-          description: Type of problem, typically error category STORAGE.
-        statusCode:
-          type: string
-          description: The HTTP status code assigned to the error.
-        message:
-          anyOf:
-          - type: string
-          - type: object
-          description: Error message returned by Inventory storage.
-        shortMessage:
-          type: string
-          description: A short error message that might be used by the client to count similar error occurrences.
-        entityType:
-          type: string
-          description: The record type for which a problem occurred.
-        transaction:
-          type: string
-          description: Type of REST operation for which the problem occurred.
-        entity:
-          type: object
-          description: The JSON object that was pushed to Inventory storage when the problem occurred.
-        details:
-          type: object
-          description: Any further details, i.e. additional context for the problem.
     metrics:
       type: object
       description: Report on the number of operations performed, by record type, transaction type, and outcome.
@@ -174,6 +110,12 @@ components:
               $ref: '#/components/schemas/outcomes'
             PROVISIONAL_INSTANCE:
               $ref: '#/components/schemas/outcomes'
+    instance:
+      type: object
+      description: An instance record in compliance with the schema of the given version of the underlying `instance-storage` API.
+    item:
+      type: object
+      description: An item record in compliance with the schema of the given version of the underlying `item-storage` API.
     outcomes:
       type: object
       description: Reports the number of different outcomes of operations of a given type per entity type.
@@ -190,15 +132,6 @@ components:
         PENDING:
           type: integer
           description: Number operations of a given type that were unresolved per entity type
-    inventory-record-sets:
-      type: object
-      description: A collection of inventory record sets (instances, holdings and items, etc).
-      properties:
-        inventoryRecordSets:
-          type: array
-          description: List of inventory record sets
-          items:
-            $ref: '#/components/schemas/inventory-record-set'
     batch-upsert-response-207:
       type: object
       description: Response on partly successful batch upsert request.
@@ -210,24 +143,90 @@ components:
           description: List of problems encountered during an inventory update or delete request.
           items:
             $ref: '#/components/schemas/error-response'
-    instance:
+    inventory-record-set:
       type: object
-      description: An instance record in compliance with the schema of the given version of the underlying `instance-storage` API.
-    item:
+      description: An instance record and an array of holdings records with embedded items.
+      properties:
+        instance:
+          $ref: '#/components/schemas/instance'
+        holdingsRecords:
+          type: array
+          description: Collection of holdings of the instance, each holdings record with embedded items.
+          items:
+            $ref: '#/components/schemas/holdings-record'
+        processing:
+          type: object
+          description: An object holding supporting pieces of data and/or processing instructions for Inventory update processing.
+          properties:
+            institutionId:
+              type: string
+              description: The FOLIO UUID of the institution that provided the source records for the update; necessary for certain clean-up tasks in a shared inventory.
+            localIdentifier:
+              type: string
+              description: The source system's unique identifier for the source record of this update request; necessary for certain clean-up tasks in a shared inventory.
+            identifierTypeId:
+              type: string
+              description: The FOLIO UUID for the identifier type for the local record IDs coming from the given library.
+    holdings-record:
       type: object
-      description: An item record in compliance with the schema of the given version of the underlying `item-storage` API.
+      description: A holdings record in compliance with the schema of the given version of the underlying `holdings-storage` API, optionally with embedded items.
+      properties:
+        items:
+          type: array
+          description: Inventory items listed by the holdings record
+          items:
+            $ref: '#/components/schemas/item'
+    error-response:
+      type: object
+      description: Response on a unsuccessful upsert request for a single record.
+      properties:
+        category:
+          type: string
+          description: Type of problem, typically error category STORAGE.
+        statusCode:
+          type: string
+          description: The HTTP status code assigned to the error.
+        message:
+          anyOf:
+          - type: string
+          - type: object
+          description: Error message returned by Inventory storage.
+        shortMessage:
+          type: string
+          description: A short error message that might be used by the client to count similar error occurrences.
+        entityType:
+          type: string
+          description: The record type for which a problem occurred.
+        transaction:
+          type: string
+          description: Type of REST operation for which the problem occurred.
+        entity:
+          type: object
+          description: The JSON object that was pushed to Inventory storage when the problem occurred.
+        details:
+          type: object
+          description: Any further details, i.e. additional context for the problem.
+    inventory-record-sets:
+      type: object
+      description: A collection of inventory record sets (instances, holdings and items, etc).
+      properties:
+        inventoryRecordSets:
+          type: array
+          description: List of inventory record sets
+          items:
+            $ref: '#/components/schemas/inventory-record-set'
   parameters:
-    okapi_tenant:
-      in: header
-      name: X-Okapi-Tenant
-      description: Okapi Tenant
-      required: false
-      schema:
-        type: string
     okapi_url:
       in: header
       name: X-Okapi-Url
       description: Okapi URL
+      required: false
+      schema:
+        type: string
+    okapi_tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
       required: false
       schema:
         type: string
@@ -238,6 +237,3 @@ components:
       required: false
       schema:
         type: string
-x-refined-from:
-- folio-mod-inventory-update-inventory-update-5-0-openapi.json
-- folio-mod-inventory-update-inventory-update-5-0-openapi.yml

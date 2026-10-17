@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Print API
+  title: Batch printing Print API
   version: v1
-  description: 'Operations tagged Print across 2 of this provider''s published API definitions: folio-mod-batch-print-batchprint-openapi.json, folio-mod-batch-print-batchprint-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Print
 paths:
@@ -170,46 +169,57 @@ paths:
       summary: Create batch
       x-summary-source: derived
 components:
+  responses:
+    trait_404:
+      description: Not Found
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+    trait_413:
+      description: Payload Too Large
+      content:
+        text/plain:
+          schema:
+            type: string
+    trait_403:
+      description: Forbidden
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Insufficient permissions to access resource
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Insufficient permissions to access resource
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Invalid JSON in request
   schemas:
-    resultInfo:
-      description: Common result set information for streaming response
-      type: object
-      properties:
-        totalRecords:
-          description: Total number of entries in response
-          type: integer
-        diagnostics:
-          description: Diagnostics for response
-          type: array
-          items:
-            type: object
-            properties:
-              message:
-                description: single diagnostic message
-                type: string
-        facets:
-          type: array
-          description: Array of facets
-          items:
-            type: object
-            description: A facet
-            properties:
-              facetValues:
-                type: array
-                description: Array of facet values
-                items:
-                  type: object
-                  description: A facet value
-                  properties:
-                    count:
-                      type: integer
-                      description: Count of facet values
-                    value:
-                      description: Value Object
-              type:
-                type: string
-                description: Type of facet
-      additionalProperties: false
     entry:
       description: Print entry
       type: object
@@ -250,7 +260,53 @@ components:
       additionalProperties: false
       required:
       - items
+    resultInfo:
+      description: Common result set information for streaming response
+      type: object
+      properties:
+        totalRecords:
+          description: Total number of entries in response
+          type: integer
+        diagnostics:
+          description: Diagnostics for response
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                description: single diagnostic message
+                type: string
+        facets:
+          type: array
+          description: Array of facets
+          items:
+            type: object
+            description: A facet
+            properties:
+              facetValues:
+                type: array
+                description: Array of facet values
+                items:
+                  type: object
+                  description: A facet value
+                  properties:
+                    count:
+                      type: integer
+                      description: Count of facet values
+                    value:
+                      description: Value Object
+              type:
+                type: string
+                description: Type of facet
+      additionalProperties: false
   parameters:
+    okapi_tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: true
+      schema:
+        type: string
     offset:
       in: query
       name: offset
@@ -260,38 +316,10 @@ components:
         type: integer
         default: 0
         minimum: 0
-    okapi_tenant:
-      in: header
-      name: X-Okapi-Tenant
-      description: Okapi Tenant
-      required: true
-      schema:
-        type: string
-    query:
-      in: query
-      name: query
-      description: CQL query
-      required: false
-      schema:
-        type: string
     okapi_url:
       in: header
       name: X-Okapi-Url
       description: Okapi URL
-      required: false
-      schema:
-        type: string
-    ids:
-      in: query
-      name: ids
-      description: Comma-separated IDs of items
-      required: true
-      schema:
-        type: string
-    okapi_user:
-      in: header
-      name: X-Okapi-User-Id
-      description: Okapi user identifier
       required: false
       schema:
         type: string
@@ -304,6 +332,27 @@ components:
         type: integer
         default: 10
         minimum: 0
+    ids:
+      in: query
+      name: ids
+      description: Comma-separated IDs of items
+      required: true
+      schema:
+        type: string
+    query:
+      in: query
+      name: query
+      description: CQL query
+      required: false
+      schema:
+        type: string
+    okapi_user:
+      in: header
+      name: X-Okapi-User-Id
+      description: Okapi user identifier
+      required: false
+      schema:
+        type: string
     okapi_token:
       in: header
       name: X-Okapi-Token
@@ -311,56 +360,3 @@ components:
       required: false
       schema:
         type: string
-  responses:
-    trait_400:
-      description: Bad request
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Invalid JSON in request
-        application/json:
-          schema:
-            type: object
-            example:
-              error: Invalid JSON in request
-    trait_413:
-      description: Payload Too Large
-      content:
-        text/plain:
-          schema:
-            type: string
-    trait_404:
-      description: Not Found
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
-        application/json:
-          schema:
-            type: object
-            example:
-              error: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
-    trait_500:
-      description: Internal error
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Internal server error, contact administrator
-    trait_403:
-      description: Forbidden
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Insufficient permissions to access resource
-        application/json:
-          schema:
-            type: object
-            example:
-              error: Insufficient permissions to access resource
-x-refined-from:
-- folio-mod-batch-print-batchprint-openapi.json
-- folio-mod-batch-print-batchprint-openapi.yml

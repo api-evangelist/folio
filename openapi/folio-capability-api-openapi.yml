@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Capability API
+  title: Mod Roles Keycloak Capability API
   version: v1
-  description: 'Operations tagged capability across 2 of this provider''s published API definitions: folio-mod-roles-keycloak-openapi.json, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Mod Roles Keycloak API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -34,9 +34,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Find capabilities
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /capabilities/{id}:
     get:
       description: Get capability by ID
@@ -60,9 +57,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Get capability by id
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /capability-sets/{id}/capabilities:
     get:
       description: Find capabilities by capability set ID
@@ -89,34 +83,33 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Find capabilities by capability set id
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
+  responses:
+    notFoundResponse:
+      description: Not found error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/notFoundResponse'
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/badRequestResponse'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
   schemas:
-    endpoint:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      id: endpoint.json
-      description: Object containing the details of the http-endpoint.
-      properties:
-        path:
-          type: string
-          description: Endpoint's static path / expression
-        method:
-          description: Http Method
-          $ref: '#/components/schemas/httpMethod'
-    capabilityAction:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: The action this capability is associated with, e.g. create
-      type: string
-      enum:
-      - view
-      - create
-      - edit
-      - delete
-      - manage
-      - execute
     httpMethod:
       $schema: http://json-schema.org/draft-04/schema#
       description: Http Method
@@ -130,37 +123,6 @@ components:
       - DELETE
       - OPTIONS
       - TRACE
-    errors:
-      description: A set of errors
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-    capabilities:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: Capabilities Object Schema
-      description: Response body containing capability records
-      type: object
-      properties:
-        capabilities:
-          description: A collection of capability sets
-          type: array
-          items:
-            $ref: '#/components/schemas/capability'
-          minItems: 1
-        totalRecords:
-          readOnly: true
-          description: The total number of records matching the provided criteria
-          type: integer
-          format: int64
-      required:
-      - capabilities
-    capabilityType:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: The type of capability
-      type: string
-      enum:
-      - settings
-      - data
-      - procedural
     capability:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -221,6 +183,29 @@ components:
       - permissions
       - type
       - applicationId
+    capabilityAction:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The action this capability is associated with, e.g. create
+      type: string
+      enum:
+      - view
+      - create
+      - edit
+      - delete
+      - manage
+      - execute
+    endpoint:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      id: endpoint.json
+      description: Object containing the details of the http-endpoint.
+      properties:
+        path:
+          type: string
+          description: Endpoint's static path / expression
+        method:
+          description: Http Method
+          $ref: '#/components/schemas/httpMethod'
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -244,7 +229,47 @@ components:
           type: string
           format: uuid
       additionalProperties: false
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    capabilityType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The type of capability
+      type: string
+      enum:
+      - settings
+      - data
+      - procedural
+    capabilities:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Capabilities Object Schema
+      description: Response body containing capability records
+      type: object
+      properties:
+        capabilities:
+          description: A collection of capability sets
+          type: array
+          items:
+            $ref: '#/components/schemas/capability'
+          minItems: 1
+        totalRecords:
+          readOnly: true
+          description: The total number of records matching the provided criteria
+          type: integer
+          format: int64
+      required:
+      - capabilities
   parameters:
+    includeDummy:
+      in: query
+      name: includeDummy
+      description: Include dummy capabilities.
+      required: false
+      schema:
+        type: boolean
+        default: false
+      example: false
     offset:
       in: query
       name: offset
@@ -255,23 +280,6 @@ components:
         default: 0
         minimum: 0
       example: 2
-    includeDummy:
-      in: query
-      name: includeDummy
-      description: Include dummy capabilities.
-      required: false
-      schema:
-        type: boolean
-        default: false
-      example: false
-    pathEntityId:
-      in: path
-      required: true
-      name: id
-      description: Entity id
-      schema:
-        type: string
-        format: uuid
     limit:
       in: query
       name: limit
@@ -282,6 +290,14 @@ components:
         default: 10
         minimum: 0
       example: 20
+    pathEntityId:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
     query:
       in: query
       name: query
@@ -290,52 +306,3 @@ components:
       schema:
         type: string
       example: role
-  responses:
-    internalServerErrorResponse:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            $ref: '#/components/examples/internalServerErrorResponse'
-    notFoundResponse:
-      description: Not found error response in JSON format for validation errors.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            $ref: '#/components/examples/notFoundResponse'
-    badRequestResponse:
-      description: Error response in JSON format for validation errors.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            $ref: '#/components/examples/badRequestResponse'
-  examples:
-    capabilitiesResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    notFoundResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    capabilityResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    internalServerErrorResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    badRequestResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-x-refined-from:
-- folio-mod-roles-keycloak-openapi.json
-- folio-mod-roles-keycloak-openapi.yml

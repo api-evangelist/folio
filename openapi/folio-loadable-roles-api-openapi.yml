@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Loadable Roles API
+  title: Mod Roles Keycloak Loadable Roles API
   version: v1
-  description: 'Operations tagged loadable-roles across 2 of this provider''s published API definitions: folio-mod-roles-keycloak-openapi.json, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Mod Roles Keycloak API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -56,64 +56,16 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Upsert loadable role
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
-  parameters:
-    offset:
-      in: query
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      required: false
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-      example: 2
-    query:
-      in: query
-      name: query
-      description: A query string to filter users based on matching criteria in fields.
-      required: false
-      schema:
-        type: string
-      example: role
-    limit:
-      in: query
-      name: limit
-      description: Limit the number of elements returned in the response.
-      required: false
-      schema:
-        type: integer
-        default: 10
-        minimum: 0
-      example: 20
   schemas:
-    loadableRoles:
+    roleType:
       $schema: http://json-schema.org/draft-04/schema#
-      id: loadableRoles.json
-      title: List of Loadable Roles Schema
-      description: List of loadable roles
-      type: object
-      properties:
-        loadableRoles:
-          description: List of loadable roles
-          type: array
-          items:
-            $ref: '#/components/schemas/loadableRole'
-          minItems: 1
-        totalRecords:
-          readOnly: true
-          description: The total number of records matching the provided criteria
-          type: integer
-          format: int64
-      required:
-      - loadableRoles
-    errors:
-      description: A set of errors
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
+      type: string
+      description: Role type
+      enum:
+      - DEFAULT
+      - REGULAR
+      - CONSORTIUM
     loadablePermission:
       $schema: http://json-schema.org/draft-04/schema#
       id: loadablePermission.json
@@ -141,19 +93,6 @@ components:
           $ref: '#/components/schemas/metadata'
       required:
       - permissionName
-    loadableRole:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: Loadable Role schema
-      description: Loadable Role
-      type: object
-      allOf:
-      - $ref: '#/components/schemas/role'
-      properties:
-        permissions:
-          description: List of permissions associated with role
-          type: array
-          items:
-            $ref: '#/components/schemas/loadablePermission'
     role:
       $schema: http://json-schema.org/draft-04/schema#
       title: Role schema
@@ -181,14 +120,10 @@ components:
           $ref: '#/components/schemas/metadata'
       required:
       - name
-    roleType:
+    errors:
+      description: A set of errors
       $schema: http://json-schema.org/draft-04/schema#
-      type: string
-      description: Role type
-      enum:
-      - DEFAULT
-      - REGULAR
-      - CONSORTIUM
+      type: object
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -212,6 +147,68 @@ components:
           type: string
           format: uuid
       additionalProperties: false
+    loadableRole:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Loadable Role schema
+      description: Loadable Role
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/role'
+      properties:
+        permissions:
+          description: List of permissions associated with role
+          type: array
+          items:
+            $ref: '#/components/schemas/loadablePermission'
+    loadableRoles:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: loadableRoles.json
+      title: List of Loadable Roles Schema
+      description: List of loadable roles
+      type: object
+      properties:
+        loadableRoles:
+          description: List of loadable roles
+          type: array
+          items:
+            $ref: '#/components/schemas/loadableRole'
+          minItems: 1
+        totalRecords:
+          readOnly: true
+          description: The total number of records matching the provided criteria
+          type: integer
+          format: int64
+      required:
+      - loadableRoles
+  parameters:
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 2
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+      example: 20
+    query:
+      in: query
+      name: query
+      description: A query string to filter users based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+      example: role
   responses:
     internalServerErrorResponse:
       description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
@@ -229,15 +226,3 @@ components:
             $ref: '#/components/schemas/errors'
           example:
             $ref: '#/components/examples/badRequestResponse'
-  examples:
-    internalServerErrorResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    badRequestResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-x-refined-from:
-- folio-mod-roles-keycloak-openapi.json
-- folio-mod-roles-keycloak-openapi.yml

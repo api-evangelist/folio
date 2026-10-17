@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Amendments API
   version: 7.3.0
+  title: Folio Licenses Amendments API
+  description: API for the Folio library services platform mod-licenses app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Amendments across 2 of this provider''s published API definitions: folio-mod-licenses-openapi.json, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -91,10 +91,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /licenses/amendments/{amendmentId}:
     get:
       tags:
@@ -189,10 +185,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /licenses/amendments/{amendmentId}/clone:
     post:
       tags:
@@ -294,39 +286,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   schemas:
-    AmendmentResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/LicenseAmendment'
-    GrailsErrorResponse:
+    ValidationError:
       type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
       required:
-      - error
-      - timestamp
       - message
+      - path
+      - _links
       properties:
-        error:
-          type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
         message:
           type: string
-        exception:
+        path:
           type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
+        _links:
+          type: object
+          required:
+          - self
+          properties:
+            self:
+              type: object
+              required:
+              - href
+              properties:
+                href:
+                  type: string
+                  format: uri
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
     CustomPropertyValue:
       type: object
       required:
@@ -348,24 +351,55 @@ components:
           - $ref: '#/components/schemas/RefData'
         type:
           $ref: '#/components/schemas/CustomPropertyDefinition'
-    ValidationErrorResponse:
-      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
-      oneOf:
-      - $ref: '#/components/schemas/ValidationError'
-      - type: object
-        required:
-        - total
-        - _embedded
-        properties:
-          total:
-            type: integer
-          _embedded:
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ValidationError'
+    AmendmentResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/LicenseAmendment'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    RefData:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+        owner:
+          $ref: '#/components/schemas/RefDataCategory'
+    RefDataCategory:
+      type: object
+      required:
+      - id
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+          readOnly: true
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefData'
     InternalContact:
       type: object
       required:
@@ -390,46 +424,18 @@ components:
           oneOf:
           - type: string
           - $ref: '#/components/schemas/RefData'
-    RefData:
+    Tag:
       type: object
       required:
       - id
       properties:
         id:
-          type: string
+          type: integer
           readOnly: true
-        label:
-          type: string
         value:
           type: string
-        owner:
-          $ref: '#/components/schemas/RefDataCategory'
-    AmendmentResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/AmendmentResultsArray'
-    RefDataCategory:
-      type: object
-      required:
-      - id
-      properties:
-        desc:
+        normValue:
           type: string
-        id:
-          type: string
-          readOnly: true
-        internal:
-          type: boolean
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/RefData'
     DocumentAttachment:
       type: object
       required:
@@ -454,21 +460,16 @@ components:
           type: string
           format: date-time
           readOnly: true
-    ResultsMeta:
+    AmendmentResults:
       type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/AmendmentResultsArray'
     CustomPropertyDefinition:
       type: object
       properties:
@@ -493,6 +494,29 @@ components:
           description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
         category:
           $ref: '#/components/schemas/RefDataCategory'
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
     LicenseAmendment:
       allOf:
       - $ref: '#/components/schemas/LicenseCore'
@@ -571,79 +595,29 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/CustomPropertyValue'
-    ValidationError:
-      type: object
-      required:
-      - message
-      - path
-      - _links
-      properties:
-        message:
-          type: string
-        path:
-          type: string
-        _links:
-          type: object
-          required:
-          - self
-          properties:
-            self:
-              type: object
-              required:
-              - href
-              properties:
-                href:
-                  type: string
-                  format: uri
-    Tag:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        value:
-          type: string
-        normValue:
-          type: string
   parameters:
-    filters:
+    stats:
       in: query
-      name: filters
+      name: stats
       required: false
       schema:
-        type: string
-    amendmentId:
-      in: path
-      name: amendmentId
-      description: UUID for an amendment
-      required: true
-      schema:
-        type: string
-        format: uuid
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
+        type: boolean
     perPage:
       in: query
       name: perPage
       required: false
       schema:
         type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
       schema:
         type: string
     offset:
@@ -652,18 +626,32 @@ components:
       required: false
       schema:
         type: integer
+    amendmentId:
+      in: path
+      name: amendmentId
+      description: UUID for an amendment
+      required: true
+      schema:
+        type: string
+        format: uuid
     term:
       in: query
       name: term
       required: false
       schema:
         type: string
-    stats:
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
       in: query
-      name: stats
+      name: page
       required: false
       schema:
-        type: boolean
+        type: integer
     match:
       in: query
       name: match
@@ -679,6 +667,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-licenses-openapi.json
-- folio-mod-licenses-openapi.yml

@@ -1,10 +1,12 @@
 openapi: 3.2.0
 info:
-  title: Folio Search API
-  version: v4.1.0
   contact:
     name: Spitfire team
-  description: 'Operations tagged search across 2 of this provider''s published API definitions: folio-mod-search-openapi.json, folio-mod-search-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'API for searching, browsing, and managing facets for various record types, including instances, holdings, and authorities.
+
+    It also provides endpoints for configuring search and browse features, as well as managing the search index.'
+  title: Search API
+  version: v4.1.0
 servers:
 - description: Development environments.
   url: https://{environment}-okapi.ci.folio.org
@@ -103,23 +105,6 @@ paths:
       summary: Search Instances
       tags:
       - Search
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /search/authorities:
     get:
       description: Get a list of authorities for CQL query
@@ -203,23 +188,6 @@ paths:
       summary: Search Authorities
       tags:
       - Search
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /search/linked-data/works:
     get:
       description: Get a list of linked data records for CQL query
@@ -290,23 +258,6 @@ paths:
       summary: Search Linked Data Works
       tags:
       - Search
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /search/linked-data/hubs:
     get:
       description: Get a list of linked data Hubs records for CQL query
@@ -371,23 +322,6 @@ paths:
       summary: Search Linked Data Hubs
       tags:
       - Search
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /search/linked-data/authorities:
     get:
       description: Get a list of linked data authority records for CQL query
@@ -452,1014 +386,8 @@ paths:
       summary: Search Linked Data Authorities
       tags:
       - Search
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      example:
-        key: source
-        value: 'null'
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      type: object
-    linkedDataClassification:
-      description: Linked data Classification DTO, contains type and numbers
-      example:
-        type: ddc
-        number: number
-        additionalNumber: additionalNumber
-      properties:
-        type:
-          description: The type of the classification number
-          enum:
-          - ddc
-          - lc
-          type: string
-        number:
-          description: Classification number
-          type: string
-        additionalNumber:
-          description: Additional classification number
-          type: string
-      required:
-      - number
-      - type
-      type: object
-    identifier:
-      additionalProperties: false
-      description: Resource identifier
-      example:
-        value: value
-        identifierTypeId: identifierTypeId
-      properties:
-        value:
-          description: Resource identifier value
-          type: string
-        identifierTypeId:
-          description: Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)
-          type: string
-      type: object
-    dates:
-      additionalProperties: false
-      description: Instance Dates
-      properties:
-        dateTypeId:
-          description: Date type ID
-          type: string
-        date1:
-          description: Date1 value
-          type: string
-        date2:
-          description: Date2 value
-          type: string
-      type: object
-    linkedDataInstanceOnly_suppress:
-      description: Suppress flags
-      example:
-        fromDiscovery: true
-        staff: true
-      properties:
-        fromDiscovery:
-          type: boolean
-        staff:
-          type: boolean
-      type: object
-    linkedDataWorkOnly:
-      description: Linked Data Work DTO, contains only Work fields
-      properties:
-        id:
-          description: The Linked Data ID of a Work
-          type: string
-        tenantId:
-          description: Tenant ID
-          type: string
-        classifications:
-          description: List of classification items
-          items:
-            $ref: '#/components/schemas/linkedDataClassification'
-          type: array
-        contributors:
-          description: Contributor array
-          items:
-            $ref: '#/components/schemas/linkedDataContributor'
-          type: array
-        hubLabels:
-          description: Linked Data Hub labels array
-          items:
-            type: string
-          type: array
-        languages:
-          description: Language array
-          items:
-            type: string
-          type: array
-        notes:
-          description: Notes array
-          items:
-            $ref: '#/components/schemas/linkedDataNote'
-          type: array
-        subjects:
-          description: Subject label array
-          items:
-            type: string
-          type: array
-        titles:
-          description: Title array
-          items:
-            $ref: '#/components/schemas/linkedDataTitle'
-          type: array
-      required:
-      - id
-      type: object
-    tags:
-      additionalProperties: false
-      description: List of simple tags that can be added to an object
-      example:
-        tagList:
-        - tagList
-        - tagList
-      properties:
-        tagList:
-          description: List of tags
-          items:
-            type: string
-          type: array
-      title: tags
-      type: object
-    linkedDataAuthoritySearchResult:
-      description: Linked data Authority search result response
-      example:
-        searchQuery: searchQuery
-        content:
-        - id: id
-          tenantId: tenantId
-          label: label
-          identifiers:
-          - value: value
-            type: type
-          - value: value
-            type: type
-          types:
-          - types
-          - types
-        - id: id
-          tenantId: tenantId
-          label: label
-          identifiers:
-          - value: value
-            type: type
-          - value: value
-            type: type
-          types:
-          - types
-          - types
-        pageNumber: 0
-        totalPages: 6
-        totalRecords: 1
-      properties:
-        searchQuery:
-          description: Initial search query
-          type: string
-        content:
-          description: List of linked data records found
-          items:
-            $ref: '#/components/schemas/linkedDataAuthority'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-        pageNumber:
-          description: Current results page number, 0 by default
-          type: integer
-        totalPages:
-          description: Total pages count
-          type: integer
-        totalRecords:
-          description: Total results count
-          type: integer
-      type: object
-    linkedDataWorkSearchResult:
-      description: Linked data Work search result response
-      example:
-        searchQuery: searchQuery
-        content:
-        - id: id
-          tenantId: tenantId
-          classifications:
-          - type: ddc
-            number: number
-            additionalNumber: additionalNumber
-          - type: ddc
-            number: number
-            additionalNumber: additionalNumber
-          contributors:
-          - name: name
-            type: Family
-            isCreator: true
-          - name: name
-            type: Family
-            isCreator: true
-          hubLabels:
-          - hubLabels
-          - hubLabels
-          languages:
-          - languages
-          - languages
-          notes:
-          - value: value
-            type: type
-          - value: value
-            type: type
-          subjects:
-          - subjects
-          - subjects
-          titles:
-          - value: value
-            type: Main
-          - value: value
-            type: Main
-          instances:
-          - id: id
-            tenantId: tenantId
-            contributors:
-            - name: name
-              type: Family
-              isCreator: true
-            - name: name
-              type: Family
-              isCreator: true
-            editionStatements:
-            - editionStatements
-            - editionStatements
-            format: format
-            identifiers:
-            - value: value
-              type: type
-            - value: value
-              type: type
-            notes:
-            - value: value
-              type: type
-            - value: value
-              type: type
-            publications:
-            - name: name
-              date: date
-            - name: name
-              date: date
-            suppress:
-              fromDiscovery: true
-              staff: true
-            titles:
-            - value: value
-              type: Main
-            - value: value
-              type: Main
-          - id: id
-            tenantId: tenantId
-            contributors:
-            - name: name
-              type: Family
-              isCreator: true
-            - name: name
-              type: Family
-              isCreator: true
-            editionStatements:
-            - editionStatements
-            - editionStatements
-            format: format
-            identifiers:
-            - value: value
-              type: type
-            - value: value
-              type: type
-            notes:
-            - value: value
-              type: type
-            - value: value
-              type: type
-            publications:
-            - name: name
-              date: date
-            - name: name
-              date: date
-            suppress:
-              fromDiscovery: true
-              staff: true
-            titles:
-            - value: value
-              type: Main
-            - value: value
-              type: Main
-        - id: id
-          tenantId: tenantId
-          classifications:
-          - type: ddc
-            number: number
-            additionalNumber: additionalNumber
-          - type: ddc
-            number: number
-            additionalNumber: additionalNumber
-          contributors:
-          - name: name
-            type: Family
-            isCreator: true
-          - name: name
-            type: Family
-            isCreator: true
-          hubLabels:
-          - hubLabels
-          - hubLabels
-          languages:
-          - languages
-          - languages
-          notes:
-          - value: value
-            type: type
-          - value: value
-            type: type
-          subjects:
-          - subjects
-          - subjects
-          titles:
-          - value: value
-            type: Main
-          - value: value
-            type: Main
-          instances:
-          - id: id
-            tenantId: tenantId
-            contributors:
-            - name: name
-              type: Family
-              isCreator: true
-            - name: name
-              type: Family
-              isCreator: true
-            editionStatements:
-            - editionStatements
-            - editionStatements
-            format: format
-            identifiers:
-            - value: value
-              type: type
-            - value: value
-              type: type
-            notes:
-            - value: value
-              type: type
-            - value: value
-              type: type
-            publications:
-            - name: name
-              date: date
-            - name: name
-              date: date
-            suppress:
-              fromDiscovery: true
-              staff: true
-            titles:
-            - value: value
-              type: Main
-            - value: value
-              type: Main
-          - id: id
-            tenantId: tenantId
-            contributors:
-            - name: name
-              type: Family
-              isCreator: true
-            - name: name
-              type: Family
-              isCreator: true
-            editionStatements:
-            - editionStatements
-            - editionStatements
-            format: format
-            identifiers:
-            - value: value
-              type: type
-            - value: value
-              type: type
-            notes:
-            - value: value
-              type: type
-            - value: value
-              type: type
-            publications:
-            - name: name
-              date: date
-            - name: name
-              date: date
-            suppress:
-              fromDiscovery: true
-              staff: true
-            titles:
-            - value: value
-              type: Main
-            - value: value
-              type: Main
-        pageNumber: 0
-        totalPages: 6
-        totalRecords: 1
-      properties:
-        searchQuery:
-          description: Initial search query
-          type: string
-        content:
-          description: List of linked data records found
-          items:
-            $ref: '#/components/schemas/linkedDataWork'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-        pageNumber:
-          description: Current results page number, 0 by default
-          type: integer
-        totalPages:
-          description: Total pages count
-          type: integer
-        totalRecords:
-          description: Total results count
-          type: integer
-      type: object
-    item_effectiveCallNumberComponents:
-      description: Elements of a full call number generated from the item or holding
-      example:
-        callNumber: callNumber
-        prefix: prefix
-        suffix: suffix
-        typeId: typeId
-      properties:
-        callNumber:
-          description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
-          type: string
-        prefix:
-          description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
-          type: string
-        suffix:
-          description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
-          type: string
-        typeId:
-          description: Effective Call Number Type Id is the call number type id of the item, if available, otherwise that of the holding.
-          type: string
-      type: object
-    linkedDataIdentifier:
-      description: Linked data Identifier DTO, contains value and type
-      example:
-        value: value
-        type: type
-      properties:
-        value:
-          description: Value of Identifier
-          type: string
-        type:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    metadata:
-      additionalProperties: false
-      description: Record metadata
-      example:
-        createdDate: createdDate
-        createdByUserId: createdByUserId
-        updatedDate: updatedDate
-        updatedByUserId: updatedByUserId
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          type: string
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          type: string
-      type: object
-    authoritySearchResult:
-      description: Authority search result response
-      example:
-        totalRecords: 0
-        authorities:
-        - id: id
-          tenantId: tenantId
-          shared: true
-          source: source
-          sourceFileId: sourceFileId
-          naturalId: naturalId
-          personalName: personalName
-          sftPersonalName:
-          - sftPersonalName
-          - sftPersonalName
-          saftPersonalName:
-          - saftPersonalName
-          - saftPersonalName
-          personalNameTitle: personalNameTitle
-          sftPersonalNameTitle:
-          - sftPersonalNameTitle
-          - sftPersonalNameTitle
-          saftPersonalNameTitle:
-          - saftPersonalNameTitle
-          - saftPersonalNameTitle
-          corporateName: corporateName
-          sftCorporateName:
-          - sftCorporateName
-          - sftCorporateName
-          saftCorporateName:
-          - saftCorporateName
-          - saftCorporateName
-          corporateNameTitle: corporateNameTitle
-          sftCorporateNameTitle:
-          - sftCorporateNameTitle
-          - sftCorporateNameTitle
-          saftCorporateNameTitle:
-          - saftCorporateNameTitle
-          - saftCorporateNameTitle
-          meetingName: meetingName
-          sftMeetingName:
-          - sftMeetingName
-          - sftMeetingName
-          saftMeetingName:
-          - saftMeetingName
-          - saftMeetingName
-          meetingNameTitle: meetingNameTitle
-          sftMeetingNameTitle:
-          - sftMeetingNameTitle
-          - sftMeetingNameTitle
-          saftMeetingNameTitle:
-          - saftMeetingNameTitle
-          - saftMeetingNameTitle
-          uniformTitle: uniformTitle
-          sftUniformTitle:
-          - sftUniformTitle
-          - sftUniformTitle
-          saftUniformTitle:
-          - saftUniformTitle
-          - saftUniformTitle
-          namedEvent: namedEvent
-          sftNamedEvent:
-          - sftNamedEvent
-          - sftNamedEvent
-          saftNamedEvent:
-          - saftNamedEvent
-          - saftNamedEvent
-          generalSubdivision: generalSubdivision
-          sftGeneralSubdivision:
-          - sftGeneralSubdivision
-          - sftGeneralSubdivision
-          saftGeneralSubdivision:
-          - saftGeneralSubdivision
-          - saftGeneralSubdivision
-          topicalTerm: topicalTerm
-          sftTopicalTerm:
-          - sftTopicalTerm
-          - sftTopicalTerm
-          saftTopicalTerm:
-          - saftTopicalTerm
-          - saftTopicalTerm
-          subjectHeadings: subjectHeadings
-          geographicName: geographicName
-          sftGeographicName:
-          - sftGeographicName
-          - sftGeographicName
-          saftGeographicName:
-          - saftGeographicName
-          - saftGeographicName
-          genreTerm: genreTerm
-          sftGenreTerm:
-          - sftGenreTerm
-          - sftGenreTerm
-          saftGenreTerm:
-          - saftGenreTerm
-          - saftGenreTerm
-          chronTerm: chronTerm
-          sftChronTerm:
-          - sftChronTerm
-          - sftChronTerm
-          saftChronTerm:
-          - saftChronTerm
-          - saftChronTerm
-          mediumPerfTerm: mediumPerfTerm
-          sftMediumPerfTerm:
-          - sftMediumPerfTerm
-          - sftMediumPerfTerm
-          saftMediumPerfTerm:
-          - saftMediumPerfTerm
-          - saftMediumPerfTerm
-          geographicSubdivision: geographicSubdivision
-          sftGeographicSubdivision:
-          - sftGeographicSubdivision
-          - sftGeographicSubdivision
-          saftGeographicSubdivision:
-          - saftGeographicSubdivision
-          - saftGeographicSubdivision
-          chronSubdivision: chronSubdivision
-          sftChronSubdivision:
-          - sftChronSubdivision
-          - sftChronSubdivision
-          saftChronSubdivision:
-          - saftChronSubdivision
-          - saftChronSubdivision
-          formSubdivision: formSubdivision
-          sftFormSubdivision:
-          - sftFormSubdivision
-          - sftFormSubdivision
-          saftFormSubdivision:
-          - saftFormSubdivision
-          - saftFormSubdivision
-          identifiers:
-          - value: value
-            identifierTypeId: identifierTypeId
-          - value: value
-            identifierTypeId: identifierTypeId
-          notes:
-          - noteTypeId: '{}'
-            note: note
-          - noteTypeId: '{}'
-            note: note
-          metadata:
-            createdDate: createdDate
-            createdByUserId: createdByUserId
-            updatedDate: updatedDate
-            updatedByUserId: updatedByUserId
-          headingType: headingType
-          authRefType: authRefType
-          headingRef: headingRef
-          numberOfTitles: 6
-        - id: id
-          tenantId: tenantId
-          shared: true
-          source: source
-          sourceFileId: sourceFileId
-          naturalId: naturalId
-          personalName: personalName
-          sftPersonalName:
-          - sftPersonalName
-          - sftPersonalName
-          saftPersonalName:
-          - saftPersonalName
-          - saftPersonalName
-          personalNameTitle: personalNameTitle
-          sftPersonalNameTitle:
-          - sftPersonalNameTitle
-          - sftPersonalNameTitle
-          saftPersonalNameTitle:
-          - saftPersonalNameTitle
-          - saftPersonalNameTitle
-          corporateName: corporateName
-          sftCorporateName:
-          - sftCorporateName
-          - sftCorporateName
-          saftCorporateName:
-          - saftCorporateName
-          - saftCorporateName
-          corporateNameTitle: corporateNameTitle
-          sftCorporateNameTitle:
-          - sftCorporateNameTitle
-          - sftCorporateNameTitle
-          saftCorporateNameTitle:
-          - saftCorporateNameTitle
-          - saftCorporateNameTitle
-          meetingName: meetingName
-          sftMeetingName:
-          - sftMeetingName
-          - sftMeetingName
-          saftMeetingName:
-          - saftMeetingName
-          - saftMeetingName
-          meetingNameTitle: meetingNameTitle
-          sftMeetingNameTitle:
-          - sftMeetingNameTitle
-          - sftMeetingNameTitle
-          saftMeetingNameTitle:
-          - saftMeetingNameTitle
-          - saftMeetingNameTitle
-          uniformTitle: uniformTitle
-          sftUniformTitle:
-          - sftUniformTitle
-          - sftUniformTitle
-          saftUniformTitle:
-          - saftUniformTitle
-          - saftUniformTitle
-          namedEvent: namedEvent
-          sftNamedEvent:
-          - sftNamedEvent
-          - sftNamedEvent
-          saftNamedEvent:
-          - saftNamedEvent
-          - saftNamedEvent
-          generalSubdivision: generalSubdivision
-          sftGeneralSubdivision:
-          - sftGeneralSubdivision
-          - sftGeneralSubdivision
-          saftGeneralSubdivision:
-          - saftGeneralSubdivision
-          - saftGeneralSubdivision
-          topicalTerm: topicalTerm
-          sftTopicalTerm:
-          - sftTopicalTerm
-          - sftTopicalTerm
-          saftTopicalTerm:
-          - saftTopicalTerm
-          - saftTopicalTerm
-          subjectHeadings: subjectHeadings
-          geographicName: geographicName
-          sftGeographicName:
-          - sftGeographicName
-          - sftGeographicName
-          saftGeographicName:
-          - saftGeographicName
-          - saftGeographicName
-          genreTerm: genreTerm
-          sftGenreTerm:
-          - sftGenreTerm
-          - sftGenreTerm
-          saftGenreTerm:
-          - saftGenreTerm
-          - saftGenreTerm
-          chronTerm: chronTerm
-          sftChronTerm:
-          - sftChronTerm
-          - sftChronTerm
-          saftChronTerm:
-          - saftChronTerm
-          - saftChronTerm
-          mediumPerfTerm: mediumPerfTerm
-          sftMediumPerfTerm:
-          - sftMediumPerfTerm
-          - sftMediumPerfTerm
-          saftMediumPerfTerm:
-          - saftMediumPerfTerm
-          - saftMediumPerfTerm
-          geographicSubdivision: geographicSubdivision
-          sftGeographicSubdivision:
-          - sftGeographicSubdivision
-          - sftGeographicSubdivision
-          saftGeographicSubdivision:
-          - saftGeographicSubdivision
-          - saftGeographicSubdivision
-          chronSubdivision: chronSubdivision
-          sftChronSubdivision:
-          - sftChronSubdivision
-          - sftChronSubdivision
-          saftChronSubdivision:
-          - saftChronSubdivision
-          - saftChronSubdivision
-          formSubdivision: formSubdivision
-          sftFormSubdivision:
-          - sftFormSubdivision
-          - sftFormSubdivision
-          saftFormSubdivision:
-          - saftFormSubdivision
-          - saftFormSubdivision
-          identifiers:
-          - value: value
-            identifierTypeId: identifierTypeId
-          - value: value
-            identifierTypeId: identifierTypeId
-          notes:
-          - noteTypeId: '{}'
-            note: note
-          - noteTypeId: '{}'
-            note: note
-          metadata:
-            createdDate: createdDate
-            createdByUserId: createdByUserId
-            updatedDate: updatedDate
-            updatedByUserId: updatedByUserId
-          headingType: headingType
-          authRefType: authRefType
-          headingRef: headingRef
-          numberOfTitles: 6
-      properties:
-        totalRecords:
-          description: Amount of authorities found
-          type: integer
-        authorities:
-          description: List of authorities found
-          items:
-            $ref: '#/components/schemas/authority'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-      type: object
-    errorResponse:
-      description: A set of errors
-      example:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-      properties:
-        errors:
-          description: List of errors
-          items:
-            $ref: '#/components/schemas/error'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-        total_records:
-          description: Total number of errors
-          type: integer
-      type: object
-    alternativeTitle:
-      additionalProperties: false
-      description: An alternative title description
-      example:
-        alternativeTitleTypeId: alternativeTitleTypeId
-        alternativeTitle: alternativeTitle
-        authorityId: authorityId
-      properties:
-        alternativeTitleTypeId:
-          description: UUID for an alternative title qualifier
-          type: string
-        alternativeTitle:
-          description: An alternative title for the resource
-          type: string
-        authorityId:
-          description: UUID of authority record that controls an alternative title
-          type: string
-      type: object
-    note:
-      description: Bibliographic or administrative note for instance/item/holding
-      example:
-        note: note
-        staffOnly: false
-      properties:
-        note:
-          description: Text content of the note
-          type: string
-        staffOnly:
-          default: false
-          description: If true, determines that the note should not be visible for others than staff
-          type: boolean
-      type: object
-    electronicAccess:
-      description: Electronic access object
-      example:
-        uri: uri
-        linkText: linkText
-        materialsSpecification: materialsSpecification
-        publicNote: publicNote
-        relationshipId: relationshipId
-      properties:
-        uri:
-          description: Uniform Resource Identifier (URI) is a string of characters designed for unambiguous identification of resources
-          type: string
-        linkText:
-          description: 'The value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated'
-          type: string
-        materialsSpecification:
-          description: Materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)
-          type: string
-        publicNote:
-          description: URL public note to be displayed in the discovery
-          type: string
-        relationshipId:
-          description: UUID for the type of relationship between the electronic resource at the location identified and the item described in the record as a whole
-          type: string
-      type: object
-    subject:
-      additionalProperties: false
-      description: A subject heading description
-      example:
-        value: value
-        authorityId: authorityId
-        sourceId: sourceId
-        typeId: typeId
-      properties:
-        value:
-          description: Subject heading value
-          type: string
-        authorityId:
-          description: UUID of authority record that controls a subject heading
-          type: string
-        sourceId:
-          description: UUID of subject source
-          type: string
-        typeId:
-          description: UUID of subject type
-          type: string
-      type: object
-    linkedDataInstanceOnly_publications_inner:
-      example:
-        name: name
-        date: date
-      properties:
-        name:
-          description: Name of publisher, distributor, etc.
-          type: string
-        date:
-          description: Date (year YYYY) of publication, distribution, etc.
-          type: string
-      type: object
-    linkedDataInstanceOnly:
-      description: Linked Data Instance dto, contains only Instance fields
-      example:
-        id: id
-        tenantId: tenantId
-        contributors:
-        - name: name
-          type: Family
-          isCreator: true
-        - name: name
-          type: Family
-          isCreator: true
-        editionStatements:
-        - editionStatements
-        - editionStatements
-        format: format
-        identifiers:
-        - value: value
-          type: type
-        - value: value
-          type: type
-        notes:
-        - value: value
-          type: type
-        - value: value
-          type: type
-        publications:
-        - name: name
-          date: date
-        - name: name
-          date: date
-        suppress:
-          fromDiscovery: true
-          staff: true
-        titles:
-        - value: value
-          type: Main
-        - value: value
-          type: Main
-      properties:
-        id:
-          description: The Linked Data ID of an Instance
-          type: string
-        tenantId:
-          description: Tenant ID
-          type: string
-        contributors:
-          description: Contributor array
-          items:
-            $ref: '#/components/schemas/linkedDataContributor'
-          type: array
-        editionStatements:
-          description: Edition statement array
-          items:
-            type: string
-          type: array
-        format:
-          description: Format of an Instance e.g. physical monographs vs. ebooks
-          type: string
-        identifiers:
-          description: Resource identifier array
-          items:
-            $ref: '#/components/schemas/linkedDataIdentifier'
-          type: array
-        notes:
-          description: Notes array
-          items:
-            $ref: '#/components/schemas/linkedDataNote'
-          type: array
-        publications:
-          description: List of publication items
-          items:
-            $ref: '#/components/schemas/linkedDataInstanceOnly_publications_inner'
-          type: array
-        suppress:
-          $ref: '#/components/schemas/linkedDataInstanceOnly_suppress'
-        titles:
-          description: Title array
-          items:
-            $ref: '#/components/schemas/linkedDataTitle'
-          type: array
-      required:
-      - id
-      type: object
     holding:
       description: Holding description
       example:
@@ -1576,167 +504,368 @@ components:
       - electronicAccess
       - notes
       type: object
-    seriesItem:
+    note:
+      description: Bibliographic or administrative note for instance/item/holding
+      example:
+        note: note
+        staffOnly: false
+      properties:
+        note:
+          description: Text content of the note
+          type: string
+        staffOnly:
+          default: false
+          description: If true, determines that the note should not be visible for others than staff
+          type: boolean
+      type: object
+    linkedDataHubSearchResult:
+      description: Linked data Hub search result response
+      example:
+        searchQuery: searchQuery
+        content:
+        - id: id
+          originalId: originalId
+          tenantId: tenantId
+          label: label
+        - id: id
+          originalId: originalId
+          tenantId: tenantId
+          label: label
+        pageNumber: 0
+        totalPages: 6
+        totalRecords: 1
+      properties:
+        searchQuery:
+          description: Initial search query
+          type: string
+        content:
+          description: List of linked data hub records found
+          items:
+            $ref: '#/components/schemas/linkedDataHub'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        pageNumber:
+          description: Current results page number, 0 by default
+          type: integer
+        totalPages:
+          description: Total pages count
+          type: integer
+        totalRecords:
+          description: Total results count
+          type: integer
+      type: object
+    authorityNote:
+      example:
+        noteTypeId: '{}'
+        note: note
+      properties:
+        noteTypeId:
+          description: ID of the type of note
+          type: object
+        note:
+          description: Text content of the note
+          type: string
+      type: object
+    circulationNote:
+      description: Circulations note for item
+      example:
+        note: note
+        staffOnly: false
+      properties:
+        note:
+          description: Text to display
+          type: string
+        staffOnly:
+          default: false
+          description: Flag to restrict display of this note
+          type: boolean
+      type: object
+    item_status:
+      description: The status of the item
+      example:
+        name: name
+      properties:
+        name:
+          description: Name of the status e.g. Available, Checked out, In transit
+          type: string
+      type: object
+    contributor:
       additionalProperties: false
-      description: A series item description
+      description: A contributor description
+      example:
+        name: name
+        contributorTypeId: contributorTypeId
+        contributorTypeText: contributorTypeText
+        contributorNameTypeId: contributorNameTypeId
+        authorityId: authorityId
+        primary: true
+      properties:
+        name:
+          description: Personal name, corporate name, meeting name
+          type: string
+        contributorTypeId:
+          description: ID for the contributor type term defined as a reference table in settings
+          type: string
+        contributorTypeText:
+          description: Free text element for adding contributor type terms other than those defined by the MARC code list for relators
+          type: string
+        contributorNameTypeId:
+          description: Contributor type terms defined by the MARC code list for relators
+          type: string
+        authorityId:
+          description: ID of authority record that controls the contributor
+          type: string
+        primary:
+          description: Whether this is the primary contributor
+          type: boolean
+      type: object
+    linkedDataInstanceOnly_suppress:
+      description: Suppress flags
+      example:
+        fromDiscovery: true
+        staff: true
+      properties:
+        fromDiscovery:
+          type: boolean
+        staff:
+          type: boolean
+      type: object
+    electronicAccess:
+      description: Electronic access object
+      example:
+        uri: uri
+        linkText: linkText
+        materialsSpecification: materialsSpecification
+        publicNote: publicNote
+        relationshipId: relationshipId
+      properties:
+        uri:
+          description: Uniform Resource Identifier (URI) is a string of characters designed for unambiguous identification of resources
+          type: string
+        linkText:
+          description: 'The value of the MARC tag field 856 2nd indicator, where the values are: no information provided, resource, version of resource, related resource, no display constant generated'
+          type: string
+        materialsSpecification:
+          description: Materials specified is used to specify to what portion or aspect of the resource the electronic location and access information applies (e.g. a portion or subset of the item is electronic, or a related electronic resource is being linked to the record)
+          type: string
+        publicNote:
+          description: URL public note to be displayed in the discovery
+          type: string
+        relationshipId:
+          description: UUID for the type of relationship between the electronic resource at the location identified and the item described in the record as a whole
+          type: string
+      type: object
+    classification:
+      description: Classification object
+      example:
+        classificationNumber: classificationNumber
+        classificationTypeId: classificationTypeId
+      properties:
+        classificationNumber:
+          description: Classification (e.g. classification scheme, classification schedule)
+          type: string
+        classificationTypeId:
+          description: Classification type ID
+          type: string
+      type: object
+    tags:
+      additionalProperties: false
+      description: List of simple tags that can be added to an object
+      example:
+        tagList:
+        - tagList
+        - tagList
+      properties:
+        tagList:
+          description: List of tags
+          items:
+            type: string
+          type: array
+      title: tags
+      type: object
+    subject:
+      additionalProperties: false
+      description: A subject heading description
       example:
         value: value
         authorityId: authorityId
+        sourceId: sourceId
+        typeId: typeId
       properties:
         value:
-          description: Series title value
+          description: Subject heading value
           type: string
         authorityId:
-          description: UUID of authority record that controls a series title
+          description: UUID of authority record that controls a subject heading
+          type: string
+        sourceId:
+          description: UUID of subject source
+          type: string
+        typeId:
+          description: UUID of subject type
           type: string
       type: object
-    item:
-      description: Item description
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: 'null'
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    alternativeTitle:
+      additionalProperties: false
+      description: An alternative title description
+      example:
+        alternativeTitleTypeId: alternativeTitleTypeId
+        alternativeTitle: alternativeTitle
+        authorityId: authorityId
+      properties:
+        alternativeTitleTypeId:
+          description: UUID for an alternative title qualifier
+          type: string
+        alternativeTitle:
+          description: An alternative title for the resource
+          type: string
+        authorityId:
+          description: UUID of authority record that controls an alternative title
+          type: string
+      type: object
+    linkedDataInstanceOnly:
+      description: Linked Data Instance dto, contains only Instance fields
       example:
         id: id
         tenantId: tenantId
-        holdingsRecordId: holdingsRecordId
-        hrid: hrid
-        accessionNumber: accessionNumber
-        formerIds:
-        - formerIds
-        - formerIds
-        itemIdentifier: itemIdentifier
-        barcode: barcode
-        effectiveLocationId: effectiveLocationId
-        status:
-          name: name
-        materialTypeId: materialTypeId
-        discoverySuppress: true
-        effectiveCallNumberComponents:
-          callNumber: callNumber
-          prefix: prefix
-          suffix: suffix
-          typeId: typeId
-        volume: volume
-        enumeration: enumeration
-        chronology: chronology
-        copyNumber: copyNumber
-        itemLevelCallNumberTypeId: itemLevelCallNumberTypeId
-        tags:
-          tagList:
-          - tagList
-          - tagList
-        electronicAccess:
-        - uri: uri
-          linkText: linkText
-          materialsSpecification: materialsSpecification
-          publicNote: publicNote
-          relationshipId: relationshipId
-        - uri: uri
-          linkText: linkText
-          materialsSpecification: materialsSpecification
-          publicNote: publicNote
-          relationshipId: relationshipId
-        administrativeNotes:
-        - administrativeNotes
-        - administrativeNotes
+        contributors:
+        - name: name
+          type: Family
+          isCreator: true
+        - name: name
+          type: Family
+          isCreator: true
+        editionStatements:
+        - editionStatements
+        - editionStatements
+        format: format
+        identifiers:
+        - value: value
+          type: type
+        - value: value
+          type: type
         notes:
-        - note: note
-          staffOnly: false
-        - note: note
-          staffOnly: false
-        statisticalCodeIds:
-        - statisticalCodeIds
-        - statisticalCodeIds
-        circulationNotes:
-        - note: note
-          staffOnly: false
-        - note: note
-          staffOnly: false
-        metadata:
-          createdDate: createdDate
-          createdByUserId: createdByUserId
-          updatedDate: updatedDate
-          updatedByUserId: updatedByUserId
+        - value: value
+          type: type
+        - value: value
+          type: type
+        publications:
+        - name: name
+          date: date
+        - name: name
+          date: date
+        suppress:
+          fromDiscovery: true
+          staff: true
+        titles:
+        - value: value
+          type: Main
+        - value: value
+          type: Main
       properties:
         id:
-          description: Unique ID of the item record
+          description: The Linked Data ID of an Instance
           type: string
         tenantId:
           description: Tenant ID
           type: string
-        holdingsRecordId:
-          description: Holdings record ID
-          type: string
-        hrid:
-          description: The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID
-          type: string
-        accessionNumber:
-          description: Also called inventory number
-          type: string
-        formerIds:
-          description: Previous identifiers assigned to the item
+        contributors:
+          description: Contributor array
+          items:
+            $ref: '#/components/schemas/linkedDataContributor'
+          type: array
+        editionStatements:
+          description: Edition statement array
           items:
             type: string
           type: array
-        itemIdentifier:
-          description: Item identifier number, e.g. imported from the union catalogue (read only).
+        format:
+          description: Format of an Instance e.g. physical monographs vs. ebooks
           type: string
-        barcode:
-          description: Unique inventory control number for physical resources, used largely for circulation purposes
-          type: string
-        effectiveLocationId:
-          description: Read only current home location for the item.
-          type: string
-        status:
-          $ref: '#/components/schemas/item_status'
-        materialTypeId:
-          description: Material type, term. Define what type of thing the item is.
-          type: string
-        discoverySuppress:
-          description: Records the fact that the record should not be displayed in a discovery system
-          type: boolean
-        effectiveCallNumberComponents:
-          $ref: '#/components/schemas/item_effectiveCallNumberComponents'
-        volume:
-          type: string
-        enumeration:
-          type: string
-        chronology:
-          type: string
-        copyNumber:
-          type: string
-        itemLevelCallNumberTypeId:
-          description: Call number type id
-          type: string
-        tags:
-          $ref: '#/components/schemas/tags'
-        electronicAccess:
-          description: List of electronic access items
+        identifiers:
+          description: Resource identifier array
           items:
-            $ref: '#/components/schemas/electronicAccess'
+            $ref: '#/components/schemas/linkedDataIdentifier'
           type: array
-        administrativeNotes:
-          description: Administrative notes
+        notes:
+          description: Notes array
+          items:
+            $ref: '#/components/schemas/linkedDataNote'
+          type: array
+        publications:
+          description: List of publication items
+          items:
+            $ref: '#/components/schemas/linkedDataInstanceOnly_publications_inner'
+          type: array
+        suppress:
+          $ref: '#/components/schemas/linkedDataInstanceOnly_suppress'
+        titles:
+          description: Title array
+          items:
+            $ref: '#/components/schemas/linkedDataTitle'
+          type: array
+      required:
+      - id
+      type: object
+    linkedDataWorkOnly:
+      description: Linked Data Work DTO, contains only Work fields
+      properties:
+        id:
+          description: The Linked Data ID of a Work
+          type: string
+        tenantId:
+          description: Tenant ID
+          type: string
+        classifications:
+          description: List of classification items
+          items:
+            $ref: '#/components/schemas/linkedDataClassification'
+          type: array
+        contributors:
+          description: Contributor array
+          items:
+            $ref: '#/components/schemas/linkedDataContributor'
+          type: array
+        hubLabels:
+          description: Linked Data Hub labels array
+          items:
+            type: string
+          type: array
+        languages:
+          description: Language array
           items:
             type: string
           type: array
         notes:
-          description: Notes about action, copy, binding etc.
+          description: Notes array
           items:
-            $ref: '#/components/schemas/note'
+            $ref: '#/components/schemas/linkedDataNote'
           type: array
-        statisticalCodeIds:
-          description: List of statistical code IDs
+        subjects:
+          description: Subject label array
           items:
-            description: UUID for a statistical code
             type: string
           type: array
-        circulationNotes:
-          description: Notes to be displayed in circulation processes.
+        titles:
+          description: Title array
           items:
-            $ref: '#/components/schemas/circulationNote'
+            $ref: '#/components/schemas/linkedDataTitle'
           type: array
-        metadata:
-          $ref: '#/components/schemas/metadata'
       required:
-      - notes
+      - id
       type: object
     authority:
       description: An authority description
@@ -2177,156 +1306,6 @@ components:
         numberOfTitles:
           description: Generated field by mod-search, used to count the total number of bib records linked to this authority record
           type: integer
-      type: object
-    linkedDataHubSearchResult:
-      description: Linked data Hub search result response
-      example:
-        searchQuery: searchQuery
-        content:
-        - id: id
-          originalId: originalId
-          tenantId: tenantId
-          label: label
-        - id: id
-          originalId: originalId
-          tenantId: tenantId
-          label: label
-        pageNumber: 0
-        totalPages: 6
-        totalRecords: 1
-      properties:
-        searchQuery:
-          description: Initial search query
-          type: string
-        content:
-          description: List of linked data hub records found
-          items:
-            $ref: '#/components/schemas/linkedDataHub'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-        pageNumber:
-          description: Current results page number, 0 by default
-          type: integer
-        totalPages:
-          description: Total pages count
-          type: integer
-        totalRecords:
-          description: Total results count
-          type: integer
-      type: object
-    classification:
-      description: Classification object
-      example:
-        classificationNumber: classificationNumber
-        classificationTypeId: classificationTypeId
-      properties:
-        classificationNumber:
-          description: Classification (e.g. classification scheme, classification schedule)
-          type: string
-        classificationTypeId:
-          description: Classification type ID
-          type: string
-      type: object
-    linkedDataAuthority:
-      description: Linked Data Authority search dto
-      example:
-        id: id
-        tenantId: tenantId
-        label: label
-        identifiers:
-        - value: value
-          type: type
-        - value: value
-          type: type
-        types:
-        - types
-        - types
-      properties:
-        id:
-          description: The Linked Data ID of an Authority
-          type: string
-        tenantId:
-          description: Tenant ID
-          type: string
-        label:
-          description: Label of an Authority
-          type: string
-        identifiers:
-          description: Resource identifier array
-          items:
-            $ref: '#/components/schemas/linkedDataIdentifier'
-          type: array
-        types:
-          description: Array of authority types
-          items:
-            type: string
-          type: array
-      required:
-      - id
-      type: object
-    circulationNote:
-      description: Circulations note for item
-      example:
-        note: note
-        staffOnly: false
-      properties:
-        note:
-          description: Text to display
-          type: string
-        staffOnly:
-          default: false
-          description: Flag to restrict display of this note
-          type: boolean
-      type: object
-    linkedDataNote:
-      description: Linked data Note DTO, contains value and type
-      example:
-        value: value
-        type: type
-      properties:
-        value:
-          description: Value of a note
-          type: string
-        type:
-          description: Type of a note
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    linkedDataTitle:
-      description: Linked data Title DTO, contains value and type
-      example:
-        value: value
-        type: Main
-      properties:
-        value:
-          description: Value of Title
-          type: string
-        type:
-          enum:
-          - Main
-          - Sub
-          - Main Parallel
-          - Sub Parallel
-          - Main Variant
-          - Sub Variant
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    authorityNote:
-      example:
-        noteTypeId: '{}'
-        note: note
-      properties:
-        noteTypeId:
-          description: ID of the type of note
-          type: object
-        note:
-          description: Text content of the note
-          type: string
       type: object
     instance:
       description: instance description
@@ -2786,35 +1765,380 @@ components:
       - items
       - notes
       type: object
-    contributor:
-      additionalProperties: false
-      description: A contributor description
+    item:
+      description: Item description
       example:
-        name: name
-        contributorTypeId: contributorTypeId
-        contributorTypeText: contributorTypeText
-        contributorNameTypeId: contributorNameTypeId
-        authorityId: authorityId
-        primary: true
+        id: id
+        tenantId: tenantId
+        holdingsRecordId: holdingsRecordId
+        hrid: hrid
+        accessionNumber: accessionNumber
+        formerIds:
+        - formerIds
+        - formerIds
+        itemIdentifier: itemIdentifier
+        barcode: barcode
+        effectiveLocationId: effectiveLocationId
+        status:
+          name: name
+        materialTypeId: materialTypeId
+        discoverySuppress: true
+        effectiveCallNumberComponents:
+          callNumber: callNumber
+          prefix: prefix
+          suffix: suffix
+          typeId: typeId
+        volume: volume
+        enumeration: enumeration
+        chronology: chronology
+        copyNumber: copyNumber
+        itemLevelCallNumberTypeId: itemLevelCallNumberTypeId
+        tags:
+          tagList:
+          - tagList
+          - tagList
+        electronicAccess:
+        - uri: uri
+          linkText: linkText
+          materialsSpecification: materialsSpecification
+          publicNote: publicNote
+          relationshipId: relationshipId
+        - uri: uri
+          linkText: linkText
+          materialsSpecification: materialsSpecification
+          publicNote: publicNote
+          relationshipId: relationshipId
+        administrativeNotes:
+        - administrativeNotes
+        - administrativeNotes
+        notes:
+        - note: note
+          staffOnly: false
+        - note: note
+          staffOnly: false
+        statisticalCodeIds:
+        - statisticalCodeIds
+        - statisticalCodeIds
+        circulationNotes:
+        - note: note
+          staffOnly: false
+        - note: note
+          staffOnly: false
+        metadata:
+          createdDate: createdDate
+          createdByUserId: createdByUserId
+          updatedDate: updatedDate
+          updatedByUserId: updatedByUserId
       properties:
-        name:
-          description: Personal name, corporate name, meeting name
+        id:
+          description: Unique ID of the item record
           type: string
-        contributorTypeId:
-          description: ID for the contributor type term defined as a reference table in settings
+        tenantId:
+          description: Tenant ID
           type: string
-        contributorTypeText:
-          description: Free text element for adding contributor type terms other than those defined by the MARC code list for relators
+        holdingsRecordId:
+          description: Holdings record ID
           type: string
-        contributorNameTypeId:
-          description: Contributor type terms defined by the MARC code list for relators
+        hrid:
+          description: The human readable ID, also called eye readable ID. A system-assigned sequential alternate ID
+          type: string
+        accessionNumber:
+          description: Also called inventory number
+          type: string
+        formerIds:
+          description: Previous identifiers assigned to the item
+          items:
+            type: string
+          type: array
+        itemIdentifier:
+          description: Item identifier number, e.g. imported from the union catalogue (read only).
+          type: string
+        barcode:
+          description: Unique inventory control number for physical resources, used largely for circulation purposes
+          type: string
+        effectiveLocationId:
+          description: Read only current home location for the item.
+          type: string
+        status:
+          $ref: '#/components/schemas/item_status'
+        materialTypeId:
+          description: Material type, term. Define what type of thing the item is.
+          type: string
+        discoverySuppress:
+          description: Records the fact that the record should not be displayed in a discovery system
+          type: boolean
+        effectiveCallNumberComponents:
+          $ref: '#/components/schemas/item_effectiveCallNumberComponents'
+        volume:
+          type: string
+        enumeration:
+          type: string
+        chronology:
+          type: string
+        copyNumber:
+          type: string
+        itemLevelCallNumberTypeId:
+          description: Call number type id
+          type: string
+        tags:
+          $ref: '#/components/schemas/tags'
+        electronicAccess:
+          description: List of electronic access items
+          items:
+            $ref: '#/components/schemas/electronicAccess'
+          type: array
+        administrativeNotes:
+          description: Administrative notes
+          items:
+            type: string
+          type: array
+        notes:
+          description: Notes about action, copy, binding etc.
+          items:
+            $ref: '#/components/schemas/note'
+          type: array
+        statisticalCodeIds:
+          description: List of statistical code IDs
+          items:
+            description: UUID for a statistical code
+            type: string
+          type: array
+        circulationNotes:
+          description: Notes to be displayed in circulation processes.
+          items:
+            $ref: '#/components/schemas/circulationNote'
+          type: array
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - notes
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      type: object
+    publication:
+      example:
+        publisher: publisher
+        dateOfPublication: dateOfPublication
+        place: place
+      properties:
+        publisher:
+          description: Name of publisher, distributor, etc.
+          type: string
+        dateOfPublication:
+          description: Date (year YYYY) of publication, distribution, etc.
+          type: string
+        place:
+          description: Place of publication, distribution, etc.
+          type: string
+      type: object
+    errorResponse:
+      description: A set of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        total_records:
+          description: Total number of errors
+          type: integer
+      type: object
+    seriesItem:
+      additionalProperties: false
+      description: A series item description
+      example:
+        value: value
+        authorityId: authorityId
+      properties:
+        value:
+          description: Series title value
           type: string
         authorityId:
-          description: ID of authority record that controls the contributor
+          description: UUID of authority record that controls a series title
           type: string
-        primary:
-          description: Whether this is the primary contributor
-          type: boolean
+      type: object
+    linkedDataWork:
+      allOf:
+      - $ref: '#/components/schemas/linkedDataWorkOnly'
+      - description: Linked Data Work search dto, contains Work and linked Instances
+        properties:
+          instances:
+            description: Instance array
+            items:
+              $ref: '#/components/schemas/linkedDataInstanceOnly'
+            type: array
+        type: object
+        example: null
+      example:
+        id: id
+        tenantId: tenantId
+        classifications:
+        - type: ddc
+          number: number
+          additionalNumber: additionalNumber
+        - type: ddc
+          number: number
+          additionalNumber: additionalNumber
+        contributors:
+        - name: name
+          type: Family
+          isCreator: true
+        - name: name
+          type: Family
+          isCreator: true
+        hubLabels:
+        - hubLabels
+        - hubLabels
+        languages:
+        - languages
+        - languages
+        notes:
+        - value: value
+          type: type
+        - value: value
+          type: type
+        subjects:
+        - subjects
+        - subjects
+        titles:
+        - value: value
+          type: Main
+        - value: value
+          type: Main
+        instances:
+        - id: id
+          tenantId: tenantId
+          contributors:
+          - name: name
+            type: Family
+            isCreator: true
+          - name: name
+            type: Family
+            isCreator: true
+          editionStatements:
+          - editionStatements
+          - editionStatements
+          format: format
+          identifiers:
+          - value: value
+            type: type
+          - value: value
+            type: type
+          notes:
+          - value: value
+            type: type
+          - value: value
+            type: type
+          publications:
+          - name: name
+            date: date
+          - name: name
+            date: date
+          suppress:
+            fromDiscovery: true
+            staff: true
+          titles:
+          - value: value
+            type: Main
+          - value: value
+            type: Main
+        - id: id
+          tenantId: tenantId
+          contributors:
+          - name: name
+            type: Family
+            isCreator: true
+          - name: name
+            type: Family
+            isCreator: true
+          editionStatements:
+          - editionStatements
+          - editionStatements
+          format: format
+          identifiers:
+          - value: value
+            type: type
+          - value: value
+            type: type
+          notes:
+          - value: value
+            type: type
+          - value: value
+            type: type
+          publications:
+          - name: name
+            date: date
+          - name: name
+            date: date
+          suppress:
+            fromDiscovery: true
+            staff: true
+          titles:
+          - value: value
+            type: Main
+          - value: value
+            type: Main
+      type: object
+    linkedDataNote:
+      description: Linked data Note DTO, contains value and type
+      example:
+        value: value
+        type: type
+      properties:
+        value:
+          description: Value of a note
+          type: string
+        type:
+          description: Type of a note
+          type: string
+      required:
+      - type
+      - value
+      type: object
+    linkedDataClassification:
+      description: Linked data Classification DTO, contains type and numbers
+      example:
+        type: ddc
+        number: number
+        additionalNumber: additionalNumber
+      properties:
+        type:
+          description: The type of the classification number
+          enum:
+          - ddc
+          - lc
+          type: string
+        number:
+          description: Classification number
+          type: string
+        additionalNumber:
+          description: Additional classification number
+          type: string
+      required:
+      - number
+      - type
       type: object
     linkedDataHub:
       description: Linked Data Hub search dto, contains Hub and Identifiers
@@ -2839,55 +2163,197 @@ components:
       required:
       - id
       type: object
-    linkedDataContributor:
-      description: Linked data Contributor DTO, contains name, type and isCreator flag
+    linkedDataIdentifier:
+      description: Linked data Identifier DTO, contains value and type
       example:
-        name: name
-        type: Family
-        isCreator: true
+        value: value
+        type: type
       properties:
-        name:
-          description: Name of contributor
+        value:
+          description: Value of Identifier
+          type: string
+        type:
+          type: string
+      required:
+      - type
+      - value
+      type: object
+    linkedDataAuthority:
+      description: Linked Data Authority search dto
+      example:
+        id: id
+        tenantId: tenantId
+        label: label
+        identifiers:
+        - value: value
+          type: type
+        - value: value
+          type: type
+        types:
+        - types
+        - types
+      properties:
+        id:
+          description: The Linked Data ID of an Authority
+          type: string
+        tenantId:
+          description: Tenant ID
+          type: string
+        label:
+          description: Label of an Authority
+          type: string
+        identifiers:
+          description: Resource identifier array
+          items:
+            $ref: '#/components/schemas/linkedDataIdentifier'
+          type: array
+        types:
+          description: Array of authority types
+          items:
+            type: string
+          type: array
+      required:
+      - id
+      type: object
+    dates:
+      additionalProperties: false
+      description: Instance Dates
+      properties:
+        dateTypeId:
+          description: Date type ID
+          type: string
+        date1:
+          description: Date1 value
+          type: string
+        date2:
+          description: Date2 value
+          type: string
+      type: object
+    linkedDataTitle:
+      description: Linked data Title DTO, contains value and type
+      example:
+        value: value
+        type: Main
+      properties:
+        value:
+          description: Value of Title
           type: string
         type:
           enum:
-          - Family
-          - Jurisdiction
-          - Meeting
-          - Organization
-          - Person
+          - Main
+          - Sub
+          - Main Parallel
+          - Sub Parallel
+          - Main Variant
+          - Sub Variant
           type: string
-        isCreator:
-          description: A flag indicating whether the contributor is the creator
-          type: boolean
       required:
-      - isCreator
-      - name
       - type
+      - value
       type: object
-    publication:
-      example:
-        publisher: publisher
-        dateOfPublication: dateOfPublication
-        place: place
-      properties:
-        publisher:
-          description: Name of publisher, distributor, etc.
-          type: string
-        dateOfPublication:
-          description: Date (year YYYY) of publication, distribution, etc.
-          type: string
-        place:
-          description: Place of publication, distribution, etc.
-          type: string
-      type: object
-    item_status:
-      description: The status of the item
+    linkedDataInstanceOnly_publications_inner:
       example:
         name: name
+        date: date
       properties:
         name:
-          description: Name of the status e.g. Available, Checked out, In transit
+          description: Name of publisher, distributor, etc.
+          type: string
+        date:
+          description: Date (year YYYY) of publication, distribution, etc.
+          type: string
+      type: object
+    linkedDataAuthoritySearchResult:
+      description: Linked data Authority search result response
+      example:
+        searchQuery: searchQuery
+        content:
+        - id: id
+          tenantId: tenantId
+          label: label
+          identifiers:
+          - value: value
+            type: type
+          - value: value
+            type: type
+          types:
+          - types
+          - types
+        - id: id
+          tenantId: tenantId
+          label: label
+          identifiers:
+          - value: value
+            type: type
+          - value: value
+            type: type
+          types:
+          - types
+          - types
+        pageNumber: 0
+        totalPages: 6
+        totalRecords: 1
+      properties:
+        searchQuery:
+          description: Initial search query
+          type: string
+        content:
+          description: List of linked data records found
+          items:
+            $ref: '#/components/schemas/linkedDataAuthority'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        pageNumber:
+          description: Current results page number, 0 by default
+          type: integer
+        totalPages:
+          description: Total pages count
+          type: integer
+        totalRecords:
+          description: Total results count
+          type: integer
+      type: object
+    item_effectiveCallNumberComponents:
+      description: Elements of a full call number generated from the item or holding
+      example:
+        callNumber: callNumber
+        prefix: prefix
+        suffix: suffix
+        typeId: typeId
+      properties:
+        callNumber:
+          description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
+          type: string
+        prefix:
+          description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
+          type: string
+        suffix:
+          description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
+          type: string
+        typeId:
+          description: Effective Call Number Type Id is the call number type id of the item, if available, otherwise that of the holding.
+          type: string
+      type: object
+    metadata:
+      additionalProperties: false
+      description: Record metadata
+      example:
+        createdDate: createdDate
+        createdByUserId: createdByUserId
+        updatedDate: updatedDate
+        updatedByUserId: updatedByUserId
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
           type: string
       type: object
     instanceSearchResult:
@@ -3544,153 +3010,597 @@ components:
           type: array
           x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
       type: object
-    error:
-      description: An error
+    linkedDataWorkSearchResult:
+      description: Linked data Work search result response
+      example:
+        searchQuery: searchQuery
+        content:
+        - id: id
+          tenantId: tenantId
+          classifications:
+          - type: ddc
+            number: number
+            additionalNumber: additionalNumber
+          - type: ddc
+            number: number
+            additionalNumber: additionalNumber
+          contributors:
+          - name: name
+            type: Family
+            isCreator: true
+          - name: name
+            type: Family
+            isCreator: true
+          hubLabels:
+          - hubLabels
+          - hubLabels
+          languages:
+          - languages
+          - languages
+          notes:
+          - value: value
+            type: type
+          - value: value
+            type: type
+          subjects:
+          - subjects
+          - subjects
+          titles:
+          - value: value
+            type: Main
+          - value: value
+            type: Main
+          instances:
+          - id: id
+            tenantId: tenantId
+            contributors:
+            - name: name
+              type: Family
+              isCreator: true
+            - name: name
+              type: Family
+              isCreator: true
+            editionStatements:
+            - editionStatements
+            - editionStatements
+            format: format
+            identifiers:
+            - value: value
+              type: type
+            - value: value
+              type: type
+            notes:
+            - value: value
+              type: type
+            - value: value
+              type: type
+            publications:
+            - name: name
+              date: date
+            - name: name
+              date: date
+            suppress:
+              fromDiscovery: true
+              staff: true
+            titles:
+            - value: value
+              type: Main
+            - value: value
+              type: Main
+          - id: id
+            tenantId: tenantId
+            contributors:
+            - name: name
+              type: Family
+              isCreator: true
+            - name: name
+              type: Family
+              isCreator: true
+            editionStatements:
+            - editionStatements
+            - editionStatements
+            format: format
+            identifiers:
+            - value: value
+              type: type
+            - value: value
+              type: type
+            notes:
+            - value: value
+              type: type
+            - value: value
+              type: type
+            publications:
+            - name: name
+              date: date
+            - name: name
+              date: date
+            suppress:
+              fromDiscovery: true
+              staff: true
+            titles:
+            - value: value
+              type: Main
+            - value: value
+              type: Main
+        - id: id
+          tenantId: tenantId
+          classifications:
+          - type: ddc
+            number: number
+            additionalNumber: additionalNumber
+          - type: ddc
+            number: number
+            additionalNumber: additionalNumber
+          contributors:
+          - name: name
+            type: Family
+            isCreator: true
+          - name: name
+            type: Family
+            isCreator: true
+          hubLabels:
+          - hubLabels
+          - hubLabels
+          languages:
+          - languages
+          - languages
+          notes:
+          - value: value
+            type: type
+          - value: value
+            type: type
+          subjects:
+          - subjects
+          - subjects
+          titles:
+          - value: value
+            type: Main
+          - value: value
+            type: Main
+          instances:
+          - id: id
+            tenantId: tenantId
+            contributors:
+            - name: name
+              type: Family
+              isCreator: true
+            - name: name
+              type: Family
+              isCreator: true
+            editionStatements:
+            - editionStatements
+            - editionStatements
+            format: format
+            identifiers:
+            - value: value
+              type: type
+            - value: value
+              type: type
+            notes:
+            - value: value
+              type: type
+            - value: value
+              type: type
+            publications:
+            - name: name
+              date: date
+            - name: name
+              date: date
+            suppress:
+              fromDiscovery: true
+              staff: true
+            titles:
+            - value: value
+              type: Main
+            - value: value
+              type: Main
+          - id: id
+            tenantId: tenantId
+            contributors:
+            - name: name
+              type: Family
+              isCreator: true
+            - name: name
+              type: Family
+              isCreator: true
+            editionStatements:
+            - editionStatements
+            - editionStatements
+            format: format
+            identifiers:
+            - value: value
+              type: type
+            - value: value
+              type: type
+            notes:
+            - value: value
+              type: type
+            - value: value
+              type: type
+            publications:
+            - name: name
+              date: date
+            - name: name
+              date: date
+            suppress:
+              fromDiscovery: true
+              staff: true
+            titles:
+            - value: value
+              type: Main
+            - value: value
+              type: Main
+        pageNumber: 0
+        totalPages: 6
+        totalRecords: 1
       properties:
-        message:
-          description: Error message text
+        searchQuery:
+          description: Initial search query
+          type: string
+        content:
+          description: List of linked data records found
+          items:
+            $ref: '#/components/schemas/linkedDataWork'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        pageNumber:
+          description: Current results page number, 0 by default
+          type: integer
+        totalPages:
+          description: Total pages count
+          type: integer
+        totalRecords:
+          description: Total results count
+          type: integer
+      type: object
+    authoritySearchResult:
+      description: Authority search result response
+      example:
+        totalRecords: 0
+        authorities:
+        - id: id
+          tenantId: tenantId
+          shared: true
+          source: source
+          sourceFileId: sourceFileId
+          naturalId: naturalId
+          personalName: personalName
+          sftPersonalName:
+          - sftPersonalName
+          - sftPersonalName
+          saftPersonalName:
+          - saftPersonalName
+          - saftPersonalName
+          personalNameTitle: personalNameTitle
+          sftPersonalNameTitle:
+          - sftPersonalNameTitle
+          - sftPersonalNameTitle
+          saftPersonalNameTitle:
+          - saftPersonalNameTitle
+          - saftPersonalNameTitle
+          corporateName: corporateName
+          sftCorporateName:
+          - sftCorporateName
+          - sftCorporateName
+          saftCorporateName:
+          - saftCorporateName
+          - saftCorporateName
+          corporateNameTitle: corporateNameTitle
+          sftCorporateNameTitle:
+          - sftCorporateNameTitle
+          - sftCorporateNameTitle
+          saftCorporateNameTitle:
+          - saftCorporateNameTitle
+          - saftCorporateNameTitle
+          meetingName: meetingName
+          sftMeetingName:
+          - sftMeetingName
+          - sftMeetingName
+          saftMeetingName:
+          - saftMeetingName
+          - saftMeetingName
+          meetingNameTitle: meetingNameTitle
+          sftMeetingNameTitle:
+          - sftMeetingNameTitle
+          - sftMeetingNameTitle
+          saftMeetingNameTitle:
+          - saftMeetingNameTitle
+          - saftMeetingNameTitle
+          uniformTitle: uniformTitle
+          sftUniformTitle:
+          - sftUniformTitle
+          - sftUniformTitle
+          saftUniformTitle:
+          - saftUniformTitle
+          - saftUniformTitle
+          namedEvent: namedEvent
+          sftNamedEvent:
+          - sftNamedEvent
+          - sftNamedEvent
+          saftNamedEvent:
+          - saftNamedEvent
+          - saftNamedEvent
+          generalSubdivision: generalSubdivision
+          sftGeneralSubdivision:
+          - sftGeneralSubdivision
+          - sftGeneralSubdivision
+          saftGeneralSubdivision:
+          - saftGeneralSubdivision
+          - saftGeneralSubdivision
+          topicalTerm: topicalTerm
+          sftTopicalTerm:
+          - sftTopicalTerm
+          - sftTopicalTerm
+          saftTopicalTerm:
+          - saftTopicalTerm
+          - saftTopicalTerm
+          subjectHeadings: subjectHeadings
+          geographicName: geographicName
+          sftGeographicName:
+          - sftGeographicName
+          - sftGeographicName
+          saftGeographicName:
+          - saftGeographicName
+          - saftGeographicName
+          genreTerm: genreTerm
+          sftGenreTerm:
+          - sftGenreTerm
+          - sftGenreTerm
+          saftGenreTerm:
+          - saftGenreTerm
+          - saftGenreTerm
+          chronTerm: chronTerm
+          sftChronTerm:
+          - sftChronTerm
+          - sftChronTerm
+          saftChronTerm:
+          - saftChronTerm
+          - saftChronTerm
+          mediumPerfTerm: mediumPerfTerm
+          sftMediumPerfTerm:
+          - sftMediumPerfTerm
+          - sftMediumPerfTerm
+          saftMediumPerfTerm:
+          - saftMediumPerfTerm
+          - saftMediumPerfTerm
+          geographicSubdivision: geographicSubdivision
+          sftGeographicSubdivision:
+          - sftGeographicSubdivision
+          - sftGeographicSubdivision
+          saftGeographicSubdivision:
+          - saftGeographicSubdivision
+          - saftGeographicSubdivision
+          chronSubdivision: chronSubdivision
+          sftChronSubdivision:
+          - sftChronSubdivision
+          - sftChronSubdivision
+          saftChronSubdivision:
+          - saftChronSubdivision
+          - saftChronSubdivision
+          formSubdivision: formSubdivision
+          sftFormSubdivision:
+          - sftFormSubdivision
+          - sftFormSubdivision
+          saftFormSubdivision:
+          - saftFormSubdivision
+          - saftFormSubdivision
+          identifiers:
+          - value: value
+            identifierTypeId: identifierTypeId
+          - value: value
+            identifierTypeId: identifierTypeId
+          notes:
+          - noteTypeId: '{}'
+            note: note
+          - noteTypeId: '{}'
+            note: note
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+          headingType: headingType
+          authRefType: authRefType
+          headingRef: headingRef
+          numberOfTitles: 6
+        - id: id
+          tenantId: tenantId
+          shared: true
+          source: source
+          sourceFileId: sourceFileId
+          naturalId: naturalId
+          personalName: personalName
+          sftPersonalName:
+          - sftPersonalName
+          - sftPersonalName
+          saftPersonalName:
+          - saftPersonalName
+          - saftPersonalName
+          personalNameTitle: personalNameTitle
+          sftPersonalNameTitle:
+          - sftPersonalNameTitle
+          - sftPersonalNameTitle
+          saftPersonalNameTitle:
+          - saftPersonalNameTitle
+          - saftPersonalNameTitle
+          corporateName: corporateName
+          sftCorporateName:
+          - sftCorporateName
+          - sftCorporateName
+          saftCorporateName:
+          - saftCorporateName
+          - saftCorporateName
+          corporateNameTitle: corporateNameTitle
+          sftCorporateNameTitle:
+          - sftCorporateNameTitle
+          - sftCorporateNameTitle
+          saftCorporateNameTitle:
+          - saftCorporateNameTitle
+          - saftCorporateNameTitle
+          meetingName: meetingName
+          sftMeetingName:
+          - sftMeetingName
+          - sftMeetingName
+          saftMeetingName:
+          - saftMeetingName
+          - saftMeetingName
+          meetingNameTitle: meetingNameTitle
+          sftMeetingNameTitle:
+          - sftMeetingNameTitle
+          - sftMeetingNameTitle
+          saftMeetingNameTitle:
+          - saftMeetingNameTitle
+          - saftMeetingNameTitle
+          uniformTitle: uniformTitle
+          sftUniformTitle:
+          - sftUniformTitle
+          - sftUniformTitle
+          saftUniformTitle:
+          - saftUniformTitle
+          - saftUniformTitle
+          namedEvent: namedEvent
+          sftNamedEvent:
+          - sftNamedEvent
+          - sftNamedEvent
+          saftNamedEvent:
+          - saftNamedEvent
+          - saftNamedEvent
+          generalSubdivision: generalSubdivision
+          sftGeneralSubdivision:
+          - sftGeneralSubdivision
+          - sftGeneralSubdivision
+          saftGeneralSubdivision:
+          - saftGeneralSubdivision
+          - saftGeneralSubdivision
+          topicalTerm: topicalTerm
+          sftTopicalTerm:
+          - sftTopicalTerm
+          - sftTopicalTerm
+          saftTopicalTerm:
+          - saftTopicalTerm
+          - saftTopicalTerm
+          subjectHeadings: subjectHeadings
+          geographicName: geographicName
+          sftGeographicName:
+          - sftGeographicName
+          - sftGeographicName
+          saftGeographicName:
+          - saftGeographicName
+          - saftGeographicName
+          genreTerm: genreTerm
+          sftGenreTerm:
+          - sftGenreTerm
+          - sftGenreTerm
+          saftGenreTerm:
+          - saftGenreTerm
+          - saftGenreTerm
+          chronTerm: chronTerm
+          sftChronTerm:
+          - sftChronTerm
+          - sftChronTerm
+          saftChronTerm:
+          - saftChronTerm
+          - saftChronTerm
+          mediumPerfTerm: mediumPerfTerm
+          sftMediumPerfTerm:
+          - sftMediumPerfTerm
+          - sftMediumPerfTerm
+          saftMediumPerfTerm:
+          - saftMediumPerfTerm
+          - saftMediumPerfTerm
+          geographicSubdivision: geographicSubdivision
+          sftGeographicSubdivision:
+          - sftGeographicSubdivision
+          - sftGeographicSubdivision
+          saftGeographicSubdivision:
+          - saftGeographicSubdivision
+          - saftGeographicSubdivision
+          chronSubdivision: chronSubdivision
+          sftChronSubdivision:
+          - sftChronSubdivision
+          - sftChronSubdivision
+          saftChronSubdivision:
+          - saftChronSubdivision
+          - saftChronSubdivision
+          formSubdivision: formSubdivision
+          sftFormSubdivision:
+          - sftFormSubdivision
+          - sftFormSubdivision
+          saftFormSubdivision:
+          - saftFormSubdivision
+          - saftFormSubdivision
+          identifiers:
+          - value: value
+            identifierTypeId: identifierTypeId
+          - value: value
+            identifierTypeId: identifierTypeId
+          notes:
+          - noteTypeId: '{}'
+            note: note
+          - noteTypeId: '{}'
+            note: note
+          metadata:
+            createdDate: createdDate
+            createdByUserId: createdByUserId
+            updatedDate: updatedDate
+            updatedByUserId: updatedByUserId
+          headingType: headingType
+          authRefType: authRefType
+          headingRef: headingRef
+          numberOfTitles: 6
+      properties:
+        totalRecords:
+          description: Amount of authorities found
+          type: integer
+        authorities:
+          description: List of authorities found
+          items:
+            $ref: '#/components/schemas/authority'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+      type: object
+    linkedDataContributor:
+      description: Linked data Contributor DTO, contains name, type and isCreator flag
+      example:
+        name: name
+        type: Family
+        isCreator: true
+      properties:
+        name:
+          description: Name of contributor
           type: string
         type:
-          description: Error message type
+          enum:
+          - Family
+          - Jurisdiction
+          - Meeting
+          - Organization
+          - Person
           type: string
-        code:
-          description: Error message code
-          type: string
-        parameters:
-          items:
-            $ref: '#/components/schemas/parameter'
-          type: array
+        isCreator:
+          description: A flag indicating whether the contributor is the creator
+          type: boolean
+      required:
+      - isCreator
+      - name
+      - type
       type: object
-    linkedDataWork:
-      allOf:
-      - $ref: '#/components/schemas/linkedDataWorkOnly'
-      - description: Linked Data Work search dto, contains Work and linked Instances
-        properties:
-          instances:
-            description: Instance array
-            items:
-              $ref: '#/components/schemas/linkedDataInstanceOnly'
-            type: array
-        type: object
-        example: null
+    identifier:
+      additionalProperties: false
+      description: Resource identifier
       example:
-        id: id
-        tenantId: tenantId
-        classifications:
-        - type: ddc
-          number: number
-          additionalNumber: additionalNumber
-        - type: ddc
-          number: number
-          additionalNumber: additionalNumber
-        contributors:
-        - name: name
-          type: Family
-          isCreator: true
-        - name: name
-          type: Family
-          isCreator: true
-        hubLabels:
-        - hubLabels
-        - hubLabels
-        languages:
-        - languages
-        - languages
-        notes:
-        - value: value
-          type: type
-        - value: value
-          type: type
-        subjects:
-        - subjects
-        - subjects
-        titles:
-        - value: value
-          type: Main
-        - value: value
-          type: Main
-        instances:
-        - id: id
-          tenantId: tenantId
-          contributors:
-          - name: name
-            type: Family
-            isCreator: true
-          - name: name
-            type: Family
-            isCreator: true
-          editionStatements:
-          - editionStatements
-          - editionStatements
-          format: format
-          identifiers:
-          - value: value
-            type: type
-          - value: value
-            type: type
-          notes:
-          - value: value
-            type: type
-          - value: value
-            type: type
-          publications:
-          - name: name
-            date: date
-          - name: name
-            date: date
-          suppress:
-            fromDiscovery: true
-            staff: true
-          titles:
-          - value: value
-            type: Main
-          - value: value
-            type: Main
-        - id: id
-          tenantId: tenantId
-          contributors:
-          - name: name
-            type: Family
-            isCreator: true
-          - name: name
-            type: Family
-            isCreator: true
-          editionStatements:
-          - editionStatements
-          - editionStatements
-          format: format
-          identifiers:
-          - value: value
-            type: type
-          - value: value
-            type: type
-          notes:
-          - value: value
-            type: type
-          - value: value
-            type: type
-          publications:
-          - name: name
-            date: date
-          - name: name
-            date: date
-          suppress:
-            fromDiscovery: true
-            staff: true
-          titles:
-          - value: value
-            type: Main
-          - value: value
-            type: Main
+        value: value
+        identifierTypeId: identifierTypeId
+      properties:
+        value:
+          description: Resource identifier value
+          type: string
+        identifierTypeId:
+          description: Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)
+          type: string
       type: object
   examples:
-    unknownError:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
     authoritySearchResult:
       value:
         totalRecords: 10
@@ -3713,64 +3623,6 @@ components:
           numberOfTitles: 1
           sourceFileId: af045f2f-e851-4613-984c-4bc13430454a
           naturalId: n910740801
-    linkedDataHubSearchResult:
-      value:
-        searchQuery: query string
-        content:
-        - id: '1'
-          originalId: d292aac1-6f82-4828-93ae-c1b5cde1318a
-          label: hub AAP
-        pageNumber: 0
-        totalPages: 3
-        totalRecords: 27
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    instanceSearchResult:
-      value:
-        instances:
-        - id: d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f
-          tenantId: tenant
-          shared: false
-          title: 'Bilingualism: a bibliography of 1000 references with special reference to Wales.'
-          contributors:
-          - name: Eichhorst, Georg.
-            contributorTypeId: a
-            authorityId: a
-            primary: true
-          publication:
-          - publisher: Duncker und Humblot
-            dateOfPublication: '1976'
-            place: Karlsruhe
-          staffSuppress: false
-          discoverySuppress: false
-          isBoundWith: false
-          electronicAccess: []
-          notes: []
-          items: []
-          holdings: []
-        totalRecords: 1
-    linkedDataAuthoritySearchResult:
-      value:
-        searchQuery: query string
-        content:
-        - id: '1'
-          label: Authority Label
-          identifiers:
-          - value: '1234567890'
-            type: LCCN
-          types:
-          - http://bibfra.me/vocab/lite/Family
-        pageNumber: 0
-        totalPages: 10
-        totalRecords: 100
     linkedDataWorkSearchResult:
       value:
         searchQuery: query string
@@ -3811,6 +3663,68 @@ components:
         pageNumber: 0
         totalPages: 10
         totalRecords: 100
-x-refined-from:
-- folio-mod-search-openapi.json
-- folio-mod-search-openapi.yml
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    linkedDataAuthoritySearchResult:
+      value:
+        searchQuery: query string
+        content:
+        - id: '1'
+          label: Authority Label
+          identifiers:
+          - value: '1234567890'
+            type: LCCN
+          types:
+          - http://bibfra.me/vocab/lite/Family
+        pageNumber: 0
+        totalPages: 10
+        totalRecords: 100
+    instanceSearchResult:
+      value:
+        instances:
+        - id: d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f
+          tenantId: tenant
+          shared: false
+          title: 'Bilingualism: a bibliography of 1000 references with special reference to Wales.'
+          contributors:
+          - name: Eichhorst, Georg.
+            contributorTypeId: a
+            authorityId: a
+            primary: true
+          publication:
+          - publisher: Duncker und Humblot
+            dateOfPublication: '1976'
+            place: Karlsruhe
+          staffSuppress: false
+          discoverySuppress: false
+          isBoundWith: false
+          electronicAccess: []
+          notes: []
+          items: []
+          holdings: []
+        totalRecords: 1
+    linkedDataHubSearchResult:
+      value:
+        searchQuery: query string
+        content:
+        - id: '1'
+          originalId: d292aac1-6f82-4828-93ae-c1b5cde1318a
+          label: hub AAP
+        pageNumber: 0
+        totalPages: 3
+        totalRecords: 27

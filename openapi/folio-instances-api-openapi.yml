@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Instances API
   version: '1.0'
-  description: 'Operations tagged instances across 5 of this provider''s published API definitions: folio-edge-inventory-openapi.json, folio-mod-consortia-keycloak-sharing-instances-openapi.json, folio-edge-inventory-openapi.yml, folio-mod-consortia-keycloak-sharing-instances-openapi.yml, folio-mod-consortia-sharing-instances-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged instances across 2 of this provider''s published API definitions: folio-edge-inventory-openapi.json, folio-mod-consortia-keycloak-sharing-instances-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inventory
 - url: /consortia/{consortiumId}/sharing
@@ -137,6 +137,159 @@ paths:
     servers:
     - url: /consortia/{consortiumId}/sharing
 components:
+  parameters:
+    instance-id:
+      name: instanceId
+      in: path
+      description: Inventory Instance's UUID
+      required: true
+      schema:
+        type: string
+        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    lang:
+      name: lang
+      in: query
+      description: Requested language
+      required: false
+      example: en
+      schema:
+        pattern: '[a-zA-Z]{2}'
+        default: en
+        type: string
+    actionId:
+      in: path
+      name: actionId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of sharing instance
+    status:
+      in: query
+      name: status
+      schema:
+        $ref: '#/components/schemas/Status'
+      description: The status of the sharing instance
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 100
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    instanceIdentifier:
+      in: query
+      name: instanceIdentifier
+      schema:
+        $ref: '#/components/schemas/uuid'
+      description: The UUID of the instance
+    sourceTenantId:
+      in: query
+      name: sourceTenantId
+      schema:
+        type: string
+      description: The ID of the source tenant
+    targetTenantId:
+      in: query
+      name: targetTenantId
+      schema:
+        type: string
+      description: The ID of the target tenant
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+  responses:
+    notFoundResponse:
+      description: Item with a given ID not found
+      content:
+        application/json:
+          example:
+            code: 404
+            errorMessage: Record by given id not found
+          schema:
+            $ref: '#/components/schemas/Error'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          example:
+            code: 400
+            errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
+          schema:
+            $ref: '#/components/schemas/Error'
+    SharingInstanceCollection:
+      description: Returns list of sharing instances
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingInstanceCollection'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error_2'
+    SharingInstance:
+      description: Returns a sharing instance object object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingInstance'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
   schemas:
     Error:
       type: object
@@ -147,6 +300,20 @@ components:
         errorMessage:
           description: Error message text
           type: string
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error_2'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
     Metadata:
       type: object
       title: Metadata
@@ -178,6 +345,37 @@ components:
           description: Additional information of the user who updated the record (when available)
       required:
       - createdDate
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    uuid:
+      type: string
+      format: uuid
+    Status:
+      type: string
+      enum:
+      - IN_PROGRESS
+      - COMPLETE
+      - ERROR
+    SharingInstanceCollection:
+      description: A JSON schema for the Sharing Instances Collection
+      type: object
+      properties:
+        sharingInstances:
+          type: array
+          description: The list of sharing instances
+          items:
+            type: object
+            $ref: '#/components/schemas/SharingInstance'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - sharingInstances
+      - totalRecords
     SharingInstance:
       description: A JSON schema for the Sharing Instance
       type: object
@@ -205,18 +403,18 @@ components:
       - instanceIdentifier
       - sourceTenantId
       - targetTenantId
-    Parameters:
+    Parameter:
       description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
       additionalProperties: false
-    Status:
-      type: string
-      enum:
-      - IN_PROGRESS
-      - COMPLETE
-      - ERROR
+      required:
+      - key
     userInfo:
       type: object
       description: User Display Information
@@ -257,284 +455,6 @@ components:
       additionalProperties: false
       required:
       - message
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error_2'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    SharingInstanceCollection:
-      description: A JSON schema for the Sharing Instances Collection
-      type: object
-      properties:
-        sharingInstances:
-          type: array
-          description: The list of sharing instances
-          items:
-            type: object
-            $ref: '#/components/schemas/SharingInstance'
-        totalRecords:
-          type: integer
-      additionalProperties: false
-      required:
-      - sharingInstances
-      - totalRecords
-    uuid:
-      type: string
-      format: uuid
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
-    Error_3:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
-    Errors_2:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error_3'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    Error_4:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
-    Errors_3:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error_4'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-  responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example:
-            code: 500
-            errorMessage: internal error
-          schema:
-            $ref: '#/components/schemas/Error'
-    notFoundResponse:
-      description: Item with a given ID not found
-      content:
-        application/json:
-          example:
-            code: 404
-            errorMessage: Record by given id not found
-          schema:
-            $ref: '#/components/schemas/Error'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          example:
-            code: 400
-            errorMessage: Validation error
-          schema:
-            $ref: '#/components/schemas/Error'
-    SharingInstance:
-      description: Returns a sharing instance object object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/SharingInstance'
-    SharingInstanceCollection:
-      description: Returns list of sharing instances
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/SharingInstanceCollection'
-    Conflict:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_2'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    InternalServerError_2:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_3'
-    InternalServerError_3:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error_4'
-  parameters:
-    lang:
-      name: lang
-      in: query
-      description: Requested language
-      required: false
-      example: en
-      schema:
-        pattern: '[a-zA-Z]{2}'
-        default: en
-        type: string
-    x-okapi-token-header:
-      name: x-okapi-token
-      in: header
-      description: x-okapi-token header value
-      required: false
-      schema:
-        type: string
-    instance-id:
-      name: instanceId
-      in: path
-      description: Inventory Instance's UUID
-      required: true
-      schema:
-        type: string
-        pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
-    x-okapi-tenant-header:
-      name: x-okapi-tenant
-      in: header
-      description: x-okapi-tenant header value
-      required: false
-      schema:
-        type: string
-    instanceIdentifier:
-      in: query
-      name: instanceIdentifier
-      schema:
-        $ref: '#/components/schemas/uuid'
-      description: The UUID of the instance
-    status:
-      in: query
-      name: status
-      schema:
-        $ref: '#/components/schemas/Status'
-      description: The status of the sharing instance
-    sourceTenantId:
-      in: query
-      name: sourceTenantId
-      schema:
-        type: string
-      description: The ID of the source tenant
-    actionId:
-      in: path
-      name: actionId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: true
-      description: The ID of sharing instance
-    targetTenantId:
-      in: query
-      name: targetTenantId
-      schema:
-        type: string
-      description: The ID of the target tenant
-    consortiumId:
-      in: path
-      name: consortiumId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: true
-      description: The ID of consortium
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 100
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    trait_pageable_offset:
-      name: offset
-      in: query
-      description: Skip over a number of elements by specifying an offset value for the query
-      schema:
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-        type: integer
   requestBodies:
     SharingInstanceBody:
       description: Sharing Instance object
@@ -546,6 +466,3 @@ components:
 x-refined-from:
 - folio-edge-inventory-openapi.json
 - folio-mod-consortia-keycloak-sharing-instances-openapi.json
-- folio-edge-inventory-openapi.yml
-- folio-mod-consortia-keycloak-sharing-instances-openapi.yml
-- folio-mod-consortia-sharing-instances-openapi.yml

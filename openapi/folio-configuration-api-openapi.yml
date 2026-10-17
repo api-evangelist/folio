@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Configuration API
   version: '1.0'
-  description: 'Operations tagged Configuration across 4 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-mosaic-openapi.json, folio-mod-data-export-openapi.yml, folio-mod-mosaic-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Configuration across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-mosaic-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /data-export/
 - url: /mosaic
@@ -87,43 +87,6 @@ paths:
     - url: /data-export/
 components:
   schemas:
-    errors:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Error collection
-      properties:
-        errors:
-          description: list of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total records
-          type: integer
-    parameters:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      description: Error parameters
-      items:
-        type: object
-        properties:
-          key:
-            type: string
-          value:
-            type: string
-    config:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Configuration key/value pairs
-      type: object
-      properties:
-        key:
-          description: Unique name of config data
-          type: string
-        value:
-          description: Value of config data
-          type: string
     error:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -144,6 +107,68 @@ components:
           $ref: '#/components/schemas/parameters'
       required:
       - message
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
+    config:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Configuration key/value pairs
+      type: object
+      properties:
+        key:
+          description: Unique name of config data
+          type: string
+        value:
+          description: Value of config data
+          type: string
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
     Error:
       description: An error
       type: object
@@ -164,19 +189,6 @@ components:
       additionalProperties: false
       required:
       - message
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
     MosaicConfiguration:
       type: object
       properties:
@@ -192,24 +204,24 @@ components:
       required:
       - id
       - defaultTemplateId
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
     Parameters:
       description: List of key/value parameters of an error
       type: array
       items:
         $ref: '#/components/schemas/Parameter'
   responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    MosaicConfigurationResponse:
+      description: Mosaic configuration object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MosaicConfiguration'
     UnprocessableEntity:
       description: Validation errors
       content:
@@ -222,26 +234,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Errors'
-    MosaicConfigurationResponse:
-      description: Mosaic configuration object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/MosaicConfiguration'
+    NoContent:
+      description: No content
     BadRequest:
       description: Bad request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the parameter or line/character number with malformed data) provided in the response.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Errors'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    NoContent:
-      description: No content
   requestBodies:
     MosaicConfigurationBody:
       description: Mosaic configuration object
@@ -253,5 +253,3 @@ components:
 x-refined-from:
 - folio-mod-data-export-openapi.json
 - folio-mod-mosaic-openapi.json
-- folio-mod-data-export-openapi.yml
-- folio-mod-mosaic-openapi.yml

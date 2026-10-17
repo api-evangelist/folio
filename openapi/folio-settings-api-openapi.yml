@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Settings API
   version: '1.0'
-  description: 'Operations tagged Settings across 11 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-consortia-keycloak-sharing-settings-openapi.json, folio-mod-licenses-openapi.json, folio-mod-oa-openapi.json, folio-mod-settings-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-consortia-keycloak-sharing-settings-openapi.yml, folio-mod-consortia-sharing-settings-openapi.yml, folio-mod-licenses-openapi.yml, folio-mod-oa-openapi.yml…'
+  description: 'Operations tagged Settings across 5 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-consortia-keycloak-sharing-settings-openapi.json, folio-mod-licenses-openapi.json, folio-mod-oa-openapi.json, folio-mod-settings-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -801,180 +801,25 @@ paths:
       summary: Upload settings
       x-summary-source: derived
 components:
-  parameters:
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    settingId:
-      in: path
-      name: settingId
-      description: Identifier for an application setting
-      required: true
-      schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    stats:
-      in: query
-      name: stats
-      required: false
-      schema:
-        type: boolean
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    match:
-      in: query
-      name: match
-      required: false
-      schema:
-        type: string
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    consortiumId:
-      in: path
-      name: consortiumId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: true
-      description: The ID of consortium
-    settingId_2:
-      in: path
-      name: settingId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: true
-      description: The ID of setting
-    appSettingId:
-      in: path
-      name: id
-      description: Identifier for an application setting
-      required: true
-      schema:
-        type: string
-    offset_2:
-      in: query
-      name: offset
-      description: Skip over number of elements (default is first element)
-      required: false
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-    okapi-permissions:
-      in: header
-      name: X-Okapi-Permissions
-      description: A JSON array with client permissions
-      required: true
-      schema:
-        type: string
-    okapi-tenant:
-      in: header
-      name: X-Okapi-Tenant
-      description: Okapi Tenant
-      required: true
-      schema:
-        type: string
-        pattern: ^[_a-z][_a-z0-9]*$
-    okapi-url:
-      in: header
-      name: X-Okapi-Url
-      description: Okapi URL
-      required: false
-      schema:
-        type: string
-    query:
-      in: query
-      name: query
-      description: CQL query
-      required: false
-      schema:
-        type: string
-    okapi-user:
-      in: header
-      name: X-Okapi-User-Id
-      description: Okapi user identifier
-      required: false
-      schema:
-        type: string
-    okapi-token:
-      in: header
-      name: X-Okapi-Token
-      description: Okapi Token
-      required: false
-      schema:
-        type: string
-    limit:
-      in: query
-      name: limit
-      description: Limit the number of elements returned in the response
-      required: false
-      schema:
-        type: integer
-        default: 10
-        minimum: 0
-    settingId_3:
-      in: path
-      name: settingId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: true
-      description: The ID of setting
-    settingId_4:
-      in: path
-      name: settingId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: true
-      description: The ID of setting
-    offset_3:
-      in: query
-      name: offset
-      description: Skip over number of elements (default is first element)
-      required: false
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
   schemas:
-    HttpError:
+    AppSettingResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/AppSetting'
+    ResultsMeta:
       type: object
       properties:
-        message:
-          type: string
-        error:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
           type: integer
     AppSettingResults:
       type: object
@@ -986,6 +831,31 @@ components:
       - properties:
           results:
             $ref: '#/components/schemas/AppSettingResultsArray'
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
     GrailsErrorResponse:
       type: object
       description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
@@ -1009,43 +879,6 @@ components:
           type: array
           items:
             type: string
-    AppSettingResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/AppSetting'
-    ApplicationError:
-      type: object
-      properties:
-        total:
-          type: integer
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              code:
-                type: string
-              i18n_code:
-                type: string
-              message:
-                type: string
-              object:
-                type: string
-    ResultsMeta:
-      type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
     AppSetting:
       type: object
       required:
@@ -1070,24 +903,42 @@ components:
         hidden:
           type: boolean
           description: If true, this setting is excluded from filter/search results but is otherwise still retrievable and modifiable normally.
-    SharingSettingRequest:
-      description: A JSON schema for the Sharing settings object
+    Parameter:
+      description: List of key/value parameters of an error
       type: object
       properties:
-        settingId:
-          description: id of sharing setting record
+        key:
           type: string
-          format: uuid
-        url:
-          description: URL for publishing requests for consortia tenants
+          minLength: 1
+        value:
           type: string
-        payload:
-          description: Http request body
-          type: object
       additionalProperties: false
       required:
-      - settingId
-      - url
+      - key
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    SharingSettingDeleteResponse:
+      description: A JSON schema for the Sharing settings object response for delete request
+      type: object
+      properties:
+        pcId:
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - pcId
     Error:
       description: An error
       type: object
@@ -1108,16 +959,33 @@ components:
       additionalProperties: false
       required:
       - message
-    SharingSettingDeleteResponse:
-      description: A JSON schema for the Sharing settings object response for delete request
+    uuid:
+      type: string
+      format: uuid
+    SharingSettingRequest:
+      description: A JSON schema for the Sharing settings object
       type: object
       properties:
-        pcId:
+        settingId:
+          description: id of sharing setting record
           type: string
           format: uuid
+        url:
+          description: URL for publishing requests for consortia tenants
+          type: string
+        payload:
+          description: Http request body
+          type: object
       additionalProperties: false
       required:
-      - pcId
+      - settingId
+      - url
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
     SharingSettingResponse:
       description: A JSON schema for the Sharing settings object response for post request
       type: object
@@ -1132,41 +1000,6 @@ components:
       required:
       - createSettingsPCId
       - updateSettingsPCId
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
-    Parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
-    uuid:
-      type: string
-      format: uuid
     ValidationError:
       type: object
       required:
@@ -1222,6 +1055,72 @@ components:
           type: string
         path:
           type: string
+    entry:
+      description: Setting
+      type: object
+      properties:
+        id:
+          description: Identifier
+          type: string
+          format: uuid
+        scope:
+          type: string
+          description: Scope for this entry (normally a module)
+        key:
+          type: string
+          description: Key within scope for this setting
+        value:
+          description: Settings value (any type)
+        userId:
+          type: string
+          format: uuid
+          description: Owner of this setting (optional)
+      additionalProperties: false
+      required:
+      - id
+      - scope
+      - key
+      - value
+    entries:
+      description: Setting entries response
+      type: object
+      properties:
+        items:
+          description: List of settings
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/entry'
+        resultInfo:
+          description: Common result set information
+          type: object
+          $ref: '#/components/schemas/resultInfo'
+      additionalProperties: false
+      required:
+      - items
+    uploadRequest:
+      description: Settings upload request body
+      type: array
+      items:
+        type: object
+        properties:
+          scope:
+            type: string
+            description: Scope for this entry (normally a module)
+          key:
+            type: string
+            description: Key within scope for this setting
+          value:
+            description: Settings value (any type)
+          userId:
+            type: string
+            format: uuid
+            description: Owner of this setting (optional)
+        additionalProperties: false
+        required:
+        - scope
+        - key
+        - value
     resultInfo:
       description: Common result set information for streaming response
       type: object
@@ -1261,32 +1160,6 @@ components:
                 type: string
                 description: Type of facet
       additionalProperties: false
-    entry:
-      description: Setting
-      type: object
-      properties:
-        id:
-          description: Identifier
-          type: string
-          format: uuid
-        scope:
-          type: string
-          description: Scope for this entry (normally a module)
-        key:
-          type: string
-          description: Key within scope for this setting
-        value:
-          description: Settings value (any type)
-        userId:
-          type: string
-          format: uuid
-          description: Owner of this setting (optional)
-      additionalProperties: false
-      required:
-      - id
-      - scope
-      - key
-      - value
     uploadResponse:
       description: Upload response
       type: object
@@ -1301,149 +1174,150 @@ components:
       required:
       - inserted
       - updated
-    uploadRequest:
-      description: Settings upload request body
-      type: array
-      items:
-        type: object
-        properties:
-          scope:
-            type: string
-            description: Scope for this entry (normally a module)
-          key:
-            type: string
-            description: Key within scope for this setting
-          value:
-            description: Settings value (any type)
-          userId:
-            type: string
-            format: uuid
-            description: Owner of this setting (optional)
-        additionalProperties: false
-        required:
-        - scope
-        - key
-        - value
-    entries:
-      description: Setting entries response
-      type: object
-      properties:
-        items:
-          description: List of settings
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/entry'
-        resultInfo:
-          description: Common result set information
-          type: object
-          $ref: '#/components/schemas/resultInfo'
-      additionalProperties: false
-      required:
-      - items
-  responses:
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    SharingSettingResponse:
-      description: Returns a sharing setting object response for post operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/SharingSettingResponse'
-          example:
-            createSettingsPCId: c734a41e-16ba-4a02-beb0-2d45081e39b1
-            updateSettingsPCId: 53e0f091-ffee-448c-a0f8-562d9ad6bf3f
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    Conflict:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-    SharingSettingDeleteResponse:
-      description: Returns a sharing setting response for delete operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/SharingSettingDeleteResponse'
-          example:
-            pcId: c734a41e-16ba-4a02-beb0-2d45081e39b1
-    trait_413:
-      description: Payload Too Large
-      content:
-        text/plain:
-          schema:
-            type: string
-    trait_404:
-      description: Not Found
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
-        application/json:
-          schema:
-            type: object
-            example:
-              error: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
-    trait_500:
-      description: Internal error
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Internal server error, contact administrator
-    trait_403:
-      description: Forbidden
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Insufficient permissions to access resource
-        application/json:
-          schema:
-            type: object
-            example:
-              error: Insufficient permissions to access resource
-    trait_400:
-      description: Bad request
-      content:
-        text/plain:
-          schema:
-            type: string
-            example: Invalid JSON in request
-        application/json:
-          schema:
-            type: object
-            example:
-              error: Invalid JSON in request
-    SharingSettingResponse_2:
-      description: Returns a sharing setting object response for post operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/SharingSettingResponse'
-    SharingSettingDeleteResponse_2:
-      description: Returns a sharing setting response for delete operation
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/SharingSettingDeleteResponse'
+  parameters:
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    settingId:
+      in: path
+      name: settingId
+      description: Identifier for an application setting
+      required: true
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    consortiumId:
+      in: path
+      name: consortiumId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of consortium
+    settingId_2:
+      in: path
+      name: settingId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true
+      description: The ID of setting
+    appSettingId:
+      in: path
+      name: id
+      description: Identifier for an application setting
+      required: true
+      schema:
+        type: string
+    okapi-user:
+      in: header
+      name: X-Okapi-User-Id
+      description: Okapi user identifier
+      required: false
+      schema:
+        type: string
+    offset_2:
+      in: query
+      name: offset
+      description: Skip over number of elements (default is first element)
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    okapi-url:
+      in: header
+      name: X-Okapi-Url
+      description: Okapi URL
+      required: false
+      schema:
+        type: string
+    okapi-permissions:
+      in: header
+      name: X-Okapi-Permissions
+      description: A JSON array with client permissions
+      required: true
+      schema:
+        type: string
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+    okapi-token:
+      in: header
+      name: X-Okapi-Token
+      description: Okapi Token
+      required: false
+      schema:
+        type: string
+    query:
+      in: query
+      name: query
+      description: CQL query
+      required: false
+      schema:
+        type: string
+    okapi-tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: true
+      schema:
+        type: string
+        pattern: ^[_a-z][_a-z0-9]*$
   requestBodies:
     SharingSettingBody:
       description: Sharing settings object
@@ -1459,13 +1333,97 @@ components:
               id: 1844767a-8367-4926-9999-514c35840399
               name: ORG-NAME
               source: local
-    SharingSettingBody_2:
-      description: Sharing settings object
-      required: true
+  responses:
+    SharingSettingResponse:
+      description: Returns a sharing setting object response for post operation
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/SharingSettingRequest'
+            $ref: '#/components/schemas/SharingSettingResponse'
+          example:
+            createSettingsPCId: c734a41e-16ba-4a02-beb0-2d45081e39b1
+            updateSettingsPCId: 53e0f091-ffee-448c-a0f8-562d9ad6bf3f
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    SharingSettingDeleteResponse:
+      description: Returns a sharing setting response for delete operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SharingSettingDeleteResponse'
+          example:
+            pcId: c734a41e-16ba-4a02-beb0-2d45081e39b1
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+    trait_404:
+      description: Not Found
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Identifier 596d9f60-cda3-44d2-a4a1-2f48b7d4d23c not found
+    trait_413:
+      description: Payload Too Large
+      content:
+        text/plain:
+          schema:
+            type: string
+    trait_403:
+      description: Forbidden
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Insufficient permissions to access resource
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Insufficient permissions to access resource
+    trait_500:
+      description: Internal error
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Internal server error, contact administrator
+    trait_400:
+      description: Bad request
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Invalid JSON in request
+        application/json:
+          schema:
+            type: object
+            example:
+              error: Invalid JSON in request
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -1481,9 +1439,3 @@ x-refined-from:
 - folio-mod-licenses-openapi.json
 - folio-mod-oa-openapi.json
 - folio-mod-settings-openapi.json
-- folio-mod-agreements-openapi.yml
-- folio-mod-consortia-keycloak-sharing-settings-openapi.yml
-- folio-mod-consortia-sharing-settings-openapi.yml
-- folio-mod-licenses-openapi.yml
-- folio-mod-oa-openapi.yml
-- folio-mod-settings-openapi.yml

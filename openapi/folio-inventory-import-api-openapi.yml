@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Inventory Import API
+  title: Inventory Import API
   version: v1.1
-  description: 'Operations tagged Inventory Import across 2 of this provider''s published API definitions: folio-mod-inventory-update-inventory-import-1-0-openapi.json, folio-mod-inventory-update-inventory-import-1-0-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Inventory Import
 paths:
@@ -1225,42 +1224,107 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    step:
-      description: Transformation step configuration.
+    steps:
+      description: Collection of transformation step definitions, to be referenced from pipelines.
       type: object
+      properties:
+        steps:
+          type: array
+          description: Transformation step definition records
+          items:
+            $ref: '#/components/schemas/step'
+    transformation:
+      type: object
+      description: A transformation pipeline configuration header that steps can be assigned to
       properties:
         id:
           type: string
           format: uuid
-          description: Unique identifier for the transformation step.
+          description: Unique identifier for the transformation pipeline.
         name:
           type: string
-          description: A unique name assigned to the transformation step.
+          description: Name of the transformation pipeline.
         description:
           type: string
-          description: Free text details about the step.
-        type:
-          type: string
-          description: The type of transformation step.
-          enum:
-          - XmlTransformStep
-        script:
-          type: string
-          description: The transformation script (XSLT) of the step.
+          description: Free-text details about the pipeline.
+        steps:
+          type: array
+          description: The transformation steps making up this pipeline, in order of execution.
+          items:
+            type: object
+            description: A transformation step
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The ID of the step at this position in the transformation pipeline.
+              name:
+                type: string
+                description: The (unique) name of the step.
+            required:
+            - id
         metadata:
           $ref: '#/components/schemas/metadata'
-      required:
-      - name
-      additionalProperties: true
-    failedRecords:
+    transformations:
       type: object
-      description: Collection of failed-record error reports
+      description: Transformation pipeline configuration records
       properties:
-        failedRecords:
+        transformations:
+          description: List of transformation pipeline definitions
           type: array
-          description: Array of failed record reports
           items:
-            $ref: '#/components/schemas/failedRecord'
+            $ref: '#/components/schemas/transformation'
+    importJob:
+      type: object
+      description: Report on the execution of an import job.
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the import job report.
+        channelName:
+          type: string
+          description: The name of the channel at the time of logging the import job.
+        channelId:
+          type: string
+          format: uuid
+          description: UUID referencing the channel configuration that governed the import job run.
+        importType:
+          type: string
+          description: Type of import job (obsolete, always bulk XML).
+        transformation:
+          type: string
+          description: Then name for the transformation pipeline used for the job.
+        status:
+          type: string
+          description: The intermittent state or final outcome of the job.
+          enum:
+          - RUNNING
+          - PAUSED
+          - DONE
+        started:
+          type: string
+          description: Timestamp when the job started.
+        finished:
+          type: string
+          description: Timestamp when the job ended.
+        amountImported:
+          type: integer
+          description: The number of incoming records processed.
+        message:
+          type: string
+          description: A description of the outcome of the import.
+        metadata:
+          $ref: '#/components/schemas/metadata'
+    logLines:
+      description: Job log statements as JSON.
+      type: object
+      properties:
+        logLines:
+          description: Collection of import log statements.
+          type: array
+          items:
+            $ref: '#/components/schemas/logLine'
     channel:
       type: object
       description: Configuration of import jobs.
@@ -1316,79 +1380,60 @@ components:
       required:
       - name
       - transformationId
-    importJob:
+    transformationStepAssociations:
       type: object
-      description: Report on the execution of an import job.
+      description: Transformation/step associations
+      properties:
+        transformationSteps:
+          type: array
+          description: List of transformation steps associated with transformation pipelines.
+          items:
+            $ref: '#/components/schemas/transformationStepAssociation'
+    importJobs:
+      type: object
+      description: Collection of import job execution records.
+      properties:
+        importJobs:
+          type: array
+          description: List of import jobs.
+          items:
+            $ref: '#/components/schemas/importJob'
+    channels:
+      type: object
+      description: Collection of channel records.
+      properties:
+        channels:
+          type: array
+          description: List of channels.
+          items:
+            $ref: '#/components/schemas/channel'
+    step:
+      description: Transformation step configuration.
+      type: object
       properties:
         id:
           type: string
           format: uuid
-          description: Unique identifier for the import job report.
-        channelName:
+          description: Unique identifier for the transformation step.
+        name:
           type: string
-          description: The name of the channel at the time of logging the import job.
-        channelId:
+          description: A unique name assigned to the transformation step.
+        description:
           type: string
-          format: uuid
-          description: UUID referencing the channel configuration that governed the import job run.
-        importType:
+          description: Free text details about the step.
+        type:
           type: string
-          description: Type of import job (obsolete, always bulk XML).
-        transformation:
-          type: string
-          description: Then name for the transformation pipeline used for the job.
-        status:
-          type: string
-          description: The intermittent state or final outcome of the job.
+          description: The type of transformation step.
           enum:
-          - RUNNING
-          - PAUSED
-          - DONE
-        started:
+          - XmlTransformStep
+        script:
           type: string
-          description: Timestamp when the job started.
-        finished:
-          type: string
-          description: Timestamp when the job ended.
-        amountImported:
-          type: integer
-          description: The number of incoming records processed.
-        message:
-          type: string
-          description: A description of the outcome of the import.
+          description: The transformation script (XSLT) of the step.
         metadata:
           $ref: '#/components/schemas/metadata'
-    transformations:
-      type: object
-      description: Transformation pipeline configuration records
-      properties:
-        transformations:
-          description: List of transformation pipeline definitions
-          type: array
-          items:
-            $ref: '#/components/schemas/transformation'
-    metadata:
-      type: object
-      description: For tagging records with current time and user ID on create or update.
-      properties:
-        createdDate:
-          type: string
-          description: Time stamp for the records creation.
-          readOnly: true
-        createdByUserId:
-          type: string
-          format: uuid
-          description: ID of the user creating the record.
-          readOnly: true
-        updatedDate:
-          type: string
-          description: Time stamp for the most recent update of the record.
-          readOnly: true
-        updatedByUserId:
-          type: string
-          format: uuid
-          description: The ID of the user who most recently updated the record.
-          readOnly: true
+      required:
+      - name
+      additionalProperties: true
     transformationStepAssociation:
       type: object
       description: Transformation/step association record.
@@ -1419,65 +1464,19 @@ components:
       - transformationId
       - position
       additionalProperties: false
-    transformationStepAssociations:
+    failedRecords:
       type: object
-      description: Transformation/step associations
+      description: Collection of failed-record error reports
       properties:
-        transformationSteps:
+        failedRecords:
           type: array
-          description: List of transformation steps associated with transformation pipelines.
+          description: Array of failed record reports
           items:
-            $ref: '#/components/schemas/transformationStepAssociation'
-    transformation:
+            $ref: '#/components/schemas/failedRecord'
+    script:
       type: object
-      description: A transformation pipeline configuration header that steps can be assigned to
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Unique identifier for the transformation pipeline.
-        name:
-          type: string
-          description: Name of the transformation pipeline.
-        description:
-          type: string
-          description: Free-text details about the pipeline.
-        steps:
-          type: array
-          description: The transformation steps making up this pipeline, in order of execution.
-          items:
-            type: object
-            description: A transformation step
-            properties:
-              id:
-                type: string
-                format: uuid
-                description: The ID of the step at this position in the transformation pipeline.
-              name:
-                type: string
-                description: The (unique) name of the step.
-            required:
-            - id
-        metadata:
-          $ref: '#/components/schemas/metadata'
-    channels:
-      type: object
-      description: Collection of channel records.
-      properties:
-        channels:
-          type: array
-          description: List of channels.
-          items:
-            $ref: '#/components/schemas/channel'
-    steps:
-      description: Collection of transformation step definitions, to be referenced from pipelines.
-      type: object
-      properties:
-        steps:
-          type: array
-          description: Transformation step definition records
-          items:
-            $ref: '#/components/schemas/step'
+      description: Transformation step script (xslt as plain text)
+      additionalProperties: true
     logLine:
       description: A single import log statement from an import job.
       type: object
@@ -1510,19 +1509,28 @@ components:
           type: string
         metadata:
           $ref: '#/components/schemas/metadata'
-    script:
+    metadata:
       type: object
-      description: Transformation step script (xslt as plain text)
-      additionalProperties: true
-    logLines:
-      description: Job log statements as JSON.
-      type: object
+      description: For tagging records with current time and user ID on create or update.
       properties:
-        logLines:
-          description: Collection of import log statements.
-          type: array
-          items:
-            $ref: '#/components/schemas/logLine'
+        createdDate:
+          type: string
+          description: Time stamp for the records creation.
+          readOnly: true
+        createdByUserId:
+          type: string
+          format: uuid
+          description: ID of the user creating the record.
+          readOnly: true
+        updatedDate:
+          type: string
+          description: Time stamp for the most recent update of the record.
+          readOnly: true
+        updatedByUserId:
+          type: string
+          format: uuid
+          description: The ID of the user who most recently updated the record.
+          readOnly: true
     failedRecord:
       type: object
       description: A report of one or more data failures during import.
@@ -1590,37 +1598,6 @@ components:
           description: The JSON outcome of the transformation of the original record.
         metadata:
           $ref: '#/components/schemas/metadata'
-    importJobs:
-      type: object
-      description: Collection of import job execution records.
-      properties:
-        importJobs:
-          type: array
-          description: List of import jobs.
-          items:
-            $ref: '#/components/schemas/importJob'
-  parameters:
-    okapi_url:
-      in: header
-      name: X-Okapi-Url
-      description: Okapi URL
-      required: false
-      schema:
-        type: string
-    okapi_tenant:
-      in: header
-      name: X-Okapi-Tenant
-      description: Okapi Tenant
-      required: false
-      schema:
-        type: string
-    okapi_token:
-      in: header
-      name: X-Okapi-Token
-      description: Okapi Token
-      required: false
-      schema:
-        type: string
   responses:
     trait_400:
       description: Bad request
@@ -1643,6 +1620,25 @@ components:
         text/plain:
           schema:
             type: string
-x-refined-from:
-- folio-mod-inventory-update-inventory-import-1-0-openapi.json
-- folio-mod-inventory-update-inventory-import-1-0-openapi.yml
+  parameters:
+    okapi_tenant:
+      in: header
+      name: X-Okapi-Tenant
+      description: Okapi Tenant
+      required: false
+      schema:
+        type: string
+    okapi_token:
+      in: header
+      name: X-Okapi-Token
+      description: Okapi Token
+      required: false
+      schema:
+        type: string
+    okapi_url:
+      in: header
+      name: X-Okapi-Url
+      description: Okapi URL
+      required: false
+      schema:
+        type: string

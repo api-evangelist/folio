@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Entitlement API
+  title: mgr-tenant-entitlements Entitlement API
   version: v1
-  description: 'Operations tagged entitlement across 2 of this provider''s published API definitions: folio-mgr-tenant-entitlements-openapi.json, folio-mgr-tenant-entitlements-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Tenant Entitlement Manager API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -131,9 +131,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Delete
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /entitlements/state:
     put:
       summary: Apply a desired state of application entitlements for a tenant
@@ -175,85 +172,13 @@ paths:
           $ref: '#/components/responses/badRequestResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
   parameters:
-    query-tenant-name:
-      in: query
-      required: false
-      name: tenant
-      description: Tenant name to filter by.
-      schema:
-        type: string
-    cql-query:
-      name: query
-      in: query
-      description: A CQL query string with search conditions.
-      schema:
-        type: string
-    x-okapi-token:
-      name: x-okapi-token
-      in: header
-      required: false
-      description: An OKAPI authentication token
-      schema:
-        type: string
-    purge:
-      name: purge
-      in: query
-      description: "Defines if create by entitlement process resources must be purged, including:\n  - Keycloak authorization resources (if integration is enabled)\n  - Folio modules data (_tenant API request will be performed with parameter: purge=true)\nAPI Gateway routes will be removed in any case.\n"
-      required: false
-      schema:
-        type: boolean
-        default: false
-    async:
-      name: async
-      in: query
-      required: false
-      description: Enables asynchronous install operation
-      schema:
-        type: boolean
-        default: false
-    query-limit:
-      in: query
-      required: false
-      name: limit
-      description: Limit the number of elements returned in the response.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 500
-        default: 10
-    tenantParameters:
-      name: tenantParameters
-      in: query
-      description: Parameters for tenant init
-      required: false
-      schema:
-        type: string
     purgeOnRollback:
       name: purgeOnRollback
       in: query
       description: Defines if module data must be purged on rollback.
       required: false
-      schema:
-        type: boolean
-        default: false
-    ignoreErrors:
-      name: ignoreErrors
-      in: query
-      description: "If `ignoreErrors` is set to `false` then the rollback operation is enabled\nif one or more stages failed. If it set to `true` - stage rollbacks are disabled.\nRollback will return the system to initial state:\n  * All installed tenant modules will be uninstalled\n  * All created API Gateway routes will be deleted for the application\n  * All created Keycloak resources will be deleted for the application\n"
-      required: false
-      schema:
-        type: boolean
-        default: false
-    query-includeModules:
-      in: query
-      required: false
-      name: includeModules
-      description: Indicates if list of modules should be loaded for each entitlement.
       schema:
         type: boolean
         default: false
@@ -266,30 +191,76 @@ components:
         type: integer
         minimum: 0
         default: 0
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    async:
+      name: async
+      in: query
+      required: false
+      description: Enables asynchronous install operation
+      schema:
+        type: boolean
+        default: false
+    query-includeModules:
+      in: query
+      required: false
+      name: includeModules
+      description: Indicates if list of modules should be loaded for each entitlement.
+      schema:
+        type: boolean
+        default: false
+    purge:
+      name: purge
+      in: query
+      description: "Defines if create by entitlement process resources must be purged, including:\n  - Keycloak authorization resources (if integration is enabled)\n  - Folio modules data (_tenant API request will be performed with parameter: purge=true)\nAPI Gateway routes will be removed in any case.\n"
+      required: false
+      schema:
+        type: boolean
+        default: false
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: false
+      description: An OKAPI authentication token
+      schema:
+        type: string
+    ignoreErrors:
+      name: ignoreErrors
+      in: query
+      description: "If `ignoreErrors` is set to `false` then the rollback operation is enabled\nif one or more stages failed. If it set to `true` - stage rollbacks are disabled.\nRollback will return the system to initial state:\n  * All installed tenant modules will be uninstalled\n  * All created API Gateway routes will be deleted for the application\n  * All created Keycloak resources will be deleted for the application\n"
+      required: false
+      schema:
+        type: boolean
+        default: false
+    query-tenant-name:
+      in: query
+      required: false
+      name: tenant
+      description: Tenant name to filter by.
+      schema:
+        type: string
+    tenantParameters:
+      name: tenantParameters
+      in: query
+      description: Parameters for tenant init
+      required: false
+      schema:
+        type: string
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
   schemas:
-    entitlement:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: installation.json
-      title: Tenant Entitlement Schema
-      description: Tenant entitlement descriptor
-      type: object
-      properties:
-        applicationId:
-          description: A Name-Version id of application
-          type: string
-        tenantId:
-          description: A tenant identifier
-          type: string
-          format: uuid
-        modules:
-          description: A list of module identifiers
-          type: array
-          items:
-            type: string
-            description: A module identifier
-      required:
-      - applicationId
-      - tenantId
     errors:
       description: A set of errors
       $schema: http://json-schema.org/draft-04/schema#
@@ -349,6 +320,29 @@ components:
       required:
       - applications
       - tenantId
+    entitlement:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: installation.json
+      title: Tenant Entitlement Schema
+      description: Tenant entitlement descriptor
+      type: object
+      properties:
+        applicationId:
+          description: A Name-Version id of application
+          type: string
+        tenantId:
+          description: A tenant identifier
+          type: string
+          format: uuid
+        modules:
+          description: A list of module identifiers
+          type: array
+          items:
+            type: string
+            description: A module identifier
+      required:
+      - applicationId
+      - tenantId
     entitlementRequestBody:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -371,18 +365,15 @@ components:
       - applications
       - tenantId
   responses:
-    badRequestResponse:
-      description: Error response if request body contains validation error (in json format)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
     internalServerErrorResponse:
       description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mgr-tenant-entitlements-openapi.json
-- folio-mgr-tenant-entitlements-openapi.yml
+    badRequestResponse:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'

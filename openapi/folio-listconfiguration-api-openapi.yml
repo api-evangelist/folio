@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio List Configuration API
+  title: Lists List Configuration API
+  description: Lists API description
   version: 1.0.0
-  description: 'Operations tagged listConfiguration across 2 of this provider''s published API definitions: folio-mod-lists-list-openapi.json, folio-mod-lists-list-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-etesting-snapshot-kong.ci.folio.org/
 tags:
@@ -25,10 +25,19 @@ paths:
           $ref: '#/components/responses/badRequestResponse'
       summary: Get list configuration
       x-summary-source: derived
-    servers:
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
 components:
   schemas:
+    ListConfiguration:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      description: List Configuration Data
+      type: object
+      properties:
+        maxListSize:
+          description: Maximum allowable size of a list
+          type: integer
+      additionalProperties: false
+      required:
+      - maxListSize
     parameter:
       description: List of key/value parameters of an error
       type: object
@@ -59,17 +68,6 @@ components:
       required:
       - message
       - code
-    ListConfiguration:
-      $schema: https://json-schema.org/draft/2020-12/schema
-      description: List Configuration Data
-      type: object
-      properties:
-        maxListSize:
-          description: Maximum allowable size of a list
-          type: integer
-      additionalProperties: false
-      required:
-      - maxListSize
     parameters:
       description: List of key/value parameters of an error
       type: array
@@ -85,6 +83,3 @@ components:
             code: read-list.not.found
           schema:
             $ref: '#/components/schemas/ListAppError'
-x-refined-from:
-- folio-mod-lists-list-openapi.json
-- folio-mod-lists-list-openapi.yml

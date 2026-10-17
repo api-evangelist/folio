@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Circulation Item API
+  title: Circulation Item API
   version: v1
-  description: 'Operations tagged Circulation Item across 2 of this provider''s published API definitions: folio-mod-circulation-item-openapi.json, folio-mod-circulation-item-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Circulation Item
 paths:
@@ -131,6 +130,37 @@ paths:
       x-summary-source: derived
 components:
   schemas:
+    circulationItems:
+      allOf:
+      - $ref: '#/components/schemas/baseCollection'
+      - type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/circulationItem'
+        required:
+        - items
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Regexp pattern for UUID validation
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
     baseCollection:
       $schema: http://json-schema.org/draft-04/schema#
       description: Basic object to create pageable responses
@@ -152,6 +182,119 @@ components:
       additionalProperties: false
       required:
       - key
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    ItemStatus:
+      type: object
+      description: status of the Item
+      properties:
+        name:
+          type: string
+          enum:
+          - Aged to lost
+          - Available
+          - Awaiting delivery
+          - Awaiting pickup
+          - Checked out
+          - Claimed returned
+          - Declared lost
+          - Lost and paid
+          - Long missing
+          - Missing
+          - In process
+          - In process (non-requestable)
+          - In transit
+          - Intellectual item
+          - On order
+          - Order closed
+          - Paged
+          - Restricted
+          - Unavailable
+          - Unknown
+          - Withdrawn
+        date:
+          description: Date of the current item state. E.g. date set when item state was changed by the Check out app
+          type: string
+          format: date-time
+    CirculationItem:
+      type: object
+      description: CirculationItem
+      properties:
+        id:
+          type: string
+          format: uuid
+        holdingsRecordId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/ItemStatus'
+        dcbItem:
+          type: boolean
+        materialTypeId:
+          type: string
+        permanentLoanTypeId:
+          type: string
+        instanceTitle:
+          type: string
+        barcode:
+          type: string
+        pickupLocation:
+          type: string
+        effectiveLocationId:
+          type: string
+        lendingLibraryCode:
+          type: string
+      additionalProperties: false
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
     circulationItem:
       $schema: http://json-schema.org/draft-04/schema#
       description: Circulation Item
@@ -198,66 +341,6 @@ components:
           $ref: '#/components/schemas/metadata'
       additionalProperties: false
       required: []
-    ItemStatus:
-      type: object
-      description: status of the Item
-      properties:
-        name:
-          type: string
-          enum:
-          - Aged to lost
-          - Available
-          - Awaiting delivery
-          - Awaiting pickup
-          - Checked out
-          - Claimed returned
-          - Declared lost
-          - Lost and paid
-          - Long missing
-          - Missing
-          - In process
-          - In process (non-requestable)
-          - In transit
-          - Intellectual item
-          - On order
-          - Order closed
-          - Paged
-          - Restricted
-          - Unavailable
-          - Unknown
-          - Withdrawn
-        date:
-          description: Date of the current item state. E.g. date set when item state was changed by the Check out app
-          type: string
-          format: date-time
-    Parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
-    errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-      additionalProperties: false
     metadata:
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -288,112 +371,38 @@ components:
       additionalProperties: false
       required:
       - createdDate
-    Error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
-    circulationItems:
-      allOf:
-      - $ref: '#/components/schemas/baseCollection'
-      - type: object
-        properties:
-          items:
-            type: array
-            items:
-              $ref: '#/components/schemas/circulationItem'
-        required:
-        - items
-    CirculationItem:
-      type: object
-      description: CirculationItem
-      properties:
-        id:
-          type: string
-          format: uuid
-        holdingsRecordId:
-          type: string
-          format: uuid
-        status:
-          $ref: '#/components/schemas/ItemStatus'
-        dcbItem:
-          type: boolean
-        materialTypeId:
-          type: string
-        permanentLoanTypeId:
-          type: string
-        instanceTitle:
-          type: string
-        barcode:
-          type: string
-        pickupLocation:
-          type: string
-        effectiveLocationId:
-          type: string
-        lendingLibraryCode:
-          type: string
-      additionalProperties: false
-    uuid:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Regexp pattern for UUID validation
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
-    Parameter:
+    Parameters:
       description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
       additionalProperties: false
-      required:
-      - key
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
       additionalProperties: false
-      required:
-      - message
-  responses:
-    trait_validate_422:
-      description: Validation errors
+  requestBodies:
+    CirculationItemBody:
+      description: Circulation Item object
+      required: true
       content:
         application/json:
-          example: examples/errors.sample
           schema:
-            $ref: '#/components/schemas/errors'
+            $ref: '#/components/schemas/CirculationItem'
   parameters:
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+      required: false
+      description: Skip over a number of elements by specifying an offset value for the query
     cqlQueryCirculationItem:
       name: query
       in: query
@@ -412,24 +421,11 @@ components:
         maximum: 2147483647
       required: false
       description: Limit the number of elements returned in the response
-    offset:
-      name: offset
-      in: query
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-      required: false
-      description: Skip over a number of elements by specifying an offset value for the query
-  requestBodies:
-    CirculationItemBody:
-      description: Circulation Item object
-      required: true
+  responses:
+    trait_validate_422:
+      description: Validation errors
       content:
         application/json:
+          example: examples/errors.sample
           schema:
-            $ref: '#/components/schemas/CirculationItem'
-x-refined-from:
-- folio-mod-circulation-item-openapi.json
-- folio-mod-circulation-item-openapi.yml
+            $ref: '#/components/schemas/errors'

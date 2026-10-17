@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Proxy Descriptor API
+  title: Okapi Core API Facade Proxy Descriptor API
   version: v2.0
-  description: 'Operations tagged proxy-descriptor across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Okapi Core API Facade
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -39,9 +39,6 @@ paths:
         required: true
       summary: Pull descriptors
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
   headers:
     X-Okapi-Trace:
@@ -115,64 +112,31 @@ components:
           $ref: '#/components/schemas/LaunchDescriptor'
       required:
       - id
-    InterfaceReference:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: InterfaceReference.json
-      title: InterfaceReference
-      description: A reference to an interfaceDescriptor, by name and version
-      type: object
-    LaunchDescriptor:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: LaunchDescriptor.json
-      title: LaunchDescriptor
-      description: Specifies how a module is deployed and undeployed
-      type: object
-    EnvEntryList:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: EnvEntryList.json
-      title: EnvEntryList
-      description: List of environment variables
-      type: array
-      items:
-        $ref: '#/components/schemas/EnvEntry'
-    UiModuleDescriptor:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: UiModuleDescriptor.json
-      title: UiModuleDescriptor
-      description: UI Module description
-      type: object
-    PullDescriptor:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: PullDescriptor.json
-      title: PullDescriptor
-      description: Information controlling the pull facility
-      type: object
-      properties:
-        urls:
-          description: List of URLs from which Okapi attempts pulling
-          type: array
-          items:
-            type: string
-    Permission:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: Permission.json
-      title: Permissions Definition Schema
-      description: Permission entity
-      type: object
-    ModuleList:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: ModuleList.json
-      title: ModuleList
-      description: List of Module Descriptors
-      type: array
-      items:
-        $ref: '#/components/schemas/ModuleDescriptor'
     InterfaceDescriptor:
       $schema: http://json-schema.org/draft-04/schema#
       id: InterfaceDescriptor.json
       title: InterfaceDescriptor
       description: An interface that a module can provide
       type: object
+    EnvEntry:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: EnvEntry.json
+      title: EnvEntry
+      description: Environment Variable
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          description: Key
+          type: string
+        value:
+          description: Value
+          type: string
+        description:
+          description: Description
+          type: string
+      required:
+      - name
     RoutingEntry:
       $schema: http://json-schema.org/draft-04/schema#
       id: RoutingEntry.json
@@ -248,25 +212,55 @@ components:
         delegateCORS:
           description: Okapi handles CORS by default. Set to true to delegate CORS handling to the module. This only applies to calls made via /_/invoke/tenant/<tid>/<path>. No OPTIONS entry in the methods array is needed for this.
           type: boolean
-    EnvEntry:
+    Permission:
       $schema: http://json-schema.org/draft-04/schema#
-      id: EnvEntry.json
-      title: EnvEntry
-      description: Environment Variable
+      id: Permission.json
+      title: Permissions Definition Schema
+      description: Permission entity
       type: object
-      additionalProperties: false
+    LaunchDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: LaunchDescriptor.json
+      title: LaunchDescriptor
+      description: Specifies how a module is deployed and undeployed
+      type: object
+    InterfaceReference:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: InterfaceReference.json
+      title: InterfaceReference
+      description: A reference to an interfaceDescriptor, by name and version
+      type: object
+    PullDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: PullDescriptor.json
+      title: PullDescriptor
+      description: Information controlling the pull facility
+      type: object
       properties:
-        name:
-          description: Key
-          type: string
-        value:
-          description: Value
-          type: string
-        description:
-          description: Description
-          type: string
-      required:
-      - name
-x-refined-from:
-- folio-mod-okapi-facade-openapi.json
-- folio-mod-okapi-facade-openapi.yml
+        urls:
+          description: List of URLs from which Okapi attempts pulling
+          type: array
+          items:
+            type: string
+    EnvEntryList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: EnvEntryList.json
+      title: EnvEntryList
+      description: List of environment variables
+      type: array
+      items:
+        $ref: '#/components/schemas/EnvEntry'
+    UiModuleDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: UiModuleDescriptor.json
+      title: UiModuleDescriptor
+      description: UI Module description
+      type: object
+    ModuleList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: ModuleList.json
+      title: ModuleList
+      description: List of Module Descriptors
+      type: array
+      items:
+        $ref: '#/components/schemas/ModuleDescriptor'

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio List Export API
+  title: Lists List Export API
+  description: Lists API description
   version: 1.0.0
-  description: 'Operations tagged listExport across 2 of this provider''s published API definitions: folio-mod-lists-list-openapi.json, folio-mod-lists-list-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-etesting-snapshot-kong.ci.folio.org/
 tags:
@@ -36,8 +36,6 @@ paths:
           $ref: '#/components/responses/badRequestResponse'
       summary: Export list
       x-summary-source: derived
-    servers:
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
   /lists/{id}/exports/{exportId}:
     get:
       operationId: getExportDetails
@@ -58,8 +56,6 @@ paths:
           $ref: '#/components/responses/badRequestResponse'
       summary: Get export details
       x-summary-source: derived
-    servers:
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
   /lists/{id}/exports/{exportId}/cancel:
     post:
       operationId: cancelExport
@@ -76,8 +72,6 @@ paths:
           $ref: '#/components/responses/badRequestResponse'
       summary: Cancel export
       x-summary-source: derived
-    servers:
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
   /lists/{id}/exports/{exportId}/download:
     get:
       operationId: downloadList
@@ -99,9 +93,24 @@ paths:
           $ref: '#/components/responses/badRequestResponse'
       summary: Download list
       x-summary-source: derived
-    servers:
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org/
 components:
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      description: id of the list
+      schema:
+        type: string
+        format: UUID
+    exportId:
+      name: exportId
+      in: path
+      required: true
+      description: exportId of the list
+      schema:
+        type: string
+        format: UUID
   schemas:
     parameter:
       description: List of key/value parameters of an error
@@ -116,28 +125,6 @@ components:
       additionalProperties: false
       required:
       - key
-    ListAppError:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-      additionalProperties: false
-      required:
-      - message
-      - code
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
     ListExportDTO:
       $schema: https://json-schema.org/draft/2020-12/schema
       description: List Export DTO
@@ -183,23 +170,28 @@ components:
       - status
       - startDate
       - createdBy
-  parameters:
-    exportId:
-      name: exportId
-      in: path
-      required: true
-      description: exportId of the list
-      schema:
-        type: string
-        format: UUID
-    id:
-      name: id
-      in: path
-      required: true
-      description: id of the list
-      schema:
-        type: string
-        format: UUID
+    ListAppError:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+      - code
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
   responses:
     badRequestResponse:
       description: Invalid request
@@ -210,6 +202,3 @@ components:
             code: read-list.not.found
           schema:
             $ref: '#/components/schemas/ListAppError'
-x-refined-from:
-- folio-mod-lists-list-openapi.json
-- folio-mod-lists-list-openapi.yml

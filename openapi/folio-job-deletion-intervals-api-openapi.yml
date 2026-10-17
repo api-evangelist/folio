@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Job Deletion Intervals API
+  title: Data Export Spring Job Deletion Intervals API
   version: v1
-  description: 'Operations tagged Job Deletion Intervals across 2 of this provider''s published API definitions: folio-mod-data-export-spring-job-deletion-intervals-openapi.json, folio-mod-data-export-spring-job-deletion-intervals-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /data-export-spring/
 tags:
@@ -66,8 +65,6 @@ paths:
       - Job Deletion Intervals
       summary: Create job deletion interval
       x-summary-source: derived
-    servers:
-    - url: /data-export-spring/
   /job-deletion-intervals/{exportType}:
     get:
       operationId: getJobDeletionIntervalByExportType
@@ -154,62 +151,19 @@ paths:
       - Job Deletion Intervals
       summary: Delete job deletion interval
       x-summary-source: derived
-    servers:
-    - url: /data-export-spring/
 components:
   schemas:
-    JobDeletionIntervalCollection:
+    Parameter:
       type: object
       properties:
-        jobDeletionIntervals:
-          type: array
-          items:
-            $ref: '#/components/schemas/JobDeletionInterval'
-        totalRecords:
-          type: integer
-      additionalProperties: false
-      required:
-      - jobDeletionIntervals
-      - totalRecords
-    Error:
-      type: object
-      properties:
-        message:
+        key:
           type: string
           minLength: 1
-          description: Error message text
-        type:
-          description: Error message type
-          $ref: '#/components/schemas/ErrorType'
-        code:
+        value:
           type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
       additionalProperties: false
       required:
-      - message
-    ErrorType:
-      type: string
-      enum:
-      - ERROR
-      - WARNING
-    JobDeletionInterval:
-      type: object
-      properties:
-        exportType:
-          $ref: '#/components/schemas/ExportType'
-        retentionDays:
-          type: integer
-          description: Number of days to retain jobs of this type
-          minimum: 1
-        metadata:
-          description: Standard FOLIO metadata
-          $ref: '#/components/schemas/Metadata'
-      required:
-      - exportType
-      - retentionDays
+      - key
     Errors:
       type: object
       properties:
@@ -226,17 +180,6 @@ components:
           description: Total number of warnings
           type: integer
       additionalProperties: false
-    Parameter:
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
     Metadata:
       type: object
       title: Metadata Schema
@@ -266,11 +209,63 @@ components:
           type: string
           maxLength: 50
       additionalProperties: false
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          description: Error message type
+          $ref: '#/components/schemas/ErrorType'
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    JobDeletionIntervalCollection:
+      type: object
+      properties:
+        jobDeletionIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobDeletionInterval'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - jobDeletionIntervals
+      - totalRecords
+    JobDeletionInterval:
+      type: object
+      properties:
+        exportType:
+          $ref: '#/components/schemas/ExportType'
+        retentionDays:
+          type: integer
+          description: Number of days to retain jobs of this type
+          minimum: 1
+        metadata:
+          description: Standard FOLIO metadata
+          $ref: '#/components/schemas/Metadata'
+      required:
+      - exportType
+      - retentionDays
     Parameters:
       type: array
       items:
         $ref: '#/components/schemas/Parameter'
       additionalProperties: false
+    ErrorType:
+      type: string
+      enum:
+      - ERROR
+      - WARNING
     ExportType:
       type: string
       enum:
@@ -296,6 +291,3 @@ components:
       description: Export type of the interval
       schema:
         $ref: '#/components/schemas/ExportType'
-x-refined-from:
-- folio-mod-data-export-spring-job-deletion-intervals-openapi.json
-- folio-mod-data-export-spring-job-deletion-intervals-openapi.yml

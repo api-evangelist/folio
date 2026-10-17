@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Application Discovery API
+  title: Manager Applications Application Discovery API
   version: v1
-  description: 'Operations tagged application-discovery across 2 of this provider''s published API definitions: folio-mgr-applications-am-openapi.json, folio-mgr-applications-am-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Manager Applications API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -32,9 +32,6 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Search applications discovery
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /applications/{id}/discovery:
     get:
       operationId: getDiscovery
@@ -58,11 +55,100 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Get discovery
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
+  parameters:
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity/document id
+      schema:
+        type: string
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
   schemas:
+    version:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^(\d+)\.(\d+)\.(\d+)(?:-([\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*))?(?:\+[\dA-Za-z-]+)?$
+    error:
+      description: An error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          description: Error message code
+          $ref: '#/components/schemas/errorCode'
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+    applicationDiscoveries:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Collection of discovery information organized by application
+      properties:
+        applicationDiscoveries:
+          description: Discovery information grouped by application
+          type: array
+          items:
+            $ref: '#/components/schemas/applicationDiscovery'
+        totalRecords:
+          readOnly: true
+          description: The total number of applications matching the provided criteria
+          type: integer
+      required:
+      - applicationDiscoveries
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: string
+      description: Error message code
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
     moduleDiscoveries:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -81,17 +167,22 @@ components:
           format: int64
       required:
       - discovery
-    parameter:
-      description: List of key/value parameters of an error
+    applicationDiscovery:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
+      description: Discovery information for a single application
       properties:
-        key:
-          description: Parameter key
+        applicationId:
+          description: The application identifier
           type: string
-        value:
-          description: Parameter value
-          type: string
+        discovery:
+          description: Discovery information for the modules that comprise this application
+          type: array
+          items:
+            $ref: '#/components/schemas/moduleDiscovery'
+      required:
+      - applicationId
+      - discovery
     moduleDiscovery:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -106,43 +197,6 @@ components:
           type: string
       required:
       - location
-    parameters:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
-    errorCode:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: string
-      description: Error message code
-      enum:
-      - unknown_error
-      - service_error
-      - validation_error
-      - not_found_error
-      - found_error
-    applicationDiscoveries:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Collection of discovery information organized by application
-      properties:
-        applicationDiscoveries:
-          description: Discovery information grouped by application
-          type: array
-          items:
-            $ref: '#/components/schemas/applicationDiscovery'
-        totalRecords:
-          readOnly: true
-          description: The total number of applications matching the provided criteria
-          type: integer
-      required:
-      - applicationDiscoveries
-    version:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^(\d+)\.(\d+)\.(\d+)(?:-([\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*))?(?:\+[\dA-Za-z-]+)?$
     artifact:
       $schema: http://json-schema.org/draft-04/schema#
       title: Application Artifact Schema
@@ -162,39 +216,12 @@ components:
       required:
       - name
       - version
-    error:
-      description: An error
+    parameters:
+      description: List of key/value parameters of an error
       $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          description: Error message code
-          $ref: '#/components/schemas/errorCode'
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-    applicationDiscovery:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Discovery information for a single application
-      properties:
-        applicationId:
-          description: The application identifier
-          type: string
-        discovery:
-          description: Discovery information for the modules that comprise this application
-          type: array
-          items:
-            $ref: '#/components/schemas/moduleDiscovery'
-      required:
-      - applicationId
-      - discovery
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
     errors:
       description: A set of errors
       $schema: http://json-schema.org/draft-04/schema#
@@ -222,39 +249,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
-  parameters:
-    query-offset:
-      in: query
-      required: false
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-    path-entity-id:
-      in: path
-      required: true
-      name: id
-      description: Entity/document id
-      schema:
-        type: string
-    query-limit:
-      in: query
-      required: false
-      name: limit
-      description: Limit the number of elements returned in the response.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 500
-        default: 10
-    cql-query:
-      name: query
-      in: query
-      description: A CQL query string with search conditions.
-      schema:
-        type: string
-x-refined-from:
-- folio-mgr-applications-am-openapi.json
-- folio-mgr-applications-am-openapi.yml

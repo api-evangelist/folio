@@ -1,10 +1,10 @@
 openapi: 3.2.0
 info:
-  title: Folio Specification Storage Subfields API
-  version: 1.0.0
   contact:
     name: Spitfire team
-  description: 'Operations tagged specification-storage-subfields across 2 of this provider''s published API definitions: folio-mod-record-specifications-openapi.json, folio-mod-record-specifications-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: API for managing record specifications and validating records against them
+  title: Record Specifications Specification Storage Subfields API
+  version: 1.0.0
 servers:
 - description: Development environments.
   url: https://{environment}-okapi.ci.folio.org
@@ -113,39 +113,8 @@ paths:
       summary: Update Subfield
       tags:
       - specification-storage-subfields
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      example:
-        key: source
-        value: invalid
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      title: Error parameter
-      type: object
     errorCollection:
       description: Collection of errors
       example:
@@ -164,6 +133,68 @@ components:
           description: Total number of errors
           type: integer
       title: Error Collection
+      type: object
+    subfieldChangeDto:
+      additionalProperties: false
+      description: Describe subfield definition that should be created or change to existed subfield definition
+      properties:
+        code:
+          description: Subfield code
+          pattern: '[0-9a-z]'
+          type: string
+        label:
+          description: Subfield description
+          maxLength: 350
+          type: string
+        repeatable:
+          default: true
+          description: Define if subfield is repeatable
+          type: boolean
+        required:
+          default: false
+          description: Define if subfield is required
+          type: boolean
+        deprecated:
+          default: false
+          description: Define if subfield is deprecated
+          type: boolean
+      required:
+      - code
+      - label
+      title: Subfield definition change DTO
+      type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      title: Error
+      type: object
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: invalid
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      title: Error parameter
       type: object
     metadataDto:
       description: Creator, updater, creation date, last updated date
@@ -245,72 +276,7 @@ components:
       - standard
       - local
       type: string
-    error:
-      description: An error
-      properties:
-        message:
-          description: Error message text
-          type: string
-        type:
-          description: Error message type
-          type: string
-        code:
-          description: Error message code
-          type: string
-        parameters:
-          description: Error parameters
-          items:
-            $ref: '#/components/schemas/parameter'
-          type: array
-      title: Error
-      type: object
-    subfieldChangeDto:
-      additionalProperties: false
-      description: Describe subfield definition that should be created or change to existed subfield definition
-      properties:
-        code:
-          description: Subfield code
-          pattern: '[0-9a-z]'
-          type: string
-        label:
-          description: Subfield description
-          maxLength: 350
-          type: string
-        repeatable:
-          default: true
-          description: Define if subfield is repeatable
-          type: boolean
-        required:
-          default: false
-          description: Define if subfield is required
-          type: boolean
-        deprecated:
-          default: false
-          description: Define if subfield is deprecated
-          type: boolean
-      required:
-      - code
-      - label
-      title: Subfield definition change DTO
-      type: object
   examples:
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    unknownErrorResponse:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
     subfieldChangeDto:
       value:
         code: a
@@ -329,6 +295,20 @@ components:
           createdByUserId: 00000000-0000-0000-0000-000000000000
           updatedDate: '2024-05-22 15:30:42'
           updatedByUserId: 00000000-0000-0000-0000-000000000000
-x-refined-from:
-- folio-mod-record-specifications-openapi.json
-- folio-mod-record-specifications-openapi.yml
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    unknownErrorResponse:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1

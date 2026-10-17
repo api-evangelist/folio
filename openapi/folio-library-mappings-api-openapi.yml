@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Library Mappings API
+  title: INN-Reach Settings Library Mappings API
   version: v1
-  description: 'Operations tagged library-mappings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -55,50 +54,24 @@ paths:
       - $ref: '#/components/parameters/centralServerId'
       summary: Put library mappings
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
-  parameters:
-    trait_pageable_offset:
-      name: offset
-      in: query
-      description: Skip over a number of elements by specifying an offset value for the query
-      schema:
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    centralServerId:
-      name: centralServerId
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
   schemas:
-    validationErrorDTO:
-      description: Validation error
+    libraryMappingsDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Library mapping collection
       type: object
       properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
+        libraryMappings:
+          description: List of library mappings
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/libraryMappingDTO'
+        totalRecords:
+          type: integer
       additionalProperties: false
       required:
-      - fieldName
-      - message
+      - libraryMappings
     Error:
       type: object
       properties:
@@ -114,17 +87,6 @@ components:
       additionalProperties: false
       required:
       - message
-    validationErrorsDTO:
-      type: object
-      properties:
-        code:
-          type: integer
-        message:
-          type: string
-        validationErrors:
-          type: array
-          items:
-            $ref: '#/components/schemas/validationErrorDTO'
     libraryMappingDTO:
       $schema: http://json-schema.org/draft-04/schema#
       description: Library mapping
@@ -150,22 +112,31 @@ components:
       required:
       - libraryId
       - innReachLocationId
-    libraryMappingsDTO:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Library mapping collection
+    validationErrorsDTO:
       type: object
       properties:
-        libraryMappings:
-          description: List of library mappings
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
           type: array
           items:
-            type: object
-            $ref: '#/components/schemas/libraryMappingDTO'
-        totalRecords:
-          type: integer
+            $ref: '#/components/schemas/validationErrorDTO'
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
       additionalProperties: false
       required:
-      - libraryMappings
+      - fieldName
+      - message
     metadata:
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -212,18 +183,41 @@ components:
               $ref: examples/error.sample
           schema:
             $ref: '#/components/schemas/Error'
-    trait_response_500:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     trait_response_409:
       description: Item state conflict
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-x-refined-from:
-- folio-mod-inn-reach-settings-openapi.json
-- folio-mod-inn-reach-settings-openapi.yml
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer

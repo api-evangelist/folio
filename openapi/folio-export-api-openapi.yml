@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Export API
   version: '1.0'
-  description: 'Operations tagged Export across 4 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-data-export-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Export across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-data-export-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -240,6 +240,228 @@ paths:
     - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   schemas:
+    AlternateResourceName:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    TitleInstance:
+      type: object
+      required:
+      - name
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.TitleInstance
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          identifiers:
+            type: array
+            items:
+              $ref: '#/components/schemas/IdentifierOccurrence'
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+          relatedTitles:
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/TitleInstanceRef'
+    Package:
+      type: object
+      required:
+      - name
+      - source
+      - reference
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.Pkg
+          source:
+            type: string
+          sourceDataCreated:
+            type: string
+            format: date-time
+          sourceDataUpdated:
+            type: string
+            format: date-time
+          sourceTitleCount:
+            type: integer
+          syncContentsFromSource:
+            type: boolean
+          reference:
+            type: string
+          nominalPlatform:
+            $ref: '#/components/schemas/Platform'
+          vendor:
+            $ref: '#/components/schemas/Organisation'
+          lifecycleStatus:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          availabilityScope:
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/Refdata'
+          packageDescriptionUrls:
+            type: array
+            items:
+              $ref: '#/components/schemas/PackageDescriptionUrl'
+          contentTypes:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContentType'
+          availabilityConstraints:
+            type: array
+            items:
+              $ref: '#/components/schemas/AvailabilityConstraint'
+          resourceCount:
+            type: integer
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
+    TitleInstanceRef:
+      description: A lightweight representation of a title instance, used where a title references another title (e.g. `TitleInstance.relatedTitles`). Unlike the full `TitleInstance` representation, fields such as `class`, `dateCreated` and `coverage` are not populated on this partial view, and it does not nest further `relatedTitles`.
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+    AvailabilityConstraint:
+      type: object
+      required:
+      - id
+      - body
+      properties:
+        id:
+          type: string
+          format: uuid
+        body:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    Platform:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        locators:
+          type: array
+          items:
+            type: object
+            properties:
+              domainName:
+                type: string
+              id:
+                type: string
+                format: uuid
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        normValue:
+          type: string
+        value:
+          type: string
+    PackageDescriptionUrl:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+    Embargo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        movingWallStart:
+          $ref: '#/components/schemas/EmbargoStatement'
+        movingWallEnd:
+          $ref: '#/components/schemas/EmbargoStatement'
+    EmbargoStatement:
+      type: object
+      properties:
+        unit:
+          type: string
+          enum:
+          - days
+          - months
+          - years
+        length:
+          type: integer
     IdentifierOccurrence:
       type: object
       properties:
@@ -253,16 +475,6 @@ components:
           $ref: '#/components/schemas/Identifier'
         status:
           $ref: '#/components/schemas/Refdata'
-    Embargo:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        movingWallStart:
-          $ref: '#/components/schemas/EmbargoStatement'
-        movingWallEnd:
-          $ref: '#/components/schemas/EmbargoStatement'
     ExportEntry:
       type: object
       description: One exported resource, paired with the agreement entitlement (and, if entitled via a package, the package) it was exported for. The same resource can appear more than once if it is entitled through more than one package/agreement, or both directly and via a package.
@@ -354,42 +566,74 @@ components:
           allOf:
           - $ref: '#/components/schemas/TitleInstance'
           description: The title instance for this resource. The `entitlements`, `coverage`, `work` and `platformInstances` relations are always omitted here, even where the full TitleInstance representation would include them.
-    PackageDescriptionUrl:
+    PackageContentItem:
+      type: object
+      required:
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PackageContentItem
+          accessStart:
+            type: string
+            format: date
+          accessEnd:
+            type: string
+            format: date
+          addedTimestamp:
+            type: integer
+          depth:
+            type: string
+          lastSeenTimestamp:
+            type: integer
+          longName:
+            type: string
+          note:
+            type: string
+          removedTimestamp:
+            type: integer
+          embargo:
+            $ref: '#/components/schemas/Embargo'
+          pkg:
+            $ref: '#/components/schemas/Package'
+          pti:
+            $ref: '#/components/schemas/PlatformTitleInstance'
+    PlatformTitleInstance:
+      type: object
+      required:
+      - platform
+      - titleInstance
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PlatformTitleInstance
+          longName:
+            type: string
+          platform:
+            $ref: '#/components/schemas/Platform'
+          titleInstance:
+            $ref: '#/components/schemas/TitleInstance'
+          url:
+            type: string
+            format: uri
+    ContentType:
       type: object
       required:
       - id
+      - contentType
       properties:
         id:
           type: string
           format: uuid
-        url:
-          type: string
-          format: uri
-    TitleInstanceRef:
-      description: A lightweight representation of a title instance, used where a title references another title (e.g. `TitleInstance.relatedTitles`). Unlike the full `TitleInstance` representation, fields such as `class`, `dateCreated` and `coverage` are not populated on this partial view, and it does not nest further `relatedTitles`.
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          dateMonographPublished:
-            type: string
-            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
-          firstAuthor:
-            type: string
-          firstEditor:
-            type: string
-          longName:
-            type: string
-            readOnly: true
-          monographEdition:
-            type: string
-          monographVolume:
-            type: string
-          work:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
+        contentType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
     GrailsErrorResponse:
       type: object
       description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
@@ -413,69 +657,46 @@ components:
           type: array
           items:
             type: string
-    Package:
+    CoverageStatement:
       type: object
-      required:
-      - name
-      - source
-      - reference
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.Pkg
-          source:
-            type: string
-          sourceDataCreated:
-            type: string
-            format: date-time
-          sourceDataUpdated:
-            type: string
-            format: date-time
-          sourceTitleCount:
-            type: integer
-          syncContentsFromSource:
-            type: boolean
-          reference:
-            type: string
-          nominalPlatform:
-            $ref: '#/components/schemas/Platform'
-          vendor:
-            $ref: '#/components/schemas/Organisation'
-          lifecycleStatus:
-            oneOf:
-            - type: string
-            - $ref: '#/components/schemas/Refdata'
-          availabilityScope:
-            oneOf:
-            - type: string
-            - $ref: '#/components/schemas/Refdata'
-          packageDescriptionUrls:
-            type: array
-            items:
-              $ref: '#/components/schemas/PackageDescriptionUrl'
-          contentTypes:
-            type: array
-            items:
-              $ref: '#/components/schemas/ContentType'
-          availabilityConstraints:
-            type: array
-            items:
-              $ref: '#/components/schemas/AvailabilityConstraint'
-          resourceCount:
-            type: integer
-    AlternateResourceName:
-      type: object
-      required:
-      - id
-      - name
       properties:
         id:
           type: string
           format: uuid
-        name:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        summary:
+          type: string
+        startVolume:
+          type: string
+        startIssue:
+          type: string
+        endVolume:
+          type: string
+        endIssue:
+          type: string
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    Identifier:
+      type: object
+      properties:
+        ns:
+          type: object
+          properties:
+            value:
+              type: string
+        value:
           type: string
     ErmResource:
       type: object
@@ -549,227 +770,83 @@ components:
               org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
               org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
               org.olf.kb.Pkg: '#/components/schemas/Package'
-    TitleInstance:
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
       type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
       required:
-      - name
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.TitleInstance
-          dateMonographPublished:
-            type: string
-            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
-          firstAuthor:
-            type: string
-          firstEditor:
-            type: string
-          identifiers:
-            type: array
-            items:
-              $ref: '#/components/schemas/IdentifierOccurrence'
-          longName:
-            type: string
-            readOnly: true
-          monographEdition:
-            type: string
-          monographVolume:
-            type: string
-          work:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-          relatedTitles:
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/TitleInstanceRef'
-    CoverageStatement:
+      - message
+    metadata:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        summary:
-          type: string
-        startVolume:
-          type: string
-        startIssue:
-          type: string
-        endVolume:
-          type: string
-        endIssue:
-          type: string
-    PackageContentItem:
-      type: object
-      required:
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.PackageContentItem
-          accessStart:
-            type: string
-            format: date
-          accessEnd:
-            type: string
-            format: date
-          addedTimestamp:
-            type: integer
-          depth:
-            type: string
-          lastSeenTimestamp:
-            type: integer
-          longName:
-            type: string
-          note:
-            type: string
-          removedTimestamp:
-            type: integer
-          embargo:
-            $ref: '#/components/schemas/Embargo'
-          pkg:
-            $ref: '#/components/schemas/Package'
-          pti:
-            $ref: '#/components/schemas/PlatformTitleInstance'
-    PlatformTitleInstance:
-      type: object
-      required:
-      - platform
-      - titleInstance
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.PlatformTitleInstance
-          longName:
-            type: string
-          platform:
-            $ref: '#/components/schemas/Platform'
-          titleInstance:
-            $ref: '#/components/schemas/TitleInstance'
-          url:
-            type: string
-            format: uri
-    Refdata:
-      type: object
-      properties:
-        id:
-          type: string
-        label:
-          type: string
-        value:
-          type: string
-    EmbargoStatement:
-      type: object
-      properties:
-        unit:
-          type: string
-          enum:
-          - days
-          - months
-          - years
-        length:
-          type: integer
-    AvailabilityConstraint:
-      type: object
-      required:
-      - id
-      - body
-      properties:
-        id:
-          type: string
-          format: uuid
-        body:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-    ContentType:
-      type: object
-      required:
-      - id
-      - contentType
-      properties:
-        id:
-          type: string
-          format: uuid
-        contentType:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-    Platform:
-      type: object
-      required:
-      - name
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        dateCreated:
+        createdDate:
+          description: Date and time when the record was created
           type: string
           format: date-time
-        lastUpdated:
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
           type: string
           format: date-time
-        locators:
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
           type: array
           items:
             type: object
-            properties:
-              domainName:
-                type: string
-              id:
-                type: string
-                format: uuid
-    Tag:
-      type: object
-      properties:
-        id:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
           type: integer
-        normValue:
-          type: string
-        value:
-          type: string
-    Identifier:
-      type: object
-      properties:
-        ns:
-          type: object
-          properties:
-            value:
-              type: string
-        value:
-          type: string
-    Organisation:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        orgsUuid:
-          type: string
-          format: uuid
-        orgsUuid_object:
-          type: object
     exportRequest:
       $schema: http://json-schema.org/draft-04/schema#
       description: Necessary data to start export process
@@ -833,83 +910,6 @@ components:
       - fileDefinitionId
       - jobProfileId
       - idType
-    error:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Error
-      properties:
-        message:
-          description: Error message
-          type: string
-        type:
-          description: Error type
-          type: string
-        code:
-          description: Error code
-          type: string
-        parameters:
-          description: Error parameters
-          type: object
-          $ref: '#/components/schemas/parameters'
-      required:
-      - message
-    errors:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Error collection
-      properties:
-        errors:
-          description: list of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total records
-          type: integer
-    parameters:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      description: Error parameters
-      items:
-        type: object
-        properties:
-          key:
-            type: string
-          value:
-            type: string
-    metadata:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: Metadata Schema
-      description: Metadata about creation and changes to records, provided by the server (client should not provide)
-      type: object
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          type: string
-          format: date-time
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          type: string
-          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
-        createdByUsername:
-          description: Username of the user who created the record (when available)
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-          format: date-time
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          type: string
-          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
-        updatedByUsername:
-          description: Username of the user who last updated the record (when available)
-          type: string
-      additionalProperties: false
-      required:
-      - createdDate
   parameters:
     format:
       in: path
@@ -938,5 +938,3 @@ components:
 x-refined-from:
 - folio-mod-agreements-openapi.json
 - folio-mod-data-export-openapi.json
-- folio-mod-agreements-openapi.yml
-- folio-mod-data-export-openapi.yml

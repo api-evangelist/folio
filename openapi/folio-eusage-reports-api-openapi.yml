@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Eusage Reports API
+  title: Eusage Reports API
   version: v1
-  description: 'Operations tagged Eusage Reports across 2 of this provider''s published API definitions: folio-mod-eusage-reports-eusage-reports-1-0-openapi.json, folio-mod-eusage-reports-eusage-reports-1-0-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Eusage Reports
 paths:
@@ -370,118 +369,20 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    resultInfo:
-      description: Common result set information for streaming response
+    reportTitles:
+      description: report titles (for both request and response)
       type: object
       properties:
-        totalRecords:
-          description: Total number of entries in response
-          type: integer
-        diagnostics:
-          description: Diagnostics for response
+        titles:
+          description: List of titles
           type: array
           items:
-            type: object
-            properties:
-              message:
-                description: single diagnostic message
-                type: string
-        facets:
-          type: array
-          description: Array of facets
-          items:
-            type: object
-            description: A facet
-            properties:
-              facetValues:
-                type: array
-                description: Array of facet values
-                items:
-                  type: object
-                  description: A facet value
-                  properties:
-                    count:
-                      type: integer
-                      description: Count of facet values
-                    value:
-                      description: Value Object
-              type:
-                type: string
-                description: Type of facet
+            $ref: '#/components/schemas/reportTitle'
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
       additionalProperties: false
-    reportCost:
-      description: Cost report schema
-      type: object
-      properties:
-        accessCountPeriods:
-          description: List of reporting periods, either a list of months or a list of years, for example ["2020-03", "2020-04", "2020-05"]
-          type: array
-          items:
-            type: string
-        amountEncumberedTotal:
-          description: This number is sum of all encumbered amounts in the total access period
-          type: number
-        amountPaidTotal:
-          description: This number is sum of all paid amounts in the total access period
-          type: number
-        costByPeriod:
-          type: array
-          description: Total cost for each period
-          items:
-            type: number
-            nullable: true
-        items:
-          description: List of items, with access data per item
-          type: array
-          items:
-            $ref: '#/components/schemas/reportCostRow'
-        titleCountByPeriod:
-          type: array
-          description: Title count per period, total for all items
-          items:
-            type: integer
-            nullable: true
-        totalItemRequestsByPeriod:
-          type: array
-          description: Total access count per period
-          items:
-            type: integer
-            nullable: true
-        totalItemCostsPerRequestsByPeriod:
-          type: array
-          description: Cost per period, total for all items
-          items:
-            type: number
-            nullable: true
-        uniqueItemRequestsByPeriod:
-          type: array
-          description: Unique access count per period
-          items:
-            type: integer
-            nullable: true
-        uniqueItemCostsPerRequestsByPeriod:
-          type: array
-          description: Unique access count per period, total for all items
-          items:
-            type: number
-            nullable: true
-        execution:
-          description: Information about execution, such as various timings
-          type: object
-      additionalProperties: false
-    fromAgreementRequest:
-      description: Import from agreement request
-      type: object
-      properties:
-        agreementId:
-          description: Agreement Identifier
-          type: string
-          format: uuid
-      additionalProperties: false
-    fromCounterResponse:
-      description: Parse counter report response
-      type: object
-      additionalProperties: false
+      required:
+      - titles
     reportCostRow:
       description: Single row of cost report data
       type: object
@@ -556,6 +457,147 @@ components:
           type: number
           description: Cost per unique request for invoices
       additionalProperties: false
+    reportStatus:
+      description: report status
+      type: object
+      properties:
+        id:
+          type: string
+          description: report data identifier
+          format: uuid
+        lastUpdated:
+          type: string
+          description: date and time of last update - UTC zone
+        active:
+          type: boolean
+          description: whether being updated at the moment
+      additionalProperties: false
+      required:
+      - id
+    titleDataEntry:
+      description: title data entry from counter reports
+      type: object
+      properties:
+        id:
+          type: string
+          description: title data identifier
+          format: uuid
+        titleEntryId:
+          type: string
+          description: key to title entries
+          format: uuid
+        counterReportId:
+          type: string
+          description: counter report identifier
+          format: uuid
+        counterReportTitle:
+          type: string
+          description: counter report title
+        providerId:
+          type: string
+          description: usage data provider identifier
+          format: uuid
+        publicationDate:
+          type: string
+          description: Publication date in ISO format YYYY-MM-DD. example 1988-05-17
+        usageYearMonth:
+          type: string
+          description: 'Usage data range (Postgresql daterange). example: [2021-01-01,2021-02-01)'
+        uniqueAccessCount:
+          type: integer
+          description: Unique access count
+        totalAccessCount:
+          type: integer
+          description: Total access count
+        openAccess:
+          type: boolean
+          description: Whether open access
+      additionalProperties: false
+      required:
+      - id
+      - titleEntryId
+      - counterReportId
+      - counterReportTitle
+      - openAccess
+    reportDataEntries:
+      description: report data entries
+      type: object
+      properties:
+        data:
+          description: List of data entries
+          type: array
+          items:
+            $ref: '#/components/schemas/reportDataEntry'
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      additionalProperties: false
+      required:
+      - data
+      - resultInfo
+    fromCounterResponse:
+      description: Parse counter report response
+      type: object
+      additionalProperties: false
+    titleDataEntries:
+      description: return title data entries
+      type: object
+      properties:
+        data:
+          description: List of title data entries
+          type: array
+          items:
+            $ref: '#/components/schemas/titleDataEntry'
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+      additionalProperties: false
+      required:
+      - data
+      - resultInfo
+    reportRow:
+      description: Single row of usage report data
+      type: object
+      properties:
+        kbId:
+          type: string
+          description: KB identifier
+        title:
+          type: string
+          description: Title of the item
+        printISSN:
+          type: string
+          description: ISSN for print instance
+        onlineISSN:
+          type: string
+          description: ISSN for online instance
+        ISBN:
+          type: string
+          description: ISBN for instance
+        publicationYear:
+          type: string
+          description: Publication year .. or range (eg 2000 for 1Y, or 2000-2001 for 2Y)
+        periodOfUse:
+          type: string
+          description: The usage period of this publication year report row, either one month like 2018-03 or one year like 2018 or a month range like 2018-03 - 2018-05 or a year range like 2018-2019
+        accessType:
+          type: string
+          description: Counter report access type like controlled or OA_Gold
+        metricType:
+          type: string
+          enum:
+          - Total_Item_Requests
+          - Unique_Item_Requests
+          description: Handling of multiple requests of the same client
+        accessCountTotal:
+          type: integer
+          nullable: true
+          description: Sum of all access counts
+        accessCountsByPeriod:
+          type: array
+          description: Access count per reporting period
+          items:
+            type: integer
+            nullable: true
+      additionalProperties: false
     reportPackage:
       description: KB package entry
       type: object
@@ -574,20 +616,165 @@ components:
       additionalProperties: false
       required:
       - kbPackageId
-    reportTitles:
-      description: report titles (for both request and response)
+    reportCost:
+      description: Cost report schema
       type: object
       properties:
-        titles:
-          description: List of titles
+        accessCountPeriods:
+          description: List of reporting periods, either a list of months or a list of years, for example ["2020-03", "2020-04", "2020-05"]
           type: array
           items:
-            $ref: '#/components/schemas/reportTitle'
-        resultInfo:
-          $ref: '#/components/schemas/resultInfo'
+            type: string
+        amountEncumberedTotal:
+          description: This number is sum of all encumbered amounts in the total access period
+          type: number
+        amountPaidTotal:
+          description: This number is sum of all paid amounts in the total access period
+          type: number
+        costByPeriod:
+          type: array
+          description: Total cost for each period
+          items:
+            type: number
+            nullable: true
+        items:
+          description: List of items, with access data per item
+          type: array
+          items:
+            $ref: '#/components/schemas/reportCostRow'
+        titleCountByPeriod:
+          type: array
+          description: Title count per period, total for all items
+          items:
+            type: integer
+            nullable: true
+        totalItemRequestsByPeriod:
+          type: array
+          description: Total access count per period
+          items:
+            type: integer
+            nullable: true
+        totalItemCostsPerRequestsByPeriod:
+          type: array
+          description: Cost per period, total for all items
+          items:
+            type: number
+            nullable: true
+        uniqueItemRequestsByPeriod:
+          type: array
+          description: Unique access count per period
+          items:
+            type: integer
+            nullable: true
+        uniqueItemCostsPerRequestsByPeriod:
+          type: array
+          description: Unique access count per period, total for all items
+          items:
+            type: number
+            nullable: true
+        execution:
+          description: Information about execution, such as various timings
+          type: object
+      additionalProperties: false
+    reportDataEntry:
+      description: report data entry (agreement line information)
+      type: object
+      properties:
+        id:
+          type: string
+          description: report data identifier
+          format: uuid
+        kbTitleId:
+          type: string
+          description: kb title identifier (if the agreement line is a title)
+          format: uuid
+        kbPackageId:
+          type: string
+          description: kb package identifier (if the agreement line is a package)
+          format: uuid
+        type:
+          type: string
+          description: one of journal, package, ebook
+        agreementId:
+          type: string
+          description: agreement identifier
+          format: uuid
+        agreementLineId:
+          type: string
+          description: agreement line identifier
+          format: uuid
+        poLineId:
+          type: string
+          description: po line identifier (UUID)
+          format: uuid
+        encumberedCost:
+          type: number
+          description: cost from the PO line
+        invoicedCost:
+          type: number
+          description: Total access count
+        fiscalYearRange:
+          type: string
+          description: kept on the fiscal year record, there should be a link from the invoice to that record
+        subscriptionDateRange:
+          type: string
+          description: subscription period - retrieved from the invoice
+        coverageDateRanges:
+          type: string
+          description: coverage dates as retrieved from the agreement
+        orderType:
+          type: string
+          description: purchase order type
+          enum:
+          - One-Time
+          - Ongoing
+        invoiceNumber:
+          type: string
+          description: invoice line number
+        poLineNumber:
+          type: string
+          description: human readable PO line number
       additionalProperties: false
       required:
-      - titles
+      - id
+      - agreementLineId
+    reportTitle:
+      description: report title entry
+      type: object
+      properties:
+        id:
+          type: string
+          description: title identifier (UUID)
+        counterReportTitle:
+          type: string
+          description: Title as it appears in counter report
+        kbTitleName:
+          type: string
+          description: KB title name
+        kbTitleId:
+          type: string
+          description: KB title identifier. If not given, title is ignored (kbManualMatch=true) or unmatched (kbManualMatch=false)
+          format: uuid
+        kbManualMatch:
+          type: boolean
+          description: whether the counter title to kb title is manually set or ignored
+        printISSN:
+          type: string
+          description: ISSN for print instance
+        onlineISSN:
+          type: string
+          description: ISSN for online instance
+        ISBN:
+          type: string
+          description: ISBN-13 with hyphens
+        DOI:
+          type: string
+          description: Digital Object identifier
+        publicationType:
+          type: string
+          description: publication type from ERM ('serial', 'monograph')
+      required:
+      - id
     reportPackages:
       description: get KB packages
       type: object
@@ -602,21 +789,23 @@ components:
       additionalProperties: false
       required:
       - packages
-    reportDataEntries:
-      description: report data entries
+    fromAgreementRequest:
+      description: Import from agreement request
       type: object
       properties:
-        data:
-          description: List of data entries
-          type: array
-          items:
-            $ref: '#/components/schemas/reportDataEntry'
-        resultInfo:
-          $ref: '#/components/schemas/resultInfo'
+        agreementId:
+          description: Agreement Identifier
+          type: string
+          format: uuid
       additionalProperties: false
-      required:
-      - data
-      - resultInfo
+    fromAgreementResponse:
+      description: Import from agreement response
+      type: object
+      properties:
+        reportLinesCreated:
+          description: Number of report lines created
+          type: integer
+      additionalProperties: false
     report:
       description: Usage report schema
       type: object
@@ -683,181 +872,45 @@ components:
           description: Information about execution, such as various timings
           type: object
       additionalProperties: false
-    titleDataEntries:
-      description: return title data entries
+    resultInfo:
+      description: Common result set information for streaming response
       type: object
       properties:
-        data:
-          description: List of title data entries
+        totalRecords:
+          description: Total number of entries in response
+          type: integer
+        diagnostics:
+          description: Diagnostics for response
           type: array
           items:
-            $ref: '#/components/schemas/titleDataEntry'
-        resultInfo:
-          $ref: '#/components/schemas/resultInfo'
-      additionalProperties: false
-      required:
-      - data
-      - resultInfo
-    reportRow:
-      description: Single row of usage report data
-      type: object
-      properties:
-        kbId:
-          type: string
-          description: KB identifier
-        title:
-          type: string
-          description: Title of the item
-        printISSN:
-          type: string
-          description: ISSN for print instance
-        onlineISSN:
-          type: string
-          description: ISSN for online instance
-        ISBN:
-          type: string
-          description: ISBN for instance
-        publicationYear:
-          type: string
-          description: Publication year .. or range (eg 2000 for 1Y, or 2000-2001 for 2Y)
-        periodOfUse:
-          type: string
-          description: The usage period of this publication year report row, either one month like 2018-03 or one year like 2018 or a month range like 2018-03 - 2018-05 or a year range like 2018-2019
-        accessType:
-          type: string
-          description: Counter report access type like controlled or OA_Gold
-        metricType:
-          type: string
-          enum:
-          - Total_Item_Requests
-          - Unique_Item_Requests
-          description: Handling of multiple requests of the same client
-        accessCountTotal:
-          type: integer
-          nullable: true
-          description: Sum of all access counts
-        accessCountsByPeriod:
+            type: object
+            properties:
+              message:
+                description: single diagnostic message
+                type: string
+        facets:
           type: array
-          description: Access count per reporting period
+          description: Array of facets
           items:
-            type: integer
-            nullable: true
+            type: object
+            description: A facet
+            properties:
+              facetValues:
+                type: array
+                description: Array of facet values
+                items:
+                  type: object
+                  description: A facet value
+                  properties:
+                    count:
+                      type: integer
+                      description: Count of facet values
+                    value:
+                      description: Value Object
+              type:
+                type: string
+                description: Type of facet
       additionalProperties: false
-    fromAgreementResponse:
-      description: Import from agreement response
-      type: object
-      properties:
-        reportLinesCreated:
-          description: Number of report lines created
-          type: integer
-      additionalProperties: false
-    reportDataEntry:
-      description: report data entry (agreement line information)
-      type: object
-      properties:
-        id:
-          type: string
-          description: report data identifier
-          format: uuid
-        kbTitleId:
-          type: string
-          description: kb title identifier (if the agreement line is a title)
-          format: uuid
-        kbPackageId:
-          type: string
-          description: kb package identifier (if the agreement line is a package)
-          format: uuid
-        type:
-          type: string
-          description: one of journal, package, ebook
-        agreementId:
-          type: string
-          description: agreement identifier
-          format: uuid
-        agreementLineId:
-          type: string
-          description: agreement line identifier
-          format: uuid
-        poLineId:
-          type: string
-          description: po line identifier (UUID)
-          format: uuid
-        encumberedCost:
-          type: number
-          description: cost from the PO line
-        invoicedCost:
-          type: number
-          description: Total access count
-        fiscalYearRange:
-          type: string
-          description: kept on the fiscal year record, there should be a link from the invoice to that record
-        subscriptionDateRange:
-          type: string
-          description: subscription period - retrieved from the invoice
-        coverageDateRanges:
-          type: string
-          description: coverage dates as retrieved from the agreement
-        orderType:
-          type: string
-          description: purchase order type
-          enum:
-          - One-Time
-          - Ongoing
-        invoiceNumber:
-          type: string
-          description: invoice line number
-        poLineNumber:
-          type: string
-          description: human readable PO line number
-      additionalProperties: false
-      required:
-      - id
-      - agreementLineId
-    titleDataEntry:
-      description: title data entry from counter reports
-      type: object
-      properties:
-        id:
-          type: string
-          description: title data identifier
-          format: uuid
-        titleEntryId:
-          type: string
-          description: key to title entries
-          format: uuid
-        counterReportId:
-          type: string
-          description: counter report identifier
-          format: uuid
-        counterReportTitle:
-          type: string
-          description: counter report title
-        providerId:
-          type: string
-          description: usage data provider identifier
-          format: uuid
-        publicationDate:
-          type: string
-          description: Publication date in ISO format YYYY-MM-DD. example 1988-05-17
-        usageYearMonth:
-          type: string
-          description: 'Usage data range (Postgresql daterange). example: [2021-01-01,2021-02-01)'
-        uniqueAccessCount:
-          type: integer
-          description: Unique access count
-        totalAccessCount:
-          type: integer
-          description: Total access count
-        openAccess:
-          type: boolean
-          description: Whether open access
-      additionalProperties: false
-      required:
-      - id
-      - titleEntryId
-      - counterReportId
-      - counterReportTitle
-      - openAccess
     fromCounterRequest:
       description: Specify what counter to report from
       type: object
@@ -870,86 +923,7 @@ components:
           description: Counter reports with given usage data provider ID
           type: string
       additionalProperties: false
-    reportTitle:
-      description: report title entry
-      type: object
-      properties:
-        id:
-          type: string
-          description: title identifier (UUID)
-        counterReportTitle:
-          type: string
-          description: Title as it appears in counter report
-        kbTitleName:
-          type: string
-          description: KB title name
-        kbTitleId:
-          type: string
-          description: KB title identifier. If not given, title is ignored (kbManualMatch=true) or unmatched (kbManualMatch=false)
-          format: uuid
-        kbManualMatch:
-          type: boolean
-          description: whether the counter title to kb title is manually set or ignored
-        printISSN:
-          type: string
-          description: ISSN for print instance
-        onlineISSN:
-          type: string
-          description: ISSN for online instance
-        ISBN:
-          type: string
-          description: ISBN-13 with hyphens
-        DOI:
-          type: string
-          description: Digital Object identifier
-        publicationType:
-          type: string
-          description: publication type from ERM ('serial', 'monograph')
-      required:
-      - id
-    reportStatus:
-      description: report status
-      type: object
-      properties:
-        id:
-          type: string
-          description: report data identifier
-          format: uuid
-        lastUpdated:
-          type: string
-          description: date and time of last update - UTC zone
-        active:
-          type: boolean
-          description: whether being updated at the moment
-      additionalProperties: false
-      required:
-      - id
   parameters:
-    startDate:
-      in: query
-      name: startDate
-      description: first year for year reporting, or first month for month reporting
-      required: true
-      schema:
-        type: string
-        pattern: ^[12]\d\d\d(-0[1-9]|-1[012])?$
-        description: A year in range 1000-2999, or a year in range 1000-2999 and a minus and a month in range 01-12 (similar to RFC3339, section 5.6).
-        example: 2019-04
-    full:
-      in: query
-      name: full
-      description: whether to return full response or brief (summary) response
-      required: false
-      schema:
-        type: boolean
-        default: true
-    okapi_url:
-      in: header
-      name: X-Okapi-Url
-      description: Okapi URL
-      required: false
-      schema:
-        type: string
     endDate:
       in: query
       name: endDate
@@ -960,31 +934,23 @@ components:
         pattern: ^[12]\d\d\d(-0[1-9]|-1[012])?$
         description: A year in range 1000-2999, or a year in range 1000-2999 and a minus and a month in range 01-12 (similar to RFC3339, section 5.6).
         example: 2019-06
-    accessCountPeriod:
+    startDate:
       in: query
-      name: accessCountPeriod
-      description: Group access according to this parameter. May be given in a number of months (nM) or in years (nY). The value "auto" makes it group as 1Y if startDate is given as YYYY; otherwise 1M.
+      name: startDate
+      description: first year for year reporting, or first month for month reporting
+      required: true
+      schema:
+        type: string
+        pattern: ^[12]\d\d\d(-0[1-9]|-1[012])?$
+        description: A year in range 1000-2999, or a year in range 1000-2999 and a minus and a month in range 01-12 (similar to RFC3339, section 5.6).
+        example: 2019-04
+    query:
+      in: query
+      name: query
+      description: CQL query
       required: false
       schema:
         type: string
-        default: auto
-        pattern: ^(\d+[YM])|(auto)$
-    limit:
-      in: query
-      name: limit
-      description: Limit the number of elements returned in the response
-      required: false
-      schema:
-        type: integer
-        default: 10
-        minimum: 0
-    format:
-      in: query
-      name: format
-      description: item format type
-      schema:
-        type: string
-        pattern: ^(BOOK|JOURNAL|ALL)$
     includeOA:
       in: query
       name: includeOA
@@ -993,58 +959,10 @@ components:
       schema:
         type: boolean
         default: false
-    agreementId:
-      in: query
-      name: agreementId
-      description: Agreement identifier
-      required: true
-      schema:
-        type: string
-        format: uuid
-    offset:
-      in: query
-      name: offset
-      description: Skip over number of elements (default is first element)
-      required: false
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-    yopInterval:
-      in: query
-      name: yopInterval
-      description: a number of months or years for grouping publication dates
-      required: false
-      schema:
-        type: string
-        default: auto
-        pattern: ^(\d+[YM])|(auto)$
-    periodOfUse:
-      in: query
-      name: periodOfUse
-      description: a number of months or years for grouping
-      required: true
-      schema:
-        type: string
-        pattern: ^\d+[YM]$
     okapi_tenant:
       in: header
       name: X-Okapi-Tenant
       description: Okapi Tenant
-      required: false
-      schema:
-        type: string
-    facets:
-      in: query
-      name: facets
-      description: facet names. Each facet is separated by comma.
-      required: false
-      schema:
-        type: string
-    okapi_token:
-      in: header
-      name: X-Okapi-Token
-      description: Okapi Token
       required: false
       schema:
         type: string
@@ -1056,13 +974,94 @@ components:
       schema:
         type: boolean
         default: false
-    query:
+    accessCountPeriod:
       in: query
-      name: query
-      description: CQL query
+      name: accessCountPeriod
+      description: Group access according to this parameter. May be given in a number of months (nM) or in years (nY). The value "auto" makes it group as 1Y if startDate is given as YYYY; otherwise 1M.
       required: false
       schema:
         type: string
+        default: auto
+        pattern: ^(\d+[YM])|(auto)$
+    offset:
+      in: query
+      name: offset
+      description: Skip over number of elements (default is first element)
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    facets:
+      in: query
+      name: facets
+      description: facet names. Each facet is separated by comma.
+      required: false
+      schema:
+        type: string
+    full:
+      in: query
+      name: full
+      description: whether to return full response or brief (summary) response
+      required: false
+      schema:
+        type: boolean
+        default: true
+    yopInterval:
+      in: query
+      name: yopInterval
+      description: a number of months or years for grouping publication dates
+      required: false
+      schema:
+        type: string
+        default: auto
+        pattern: ^(\d+[YM])|(auto)$
+    okapi_token:
+      in: header
+      name: X-Okapi-Token
+      description: Okapi Token
+      required: false
+      schema:
+        type: string
+    okapi_url:
+      in: header
+      name: X-Okapi-Url
+      description: Okapi URL
+      required: false
+      schema:
+        type: string
+    format:
+      in: query
+      name: format
+      description: item format type
+      schema:
+        type: string
+        pattern: ^(BOOK|JOURNAL|ALL)$
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+    agreementId:
+      in: query
+      name: agreementId
+      description: Agreement identifier
+      required: true
+      schema:
+        type: string
+        format: uuid
+    periodOfUse:
+      in: query
+      name: periodOfUse
+      description: a number of months or years for grouping
+      required: true
+      schema:
+        type: string
+        pattern: ^\d+[YM]$
   responses:
     trait_400:
       description: Bad request
@@ -1100,6 +1099,3 @@ components:
             type: string
             example:
               value: Internal server error, contact administrator
-x-refined-from:
-- folio-mod-eusage-reports-eusage-reports-1-0-openapi.json
-- folio-mod-eusage-reports-eusage-reports-1-0-openapi.yml

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Discovery API
+  title: Okapi Core API Facade Discovery API
   version: v2.0
-  description: 'Operations tagged discovery across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Okapi Core API Facade
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -84,9 +84,6 @@ paths:
       - Discovery
       summary: Delete all discoveries
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/discovery/modules/{service_id}:
     parameters:
     - name: service_id
@@ -132,9 +129,6 @@ paths:
       - Discovery
       summary: Delete discoveries by service
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/discovery/modules/{service_id}/{instance_id}:
     parameters:
     - name: instance_id
@@ -181,9 +175,6 @@ paths:
       - Discovery
       summary: Delete discovery by instance
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/discovery/health:
     get:
       responses:
@@ -206,9 +197,6 @@ paths:
       - Discovery
       summary: Get all discovery health
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/discovery/health/{service_id}:
     parameters:
     - name: service_id
@@ -235,9 +223,6 @@ paths:
       - Discovery
       summary: Get discovery health by service
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/discovery/health/{service_id}/{instance_id}:
     parameters:
     - name: instance_id
@@ -269,9 +254,6 @@ paths:
       - Discovery
       summary: Get discovery health by instance
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/discovery/nodes:
     get:
       responses:
@@ -294,9 +276,6 @@ paths:
       - Discovery
       summary: Get all discovery nodes
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/discovery/nodes/{node_id}:
     parameters:
     - name: node_id
@@ -356,33 +335,34 @@ paths:
       - Discovery
       summary: Get discovery node
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string
   schemas:
-    DeploymentDescriptorList:
+    NodeDescriptor:
       $schema: http://json-schema.org/draft-04/schema#
-      id: DeploymentDescriptorList.json
-      title: DeploymentDescriptorList
-      description: Deployment information list
-      type: array
-      items:
-        $ref: '#/components/schemas/DeploymentDescriptor'
-    LaunchDescriptor:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: LaunchDescriptor.json
-      title: LaunchDescriptor
-      description: Specifies how a module is deployed and undeployed
+      id: NodeDescriptor.json
+      title: NodeDescriptor
+      description: Deployment node information
       type: object
-    HealthDescriptorList:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: HealthDescriptorList.json
-      title: HealthDescriptorList
-      description: List of health descriptors
-      type: array
-      items:
-        $ref: '#/components/schemas/HealthDescriptor'
+      additionalProperties: false
+      properties:
+        nodeId:
+          description: Node ID
+          type: string
+        url:
+          description: Host:port for for this node
+          type: string
+        nodeName:
+          description: Human readable node name
+          type: string
+      required:
+      - nodeId
+      - url
     DeploymentDescriptor:
       $schema: http://json-schema.org/draft-04/schema#
       id: DeploymentDescriptor.json
@@ -408,26 +388,20 @@ components:
           $ref: '#/components/schemas/LaunchDescriptor'
       required:
       - srvcId
-    NodeDescriptor:
+    LaunchDescriptor:
       $schema: http://json-schema.org/draft-04/schema#
-      id: NodeDescriptor.json
-      title: NodeDescriptor
-      description: Deployment node information
+      id: LaunchDescriptor.json
+      title: LaunchDescriptor
+      description: Specifies how a module is deployed and undeployed
       type: object
-      additionalProperties: false
-      properties:
-        nodeId:
-          description: Node ID
-          type: string
-        url:
-          description: Host:port for for this node
-          type: string
-        nodeName:
-          description: Human readable node name
-          type: string
-      required:
-      - nodeId
-      - url
+    DeploymentDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: DeploymentDescriptorList.json
+      title: DeploymentDescriptorList
+      description: Deployment information list
+      type: array
+      items:
+        $ref: '#/components/schemas/DeploymentDescriptor'
     NodeDescriptorList:
       $schema: http://json-schema.org/draft-04/schema#
       id: NodeDescriptorList.json
@@ -436,6 +410,14 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/NodeDescriptor'
+    HealthDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: HealthDescriptorList.json
+      title: HealthDescriptorList
+      description: List of health descriptors
+      type: array
+      items:
+        $ref: '#/components/schemas/HealthDescriptor'
     HealthDescriptor:
       $schema: http://json-schema.org/draft-04/schema#
       id: HealthDescriptor.json
@@ -461,12 +443,3 @@ components:
       - instId
       - healthMessage
       - healthStatus
-  headers:
-    X-Okapi-Trace:
-      required: false
-      description: Okapi trace and timing
-      schema:
-        type: string
-x-refined-from:
-- folio-mod-okapi-facade-openapi.json
-- folio-mod-okapi-facade-openapi.yml

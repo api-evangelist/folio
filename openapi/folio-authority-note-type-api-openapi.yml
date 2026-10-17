@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Authority Note Type API
+  description: Entity Links API
+  title: Entities Links Authority Note Type API
   version: v1.0
-  description: 'Operations tagged authority-note-type across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://localhost:8081
 tags:
@@ -97,8 +97,6 @@ paths:
       - authority-note-type
       summary: Create authority note type
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
   /authority-note-types/{id}:
     delete:
       operationId: deleteAuthorityNoteType
@@ -220,8 +218,6 @@ paths:
       - authority-note-type
       summary: Update authority note type
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
 components:
   schemas:
     error_parameters_inner:
@@ -232,24 +228,6 @@ components:
         value:
           description: Parameter value
           type: string
-      type: object
-    error:
-      description: Error object
-      properties:
-        message:
-          description: Error message
-          type: string
-        type:
-          description: Error type
-          type: string
-        code:
-          description: Error code
-          type: string
-        parameters:
-          description: Error parameters
-          items:
-            $ref: '#/components/schemas/error_parameters_inner'
-          type: array
       type: object
     errors:
       description: Errors response
@@ -270,39 +248,54 @@ components:
             $ref: '#/components/schemas/error'
           type: array
       type: object
-    authorityNoteTypeDtoCollection:
-      description: A collection of authority note types
-      example:
-        authorityNoteTypes:
-        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          name: name
-          source: source
-          metadata:
-            createdDate: '2000-01-23T04:56:07.000+00:00'
-            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            updatedDate: '2000-01-23T04:56:07.000+00:00'
-            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          name: name
-          source: source
-          metadata:
-            createdDate: '2000-01-23T04:56:07.000+00:00'
-            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            updatedDate: '2000-01-23T04:56:07.000+00:00'
-            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        totalRecords: 0
+    error:
+      description: Error object
       properties:
-        authorityNoteTypes:
-          description: List of authority note types
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
           items:
-            $ref: '#/components/schemas/authorityNoteTypeDto'
+            $ref: '#/components/schemas/error_parameters_inner'
           type: array
-        totalRecords:
-          description: Total amount of records
-          type: integer
-      required:
-      - authorityNoteTypes
-      - totalRecords
+      type: object
+    metadata:
+      description: Creater, updater, creation date, last updated date
+      example:
+        createdDate: '2000-01-23T04:56:07.000+00:00'
+        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        updatedDate: '2000-01-23T04:56:07.000+00:00'
+        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          format: date-time
+          type: string
+          x-fqm-value-getter: :sourceAlias.created_date
+          x-fqm-value-function: (:value)::timestamp
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.created_by_user_id
+        updatedDate:
+          description: Date and time when the record was last updated
+          format: date-time
+          type: string
+          x-fqm-value-getter: :sourceAlias.updated_date
+          x-fqm-value-function: (:value)::timestamp
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          format: uuid
+          type: string
+          x-fqm-value-getter: :sourceAlias.updated_by_user_id
       type: object
     authorityNoteTypeDto:
       description: An Authority note type
@@ -343,37 +336,37 @@ components:
       - name
       - source
       type: object
-    metadata:
-      description: Creater, updater, creation date, last updated date
+    authorityNoteTypeDtoCollection:
+      description: A collection of authority note types
       example:
-        createdDate: '2000-01-23T04:56:07.000+00:00'
-        createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        updatedDate: '2000-01-23T04:56:07.000+00:00'
-        updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        authorityNoteTypes:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          source: source
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          source: source
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        totalRecords: 0
       properties:
-        createdDate:
-          description: Date and time when the record was created
-          format: date-time
-          type: string
-          x-fqm-value-getter: :sourceAlias.created_date
-          x-fqm-value-function: (:value)::timestamp
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          format: uuid
-          type: string
-          x-fqm-value-getter: :sourceAlias.created_by_user_id
-        updatedDate:
-          description: Date and time when the record was last updated
-          format: date-time
-          type: string
-          x-fqm-value-getter: :sourceAlias.updated_date
-          x-fqm-value-function: (:value)::timestamp
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          format: uuid
-          type: string
-          x-fqm-value-getter: :sourceAlias.updated_by_user_id
+        authorityNoteTypes:
+          description: List of authority note types
+          items:
+            $ref: '#/components/schemas/authorityNoteTypeDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - authorityNoteTypes
+      - totalRecords
       type: object
-x-refined-from:
-- folio-mod-entities-links-openapi.json
-- folio-mod-entities-links-openapi.yml

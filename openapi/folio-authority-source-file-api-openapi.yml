@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Authority Source File API
+  description: Entity Links API
+  title: Entities Links Authority Source File API
   version: v1.0
-  description: 'Operations tagged authority-source-file across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://localhost:8081
 tags:
@@ -97,8 +97,6 @@ paths:
       - authority-source-file
       summary: Create authority source file
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
   /authority-source-files/{id}:
     delete:
       operationId: deleteAuthoritySourceFile
@@ -220,8 +218,6 @@ paths:
       - authority-source-file
       summary: Patch authority source file
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
   /authority-source-files/{id}/hrid:
     post:
       operationId: newAuthoritySourceFileNextHrid
@@ -267,40 +263,124 @@ paths:
       - authority-source-file
       summary: New authority source file next hrid
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
 components:
   schemas:
-    authoritySourceFilePostDto:
-      description: An Authority source file
+    authoritySourceFileHridDto:
+      description: An Authority source file HRID response
+      example:
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        hrid: hrid
       properties:
         id:
-          description: Unique ID of the Authority source file; a UUID
+          description: Unique ID of the Authority source file
           format: uuid
           type: string
-        name:
-          description: Authority source file name
+        hrid:
+          description: Next available Authority source file HRID
           type: string
-        code:
-          description: Label identifying prefix, i.e. 'n', 'D', 'fst'
-          maxLength: 25
-          minLength: 1
+      type: object
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    authoritySourceFileDto_hridManagement:
+      description: Identifies HRID management properties
+      example:
+        startNumber: 0
+      properties:
+        startNumber:
+          type: integer
+      type: object
+      x-fqm-ignore: true
+    authoritySourceFileDtoCollection:
+      description: A collection of authority source files
+      example:
+        authoritySourceFiles:
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          codes:
+          - codes
+          - codes
+          type: type
+          baseUrl: http://example.com/aeiou
+          source: folio
+          selectable: true
+          hridManagement:
+            startNumber: 0
+          _version: 6
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          codes:
+          - codes
+          - codes
+          type: type
+          baseUrl: http://example.com/aeiou
+          source: folio
+          selectable: true
+          hridManagement:
+            startNumber: 0
+          _version: 6
+          metadata:
+            createdDate: '2000-01-23T04:56:07.000+00:00'
+            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            updatedDate: '2000-01-23T04:56:07.000+00:00'
+            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        totalRecords: 1
+      properties:
+        authoritySourceFiles:
+          description: List of authority source files
+          items:
+            $ref: '#/components/schemas/authoritySourceFileDto'
+          type: array
+        totalRecords:
+          description: Total amount of records
+          type: integer
+      required:
+      - totalRecords
+      type: object
+    authoritySourceFilePostDto_hridManagement:
+      description: Identifies HRID management properties
+      properties:
+        startNumber:
+          default: 1
+          minimum: 0
+          type: integer
+      type: object
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
           type: string
         type:
-          description: Type of authority records stored in source file
+          description: Error type
           type: string
-        baseUrl:
-          description: Base URL of the source file origin
-          format: url
+        code:
+          description: Error code
           type: string
-        selectable:
-          default: true
-          type: boolean
-        hridManagement:
-          $ref: '#/components/schemas/authoritySourceFilePostDto_hridManagement'
-      required:
-      - code
-      - name
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/error_parameters_inner'
+          type: array
+      type: object
+    authoritySourceFilePatchDto_hridManagement:
+      description: Identifies HRID management properties
+      properties:
+        startNumber:
+          description: Start number for HRID generation
+          minimum: 0
+          type: integer
       type: object
     authoritySourceFileDto:
       description: An Authority source file
@@ -380,6 +460,34 @@ components:
       - name
       - source
       type: object
+    authoritySourceFilePatchDto:
+      description: An Authority source file DTO for partial update operation
+      properties:
+        name:
+          description: Authority source file name
+          type: string
+        code:
+          description: identifying prefix, i.e. 'n', 'D', 'fst'
+          maxLength: 25
+          minLength: 1
+          type: string
+        type:
+          description: Type of authority records stored in source file
+          type: string
+        baseUrl:
+          description: Base URL of the source file origin
+          format: url
+          type: string
+        selectable:
+          type: boolean
+        hridManagement:
+          $ref: '#/components/schemas/authoritySourceFilePatchDto_hridManagement'
+        _version:
+          description: Record version for optimistic locking
+          type: integer
+      required:
+      - _version
+      type: object
     metadata:
       description: Creater, updater, creation date, last updated date
       example:
@@ -411,63 +519,36 @@ components:
           type: string
           x-fqm-value-getter: :sourceAlias.updated_by_user_id
       type: object
-    authoritySourceFileHridDto:
-      description: An Authority source file HRID response
-      example:
-        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        hrid: hrid
+    authoritySourceFilePostDto:
+      description: An Authority source file
       properties:
         id:
-          description: Unique ID of the Authority source file
+          description: Unique ID of the Authority source file; a UUID
           format: uuid
           type: string
-        hrid:
-          description: Next available Authority source file HRID
-          type: string
-      type: object
-    authoritySourceFileDto_hridManagement:
-      description: Identifies HRID management properties
-      example:
-        startNumber: 0
-      properties:
-        startNumber:
-          type: integer
-      type: object
-      x-fqm-ignore: true
-    error_parameters_inner:
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      type: object
-    error:
-      description: Error object
-      properties:
-        message:
-          description: Error message
-          type: string
-        type:
-          description: Error type
+        name:
+          description: Authority source file name
           type: string
         code:
-          description: Error code
+          description: Label identifying prefix, i.e. 'n', 'D', 'fst'
+          maxLength: 25
+          minLength: 1
           type: string
-        parameters:
-          description: Error parameters
-          items:
-            $ref: '#/components/schemas/error_parameters_inner'
-          type: array
-      type: object
-    authoritySourceFilePostDto_hridManagement:
-      description: Identifies HRID management properties
-      properties:
-        startNumber:
-          default: 1
-          minimum: 0
-          type: integer
+        type:
+          description: Type of authority records stored in source file
+          type: string
+        baseUrl:
+          description: Base URL of the source file origin
+          format: url
+          type: string
+        selectable:
+          default: true
+          type: boolean
+        hridManagement:
+          $ref: '#/components/schemas/authoritySourceFilePostDto_hridManagement'
+      required:
+      - code
+      - name
       type: object
     errors:
       description: Errors response
@@ -488,93 +569,3 @@ components:
             $ref: '#/components/schemas/error'
           type: array
       type: object
-    authoritySourceFileDtoCollection:
-      description: A collection of authority source files
-      example:
-        authoritySourceFiles:
-        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          name: name
-          codes:
-          - codes
-          - codes
-          type: type
-          baseUrl: http://example.com/aeiou
-          source: folio
-          selectable: true
-          hridManagement:
-            startNumber: 0
-          _version: 6
-          metadata:
-            createdDate: '2000-01-23T04:56:07.000+00:00'
-            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            updatedDate: '2000-01-23T04:56:07.000+00:00'
-            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        - id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          name: name
-          codes:
-          - codes
-          - codes
-          type: type
-          baseUrl: http://example.com/aeiou
-          source: folio
-          selectable: true
-          hridManagement:
-            startNumber: 0
-          _version: 6
-          metadata:
-            createdDate: '2000-01-23T04:56:07.000+00:00'
-            createdByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            updatedDate: '2000-01-23T04:56:07.000+00:00'
-            updatedByUserId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        totalRecords: 1
-      properties:
-        authoritySourceFiles:
-          description: List of authority source files
-          items:
-            $ref: '#/components/schemas/authoritySourceFileDto'
-          type: array
-        totalRecords:
-          description: Total amount of records
-          type: integer
-      required:
-      - totalRecords
-      type: object
-    authoritySourceFilePatchDto:
-      description: An Authority source file DTO for partial update operation
-      properties:
-        name:
-          description: Authority source file name
-          type: string
-        code:
-          description: identifying prefix, i.e. 'n', 'D', 'fst'
-          maxLength: 25
-          minLength: 1
-          type: string
-        type:
-          description: Type of authority records stored in source file
-          type: string
-        baseUrl:
-          description: Base URL of the source file origin
-          format: url
-          type: string
-        selectable:
-          type: boolean
-        hridManagement:
-          $ref: '#/components/schemas/authoritySourceFilePatchDto_hridManagement'
-        _version:
-          description: Record version for optimistic locking
-          type: integer
-      required:
-      - _version
-      type: object
-    authoritySourceFilePatchDto_hridManagement:
-      description: Identifies HRID management properties
-      properties:
-        startNumber:
-          description: Start number for HRID generation
-          minimum: 0
-          type: integer
-      type: object
-x-refined-from:
-- folio-mod-entities-links-openapi.json
-- folio-mod-entities-links-openapi.yml

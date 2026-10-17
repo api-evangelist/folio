@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Auth User API
+  title: Users Keycloak Auth User API
   version: v1
-  description: 'Operations tagged auth-user across 2 of this provider''s published API definitions: folio-mod-users-keycloak-openapi.json, folio-mod-users-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Users Keycloak API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -48,22 +48,8 @@ paths:
           description: Unexpected error
       summary: Create auth user
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
     error:
       $schema: http://json-schema.org/draft-04/schema#
       description: An error
@@ -81,6 +67,23 @@ components:
         parameters:
           description: List of key/value parameters of an error
           $ref: '#/components/schemas/parameters'
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
     errors:
       description: A set of errors
       $schema: http://json-schema.org/draft-04/schema#
@@ -95,39 +98,33 @@ components:
         total_records:
           description: Total number of errors
           type: integer
-    parameters:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
   responses:
-    internalServerError:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    created:
-      description: Success, entity created
-    badRequest:
-      description: Bad request, e.g. malformed request body or query parameter
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
     entityNotFound:
       description: Error response if entity is not found by id (in json format)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
+    created:
+      description: Success, entity created
     noContent:
       description: Success, no content
       content:
         text/plain:
           schema:
             type: string
+    badRequest:
+      description: Bad request, e.g. malformed request body or query parameter
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerError:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
   parameters:
     path-entity-userId:
       in: path
@@ -137,6 +134,3 @@ components:
       schema:
         type: string
         format: uuid
-x-refined-from:
-- folio-mod-users-keycloak-openapi.json
-- folio-mod-users-keycloak-openapi.yml

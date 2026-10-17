@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Authority Identifier Type API
+  description: Entity Links API
+  title: Entities Links Authority Identifier Type API
   version: v1.0
-  description: 'Operations tagged authority-identifier-type across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://localhost:8081
 tags:
@@ -60,8 +60,6 @@ paths:
       - authority-identifier-type
       summary: Retrieve authority identifier types
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
 components:
   schemas:
     authorityIdentifierTypeDto:
@@ -109,6 +107,15 @@ components:
       - name
       - source
       type: object
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
     authorityIdentifierTypeDtoCollection:
       description: A collection of authority identifier types
       example:
@@ -145,15 +152,6 @@ components:
       - identifierTypes
       - totalRecords
       type: object
-    error_parameters_inner:
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      type: object
     error:
       description: Error object
       properties:
@@ -170,25 +168,6 @@ components:
           description: Error parameters
           items:
             $ref: '#/components/schemas/error_parameters_inner'
-          type: array
-      type: object
-    errors:
-      description: Errors response
-      example:
-        Error:
-          value:
-            errors:
-            - message: may not be null
-              type: 1
-              code: -1
-              parameters:
-              - key: moduleTo
-                value: null
-      properties:
-        errors:
-          description: List of errors
-          items:
-            $ref: '#/components/schemas/error'
           type: array
       type: object
     metadata:
@@ -222,6 +201,22 @@ components:
           type: string
           x-fqm-value-getter: :sourceAlias.updated_by_user_id
       type: object
-x-refined-from:
-- folio-mod-entities-links-openapi.json
-- folio-mod-entities-links-openapi.yml
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object

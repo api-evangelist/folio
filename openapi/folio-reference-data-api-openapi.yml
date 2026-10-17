@@ -5,7 +5,7 @@ info:
     name: Knowledge Integration
     url: https://www.k-int.com
   version: '1.0'
-  description: 'Operations tagged Reference data across 6 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-licenses-openapi.json, folio-mod-oa-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-licenses-openapi.yml, folio-mod-oa-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Reference data across 3 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-licenses-openapi.json, folio-mod-oa-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -698,48 +698,6 @@ paths:
     - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   parameters:
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
     refdataProperty:
       in: path
       name: property
@@ -753,6 +711,12 @@ components:
       required: false
       schema:
         type: boolean
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
     refdataDomain:
       in: path
       name: domain
@@ -760,12 +724,24 @@ components:
       required: true
       schema:
         type: string
-    match:
+    sort:
       in: query
-      name: match
+      name: sort
       required: false
       schema:
         type: string
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
     refdataId:
       in: path
       name: refdataId
@@ -774,11 +750,28 @@ components:
       schema:
         type: string
         format: uuid
-    refdataCategoryId:
-      in: path
-      name: refdataCategoryId
-      description: ID for a reference data category
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
       required: true
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    match:
+      in: query
+      name: match
+      required: false
       schema:
         type: string
     refdataProperty_2:
@@ -795,10 +788,10 @@ components:
       required: true
       schema:
         type: string
-    refdataCategoryId_2:
+    refdataCategoryId:
       in: path
-      name: id
-      description: Id for a reference data category
+      name: refdataCategoryId
+      description: ID for a reference data category
       required: true
       schema:
         type: string
@@ -816,42 +809,87 @@ components:
       required: true
       schema:
         type: string
-    refdataProperty_4:
-      in: path
-      name: property
-      description: Name of the refdata-backed property on the domain class, e.g. `type` (on `License`)
-      required: true
-      schema:
-        type: string
-    refdataDomain_4:
-      in: path
-      name: domain
-      description: Simple (case-insensitive) name of the domain class that owns the property, e.g. `License`, `LicenseAmendment`
-      required: true
-      schema:
-        type: string
-    refdataCategoryId_3:
+    refdataCategoryId_2:
       in: path
       name: id
       description: Id for a reference data category
       required: true
       schema:
         type: string
-    refdataProperty_5:
-      in: path
-      name: property
-      description: Name of the refdata-backed property on the domain class, e.g. `requestStatus`
-      required: true
-      schema:
-        type: string
-    refdataDomain_5:
-      in: path
-      name: domain
-      description: Simple (case-insensitive) name of the domain class that owns the property, e.g. `PublicationRequest`
-      required: true
-      schema:
-        type: string
   schemas:
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    RefdataCategory:
+      type: object
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refdata'
+    RefdataResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/RefdataResultsArray'
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
+    RefdataCategoryResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/RefdataCategoryResultsArray'
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
     GrailsErrorResponse:
       type: object
       description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
@@ -875,34 +913,6 @@ components:
           type: array
           items:
             type: string
-    RefdataCategoryResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/RefdataCategoryResultsArray'
-    RefdataCategoryResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/RefdataCategory'
-    RefdataResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/Refdata'
-    RefdataResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/RefdataResultsArray'
     Refdata:
       type: object
       properties:
@@ -912,125 +922,14 @@ components:
           type: string
         value:
           type: string
-    RefdataCategory:
-      type: object
-      properties:
-        desc:
-          type: string
-        id:
-          type: string
-        internal:
-          type: boolean
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/Refdata'
-    ApplicationError:
-      type: object
-      properties:
-        total:
-          type: integer
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              code:
-                type: string
-              i18n_code:
-                type: string
-              message:
-                type: string
-              object:
-                type: string
-    ResultsMeta:
-      type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    HttpError:
-      type: object
-      properties:
-        message:
-          type: string
-        error:
-          type: integer
-    ValidationErrorResponse:
-      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
-      oneOf:
-      - $ref: '#/components/schemas/ValidationError'
-      - type: object
-        required:
-        - total
-        - _embedded
-        properties:
-          total:
-            type: integer
-          _embedded:
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ValidationError'
-    RefDataResultsArray:
+    RefdataCategoryResultsArray:
       type: array
       items:
-        $ref: '#/components/schemas/RefData'
-    RefData:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          readOnly: true
-        label:
-          type: string
-        value:
-          type: string
-        owner:
-          $ref: '#/components/schemas/RefDataCategory'
-    RefDataCategoryResultsArray:
+        $ref: '#/components/schemas/RefdataCategory'
+    RefdataResultsArray:
       type: array
       items:
-        $ref: '#/components/schemas/RefDataCategory'
-    RefDataCategory:
-      type: object
-      required:
-      - id
-      properties:
-        desc:
-          type: string
-        id:
-          type: string
-          readOnly: true
-        internal:
-          type: boolean
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/RefData'
-    RefDataCategoryResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/RefDataCategoryResultsArray'
+        $ref: '#/components/schemas/Refdata'
     ValidationError:
       type: object
       required:
@@ -1055,6 +954,62 @@ components:
                 href:
                   type: string
                   format: uri
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+    RefData:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+        owner:
+          $ref: '#/components/schemas/RefDataCategory'
+    RefDataCategory:
+      type: object
+      required:
+      - id
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+          readOnly: true
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefData'
+    RefDataCategoryResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/RefDataCategory'
+    RefDataResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/RefData'
     RefDataResults:
       type: object
       required:
@@ -1065,6 +1020,16 @@ components:
       - properties:
           results:
             $ref: '#/components/schemas/RefDataResultsArray'
+    RefDataCategoryResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/RefDataCategoryResultsArray'
     Refdata_2:
       type: object
       required:
@@ -1090,18 +1055,6 @@ components:
           type: string
         path:
           type: string
-    Refdata_3:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          readOnly: true
-        label:
-          type: string
-        value:
-          type: string
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -1115,6 +1068,3 @@ x-refined-from:
 - folio-mod-agreements-openapi.json
 - folio-mod-licenses-openapi.json
 - folio-mod-oa-openapi.json
-- folio-mod-agreements-openapi.yml
-- folio-mod-licenses-openapi.yml
-- folio-mod-oa-openapi.yml

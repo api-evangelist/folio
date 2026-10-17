@@ -5,7 +5,7 @@ info:
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Organisations across 4 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-licenses-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Organisations across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-licenses-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -175,88 +175,38 @@ paths:
     - url: https://folio-snapshot-2-okapi.dev.folio.org
     - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
-  parameters:
-    orgId:
-      in: path
-      name: orgId
-      description: UUID for an Org
-      required: true
-      schema:
-        type: string
-        format: uuid
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    stats:
-      in: query
-      name: stats
-      required: false
-      schema:
-        type: boolean
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    match:
-      in: query
-      name: match
-      required: false
-      schema:
-        type: string
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    orgId_2:
-      in: path
-      name: orgId
-      description: ID for an organisation
-      required: true
-      schema:
-        type: string
-    orgId_3:
-      in: path
-      name: orgId
-      description: ID for an organisation
-      required: true
-      schema:
-        type: string
   schemas:
     OrgResultsArray:
       type: array
       items:
         $ref: '#/components/schemas/Org'
+    OrgResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/OrgResultsArray'
+    Org:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          description: UUID of the corresponding record in the FOLIO Organizations app (mod-organizations-storage), if this org has been linked to one
+          type: string
+          format: uuid
+        orgsUuid_object:
+          description: The linked Organizations app record, fetched live from mod-organizations-storage at request time. Only present when fetching a single org (not in list results). If the lookup fails, this holds `error`/`message` fields describing the failure instead
+          type: object
+          readOnly: true
+          additionalProperties: true
     HttpError:
       type: object
       properties:
@@ -287,33 +237,6 @@ components:
           type: array
           items:
             type: string
-    OrgResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/OrgResultsArray'
-    Org:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        orgsUuid:
-          description: UUID of the corresponding record in the FOLIO Organizations app (mod-organizations-storage), if this org has been linked to one
-          type: string
-          format: uuid
-        orgsUuid_object:
-          description: The linked Organizations app record, fetched live from mod-organizations-storage at request time. Only present when fetching a single org (not in list results). If the lookup fails, this holds `error`/`message` fields describing the failure instead
-          type: object
-          readOnly: true
-          additionalProperties: true
     ResultsMeta:
       type: object
       properties:
@@ -329,6 +252,10 @@ components:
           type: integer
         totalRecords:
           type: integer
+    OrganisationResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Organisation'
     OrganisationResults:
       type: object
       required:
@@ -352,10 +279,76 @@ components:
           format: uuid
         orgsUuid_object:
           type: object
-    OrganisationResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/Organisation'
+  parameters:
+    orgId:
+      in: path
+      name: orgId
+      description: UUID for an Org
+      required: true
+      schema:
+        type: string
+        format: uuid
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    orgId_2:
+      in: path
+      name: orgId
+      description: ID for an organisation
+      required: true
+      schema:
+        type: string
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -368,5 +361,3 @@ components:
 x-refined-from:
 - folio-mod-agreements-openapi.json
 - folio-mod-licenses-openapi.json
-- folio-mod-agreements-openapi.yml
-- folio-mod-licenses-openapi.yml

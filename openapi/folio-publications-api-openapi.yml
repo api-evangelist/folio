@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Publications API
+  title: Publish coordinator Publications API
+  description: Publish coordinator API
   version: 0.0.1
-  description: 'Operations tagged Publications across 3 of this provider''s published API definitions: folio-mod-consortia-keycloak-publications-openapi.json, folio-mod-consortia-keycloak-publications-openapi.yml, folio-mod-consortia-publications-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /consortia/{consortiumId}/
 tags:
@@ -27,8 +27,6 @@ paths:
         $ref: '#/components/requestBodies/Publication'
       tags:
       - Publications
-    servers:
-    - url: /consortia/{consortiumId}/
   /publications/{publicationId}:
     get:
       summary: Get publication details
@@ -60,8 +58,6 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       tags:
       - Publications
-    servers:
-    - url: /consortia/{consortiumId}/
   /publications/{publicationId}/results:
     get:
       summary: Get publication results
@@ -78,10 +74,49 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       tags:
       - Publications
-    servers:
-    - url: /consortia/{consortiumId}/
 components:
   schemas:
+    PublicationStatus:
+      description: publication status
+      enum:
+      - IN_PROGRESS
+      - ERROR
+      - COMPLETE
+    PublicationResultCollection:
+      description: A JSON schema for the publication result collection
+      type: object
+      properties:
+        publicationResults:
+          type: array
+          description: The list of publication results
+          items:
+            type: object
+            $ref: '#/components/schemas/PublicationResult'
+        totalRecords:
+          type: integer
+    Errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    uuid:
+      type: string
+      format: uuid
     PublicationStatusError:
       description: publication status error
       properties:
@@ -94,17 +129,6 @@ components:
         errorCode:
           description: error code of failed request
           type: integer
-    PublicationResponse:
-      type: object
-      title: Publication response
-      properties:
-        id:
-          description: id of publication record
-          $ref: '#/components/schemas/uuid'
-        status:
-          type: string
-          $ref: '#/components/schemas/PublicationStatus'
-      additionalProperties: false
     PublicationRequest:
       type: object
       title: Publication request
@@ -128,58 +152,6 @@ components:
       required:
       - url
       - method
-    PublicationResultCollection:
-      description: A JSON schema for the publication result collection
-      type: object
-      properties:
-        publicationResults:
-          type: array
-          description: The list of publication results
-          items:
-            type: object
-            $ref: '#/components/schemas/PublicationResult'
-        totalRecords:
-          type: integer
-    Parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
-    Error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
-    Errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/Error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
     PublicationDetailsResponse:
       type: object
       title: Publication details response
@@ -203,27 +175,17 @@ components:
             type: object
             $ref: '#/components/schemas/PublicationStatusError'
       additionalProperties: false
-    PublicationStatus:
-      description: publication status
-      enum:
-      - IN_PROGRESS
-      - ERROR
-      - COMPLETE
-    uuid:
-      type: string
-      format: uuid
-    PublicationResult:
-      description: publication result
+    PublicationResponse:
+      type: object
+      title: Publication response
       properties:
-        tenantId:
-          description: tenant name
+        id:
+          description: id of publication record
+          $ref: '#/components/schemas/uuid'
+        status:
           type: string
-        response:
-          description: response message of tenant request
-          type: string
-        statusCode:
-          description: response code of tenant request
-          type: integer
+          $ref: '#/components/schemas/PublicationStatus'
+      additionalProperties: false
     Parameter:
       description: List of key/value parameters of an error
       type: object
@@ -236,6 +198,38 @@ components:
       additionalProperties: false
       required:
       - key
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    PublicationResult:
+      description: publication result
+      properties:
+        tenantId:
+          description: tenant name
+          type: string
+        response:
+          description: response message of tenant request
+          type: string
+        statusCode:
+          description: response code of tenant request
+          type: integer
   requestBodies:
     Publication:
       description: Publish coordinator request
@@ -260,20 +254,30 @@ components:
       required: true
       description: The ID of consortium
   responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
     PublicationResultCollection:
       description: Returns a publish coordinator results
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/PublicationResultCollection'
-    NoContent:
-      description: No content
     Publication:
       description: Returns a publish coordinator object
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/PublicationResponse'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     PublicationDetails:
       description: Returns a publish coordinator request details
       content:
@@ -286,25 +290,11 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Errors'
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     BadRequest:
       description: Bad request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Errors'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-x-refined-from:
-- folio-mod-consortia-keycloak-publications-openapi.json
-- folio-mod-consortia-keycloak-publications-openapi.yml
-- folio-mod-consortia-publications-openapi.yml
+    NoContent:
+      description: No content

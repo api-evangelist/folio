@@ -1,8 +1,22 @@
 openapi: 3.2.0
 info:
-  title: Folio Marc Migrations API
   version: 1.0.0
-  description: 'Operations tagged marc-migrations across 2 of this provider''s published API definitions: folio-mod-marc-migrations-openapi.json, folio-mod-marc-migrations-openapi.yml. Each path carries the servers of the definition it was published in.'
+  title: Marc Migrations API
+  description: 'API for managing MARC record migrations in FOLIO.
+
+
+    This API allows users to:
+
+    - Create new migration operations for MARC records
+
+    - Monitor the progress of migrations
+
+    - Retrieve information about existing migration operations
+
+
+    The API supports migration operations for different entity types (authority, instance)
+
+    and operation types (remapping).'
 security:
 - ApiKey: []
 tags:
@@ -576,6 +590,125 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    ErrorReportStatus:
+      description: Status of error report generation
+      type: object
+      required:
+      - status
+      properties:
+        operationId:
+          description: ID of the migration operation.
+          type: string
+          format: uuid
+        status:
+          description: Current status of error report generation
+          type: string
+          enum:
+          - not_started
+          - in_progress
+          - completed
+          - error
+    ErrorReportCollection:
+      description: Collection of error reports with pagination information.
+      type: object
+      required:
+      - errorReports
+      properties:
+        errorReports:
+          description: List of error reports for the current page.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorReport'
+    SaveMigrationOperation:
+      description: Request body schema for updating an existing MARC migration operation.
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          $ref: '#/components/schemas/MigrationOperationStatus'
+        publishEvents:
+          description: A flag that indicates if domain events should be published when the operation is updated.
+          type: boolean
+          default: true
+    OperationType:
+      description: Type of migration operation to perform.
+      type: string
+      enum:
+      - remapping
+      - import
+      example: remapping
+    Error:
+      description: Standard error response object.
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          description: Human-readable error message.
+          type: string
+          example: Invalid UUID format
+        type:
+          description: Type of the exception that caused the error.
+          type: string
+          example: IllegalArgumentException
+        code:
+          description: Error code for client-side error handling.
+          type: string
+          example: validation_error
+        parameters:
+          description: Additional parameters providing context for the error.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorParameter'
+    ErrorParameter:
+      description: Key-value pair providing additional context for an error.
+      type: object
+      required:
+      - key
+      properties:
+        key:
+          description: Name of the parameter that caused or is related to the error.
+          type: string
+          example: operationId
+        value:
+          description: Value of the parameter that caused or is related to the error.
+          type: string
+          example: invalid-uuid-format
+    NewMigrationOperation:
+      description: Request body schema for creating a new MARC migration operation.
+      type: object
+      required:
+      - entityType
+      - operationType
+      properties:
+        entityType:
+          $ref: '#/components/schemas/EntityType'
+        operationType:
+          $ref: '#/components/schemas/OperationType'
+    MigrationOperationCollection:
+      description: Collection of MARC migration operations with pagination information.
+      type: object
+      properties:
+        totalRecords:
+          description: Total number of migration operations matching the query.
+          type: integer
+          minimum: 0
+        migrationOperations:
+          description: List of MARC migration operations for the current page.
+          type: array
+          items:
+            $ref: '#/components/schemas/MigrationOperation'
+      required:
+      - totalRecords
+      - migrationOperations
+    EntityType:
+      description: Type of MARC entity being migrated.
+      type: string
+      enum:
+      - authority
+      - instance
+      example: authority
     MigrationOperation:
       description: Represents a MARC migration operation with its current state and progress information.
       type: object
@@ -628,6 +761,18 @@ components:
           description: Timestamp when the saving phase of the migration completed.
           type: string
           format: date-time
+    MigrationOperationStatus:
+      description: Current status of the migration operation.
+      type: string
+      enum:
+      - new
+      - data_mapping
+      - data_mapping_completed
+      - data_mapping_failed
+      - data_saving
+      - data_saving_completed
+      - data_saving_failed
+      example: data_mapping
     ErrorReport:
       description: Error report for a migration operation.
       type: object
@@ -658,137 +803,6 @@ components:
         errorMessage:
           description: Error message.
           type: string
-    Error:
-      description: Standard error response object.
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          description: Human-readable error message.
-          type: string
-          example: Invalid UUID format
-        type:
-          description: Type of the exception that caused the error.
-          type: string
-          example: IllegalArgumentException
-        code:
-          description: Error code for client-side error handling.
-          type: string
-          example: validation_error
-        parameters:
-          description: Additional parameters providing context for the error.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorParameter'
-    ErrorReportStatus:
-      description: Status of error report generation
-      type: object
-      required:
-      - status
-      properties:
-        operationId:
-          description: ID of the migration operation.
-          type: string
-          format: uuid
-        status:
-          description: Current status of error report generation
-          type: string
-          enum:
-          - not_started
-          - in_progress
-          - completed
-          - error
-    ErrorParameter:
-      description: Key-value pair providing additional context for an error.
-      type: object
-      required:
-      - key
-      properties:
-        key:
-          description: Name of the parameter that caused or is related to the error.
-          type: string
-          example: operationId
-        value:
-          description: Value of the parameter that caused or is related to the error.
-          type: string
-          example: invalid-uuid-format
-    MigrationOperationStatus:
-      description: Current status of the migration operation.
-      type: string
-      enum:
-      - new
-      - data_mapping
-      - data_mapping_completed
-      - data_mapping_failed
-      - data_saving
-      - data_saving_completed
-      - data_saving_failed
-      example: data_mapping
-    NewMigrationOperation:
-      description: Request body schema for creating a new MARC migration operation.
-      type: object
-      required:
-      - entityType
-      - operationType
-      properties:
-        entityType:
-          $ref: '#/components/schemas/EntityType'
-        operationType:
-          $ref: '#/components/schemas/OperationType'
-    SaveMigrationOperation:
-      description: Request body schema for updating an existing MARC migration operation.
-      type: object
-      required:
-      - status
-      properties:
-        status:
-          $ref: '#/components/schemas/MigrationOperationStatus'
-        publishEvents:
-          description: A flag that indicates if domain events should be published when the operation is updated.
-          type: boolean
-          default: true
-    MigrationOperationCollection:
-      description: Collection of MARC migration operations with pagination information.
-      type: object
-      properties:
-        totalRecords:
-          description: Total number of migration operations matching the query.
-          type: integer
-          minimum: 0
-        migrationOperations:
-          description: List of MARC migration operations for the current page.
-          type: array
-          items:
-            $ref: '#/components/schemas/MigrationOperation'
-      required:
-      - totalRecords
-      - migrationOperations
-    OperationType:
-      description: Type of migration operation to perform.
-      type: string
-      enum:
-      - remapping
-      - import
-      example: remapping
-    EntityType:
-      description: Type of MARC entity being migrated.
-      type: string
-      enum:
-      - authority
-      - instance
-      example: authority
-    ErrorReportCollection:
-      description: Collection of error reports with pagination information.
-      type: object
-      required:
-      - errorReports
-      properties:
-        errorReports:
-          description: List of error reports for the current page.
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorReport'
   parameters:
     TenantId:
       name: X-Okapi-Tenant
@@ -803,6 +817,3 @@ components:
       type: apiKey
       in: header
       name: X-Okapi-Token
-x-refined-from:
-- folio-mod-marc-migrations-openapi.json
-- folio-mod-marc-migrations-openapi.yml

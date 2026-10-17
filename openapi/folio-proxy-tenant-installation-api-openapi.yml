@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Proxy Tenant Installation API
+  title: Okapi Core API Facade Proxy Tenant Installation API
   version: v2.0
-  description: 'Operations tagged proxy-tenant-installation across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Okapi Core API Facade
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -113,9 +113,6 @@ paths:
       - $ref: '#/components/parameters/query-install-dep-check'
       summary: Create install job
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/proxy/tenants/{tenant_id}/install/{install_id}:
     parameters:
     - name: install_id
@@ -169,9 +166,6 @@ paths:
       - proxy-tenant-installation
       summary: Delete install job
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/proxy/tenants/{tenant_id}/upgrade:
     parameters:
     - name: tenant_id
@@ -228,162 +222,8 @@ paths:
       - $ref: '#/components/parameters/query-install-dep-check'
       summary: Create upgrade job
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
-  parameters:
-    query-install-parallel:
-      name: parallel
-      in: query
-      description: 'Number of parallel calls to tenant interfaces of modules.
-
-        A value of 1 means calls are happening in sequence.
-
-        If depCheck=false and parallel>1, the invocation will be rejected.
-
-        '
-      schema:
-        default: 1
-        minimum: 1
-        type: integer
-    query-install-simulate:
-      name: simulate
-      in: query
-      description: Whether the installation is simulated
-      schema:
-        default: false
-        type: boolean
-    query-pre-release:
-      name: preRelease
-      in: query
-      description: Whether to use pre-release in operation. "true"&#58; use all modules; "false"&#58; releases (no pre-releases); "only"&#58; only pre-releases.
-      schema:
-        default: 'true'
-        enum:
-        - 'true'
-        - 'false'
-        - only
-        type: string
-    query-install-dep-check:
-      name: depCheck
-      in: query
-      description: "Whether to check dependencies of modules before being installed. Modules are installed exactly\n  in the order supplied by the client. If depCheck=false and parallel>1, the invocation will be\n  rejected.\n"
-      schema:
-        default: true
-        type: boolean
-    query-install-tenant-parameters:
-      name: tenantParameters
-      in: query
-      description: Parameters for tenant init
-      schema:
-        type: string
-    query-install-reinstall:
-      name: reinstall
-      in: query
-      description: Whether to install modules even if up-to-update.
-      schema:
-        default: false
-        type: boolean
-    query-install-invoke:
-      name: invoke
-      in: query
-      description: "Whether to invoke for tenant init/permissions/purge. Use\n \"true\" to invoke, \"false\" to not invoke. Any other value\n is a regular expression that is matched against the module ID.\n If that pattern matches, invoke is performed (same as \"true\").\n"
-      schema:
-        default: 'true'
-        type: string
-    query-install-purge:
-      name: purge
-      in: query
-      description: Disabled modules will also be purged.
-      schema:
-        default: false
-        type: boolean
-    query-install-ignore-errors:
-      name: ignoreErrors
-      in: query
-      description: 'Okapi 4.2.0 and later, it is possible to ignore errors during the
-
-        install operation. This is done by supplying parameter `ignoreErrors=true`.
-
-        In this case, Okapi will try to upgrade all modules in the modules list,
-
-        regardless if one of them fails. However, for individual modules, if they
-
-        fail, their upgrade will not be committed. This is an experimental parameter
-
-        which was added to be able to inspect all problem(s) with module upgrade(s).
-
-        '
-      schema:
-        default: false
-        type: boolean
-    query-install-async:
-      name: async
-      in: query
-      description: Whether to install in the background.
-      schema:
-        default: false
-        type: boolean
-    query-npm-snapshot:
-      name: npmSnapshot
-      in: query
-      description: Whether to use NPM module snapshots in operation. "true"&#58; use all modules; "false"&#58; releases (no NPM snapshots); "only"&#58; only NPM snapshots.
-      schema:
-        default: 'true'
-        enum:
-        - 'true'
-        - 'false'
-        - only
-        type: string
-    query-install-deploy:
-      name: deploy
-      in: query
-      description: Whether to deploy (or undeploy if disabling).
-      schema:
-        default: false
-        type: boolean
-  headers:
-    X-Okapi-Trace:
-      required: false
-      description: Okapi trace and timing
-      schema:
-        type: string
   schemas:
-    InstallJob:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: InstallJob.json
-      title: InstallJob
-      description: Install job
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          description: Job ID
-          type: string
-        complete:
-          description: Whether job is complete
-          type: boolean
-        startDate:
-          description: Start date
-          type: string
-        endDate:
-          description: End date
-          type: string
-        modules:
-          description: List of modules involved in install job
-          $ref: '#/components/schemas/TenantModuleDescriptorList'
-      required:
-      - complete
-      - modules
-    TenantModuleDescriptorList:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: TenantModuleDescriptorList.json
-      title: TenantModuleDescriptorList
-      description: List of module transitions
-      type: array
-      items:
-        $ref: '#/components/schemas/TenantModuleDescriptor'
     TenantModuleDescriptor:
       $schema: http://json-schema.org/draft-04/schema#
       id: TenantModuleDescriptor.json
@@ -421,6 +261,40 @@ components:
           type: string
       required:
       - id
+    InstallJob:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: InstallJob.json
+      title: InstallJob
+      description: Install job
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          description: Job ID
+          type: string
+        complete:
+          description: Whether job is complete
+          type: boolean
+        startDate:
+          description: Start date
+          type: string
+        endDate:
+          description: End date
+          type: string
+        modules:
+          description: List of modules involved in install job
+          $ref: '#/components/schemas/TenantModuleDescriptorList'
+      required:
+      - complete
+      - modules
+    TenantModuleDescriptorList:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: TenantModuleDescriptorList.json
+      title: TenantModuleDescriptorList
+      description: List of module transitions
+      type: array
+      items:
+        $ref: '#/components/schemas/TenantModuleDescriptor'
     InstallJobList:
       $schema: http://json-schema.org/draft-04/schema#
       id: InstallJobList.json
@@ -429,6 +303,120 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/InstallJob'
-x-refined-from:
-- folio-mod-okapi-facade-openapi.json
-- folio-mod-okapi-facade-openapi.yml
+  parameters:
+    query-install-ignore-errors:
+      name: ignoreErrors
+      in: query
+      description: 'Okapi 4.2.0 and later, it is possible to ignore errors during the
+
+        install operation. This is done by supplying parameter `ignoreErrors=true`.
+
+        In this case, Okapi will try to upgrade all modules in the modules list,
+
+        regardless if one of them fails. However, for individual modules, if they
+
+        fail, their upgrade will not be committed. This is an experimental parameter
+
+        which was added to be able to inspect all problem(s) with module upgrade(s).
+
+        '
+      schema:
+        default: false
+        type: boolean
+    query-install-tenant-parameters:
+      name: tenantParameters
+      in: query
+      description: Parameters for tenant init
+      schema:
+        type: string
+    query-npm-snapshot:
+      name: npmSnapshot
+      in: query
+      description: Whether to use NPM module snapshots in operation. "true"&#58; use all modules; "false"&#58; releases (no NPM snapshots); "only"&#58; only NPM snapshots.
+      schema:
+        default: 'true'
+        enum:
+        - 'true'
+        - 'false'
+        - only
+        type: string
+    query-pre-release:
+      name: preRelease
+      in: query
+      description: Whether to use pre-release in operation. "true"&#58; use all modules; "false"&#58; releases (no pre-releases); "only"&#58; only pre-releases.
+      schema:
+        default: 'true'
+        enum:
+        - 'true'
+        - 'false'
+        - only
+        type: string
+    query-install-simulate:
+      name: simulate
+      in: query
+      description: Whether the installation is simulated
+      schema:
+        default: false
+        type: boolean
+    query-install-invoke:
+      name: invoke
+      in: query
+      description: "Whether to invoke for tenant init/permissions/purge. Use\n \"true\" to invoke, \"false\" to not invoke. Any other value\n is a regular expression that is matched against the module ID.\n If that pattern matches, invoke is performed (same as \"true\").\n"
+      schema:
+        default: 'true'
+        type: string
+    query-install-parallel:
+      name: parallel
+      in: query
+      description: 'Number of parallel calls to tenant interfaces of modules.
+
+        A value of 1 means calls are happening in sequence.
+
+        If depCheck=false and parallel>1, the invocation will be rejected.
+
+        '
+      schema:
+        default: 1
+        minimum: 1
+        type: integer
+    query-install-purge:
+      name: purge
+      in: query
+      description: Disabled modules will also be purged.
+      schema:
+        default: false
+        type: boolean
+    query-install-reinstall:
+      name: reinstall
+      in: query
+      description: Whether to install modules even if up-to-update.
+      schema:
+        default: false
+        type: boolean
+    query-install-deploy:
+      name: deploy
+      in: query
+      description: Whether to deploy (or undeploy if disabling).
+      schema:
+        default: false
+        type: boolean
+    query-install-async:
+      name: async
+      in: query
+      description: Whether to install in the background.
+      schema:
+        default: false
+        type: boolean
+    query-install-dep-check:
+      name: depCheck
+      in: query
+      description: "Whether to check dependencies of modules before being installed. Modules are installed exactly\n  in the order supplied by the client. If depCheck=false and parallel>1, the invocation will be\n  rejected.\n"
+      schema:
+        default: true
+        type: boolean
+  headers:
+    X-Okapi-Trace:
+      required: false
+      description: Okapi trace and timing
+      schema:
+        type: string

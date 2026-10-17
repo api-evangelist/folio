@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Profile API
+  title: Linked Data Profile API
   version: v1
-  description: 'Operations tagged profile across 2 of this provider''s published API definitions: folio-mod-linked-data-openapi.json, folio-mod-linked-data-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Linked Data service API
 tags:
 - name: Profile
 paths:
@@ -285,77 +285,24 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-    preferredProfileRequest:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Preferred profile request schema
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int16
-          description: ID of the profile
-        resourceType:
-          type: string
-          description: Type of the resource to which the profile applies
-      required:
-      - id
-      - resourceType
-    customProfileSettingsLabel:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Custom profile settings label
-      type: object
-      properties:
-        name:
-          type: string
-          description: Name of the workspace custom profile settings
-          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
-      required:
-      - name
-    customProfileSettingsRequestDto:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Workspace custom profile settings request DTO
-      allOf:
-      - $ref: '#/components/schemas/customProfileSettings'
-    errors:
-      description: A set of errors
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-    parameters:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-    customProfileSettings:
+    customProfileSettingsChild:
       $schema: http://json-schema.org/draft-04/schema#
       description: Workspace custom profile settings
       type: object
-      allOf:
-      - $ref: '#/components/schemas/customProfileSettingsLabel'
-      - $ref: '#/components/schemas/customProfileSettingsValues'
+      properties:
+        id:
+          type: string
+          description: The child profile component's ID, from its id attribute
+        visible:
+          type: boolean
+          description: True if this profile component should be visible to the user
+        order:
+          type: integer
+          description: The rank order of the component, starting from 1 at the top
+      required:
+      - id
+      - visible
+      - order
     customProfileSettingsMetadata:
       $schema: http://json-schema.org/draft-04/schema#
       description: Custom profile settings metadata
@@ -374,12 +321,53 @@ components:
         required:
         - id
         - profileId
-    profileMetadataArray:
+    customProfileSettingsLabel:
       $schema: http://json-schema.org/draft-04/schema#
-      description: Array of profile metadata
+      description: Custom profile settings label
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the workspace custom profile settings
+          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
+      required:
+      - name
+    customProfileSettingsMetadataArray:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Array of custom profile settings metadata
       type: array
       items:
-        $ref: '#/components/schemas/profileMetadata'
+        $ref: '#/components/schemas/customProfileSettingsMetadata'
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    preferredProfileRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Preferred profile request schema
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int16
+          description: ID of the profile
+        resourceType:
+          type: string
+          description: Type of the resource to which the profile applies
+      required:
+      - id
+      - resourceType
     customProfileSettingsResponseDto:
       $schema: http://json-schema.org/draft-04/schema#
       description: Workspace custom profile settings response DTO
@@ -387,6 +375,64 @@ components:
       allOf:
       - $ref: '#/components/schemas/customProfileSettingsValues'
       - $ref: '#/components/schemas/customProfileSettingsMetadata'
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    customProfileSettings:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Workspace custom profile settings
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/customProfileSettingsLabel'
+      - $ref: '#/components/schemas/customProfileSettingsValues'
+    error:
+      description: An error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+    profileMetadataArray:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Array of profile metadata
+      type: array
+      items:
+        $ref: '#/components/schemas/profileMetadata'
+    customProfileSettingsRequestDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Workspace custom profile settings request DTO
+      allOf:
+      - $ref: '#/components/schemas/customProfileSettings'
+    preferredProfileSettingsRequest:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Preferred profile settings request schema
+      type: object
+      properties:
+        profileSettingsId:
+          type: integer
+          format: int16
+          description: ID of the profile settings
+      required:
+      - profileSettingsId
     customProfileSettingsValues:
       $schema: http://json-schema.org/draft-04/schema#
       description: Workspace custom profile settings
@@ -422,59 +468,13 @@ components:
       - id
       - name
       - resourceType
-    customProfileSettingsMetadataArray:
+    parameters:
+      description: List of key/value parameters of an error
       $schema: http://json-schema.org/draft-04/schema#
-      description: Array of custom profile settings metadata
       type: array
       items:
-        $ref: '#/components/schemas/customProfileSettingsMetadata'
-    customProfileSettingsChild:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Workspace custom profile settings
-      type: object
-      properties:
-        id:
-          type: string
-          description: The child profile component's ID, from its id attribute
-        visible:
-          type: boolean
-          description: True if this profile component should be visible to the user
-        order:
-          type: integer
-          description: The rank order of the component, starting from 1 at the top
-      required:
-      - id
-      - visible
-      - order
-    preferredProfileSettingsRequest:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Preferred profile settings request schema
-      type: object
-      properties:
-        profileSettingsId:
-          type: integer
-          format: int16
-          description: ID of the profile settings
-      required:
-      - profileSettingsId
-    error:
-      description: An error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
+        type: object
+        $ref: '#/components/schemas/parameter'
   parameters:
     profileSettingsId:
       name: profileSettingsId
@@ -507,6 +507,3 @@ components:
           example: examples/validationErrorResponse.sample
           schema:
             $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mod-linked-data-openapi.json
-- folio-mod-linked-data-openapi.yml

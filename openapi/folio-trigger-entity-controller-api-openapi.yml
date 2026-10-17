@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Trigger Entity Controller API
+  title: OpenAPI definition Trigger Entity Controller API
   version: v0
-  description: 'Operations tagged trigger-entity-controller across 2 of this provider''s published API definitions: folio-mod-workflow-openapi-openapi.json, folio-mod-workflow-openapi-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: http://localhost:9000
   description: Generated server url
@@ -75,9 +74,6 @@ paths:
                 $ref: '#/components/schemas/EntityModelTrigger'
       summary: Post collection resource trigger post
       x-summary-source: derived
-    servers:
-    - url: http://localhost:9000
-      description: Generated server url
   /triggers/{id}:
     get:
       tags:
@@ -181,9 +177,6 @@ paths:
           description: No Content
       summary: Patch item resource trigger patch
       x-summary-source: derived
-    servers:
-    - url: http://localhost:9000
-      description: Generated server url
 components:
   schemas:
     PageMetadata:
@@ -201,38 +194,29 @@ components:
         number:
           type: integer
           format: int64
-    EntityModelTrigger:
+    Links:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Link'
+    Link:
       type: object
       properties:
+        href:
+          type: string
+        hreflang:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        deprecation:
+          type: string
+        profile:
+          type: string
         name:
           type: string
-          maxLength: 64
-          minLength: 4
-        description:
-          type: string
-          maxLength: 256
-          minLength: 0
-        pathPattern:
-          type: string
-          maxLength: 256
-          minLength: 2
-        method:
-          type: string
-          enum:
-          - GET
-          - HEAD
-          - POST
-          - PUT
-          - PATCH
-          - DELETE
-          - OPTIONS
-          - TRACE
-        _links:
-          $ref: '#/components/schemas/Links'
-      required:
-      - method
-      - name
-      - pathPattern
+        templated:
+          type: boolean
     TriggerRequestBody:
       type: object
       properties:
@@ -279,29 +263,35 @@ components:
           $ref: '#/components/schemas/Links'
         page:
           $ref: '#/components/schemas/PageMetadata'
-    Links:
-      type: object
-      additionalProperties:
-        $ref: '#/components/schemas/Link'
-    Link:
+    EntityModelTrigger:
       type: object
       properties:
-        href:
-          type: string
-        hreflang:
-          type: string
-        title:
-          type: string
-        type:
-          type: string
-        deprecation:
-          type: string
-        profile:
-          type: string
         name:
           type: string
-        templated:
-          type: boolean
-x-refined-from:
-- folio-mod-workflow-openapi-openapi.json
-- folio-mod-workflow-openapi-openapi.yml
+          maxLength: 64
+          minLength: 4
+        description:
+          type: string
+          maxLength: 256
+          minLength: 0
+        pathPattern:
+          type: string
+          maxLength: 256
+          minLength: 2
+        method:
+          type: string
+          enum:
+          - GET
+          - HEAD
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+          - TRACE
+        _links:
+          $ref: '#/components/schemas/Links'
+      required:
+      - method
+      - name
+      - pathPattern

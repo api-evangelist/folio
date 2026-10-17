@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Get Circulation Loan By ID API
+  title: Circulation BFF requests Get Circulation Loan By ID API
   version: v1
-  description: 'Operations tagged getCirculationLoanById across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: getCirculationLoanById
 paths:
@@ -32,33 +31,99 @@ paths:
       summary: Get circulation loan by id
       x-summary-source: derived
 components:
+  examples:
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+  responses:
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            validationErrorResponse:
+              $ref: '#/components/examples/validationErrorResponse'
+    unprocessableEntityResponse:
+      description: Validation error for the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            response:
+              $ref: '#/components/examples/validationErrorResponse'
+  parameters:
+    loanId:
+      name: loanId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
-    bffSearchItemCallNumberComponents:
-      type: object
-      description: Elements of a full call number generated from the item or holding
-      properties:
-        callNumber:
-          type: string
-          description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item
-        prefix:
-          type: string
-          description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item
-        suffix:
-          type: string
-          description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item
-    parameter:
-      description: List of key/value parameters of an error
+    error:
+      description: An error
       type: object
       properties:
-        key:
-          description: Parameter key
+        message:
           type: string
-        value:
-          description: Parameter value
+          description: Error message text
+        type:
           type: string
-      example:
-        key: source
-        value: 'null'
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    bffSearchItemInTransitDestinationServicePoint:
+      type: object
+      description: Service point an item is intended to be transited to (should only be present when in transit)
+      properties:
+        id:
+          description: The ID of the service point
+          type: string
+          format: uuid
+        name:
+          description: Name of the service point
+          type: string
     errorResponse:
       description: A set of errors
       type: object
@@ -315,6 +380,32 @@ components:
             updatedByUsername:
               description: Username of the user who last updated the record (when available)
               type: string
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
+    bffSearchItemCallNumberComponents:
+      type: object
+      description: Elements of a full call number generated from the item or holding
+      properties:
+        callNumber:
+          type: string
+          description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item
+        prefix:
+          type: string
+          description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item
+        suffix:
+          type: string
+          description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item
     loanItem:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -429,98 +520,3 @@ components:
           description: Physical description of the described resource, including its extent, dimensions, and such other physical details as a description of any accompanying materials and unit type and size
           items:
             type: string
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: array
-          items:
-            $ref: '#/components/schemas/parameter'
-    bffSearchItemInTransitDestinationServicePoint:
-      type: object
-      description: Service point an item is intended to be transited to (should only be present when in transit)
-      properties:
-        id:
-          description: The ID of the service point
-          type: string
-          format: uuid
-        name:
-          description: Name of the service point
-          type: string
-  examples:
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    unknownError:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-  responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            unknownError:
-              $ref: '#/components/examples/unknownError'
-    notFoundResponse:
-      description: Not found
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Not found
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-    unprocessableEntityResponse:
-      description: Validation error for the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            response:
-              $ref: '#/components/examples/validationErrorResponse'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            validationErrorResponse:
-              $ref: '#/components/examples/validationErrorResponse'
-  parameters:
-    loanId:
-      name: loanId
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-x-refined-from:
-- folio-mod-circulation-bff-circulationbff-openapi.json
-- folio-mod-circulation-bff-circulationbff-openapi.yml

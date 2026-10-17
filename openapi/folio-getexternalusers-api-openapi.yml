@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Get External Users API
+  title: Circulation BFF requests Get External Users API
   version: v1
-  description: 'Operations tagged getExternalUsers across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: getExternalUsers
 paths:
@@ -31,133 +30,25 @@ paths:
       summary: Get external users
       x-summary-source: derived
 components:
-  schemas:
-    resultInfo:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: resultInfo.schema
-      description: Faceting of result sets
-      type: object
-      properties:
-        totalRecords:
-          type: integer
-          description: Estimated or exact total number of records
-        totalRecordsEstimated:
-          type: boolean
-          description: True if totalRecords is an estimation, false if it is the exact number
-        totalRecordsRounded:
-          type: integer
-          description: The rounded value of totalRecords if totalRecords is an estimation
-        responseTime:
-          type: number
-          description: Response time
-        facets:
-          type: array
-          description: Array of facets
-          items:
-            type: object
-            description: A facet
-            properties:
-              facetValues:
-                type: array
-                description: Array of facet values
-                items:
-                  type: object
-                  description: A facet value
-                  properties:
-                    count:
-                      type: integer
-                      description: Count of facet values
-                    value:
-                      description: Value Object
-              type:
-                type: string
-                description: Type of facet
-        diagnostics:
-          type: array
-          description: Array of diagnostic information
-          items:
-            type: object
-            description: Diagnostic information
-            properties:
-              source:
-                type: string
-                description: Source reporting the diagnostic information
-              code:
-                type: string
-                description: Diagnostic Code
-              message:
-                type: string
-                description: Diagnostic Message
-              module:
-                type: string
-                description: Module reporting diagnostic information
-              recordCount:
-                type: integer
-                description: Record Count for diagnostics
-              query:
-                type: string
-                description: CQL Query associated with results
-    parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      example:
-        key: source
-        value: 'null'
-    errorResponse:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      example:
+  examples:
+    unknownError:
+      value:
         errors:
         - message: Illegal argument error
           type: IllegalArgumentException
           code: unknown_error
         total_records: 1
-    tags:
-      title: tags
-      description: List of simple tags that can be added to an object
-      type: object
-      properties:
-        tagList:
-          description: List of tags
-          type: array
-          items:
-            type: string
-    userCollection:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Collection of users
-      properties:
-        users:
-          description: List of users
-          type: array
-          id: userCollection
-          items:
-            type: object
-            $ref: '#/components/schemas/user'
-        totalRecords:
-          type: integer
-        resultInfo:
-          $ref: '#/components/schemas/resultInfo'
-          readonly: true
-      required:
-      - users
-      - totalRecords
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+  schemas:
     user:
       $schema: http://json-schema.org/draft-04/schema#
       title: User Schema
@@ -314,11 +205,16 @@ components:
           uniqueItems: true
           description: Preferred email communication types
       additionalProperties: true
-    uuid:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    tags:
+      title: tags
+      description: List of simple tags that can be added to an object
+      type: object
+      properties:
+        tagList:
+          description: List of tags
+          type: array
+          items:
+            type: string
     error:
       description: An error
       type: object
@@ -336,6 +232,127 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/parameter'
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    resultInfo:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: resultInfo.schema
+      description: Faceting of result sets
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          description: Estimated or exact total number of records
+        totalRecordsEstimated:
+          type: boolean
+          description: True if totalRecords is an estimation, false if it is the exact number
+        totalRecordsRounded:
+          type: integer
+          description: The rounded value of totalRecords if totalRecords is an estimation
+        responseTime:
+          type: number
+          description: Response time
+        facets:
+          type: array
+          description: Array of facets
+          items:
+            type: object
+            description: A facet
+            properties:
+              facetValues:
+                type: array
+                description: Array of facet values
+                items:
+                  type: object
+                  description: A facet value
+                  properties:
+                    count:
+                      type: integer
+                      description: Count of facet values
+                    value:
+                      description: Value Object
+              type:
+                type: string
+                description: Type of facet
+        diagnostics:
+          type: array
+          description: Array of diagnostic information
+          items:
+            type: object
+            description: Diagnostic information
+            properties:
+              source:
+                type: string
+                description: Source reporting the diagnostic information
+              code:
+                type: string
+                description: Diagnostic Code
+              message:
+                type: string
+                description: Diagnostic Message
+              module:
+                type: string
+                description: Module reporting diagnostic information
+              recordCount:
+                type: integer
+                description: Record Count for diagnostics
+              query:
+                type: string
+                description: CQL Query associated with results
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
+    userCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Collection of users
+      properties:
+        users:
+          description: List of users
+          type: array
+          id: userCollection
+          items:
+            type: object
+            $ref: '#/components/schemas/user'
+        totalRecords:
+          type: integer
+        resultInfo:
+          $ref: '#/components/schemas/resultInfo'
+          readonly: true
+      required:
+      - users
+      - totalRecords
     metadata:
       type: object
       description: Record metadata
@@ -358,34 +375,7 @@ components:
         updatedByUsername:
           description: Username of the user who last updated the record (when available)
           type: string
-  examples:
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    unknownError:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
   responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            unknownError:
-              $ref: '#/components/examples/unknownError'
     notFoundResponse:
       description: Not found
       content:
@@ -396,6 +386,15 @@ components:
             total_records: 1
           schema:
             $ref: '#/components/schemas/errorResponse'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
     unprocessableEntityResponse:
       description: Validation error for the request.
       content:
@@ -418,6 +417,3 @@ components:
       required: true
       schema:
         type: string
-x-refined-from:
-- folio-mod-circulation-bff-circulationbff-openapi.json
-- folio-mod-circulation-bff-circulationbff-openapi.yml

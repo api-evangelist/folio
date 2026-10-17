@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Log Events API
+  title: Mod Login Keycloak Log Events API
   version: v1
-  description: 'Operations tagged logEvents across 2 of this provider''s published API definitions: folio-mod-login-keycloak-openapi.json, folio-mod-login-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Mod Login Keycloak API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -57,9 +57,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Save log event
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /authn/log/events/{eventId}:
     delete:
       description: Saves received event into the storage
@@ -77,11 +74,26 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Delete log event
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
   parameters:
+    start:
+      in: query
+      name: start
+      description: The starting index in a list of results (starts at one).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    length:
+      in: query
+      name: length
+      description: The maximum number of results to return.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 10
+      example: 10
     eventId:
       in: path
       required: true
@@ -97,25 +109,90 @@ components:
       schema:
         type: string
       example: '10'
-    length:
-      in: query
-      name: length
-      description: The maximum number of results to return.
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        default: 10
-      example: 10
-    start:
-      in: query
-      name: start
-      description: The starting index in a list of results (starts at one).
-      schema:
-        type: integer
-        minimum: 1
-        default: 1
   schemas:
+    logResponse:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: logResponse.json
+      title: Log Response Schema
+      description: The log event object containing the message received from LoginAPI
+      type: object
+      properties:
+        message:
+          description: The message containing API response information
+          type: string
+      required:
+      - message
+    logEvent:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: logEvent.json
+      title: Log Event Schema
+      description: A logging event that describes the event code and basic information for logging events
+      type: object
+      properties:
+        id:
+          type: string
+          description: The system assigned unique ID of the instance record; UUID
+        eventType:
+          description: Log event type
+          $ref: '#/components/schemas/logEventType'
+        tenant:
+          type: string
+          description: The tenant for which the event occurred
+        userId:
+          type: string
+          description: User ID for which the event is registered.
+        ip:
+          type: string
+          description: Client IP address of registered user Okapi
+        browserInformation:
+          type: string
+          description: Client's browser information obtained from User-Agent http header
+        timestamp:
+          type: string
+          format: date-time
+          description: Event registration time
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - tenant
+      - userId
+      - eventType
+      additionalProperties: false
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: error.json
+      title: Error Schema
+      description: An error object
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          description: Error message code
+          $ref: '#/components/schemas/errorCode'
+        parameters:
+          description: List of key/value parameters of an error
+          $ref: '#/components/schemas/parameters'
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: errorCode.json
+      title: Error Code Schema
+      description: Error message code
+      type: string
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
+      - token.parse.failure
+      - token.refresh.unprocessable
+      - token.logout.unprocessable
+      - unauthorized_error
     parameter:
       $schema: http://json-schema.org/draft-04/schema#
       id: parameter.json
@@ -129,19 +206,6 @@ components:
         value:
           description: Parameter value
           type: string
-    logEventType:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: logEventType.json
-      title: Log Event Type Schema
-      description: Log event type
-      type: string
-      enum:
-      - PASSWORD_RESET
-      - PASSWORD_CREATE
-      - PASSWORD_CHANGE
-      - SUCCESSFUL_LOGIN_ATTEMPT
-      - FAILED_LOGIN_ATTEMPT
-      - USER_BLOCK
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       id: metadata.json
@@ -186,6 +250,19 @@ components:
       required:
       - loggingEvent
       - totalRecords
+    logEventType:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: logEventType.json
+      title: Log Event Type Schema
+      description: Log event type
+      type: string
+      enum:
+      - PASSWORD_RESET
+      - PASSWORD_CREATE
+      - PASSWORD_CHANGE
+      - SUCCESSFUL_LOGIN_ATTEMPT
+      - FAILED_LOGIN_ATTEMPT
+      - USER_BLOCK
     parameters:
       $schema: http://json-schema.org/draft-04/schema#
       id: parameters.json
@@ -194,77 +271,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/parameter'
-    errorCode:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: errorCode.json
-      title: Error Code Schema
-      description: Error message code
-      type: string
-      enum:
-      - unknown_error
-      - service_error
-      - validation_error
-      - not_found_error
-      - found_error
-      - token.parse.failure
-      - token.refresh.unprocessable
-      - token.logout.unprocessable
-      - unauthorized_error
-    error:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: error.json
-      title: Error Schema
-      description: An error object
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          description: Error message code
-          $ref: '#/components/schemas/errorCode'
-        parameters:
-          description: List of key/value parameters of an error
-          $ref: '#/components/schemas/parameters'
-    logEvent:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: logEvent.json
-      title: Log Event Schema
-      description: A logging event that describes the event code and basic information for logging events
-      type: object
-      properties:
-        id:
-          type: string
-          description: The system assigned unique ID of the instance record; UUID
-        eventType:
-          description: Log event type
-          $ref: '#/components/schemas/logEventType'
-        tenant:
-          type: string
-          description: The tenant for which the event occurred
-        userId:
-          type: string
-          description: User ID for which the event is registered.
-        ip:
-          type: string
-          description: Client IP address of registered user Okapi
-        browserInformation:
-          type: string
-          description: Client's browser information obtained from User-Agent http header
-        timestamp:
-          type: string
-          format: date-time
-          description: Event registration time
-        metadata:
-          $ref: '#/components/schemas/metadata'
-      required:
-      - tenant
-      - userId
-      - eventType
-      additionalProperties: false
     errors:
       $schema: http://json-schema.org/draft-04/schema#
       id: Errors Schema
@@ -280,21 +286,9 @@ components:
         total_records:
           description: Total number of errors
           type: integer
-    logResponse:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: logResponse.json
-      title: Log Response Schema
-      description: The log event object containing the message received from LoginAPI
-      type: object
-      properties:
-        message:
-          description: The message containing API response information
-          type: string
-      required:
-      - message
   responses:
-    entityNotFoundResponse:
-      description: Error response if entity is not found by id (in json format)
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
       content:
         application/json:
           schema:
@@ -305,12 +299,9 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
-    internalServerErrorResponse:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+    entityNotFoundResponse:
+      description: Error response if entity is not found by id (in json format)
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mod-login-keycloak-openapi.json
-- folio-mod-login-keycloak-openapi.yml

@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Central Servers API
+  title: INN-Reach Settings Central Servers API
   version: v1
-  description: 'Operations tagged central-servers across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -54,8 +53,6 @@ paths:
       - $ref: '#/components/parameters/trait_pageable_limit'
       summary: Get central servers
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
   /central-servers/{centralServerId}:
     get:
       tags:
@@ -114,24 +111,34 @@ paths:
       - $ref: '#/components/parameters/id'
       summary: Delete central server
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
   schemas:
-    validationErrorDTO:
-      description: Validation error
-      type: object
-      properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
-      additionalProperties: false
-      required:
-      - fieldName
-      - message
     Error:
       type: object
       properties:
@@ -158,6 +165,50 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/validationErrorDTO'
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
     centralServersDTO:
       description: Central servers collection
       type: object
@@ -173,28 +224,6 @@ components:
       additionalProperties: false
       required:
       - centralServers
-    localAgencyDTO:
-      description: Local agency
-      type: object
-      properties:
-        id:
-          description: Local agency id
-          type: string
-          format: UUID
-        code:
-          description: Local agency code
-          type: string
-          maxLength: 5
-        folioLibraryIds:
-          description: Folio libraries ids
-          type: array
-          items:
-            type: string
-            format: UUID
-      additionalProperties: false
-      required:
-      - code
-      - folioLibraryIds
     centralServerDTO:
       description: Central server
       type: object
@@ -260,36 +289,28 @@ components:
       - localAgencies
       - centralServerKey
       - centralServerSecret
-    metadata:
-      title: Metadata Schema
-      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+    localAgencyDTO:
+      description: Local agency
       type: object
       properties:
-        createdDate:
-          description: Date and time when the record was created
+        id:
+          description: Local agency id
           type: string
-          format: date-time
-        createdByUserId:
-          description: ID of the user who created the record (when available)
+          format: UUID
+        code:
+          description: Local agency code
           type: string
-          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
-        createdByUsername:
-          description: Username of the user who created the record (when available)
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-          format: date-time
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          type: string
-          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
-        updatedByUsername:
-          description: Username of the user who last updated the record (when available)
-          type: string
+          maxLength: 5
+        folioLibraryIds:
+          description: Folio libraries ids
+          type: array
+          items:
+            type: string
+            format: UUID
       additionalProperties: false
       required:
-      - createdDate
+      - code
+      - folioLibraryIds
   responses:
     trait_response_404:
       description: Item not found
@@ -303,44 +324,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/validationErrorsDTO'
-    trait_response_500:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     trait_response_409:
       description: Item state conflict
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    id:
-      name: id
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-    trait_pageable_offset:
-      name: offset
-      in: query
-      description: Skip over a number of elements by specifying an offset value for the query
-      schema:
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-x-refined-from:
-- folio-mod-inn-reach-settings-openapi.json
-- folio-mod-inn-reach-settings-openapi.yml
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

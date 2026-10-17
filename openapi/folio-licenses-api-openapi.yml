@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Licenses API
   version: 7.3.0
+  title: Folio Licenses API
+  description: API for the Folio library services platform mod-licenses app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Licenses across 2 of this provider''s published API definitions: folio-mod-licenses-openapi.json, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -91,10 +91,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /licenses/licenses/{licenseId}:
     get:
       tags:
@@ -189,10 +185,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /licenses/licenses/{licenseId}/linkedAgreements:
     description: Proxies to the ERM module to retrieve subscription agreements linked to the specified license
     get:
@@ -227,10 +219,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /licenses/licenses/{licenseId}/clone:
     post:
       tags:
@@ -332,10 +320,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /licenses/licenses/compareTerms:
     post:
       tags:
@@ -441,65 +425,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   schemas:
-    LicenseResults:
+    ValidationError:
       type: object
       required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/LicenseResultsArray'
-    AlternateName:
-      type: object
-      required:
-      - id
-      - name
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        name:
-          type: string
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-          readOnly: true
-          description: License that owns the alternate name
-    GrailsErrorResponse:
-      type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
-      required:
-      - error
-      - timestamp
       - message
+      - path
+      - _links
       properties:
-        error:
-          type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
         message:
           type: string
-        exception:
+        path:
           type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
+        _links:
+          type: object
+          required:
+          - self
+          properties:
+            self:
+              type: object
+              required:
+              - href
+              properties:
+                href:
+                  type: string
+                  format: uri
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
     CustomPropertyValue:
       type: object
       required:
@@ -521,82 +490,6 @@ components:
           - $ref: '#/components/schemas/RefData'
         type:
           $ref: '#/components/schemas/CustomPropertyDefinition'
-    LicenseResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/License'
-    ValidationErrorResponse:
-      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
-      oneOf:
-      - $ref: '#/components/schemas/ValidationError'
-      - type: object
-        required:
-        - total
-        - _embedded
-        properties:
-          total:
-            type: integer
-          _embedded:
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ValidationError'
-    InternalContact:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          readOnly: true
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-          readOnly: true
-          description: License that owns the contact
-        user:
-          type: string
-          format: uuid
-        role:
-          description: The contact's role in relation to the license
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/RefData'
-    RefData:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          readOnly: true
-        label:
-          type: string
-        value:
-          type: string
-        owner:
-          $ref: '#/components/schemas/RefDataCategory'
-    RefDataCategory:
-      type: object
-      required:
-      - id
-      properties:
-        desc:
-          type: string
-        id:
-          type: string
-          readOnly: true
-        internal:
-          type: boolean
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/RefData'
     LicenseOrg:
       type: object
       required:
@@ -646,34 +539,100 @@ components:
                 - $ref: '#/components/schemas/RefData'
               note:
                 type: string
-    License:
-      allOf:
-      - $ref: '#/components/schemas/LicenseCore'
-      - type: object
-        properties:
-          type:
-            description: The license type (e.g. Local, Consortial, National, Alliance)
-            oneOf:
-            - type: string
-            - $ref: '#/components/schemas/RefData'
-          localReference:
-            type: string
-            description: A local reference identifier for the license
-          alternateNames:
-            type: array
-            description: Alternative names for the license
-            items:
-              $ref: '#/components/schemas/AlternateName'
-          orgs:
-            type: array
-            description: Organisations associated with the license
-            items:
-              $ref: '#/components/schemas/LicenseOrg'
-          amendments:
-            type: array
-            description: Amendments to the license, sorted by start date descending
-            items:
-              $ref: '#/components/schemas/LicenseAmendment'
+    Organisation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    RefData:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+        owner:
+          $ref: '#/components/schemas/RefDataCategory'
+    RefDataCategory:
+      type: object
+      required:
+      - id
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+          readOnly: true
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefData'
+    InternalContact:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: License that owns the contact
+        user:
+          type: string
+          format: uuid
+        role:
+          description: The contact's role in relation to the license
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/RefData'
+    Tag:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        value:
+          type: string
+        normValue:
+          type: string
     DocumentAttachment:
       type: object
       required:
@@ -698,21 +657,26 @@ components:
           type: string
           format: date-time
           readOnly: true
-    ResultsMeta:
+    AlternateName:
       type: object
+      required:
+      - id
+      - name
       properties:
-        meta:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+        owner:
           type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: License that owns the alternate name
     CustomPropertyDefinition:
       type: object
       properties:
@@ -737,9 +701,42 @@ components:
           description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
         category:
           $ref: '#/components/schemas/RefDataCategory'
+    GrailsErrorResponse:
+      type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
+      properties:
+        error:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
     LicenseAmendment:
       allOf:
       - $ref: '#/components/schemas/LicenseCore'
+    LicenseResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/LicenseResultsArray'
     LicenseCore:
       type: object
       required:
@@ -815,62 +812,51 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/CustomPropertyValue'
-    ValidationError:
-      type: object
-      required:
-      - message
-      - path
-      - _links
-      properties:
-        message:
-          type: string
-        path:
-          type: string
-        _links:
-          type: object
-          required:
-          - self
-          properties:
-            self:
-              type: object
-              required:
-              - href
-              properties:
-                href:
-                  type: string
-                  format: uri
-    Tag:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        value:
-          type: string
-        normValue:
-          type: string
-    Organisation:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        orgsUuid:
-          type: string
-          format: uuid
-        orgsUuid_object:
-          type: object
+    License:
+      allOf:
+      - $ref: '#/components/schemas/LicenseCore'
+      - type: object
+        properties:
+          type:
+            description: The license type (e.g. Local, Consortial, National, Alliance)
+            oneOf:
+            - type: string
+            - $ref: '#/components/schemas/RefData'
+          localReference:
+            type: string
+            description: A local reference identifier for the license
+          alternateNames:
+            type: array
+            description: Alternative names for the license
+            items:
+              $ref: '#/components/schemas/AlternateName'
+          orgs:
+            type: array
+            description: Organisations associated with the license
+            items:
+              $ref: '#/components/schemas/LicenseOrg'
+          amendments:
+            type: array
+            description: Amendments to the license, sorted by start date descending
+            items:
+              $ref: '#/components/schemas/LicenseAmendment'
+    LicenseResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/License'
   parameters:
-    filters:
+    stats:
       in: query
-      name: filters
+      name: stats
       required: false
       schema:
-        type: string
+        type: boolean
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
     licenseId:
       in: path
       name: licenseId
@@ -885,22 +871,10 @@ components:
       required: false
       schema:
         type: string
-    page:
+    filters:
       in: query
-      name: page
+      name: filters
       required: false
-      schema:
-        type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
       schema:
         type: string
     offset:
@@ -915,12 +889,18 @@ components:
       required: false
       schema:
         type: string
-    stats:
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
       in: query
-      name: stats
+      name: page
       required: false
       schema:
-        type: boolean
+        type: integer
     match:
       in: query
       name: match
@@ -936,6 +916,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-licenses-openapi.json
-- folio-mod-licenses-openapi.yml

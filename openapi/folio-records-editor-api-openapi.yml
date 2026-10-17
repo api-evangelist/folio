@@ -1,10 +1,10 @@
 openapi: 3.2.0
 info:
-  title: Folio Records Editor API
+  title: quickMARC Record Editor Records Editor API
   version: '6.0'
+  description: API for creating, editing, and managing MARC records in the quickMARC editor
   contact:
     name: FOLIO
-  description: 'Operations tagged records-editor across 2 of this provider''s published API definitions: folio-mod-quick-marc-records-editor-openapi.json, folio-mod-quick-marc-records-editor-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-edev-spitfire-diku.ci.folio.org
   description: Development environment.
@@ -120,17 +120,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-    servers:
-    - url: https://folio-edev-spitfire-diku.ci.folio.org
-      description: Development environment.
-    - url: https://folio-etesting-{environment}.ci.folio.org
-      description: Reference environments.
-      variables:
-        environment:
-          default: snapshot-diku
-          enum:
-          - snapshot-diku
-          - sprint-fs09000000
   /records-editor/records/{id}:
     put:
       tags:
@@ -181,17 +170,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-    servers:
-    - url: https://folio-edev-spitfire-diku.ci.folio.org
-      description: Development environment.
-    - url: https://folio-etesting-{environment}.ci.folio.org
-      description: Reference environments.
-      variables:
-        environment:
-          default: snapshot-diku
-          enum:
-          - snapshot-diku
-          - sprint-fs09000000
   /records-editor/links/suggestion:
     post:
       tags:
@@ -239,17 +217,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-    servers:
-    - url: https://folio-edev-spitfire-diku.ci.folio.org
-      description: Development environment.
-    - url: https://folio-etesting-{environment}.ci.folio.org
-      description: Reference environments.
-      variables:
-        environment:
-          default: snapshot-diku
-          enum:
-          - snapshot-diku
-          - sprint-fs09000000
   /records-editor/validate:
     post:
       tags:
@@ -283,19 +250,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-    servers:
-    - url: https://folio-edev-spitfire-diku.ci.folio.org
-      description: Development environment.
-    - url: https://folio-etesting-{environment}.ci.folio.org
-      description: Reference environments.
-      variables:
-        environment:
-          default: snapshot-diku
-          enum:
-          - snapshot-diku
-          - sprint-fs09000000
 components:
   schemas:
+    validationIssue:
+      type: object
+      description: Details of a validation issue found in a MARC record
+      properties:
+        tag:
+          description: Associated tag for the issue identified
+          type: string
+        severity:
+          description: Level of impact of the discovered issue
+          type: string
+        definitionType:
+          description: Type of definition flagged during validation
+          type: string
+        helpUrl:
+          description: Help URL that is defined in the definition
+          type: string
+        message:
+          description: A concise summary of the identified issue
+          type: string
+    marcFormat:
+      type: string
+      description: MARC Format
+      enum:
+      - BIBLIOGRAPHIC
+      - HOLDINGS
+      - AUTHORITY
+    updateInfo:
+      type: object
+      description: Record metadata
+      properties:
+        recordState:
+          $ref: '#/components/schemas/recordState'
+        updateDate:
+          description: Date and time of last successful update of the record
+          type: string
+          format: date-time
+        updatedBy:
+          $ref: '#/components/schemas/userInfo'
     userInfo:
       type: object
       description: User Display Information
@@ -327,34 +321,77 @@ components:
         lastName: Doe
         firstName: John
         middleName: X.
-    validationResult:
+    quickMarcEdit:
       type: object
-      description: Collection of validation issues found during MARC record validation
-      properties:
-        issues:
-          description: List of issues
-          type: array
-          items:
-            $ref: '#/components/schemas/validationIssue'
-    validationIssue:
+      description: MARC record edit model with required identifiers
+      x-implements:
+      - org.folio.qm.domain.model.BaseQuickMarcRecord
+      allOf:
+      - $ref: '#/components/schemas/baseMarcRecord'
+      - type: object
+        properties:
+          parsedRecordId:
+            description: MARC record Id
+            type: string
+            format: uuid
+          parsedRecordDtoId:
+            description: ParsedRecordDto identifier
+            type: string
+            format: uuid
+          externalId:
+            description: Identifier of external entity
+            type: string
+            format: uuid
+          externalHrid:
+            description: HRID of external entity
+            type: string
+        required:
+        - parsedRecordId
+        - parsedRecordDtoId
+        - externalId
+        - externalHrid
+    error:
       type: object
-      description: Details of a validation issue found in a MARC record
+      description: Error response
       properties:
-        tag:
-          description: Associated tag for the issue identified
-          type: string
-        severity:
-          description: Level of impact of the discovered issue
-          type: string
-        definitionType:
-          description: Type of definition flagged during validation
-          type: string
-        helpUrl:
-          description: Help URL that is defined in the definition
-          type: string
         message:
-          description: A concise summary of the identified issue
           type: string
+          description: Error message
+          example: may not be null
+        type:
+          type: string
+          description: Error type identifier
+          example: '1'
+        code:
+          type: string
+          description: Error code
+          example: '-1'
+        parameters:
+          type: array
+          description: Additional error parameters
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: moduleTo
+              value:
+                type: string
+                example: 'null'
+    authoritySearchParameter:
+      description: Authority search parameter for link suggestions
+      type: string
+      enum:
+      - ID
+      - NATURAL_ID
+      default: NATURAL_ID
+    quickMarcCreate:
+      type: object
+      description: MARC record creation model
+      x-implements:
+      - org.folio.qm.domain.model.BaseQuickMarcRecord
+      allOf:
+      - $ref: '#/components/schemas/baseMarcRecord'
     fieldItem:
       description: MARC field structure containing tag, content, and optional indicators
       type: object
@@ -398,6 +435,22 @@ components:
         - '1'
         - '2'
         isProtected: true
+    validationResult:
+      type: object
+      description: Collection of validation issues found during MARC record validation
+      properties:
+        issues:
+          description: List of issues
+          type: array
+          items:
+            $ref: '#/components/schemas/validationIssue'
+    recordState:
+      type: string
+      description: State of source record
+      enum:
+      - ACTUAL
+      - IN_PROGRESS
+      - ERROR
     validatableRecord:
       type: object
       description: Validatable MARC Record
@@ -426,143 +479,6 @@ components:
           $ref: '#/components/schemas/marcFormat'
       required:
       - marcFormat
-    baseMarcRecord:
-      type: object
-      title: Base MARC record for QuickMARC
-      description: Common properties for all MARC record types in QuickMARC
-      properties:
-        leader:
-          type: string
-          description: MARC record's leader
-        fields:
-          description: MARC record's fields
-          type: array
-          items:
-            $ref: '#/components/schemas/fieldItem'
-        suppressDiscovery:
-          type: boolean
-          default: false
-          description: Flag indicates if the record is displayed during a search
-        marcFormat:
-          $ref: '#/components/schemas/marcFormat'
-        sourceVersion:
-          type: integer
-          description: Version of the source record
-          default: -1
-          example: 1
-      required:
-      - marcFormat
-      - leader
-      - fields
-    marcFormat:
-      type: string
-      description: MARC Format
-      enum:
-      - BIBLIOGRAPHIC
-      - HOLDINGS
-      - AUTHORITY
-    quickMarcEdit:
-      type: object
-      description: MARC record edit model with required identifiers
-      x-implements:
-      - org.folio.qm.domain.model.BaseQuickMarcRecord
-      allOf:
-      - $ref: '#/components/schemas/baseMarcRecord'
-      - type: object
-        properties:
-          parsedRecordId:
-            description: MARC record Id
-            type: string
-            format: uuid
-          parsedRecordDtoId:
-            description: ParsedRecordDto identifier
-            type: string
-            format: uuid
-          externalId:
-            description: Identifier of external entity
-            type: string
-            format: uuid
-          externalHrid:
-            description: HRID of external entity
-            type: string
-        required:
-        - parsedRecordId
-        - parsedRecordDtoId
-        - externalId
-        - externalHrid
-    quickMarcView:
-      type: object
-      description: MARC record view model with read-only metadata
-      x-implements:
-      - org.folio.qm.domain.model.BaseQuickMarcRecord
-      allOf:
-      - $ref: '#/components/schemas/baseMarcRecord'
-      - type: object
-        properties:
-          parsedRecordId:
-            description: MARC record Id
-            type: string
-            format: uuid
-          parsedRecordDtoId:
-            description: ParsedRecordDto identifier
-            type: string
-            format: uuid
-          externalId:
-            description: Identifier of external entity
-            type: string
-            format: uuid
-          externalHrid:
-            description: HRID of external entity
-            type: string
-          updateInfo:
-            $ref: '#/components/schemas/updateInfo'
-    updateInfo:
-      type: object
-      description: Record metadata
-      properties:
-        recordState:
-          $ref: '#/components/schemas/recordState'
-        updateDate:
-          description: Date and time of last successful update of the record
-          type: string
-          format: date-time
-        updatedBy:
-          $ref: '#/components/schemas/userInfo'
-    error:
-      type: object
-      description: Error response
-      properties:
-        message:
-          type: string
-          description: Error message
-          example: may not be null
-        type:
-          type: string
-          description: Error type identifier
-          example: '1'
-        code:
-          type: string
-          description: Error code
-          example: '-1'
-        parameters:
-          type: array
-          description: Additional error parameters
-          items:
-            type: object
-            properties:
-              key:
-                type: string
-                example: moduleTo
-              value:
-                type: string
-                example: 'null'
-    recordState:
-      type: string
-      description: State of source record
-      enum:
-      - ACTUAL
-      - IN_PROGRESS
-      - ERROR
     linkDetails:
       description: Link-related fields
       type: object
@@ -601,20 +517,57 @@ components:
         linkingRuleId: 1
         status: ERROR
         errorCause: Optimistic locking
-    quickMarcCreate:
+    quickMarcView:
       type: object
-      description: MARC record creation model
+      description: MARC record view model with read-only metadata
       x-implements:
       - org.folio.qm.domain.model.BaseQuickMarcRecord
       allOf:
       - $ref: '#/components/schemas/baseMarcRecord'
-    authoritySearchParameter:
-      description: Authority search parameter for link suggestions
-      type: string
-      enum:
-      - ID
-      - NATURAL_ID
-      default: NATURAL_ID
-x-refined-from:
-- folio-mod-quick-marc-records-editor-openapi.json
-- folio-mod-quick-marc-records-editor-openapi.yml
+      - type: object
+        properties:
+          parsedRecordId:
+            description: MARC record Id
+            type: string
+            format: uuid
+          parsedRecordDtoId:
+            description: ParsedRecordDto identifier
+            type: string
+            format: uuid
+          externalId:
+            description: Identifier of external entity
+            type: string
+            format: uuid
+          externalHrid:
+            description: HRID of external entity
+            type: string
+          updateInfo:
+            $ref: '#/components/schemas/updateInfo'
+    baseMarcRecord:
+      type: object
+      title: Base MARC record for QuickMARC
+      description: Common properties for all MARC record types in QuickMARC
+      properties:
+        leader:
+          type: string
+          description: MARC record's leader
+        fields:
+          description: MARC record's fields
+          type: array
+          items:
+            $ref: '#/components/schemas/fieldItem'
+        suppressDiscovery:
+          type: boolean
+          default: false
+          description: Flag indicates if the record is displayed during a search
+        marcFormat:
+          $ref: '#/components/schemas/marcFormat'
+        sourceVersion:
+          type: integer
+          description: Version of the source record
+          default: -1
+          example: 1
+      required:
+      - marcFormat
+      - leader
+      - fields

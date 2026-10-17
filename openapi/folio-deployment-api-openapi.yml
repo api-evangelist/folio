@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Deployment API
+  title: Okapi Core API Facade Deployment API
   version: v2.0
-  description: 'Operations tagged deployment across 2 of this provider''s published API definitions: folio-mod-okapi-facade-openapi.json, folio-mod-okapi-facade-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Okapi Core API Facade
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -62,9 +62,6 @@ paths:
       - Deployment
       summary: Get all deployed module instances
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /_/deployment/modules/{instance_id}:
     parameters:
     - name: instance_id
@@ -104,9 +101,6 @@ paths:
       - Deployment
       summary: Delete deployed module instance
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
   schemas:
     DeploymentDescriptorList:
@@ -117,6 +111,12 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/DeploymentDescriptor'
+    LaunchDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: LaunchDescriptor.json
+      title: LaunchDescriptor
+      description: Specifies how a module is deployed and undeployed
+      type: object
     DeploymentDescriptor:
       $schema: http://json-schema.org/draft-04/schema#
       id: DeploymentDescriptor.json
@@ -142,18 +142,9 @@ components:
           $ref: '#/components/schemas/LaunchDescriptor'
       required:
       - srvcId
-    LaunchDescriptor:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: LaunchDescriptor.json
-      title: LaunchDescriptor
-      description: Specifies how a module is deployed and undeployed
-      type: object
   headers:
     X-Okapi-Trace:
       required: false
       description: Okapi trace and timing
       schema:
         type: string
-x-refined-from:
-- folio-mod-okapi-facade-openapi.json
-- folio-mod-okapi-facade-openapi.yml

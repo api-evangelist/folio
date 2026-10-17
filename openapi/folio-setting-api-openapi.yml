@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Setting API
+  title: mod DCB FOLIO Setting API
+  description: mod DCB FOLIO API
   version: 1.0.0
-  description: 'Operations tagged setting across 2 of this provider''s published API definitions: folio-mod-dcb-dcb-transaction-openapi.json, folio-mod-dcb-dcb-transaction-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Setting
 paths:
@@ -119,50 +119,18 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    SettingsCollection:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Collection of settings
+    Parameter:
+      description: List of key/value parameters of an error
       type: object
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Setting'
-        totalRecords:
-          description: The number of setting records returned in this collection
-          type: integer
-      additionalProperties: false
-      required:
-      - items
-      - totalRecords
-    Setting:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Setting
-      type: object
-      properties:
-        id:
-          description: Setting Identifier
-          type: string
-          format: uuid
-        scope:
-          $ref: '#/components/schemas/SettingScope'
         key:
           type: string
-          description: Key within scope for this setting
+          minLength: 1
         value:
-          type: object
-          description: Settings value (any type)
-        _version:
-          type: integer
-          description: Record version for optimistic locking
-        metadata:
-          $ref: '#/components/schemas/metadata'
+          type: string
       additionalProperties: false
       required:
-      - id
-      - scope
       - key
-      - value
     Error:
       description: An error
       type: object
@@ -183,29 +151,11 @@ components:
       additionalProperties: false
       required:
       - message
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
     SettingScope:
       type: string
       description: Scope for this entry (normally a module)
       enum:
       - mod-dcb
-    Parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
     metadata:
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -236,46 +186,63 @@ components:
       additionalProperties: false
       required:
       - createdDate
-  parameters:
-    pathId:
-      in: path
-      required: true
-      name: id
-      description: Record identifier
-      schema:
-        type: string
-        format: uuid
-      example: 1e111e76-1111-401c-ad8e-0d121a11111e
-    offset:
-      in: query
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      required: false
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-      example: 0
-    query:
-      in: query
-      name: query
-      description: A query string to filter records based on matching criteria in fields.
-      required: false
-      schema:
-        type: string
-        default: cql.allRecords=1
-      example: role
-    limit:
-      in: query
-      name: limit
-      description: Limit the number of elements returned in the response.
-      required: false
-      schema:
-        type: integer
-        default: 50
-        minimum: 0
-      example: 100
+    SettingsCollection:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Collection of settings
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Setting'
+        totalRecords:
+          description: The number of setting records returned in this collection
+          type: integer
+      additionalProperties: false
+      required:
+      - items
+      - totalRecords
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
+    Setting:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Setting
+      type: object
+      properties:
+        id:
+          description: Setting Identifier
+          type: string
+          format: uuid
+        scope:
+          $ref: '#/components/schemas/SettingScope'
+        key:
+          type: string
+          description: Key within scope for this setting
+        value:
+          type: object
+          description: Settings value (any type)
+        _version:
+          type: integer
+          description: Record version for optimistic locking
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - id
+      - scope
+      - key
+      - value
   responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     InternalServerError:
       description: Internal server error
       content:
@@ -288,12 +255,42 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-x-refined-from:
-- folio-mod-dcb-dcb-transaction-openapi.json
-- folio-mod-dcb-dcb-transaction-openapi.yml
+  parameters:
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 0
+    pathId:
+      in: path
+      required: true
+      name: id
+      description: Record identifier
+      schema:
+        type: string
+        format: uuid
+      example: 1e111e76-1111-401c-ad8e-0d121a11111e
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 50
+        minimum: 0
+      example: 100
+    query:
+      in: query
+      name: query
+      description: A query string to filter records based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+        default: cql.allRecords=1
+      example: role

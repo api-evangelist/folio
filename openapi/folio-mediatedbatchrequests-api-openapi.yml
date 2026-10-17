@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Mediated Batch Requests API
+  title: Request Mediated Mediated Batch Requests API
   version: v1
-  description: 'Operations tagged mediatedBatchRequests across 2 of this provider''s published API definitions: folio-mod-requests-mediated-openapi.json, folio-mod-requests-mediated-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: mediatedBatchRequests
 paths:
@@ -107,273 +106,17 @@ paths:
       summary: Get mediated batch request details collection
       x-summary-source: derived
 components:
-  schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-    MediatedBatchRequestsDto:
-      description: Collection of mediated batch requests
-      type: object
-      properties:
-        mediatedBatchRequests:
-          description: A list of mediated batch requests
-          type: array
-          items:
-            $ref: '#/components/schemas/MediatedBatchRequestDto'
-        totalRecords:
-          description: Total number of requests
-          type: integer
-      additionalProperties: false
-      required:
-      - mediatedBatchRequests
-      - totalRecords
-    errors:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      additionalProperties: false
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-    metadata:
-      title: Metadata Schema
-      description: Metadata about creation and changes to records, provided by the server (client should not provide)
-      type: object
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          type: string
-          format: date-time
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          type: string
-          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
-        createdByUsername:
-          description: Username of the user who created the record (when available)
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-          format: date-time
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          type: string
-          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
-        updatedByUsername:
-          description: Username of the user who last updated the record (when available)
-          type: string
-      additionalProperties: false
-      required:
-      - createdDate
-    MediatedBatchRequestDetailsDto:
-      description: Collection of mediated batch request details
-      type: object
-      properties:
-        mediatedBatchRequestDetails:
-          description: A list of batch request details
-          type: array
-          items:
-            $ref: '#/components/schemas/MediatedBatchRequestDetailDto'
-        totalRecords:
-          description: Total number of requests
-          type: integer
-      additionalProperties: false
-      required:
-      - mediatedBatchRequestDetails
-      - totalRecords
-    MediatedBatchRequestPostDto:
-      type: object
-      description: DTO for creating Mediated Batch Request
-      properties:
-        batchId:
-          description: ID of the mediated batch request
-          $ref: '#/components/schemas/uuid'
-        requesterId:
-          description: ID of the requesting patron (user)
-          $ref: '#/components/schemas/uuid'
-        patronComments:
-          description: Comments made by the patron
-          type: string
-        mediatedWorkflow:
-          description: Mediated workflow that mediated batch request follows
-          type: string
-          enum:
-          - Multi-Item request
-        itemRequests:
-          description: Mediated batch request details that represents the info for array of item requests
-          type: array
-          items:
-            type: object
-            properties:
-              itemId:
-                description: ID of the item being requested
-                $ref: '#/components/schemas/uuid'
-              pickupServicePointId:
-                description: ID of the pickup service point
-                $ref: '#/components/schemas/uuid'
-            additionalProperties: false
-            required:
-            - itemId
-            - pickupServicePointId
-      additionalProperties: false
-      required:
-      - requesterId
-      - itemRequests
-      - mediatedWorkflow
-    MediatedBatchRequestDetailDto:
-      type: object
-      description: DTO for Mediated Batch Request Detail
-      properties:
-        batchId:
-          description: ID of the mediated batch request
-          $ref: '#/components/schemas/uuid'
-        itemId:
-          description: ID of the item
-          $ref: '#/components/schemas/uuid'
-        requesterId:
-          description: ID of the requesting patron (user)
-          $ref: '#/components/schemas/uuid'
-        pickupServicePointId:
-          description: ID of the pickup service point
-          $ref: '#/components/schemas/uuid'
-        mediatedRequestStatus:
-          description: Status of the mediated batch request detail
-          type: string
-          enum:
-          - Pending
-          - In progress
-          - Completed
-          - Failed
-        requestStatus:
-          description: Status of circulation request
-          type: string
-        confirmedRequestId:
-          description: Confirmed circulation request ID
-          $ref: '#/components/schemas/uuid'
-        errorCode:
-          description: Error code if the request failed
-          type: string
-        errorDetails:
-          description: Error details if the request failed
-          type: string
-        patronComments:
-          description: Comments made by the patron
-          type: string
-        metadata:
-          description: Mediated request metadata
-          type: object
-          $ref: '#/components/schemas/metadata'
-      additionalProperties: false
-      required:
-      - batchId
-      - requesterId
-      - mediatedRequestStatus
-    MediatedBatchRequestDto:
-      type: object
-      description: DTO for Mediated Batch Request
-      properties:
-        batchId:
-          description: ID of the mediated batch request
-          $ref: '#/components/schemas/uuid'
-        requesterId:
-          description: ID of the requesting patron (user)
-          $ref: '#/components/schemas/uuid'
-        mediatedRequestStatus:
-          description: Status of the mediated batch request
-          type: string
-          enum:
-          - Pending
-          - In progress
-          - Completed
-          - Failed
-        itemRequestsStats:
-          description: Statistics of item requests in the mediated batch request
-          type: object
-          properties:
-            total:
-              description: Total number of item requests
-              type: integer
-            pending:
-              description: Number of pending item requests
-              type: integer
-            inProgress:
-              description: Number of item requests in progress
-              type: integer
-            completed:
-              description: Number of completed item requests
-              type: integer
-            failed:
-              description: Number of failed item requests
-              type: integer
-        requestDate:
-          description: Date when the batch request was placed
-          type: string
-          format: date-time
-        patronComments:
-          description: Comments made by the patron
-          type: string
-        mediatedWorkflow:
-          description: Mediated workflow that mediated batch request follows
-          type: string
-          enum:
-          - Multi-Item request
-        metadata:
-          description: Mediated batch request metadata
-          type: object
-          $ref: '#/components/schemas/metadata'
-      additionalProperties: false
-      required:
-      - batchId
-      - requesterId
-      - requestDate
-      - mediatedRequestStatus
-      - mediatedWorkflow
-    uuid:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-      additionalProperties: false
-      required:
-      - message
   responses:
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
     mediatedBatchRequestDetails:
       description: A collection of mediated batch request details objects
       content:
@@ -450,16 +193,6 @@ components:
                     updatedDate: '2025-05-16T09:15:50.691+00:00'
                     updatedByUserId: b7e131c6-f6d5-424b-935b-089d3704cc55
                 totalRecords: 1
-    notFoundResponse:
-      description: Not found
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Request not found
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errors'
     badRequestResponse:
       description: Invalid request response
       content:
@@ -484,15 +217,6 @@ components:
       schema:
         type: string
         format: uuid
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
     trait_pageable_offset:
       name: offset
       in: query
@@ -502,6 +226,278 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-x-refined-from:
-- folio-mod-requests-mediated-openapi.json
-- folio-mod-requests-mediated-openapi.yml
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+  schemas:
+    errors:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      additionalProperties: false
+    MediatedBatchRequestDetailsDto:
+      description: Collection of mediated batch request details
+      type: object
+      properties:
+        mediatedBatchRequestDetails:
+          description: A list of batch request details
+          type: array
+          items:
+            $ref: '#/components/schemas/MediatedBatchRequestDetailDto'
+        totalRecords:
+          description: Total number of requests
+          type: integer
+      additionalProperties: false
+      required:
+      - mediatedBatchRequestDetails
+      - totalRecords
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    MediatedBatchRequestDto:
+      type: object
+      description: DTO for Mediated Batch Request
+      properties:
+        batchId:
+          description: ID of the mediated batch request
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: ID of the requesting patron (user)
+          $ref: '#/components/schemas/uuid'
+        mediatedRequestStatus:
+          description: Status of the mediated batch request
+          type: string
+          enum:
+          - Pending
+          - In progress
+          - Completed
+          - Failed
+        itemRequestsStats:
+          description: Statistics of item requests in the mediated batch request
+          type: object
+          properties:
+            total:
+              description: Total number of item requests
+              type: integer
+            pending:
+              description: Number of pending item requests
+              type: integer
+            inProgress:
+              description: Number of item requests in progress
+              type: integer
+            completed:
+              description: Number of completed item requests
+              type: integer
+            failed:
+              description: Number of failed item requests
+              type: integer
+        requestDate:
+          description: Date when the batch request was placed
+          type: string
+          format: date-time
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        mediatedWorkflow:
+          description: Mediated workflow that mediated batch request follows
+          type: string
+          enum:
+          - Multi-Item request
+        metadata:
+          description: Mediated batch request metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - batchId
+      - requesterId
+      - requestDate
+      - mediatedRequestStatus
+      - mediatedWorkflow
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    MediatedBatchRequestsDto:
+      description: Collection of mediated batch requests
+      type: object
+      properties:
+        mediatedBatchRequests:
+          description: A list of mediated batch requests
+          type: array
+          items:
+            $ref: '#/components/schemas/MediatedBatchRequestDto'
+        totalRecords:
+          description: Total number of requests
+          type: integer
+      additionalProperties: false
+      required:
+      - mediatedBatchRequests
+      - totalRecords
+    MediatedBatchRequestPostDto:
+      type: object
+      description: DTO for creating Mediated Batch Request
+      properties:
+        batchId:
+          description: ID of the mediated batch request
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: ID of the requesting patron (user)
+          $ref: '#/components/schemas/uuid'
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        mediatedWorkflow:
+          description: Mediated workflow that mediated batch request follows
+          type: string
+          enum:
+          - Multi-Item request
+        itemRequests:
+          description: Mediated batch request details that represents the info for array of item requests
+          type: array
+          items:
+            type: object
+            properties:
+              itemId:
+                description: ID of the item being requested
+                $ref: '#/components/schemas/uuid'
+              pickupServicePointId:
+                description: ID of the pickup service point
+                $ref: '#/components/schemas/uuid'
+            additionalProperties: false
+            required:
+            - itemId
+            - pickupServicePointId
+      additionalProperties: false
+      required:
+      - requesterId
+      - itemRequests
+      - mediatedWorkflow
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
+    MediatedBatchRequestDetailDto:
+      type: object
+      description: DTO for Mediated Batch Request Detail
+      properties:
+        batchId:
+          description: ID of the mediated batch request
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: ID of the item
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: ID of the requesting patron (user)
+          $ref: '#/components/schemas/uuid'
+        pickupServicePointId:
+          description: ID of the pickup service point
+          $ref: '#/components/schemas/uuid'
+        mediatedRequestStatus:
+          description: Status of the mediated batch request detail
+          type: string
+          enum:
+          - Pending
+          - In progress
+          - Completed
+          - Failed
+        requestStatus:
+          description: Status of circulation request
+          type: string
+        confirmedRequestId:
+          description: Confirmed circulation request ID
+          $ref: '#/components/schemas/uuid'
+        errorCode:
+          description: Error code if the request failed
+          type: string
+        errorDetails:
+          description: Error details if the request failed
+          type: string
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        metadata:
+          description: Mediated request metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - batchId
+      - requesterId
+      - mediatedRequestStatus
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'

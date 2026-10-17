@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Confirm Mediated Requests API
+  title: Circulation BFF requests Confirm Mediated Requests API
   version: v1
-  description: 'Operations tagged confirmMediatedRequests across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: confirmMediatedRequests
 paths:
@@ -34,20 +33,76 @@ paths:
       summary: Save and confirm mediated request
       x-summary-source: derived
 components:
+  examples:
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+  responses:
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            validationErrorResponse:
+              $ref: '#/components/examples/validationErrorResponse'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
+    error:
+      description: An error
       type: object
       properties:
-        key:
-          description: Parameter key
+        message:
           type: string
-        value:
-          description: Parameter value
+          description: Error message text
+        type:
           type: string
-      example:
-        key: source
-        value: 'null'
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/parameter'
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
     errorResponse:
       description: A set of errors
       type: object
@@ -407,28 +462,19 @@ components:
       - requesterId
       - instanceId
       - fulfillmentPreference
-    uuid:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
-    error:
-      description: An error
+    parameter:
+      description: List of key/value parameters of an error
       type: object
       properties:
-        message:
+        key:
+          description: Parameter key
           type: string
-          description: Error message text
-        type:
+        value:
+          description: Parameter value
           type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: array
-          items:
-            $ref: '#/components/schemas/parameter'
+      example:
+        key: source
+        value: 'null'
     metadata:
       type: object
       description: Record metadata
@@ -451,53 +497,3 @@ components:
         updatedByUsername:
           description: Username of the user who last updated the record (when available)
           type: string
-  examples:
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    unknownError:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-  responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            unknownError:
-              $ref: '#/components/examples/unknownError'
-    notFoundResponse:
-      description: Not found
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Not found
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            validationErrorResponse:
-              $ref: '#/components/examples/validationErrorResponse'
-x-refined-from:
-- folio-mod-circulation-bff-circulationbff-openapi.json
-- folio-mod-circulation-bff-circulationbff-openapi.yml

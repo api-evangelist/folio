@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Mediated Requests Crud API
+  title: Request Mediated Mediated Requests Crud API
   version: v1
-  description: 'Operations tagged mediatedRequestsCrud across 2 of this provider''s published API definitions: folio-mod-requests-mediated-openapi.json, folio-mod-requests-mediated-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: mediatedRequestsCrud
 paths:
@@ -134,7 +133,242 @@ paths:
       summary: Delete mediated request by id
       x-summary-source: derived
 components:
+  parameters:
+    mediatedRequestId:
+      name: mediatedRequestId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    trait_queryable_query:
+      name: query
+      in: query
+      description: A query string to filter rules based on matching criteria in fields.
+      schema:
+        type: string
+    trait_pageable_offset:
+      name: offset
+      in: query
+      description: Skip over a number of elements by specifying an offset value for the query
+      schema:
+        default: 0
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
+      schema:
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer
+  responses:
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    mediatedRequest:
+      description: Mediated request object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MediatedRequest'
+          examples:
+            objectExample:
+              value:
+                id: 69abbd7d-b4a6-4376-8453-bf349c579a91
+                requestLevel: Title
+                requestType: Hold
+                requestDate: '2024-01-01T00:12:00Z'
+                patronComments: ''
+                requesterId: 73b17dee-d278-4128-b0fd-5d9f801b0400
+                requester:
+                  firstName: First
+                  lastName: Last
+                  middleName: Middle
+                  barcode: '123'
+                  patronGroupId: 358837c8-d6fe-4bd5-b82a-ae6e76c93e61
+                  patronGroup:
+                    id: 358837c8-d6fe-4bd5-b82a-ae6e76c93e61
+                    group: default-requester-patron-group
+                    desc: default-requester-patron-group-desc
+                proxyUserId: 13e309c8-d501-4c3b-9cbc-d573621bb62c
+                proxy:
+                  firstName: ProxyFirst
+                  lastName: ProxyLast
+                  middleName: ProxyMiddle
+                  barcode: Proxy123
+                  patronGroupId: e0630f6c-dda3-4494-ae23-5abaa8f1aabd
+                  patronGroup:
+                    id: e0630f6c-dda3-4494-ae23-5abaa8f1aabd
+                    group: default-proxy-patron-group
+                    desc: default-proxy-patron-group-desc
+                instanceId: 6d996a75-930d-4ad1-a953-9b44c9021a35
+                instance:
+                  title: Children of Time
+                  identifiers:
+                  - value: 0123456789
+                    identifierTypeId: 8261054f-9876-422d-bd51-4ed9f33c7654
+                  - value: '98765432123456'
+                    identifierTypeId: 8261054f-9876-422d-bd51-4ed9f33c7654
+                  contributorNames:
+                  - name: default-contributor
+                  publication:
+                  - publisher: default-publisher
+                    place: default-publication-place
+                    dateOfPublication: default-date-of-publication
+                    role: default-publication-role
+                  editions:
+                  - default-edition
+                holdingsRecordId: null
+                itemId: null
+                item:
+                  barcode: '12345'
+                  location:
+                    name: default-location-name
+                    libraryName: default-library-name
+                    code: default-location-code
+                  enumeration: default-enumeration
+                  volume: default-volume
+                  chronology: default-chronology
+                  displaySummary: default-display-summary
+                  status: default-status
+                  callNumber: default-call-number
+                  callNumberComponents:
+                    callNumber: default-call-number
+                    prefix: default-call-number-prefix
+                    suffix: default-call-number-suffix
+                  copyNumber: default-cope-number
+                mediatedWorkflow: Private request
+                mediatedRequestStatus: New
+                status: New - Awaiting confirmation
+                cancellationReasonId: null
+                cancelledByUserId: null
+                cancellationAdditionalInformation: null
+                cancelledDate: null
+                position: 1
+                fulfillmentPreference: Hold Shelf
+                deliveryAddressTypeId: null
+                pickupServicePointId: b2ffa7df-98e8-48a1-b5a8-4e712364eb8d
+                pickupServicePoint:
+                  name: default-pickup-sp-name
+                  code: default-pickup-sp-code
+                  discoveryDisplayName: default-pickup-sp-discovery-display-name
+                  description: default-pickup-sp-description
+                  shelvingLagTime: 1
+                  pickupLocation: true
+                confirmedRequestId: 0a034628-6eb6-4c66-9ea5-9eeea151c820
+                searchIndex:
+                  callNumberComponents:
+                    callNumber: F16.H37 A2 9001
+                    prefix: pre
+                    suffix: suf
+                  shelvingOrder: F 416 H37 A2 59001
+                  pickupServicePointName: Circ Desk 1
+    mediatedRequests:
+      description: A collection of mediated request objects
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MediatedRequests'
+          examples:
+            objectExample:
+              value:
+                mediatedRequests:
+                - id: 69abbd7d-b4a6-4376-8453-bf349c579a91
+                  requestLevel: Title
+                  requestType: Hold
+                  requestDate: '2024-01-01T00:12:00Z'
+                  patronComments: ''
+                  requesterId: 73b17dee-d278-4128-b0fd-5d9f801b0400
+                  proxyUserId: 13e309c8-d501-4c3b-9cbc-d573621bb62c
+                  instanceId: 6d996a75-930d-4ad1-a953-9b44c9021a35
+                  holdingsRecordId: null
+                  itemId: null
+                  status: New - Awaiting confirmation
+                  cancellationReasonId: null
+                  cancelledByUserId: null
+                  cancellationAdditionalInformation: null
+                  cancelledDate: null
+                  position: 1
+                  fulfillmentPreference: Hold Shelf
+                  deliveryAddressTypeId: null
+                  pickupServicePointId: b2ffa7df-98e8-48a1-b5a8-4e712364eb8d
+                totalRecords: 1
+    badRequestResponse:
+      description: Invalid request response
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Request is invalid
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Unexpected error
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errors'
   schemas:
+    parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
+    MediatedRequests:
+      description: Collection of mediated requests
+      type: object
+      properties:
+        mediatedRequests:
+          description: A list of mediated requests
+          type: array
+          items:
+            $ref: '#/components/schemas/MediatedRequest'
+        totalRecords:
+          description: Total number of mediated requests
+          type: integer
+          format: int64
+    error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          type: object
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+      additionalProperties: false
+      required:
+      - message
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
     parameter:
       description: List of key/value parameters of an error
       type: object
@@ -145,36 +379,6 @@ components:
         value:
           description: Parameter value
           type: string
-    metadata:
-      title: Metadata Schema
-      description: Metadata about creation and changes to records, provided by the server (client should not provide)
-      type: object
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          type: string
-          format: date-time
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          type: string
-          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
-        createdByUsername:
-          description: Username of the user who created the record (when available)
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-          format: date-time
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          type: string
-          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
-        updatedByUsername:
-          description: Username of the user who last updated the record (when available)
-          type: string
-      additionalProperties: false
-      required:
-      - createdDate
     MediatedRequest:
       description: Mediated request
       type: object
@@ -546,6 +750,36 @@ components:
       - requestDate
       - requesterId
       - instanceId
+    metadata:
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
+      type: object
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+      additionalProperties: false
+      required:
+      - createdDate
     errors:
       description: A set of errors
       type: object
@@ -561,241 +795,3 @@ components:
           description: Total number of errors
           type: integer
       additionalProperties: false
-    error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          type: object
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-      additionalProperties: false
-      required:
-      - message
-    uuid:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
-    MediatedRequests:
-      description: Collection of mediated requests
-      type: object
-      properties:
-        mediatedRequests:
-          description: A list of mediated requests
-          type: array
-          items:
-            $ref: '#/components/schemas/MediatedRequest'
-        totalRecords:
-          description: Total number of mediated requests
-          type: integer
-          format: int64
-  responses:
-    mediatedRequest:
-      description: Mediated request object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/MediatedRequest'
-          examples:
-            objectExample:
-              value:
-                id: 69abbd7d-b4a6-4376-8453-bf349c579a91
-                requestLevel: Title
-                requestType: Hold
-                requestDate: '2024-01-01T00:12:00Z'
-                patronComments: ''
-                requesterId: 73b17dee-d278-4128-b0fd-5d9f801b0400
-                requester:
-                  firstName: First
-                  lastName: Last
-                  middleName: Middle
-                  barcode: '123'
-                  patronGroupId: 358837c8-d6fe-4bd5-b82a-ae6e76c93e61
-                  patronGroup:
-                    id: 358837c8-d6fe-4bd5-b82a-ae6e76c93e61
-                    group: default-requester-patron-group
-                    desc: default-requester-patron-group-desc
-                proxyUserId: 13e309c8-d501-4c3b-9cbc-d573621bb62c
-                proxy:
-                  firstName: ProxyFirst
-                  lastName: ProxyLast
-                  middleName: ProxyMiddle
-                  barcode: Proxy123
-                  patronGroupId: e0630f6c-dda3-4494-ae23-5abaa8f1aabd
-                  patronGroup:
-                    id: e0630f6c-dda3-4494-ae23-5abaa8f1aabd
-                    group: default-proxy-patron-group
-                    desc: default-proxy-patron-group-desc
-                instanceId: 6d996a75-930d-4ad1-a953-9b44c9021a35
-                instance:
-                  title: Children of Time
-                  identifiers:
-                  - value: 0123456789
-                    identifierTypeId: 8261054f-9876-422d-bd51-4ed9f33c7654
-                  - value: '98765432123456'
-                    identifierTypeId: 8261054f-9876-422d-bd51-4ed9f33c7654
-                  contributorNames:
-                  - name: default-contributor
-                  publication:
-                  - publisher: default-publisher
-                    place: default-publication-place
-                    dateOfPublication: default-date-of-publication
-                    role: default-publication-role
-                  editions:
-                  - default-edition
-                holdingsRecordId: null
-                itemId: null
-                item:
-                  barcode: '12345'
-                  location:
-                    name: default-location-name
-                    libraryName: default-library-name
-                    code: default-location-code
-                  enumeration: default-enumeration
-                  volume: default-volume
-                  chronology: default-chronology
-                  displaySummary: default-display-summary
-                  status: default-status
-                  callNumber: default-call-number
-                  callNumberComponents:
-                    callNumber: default-call-number
-                    prefix: default-call-number-prefix
-                    suffix: default-call-number-suffix
-                  copyNumber: default-cope-number
-                mediatedWorkflow: Private request
-                mediatedRequestStatus: New
-                status: New - Awaiting confirmation
-                cancellationReasonId: null
-                cancelledByUserId: null
-                cancellationAdditionalInformation: null
-                cancelledDate: null
-                position: 1
-                fulfillmentPreference: Hold Shelf
-                deliveryAddressTypeId: null
-                pickupServicePointId: b2ffa7df-98e8-48a1-b5a8-4e712364eb8d
-                pickupServicePoint:
-                  name: default-pickup-sp-name
-                  code: default-pickup-sp-code
-                  discoveryDisplayName: default-pickup-sp-discovery-display-name
-                  description: default-pickup-sp-description
-                  shelvingLagTime: 1
-                  pickupLocation: true
-                confirmedRequestId: 0a034628-6eb6-4c66-9ea5-9eeea151c820
-                searchIndex:
-                  callNumberComponents:
-                    callNumber: F16.H37 A2 9001
-                    prefix: pre
-                    suffix: suf
-                  shelvingOrder: F 416 H37 A2 59001
-                  pickupServicePointName: Circ Desk 1
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Unexpected error
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errors'
-    notFoundResponse:
-      description: Not found
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Request not found
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errors'
-    mediatedRequests:
-      description: A collection of mediated request objects
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/MediatedRequests'
-          examples:
-            objectExample:
-              value:
-                mediatedRequests:
-                - id: 69abbd7d-b4a6-4376-8453-bf349c579a91
-                  requestLevel: Title
-                  requestType: Hold
-                  requestDate: '2024-01-01T00:12:00Z'
-                  patronComments: ''
-                  requesterId: 73b17dee-d278-4128-b0fd-5d9f801b0400
-                  proxyUserId: 13e309c8-d501-4c3b-9cbc-d573621bb62c
-                  instanceId: 6d996a75-930d-4ad1-a953-9b44c9021a35
-                  holdingsRecordId: null
-                  itemId: null
-                  status: New - Awaiting confirmation
-                  cancellationReasonId: null
-                  cancelledByUserId: null
-                  cancellationAdditionalInformation: null
-                  cancelledDate: null
-                  position: 1
-                  fulfillmentPreference: Hold Shelf
-                  deliveryAddressTypeId: null
-                  pickupServicePointId: b2ffa7df-98e8-48a1-b5a8-4e712364eb8d
-                totalRecords: 1
-    badRequestResponse:
-      description: Invalid request response
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Request is invalid
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errors'
-  parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
-      schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-    trait_queryable_query:
-      name: query
-      in: query
-      description: A query string to filter rules based on matching criteria in fields.
-      schema:
-        type: string
-    mediatedRequestId:
-      name: mediatedRequestId
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-    trait_pageable_offset:
-      name: offset
-      in: query
-      description: Skip over a number of elements by specifying an offset value for the query
-      schema:
-        default: 0
-        minimum: 0
-        maximum: 2147483647
-        type: integer
-x-refined-from:
-- folio-mod-requests-mediated-openapi.json
-- folio-mod-requests-mediated-openapi.yml

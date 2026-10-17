@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Verify Patron D2ir API
+  title: INN-Reach Circulation Verify Patron D2ir API
   version: v1
-  description: 'Operations tagged verify-patron-d2ir across 2 of this provider''s published API definitions: folio-mod-inn-reach-circulation-openapi.json, folio-mod-inn-reach-circulation-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -33,8 +32,6 @@ paths:
       - $ref: '#/components/parameters/centralCodeHeader'
       summary: Verify patron
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
   parameters:
     centralCodeHeader:
@@ -50,28 +47,28 @@ components:
       schema:
         $ref: '#/components/schemas/code'
   schemas:
-    patronInfoRequestDTO:
+    innReachResponseDTO:
       $schema: http://json-schema.org/draft-04/schema#
-      description: Request parameters for patron verify
+      description: D2IR response
       type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
       properties:
-        patronName:
-          description: Patron name
+        status:
+          description: Status
           type: string
-          maxLength: 128
-        patronAgencyCode:
-          description: Patron agency code
+        reason:
+          description: Reason
           type: string
-          maxLength: 128
-        visiblePatronId:
-          description: User attribute configured by the system to act as their publicId (externalSystemId or barcode)
-          type: string
-          maxLength: 32
+        errors:
+          description: Errors
+          type: array
+          items:
+            $ref: '#/components/schemas/innReachError'
       additionalProperties: false
       required:
-      - visiblePatronId
-      - patronAgencyCode
-      - patronName
+      - status
+      - reason
+      - errors
     Error:
       type: object
       properties:
@@ -87,35 +84,24 @@ components:
       additionalProperties: false
       required:
       - message
-    innReachError:
-      description: D2IR error
+    patronInfoResponseDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      allOf:
+      - $ref: '#/components/schemas/innReachResponseDTO'
+      description: D2IR Patron info response
       type: object
+      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
       properties:
-        messages:
-          type: array
-          description: Error messages
-          items:
-            type: string
-        central:
-          type: string
-          description: Central code
-        reason:
-          type: string
-          description: Reason
-        type:
-          type: string
-          description: Error type
-        rejectedValue:
-          description: Rejected value
-        name:
-          type: string
-          description: Name of the rejected field
+        patronInfo:
+          description: D2IR Patron info
+          $ref: '#/components/schemas/patronInfo'
+        requestAllowed:
+          type: boolean
+          description: If the value is false, the patron cannot place a central request (they will be locally blocked)
       additionalProperties: false
       required:
-      - reason
-    code:
-      type: string
-      pattern: '[a-z,0-9]{3,5}'
+      - patronInfo
+      - requestAllowed
     patronInfo:
       $schema: http://json-schema.org/draft-04/schema#
       description: D2IR Patron info
@@ -154,46 +140,57 @@ components:
       - localLoans
       - nonLocalLoans
       - patronName
-    patronInfoResponseDTO:
+    patronInfoRequestDTO:
       $schema: http://json-schema.org/draft-04/schema#
-      allOf:
-      - $ref: '#/components/schemas/innReachResponseDTO'
-      description: D2IR Patron info response
+      description: Request parameters for patron verify
       type: object
-      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
       properties:
-        patronInfo:
-          description: D2IR Patron info
-          $ref: '#/components/schemas/patronInfo'
-        requestAllowed:
-          type: boolean
-          description: If the value is false, the patron cannot place a central request (they will be locally blocked)
+        patronName:
+          description: Patron name
+          type: string
+          maxLength: 128
+        patronAgencyCode:
+          description: Patron agency code
+          type: string
+          maxLength: 128
+        visiblePatronId:
+          description: User attribute configured by the system to act as their publicId (externalSystemId or barcode)
+          type: string
+          maxLength: 32
       additionalProperties: false
       required:
-      - patronInfo
-      - requestAllowed
-    innReachResponseDTO:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: D2IR response
+      - visiblePatronId
+      - patronAgencyCode
+      - patronName
+    innReachError:
+      description: D2IR error
       type: object
-      x-implements: org.folio.innreach.domain.dto.InnReachResponseData
       properties:
-        status:
-          description: Status
-          type: string
-        reason:
-          description: Reason
-          type: string
-        errors:
-          description: Errors
+        messages:
           type: array
+          description: Error messages
           items:
-            $ref: '#/components/schemas/innReachError'
+            type: string
+        central:
+          type: string
+          description: Central code
+        reason:
+          type: string
+          description: Reason
+        type:
+          type: string
+          description: Error type
+        rejectedValue:
+          description: Rejected value
+        name:
+          type: string
+          description: Name of the rejected field
       additionalProperties: false
       required:
-      - status
       - reason
-      - errors
+    code:
+      type: string
+      pattern: '[a-z,0-9]{3,5}'
   responses:
     trait_response_500:
       description: Internal server error
@@ -201,6 +198,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-x-refined-from:
-- folio-mod-inn-reach-circulation-openapi.json
-- folio-mod-inn-reach-circulation-openapi.yml

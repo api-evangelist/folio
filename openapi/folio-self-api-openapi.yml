@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Self API
+  title: integration Self API
+  description: Self integration API
   version: 0.0.1
-  description: 'Operations tagged Self across 3 of this provider''s published API definitions: folio-mod-consortia-keycloak-self-openapi.json, folio-mod-consortia-keycloak-self-openapi.yml, folio-mod-consortia-self-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /consortia/{consortiumId}/
 tags:
@@ -27,40 +27,20 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       tags:
       - Self
-    servers:
-    - url: /consortia/{consortiumId}/
 components:
-  responses:
-    Unauthorized:
-      description: Not authorized to perform requested action
-      content:
-        text/plain:
-          example: unable to perform action -- unauthorized
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    UserTenantCollection:
-      description: Returns a user tenant association collection object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/UserTenantCollection'
-    NotFound:
-      description: Resource not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
     UserTenantCollection:
       description: A JSON schema for the User Tenants Collection
       type: object
@@ -97,6 +77,15 @@ components:
       additionalProperties: false
       required:
       - message
+    uuid:
+      type: string
+      format: uuid
+    Parameters:
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/Parameter'
+      additionalProperties: false
     UserTenant:
       description: A JSON schema for the User Tenant
       type: object
@@ -130,27 +119,36 @@ components:
       required:
       - userId
       - tenantId
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
-    Parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/Parameter'
-      additionalProperties: false
-    uuid:
-      type: string
-      format: uuid
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UserTenantCollection:
+      description: Returns a user tenant association collection object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserTenantCollection'
+    Unauthorized:
+      description: Not authorized to perform requested action
+      content:
+        text/plain:
+          example: unable to perform action -- unauthorized
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
     consortiumId:
       in: path
@@ -159,7 +157,3 @@ components:
         $ref: '#/components/schemas/uuid'
       required: true
       description: The ID of consortium
-x-refined-from:
-- folio-mod-consortia-keycloak-self-openapi.json
-- folio-mod-consortia-keycloak-self-openapi.yml
-- folio-mod-consortia-self-openapi.yml

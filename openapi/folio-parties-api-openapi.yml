@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Parties API
   version: 3.2.0
+  title: Folio Open Access Management Parties API
+  description: API for the Folio library services platform mod-oa app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Parties across 2 of this provider''s published API definitions: folio-mod-oa-openapi.json, folio-mod-oa-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -83,10 +83,6 @@ paths:
                 $ref: '#/components/schemas/ValidationErrorResponse'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /oa/party/{id}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -175,22 +171,32 @@ paths:
                 $ref: '#/components/schemas/SpringBootErrorResponse'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   schemas:
-    PartyResults:
+    ValidationError:
       type: object
       required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/PartyResultsArray'
+      - message
+      - path
+      - _links
+      properties:
+        message:
+          type: string
+        path:
+          type: string
+        _links:
+          type: object
+          required:
+          - self
+          properties:
+            self:
+              type: object
+              required:
+              - href
+              properties:
+                href:
+                  type: string
+                  format: uri
     ValidationErrorResponse:
       description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
       oneOf:
@@ -209,6 +215,45 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/ValidationError'
+    PartyResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Party'
+    PartyAddress:
+      type: object
+      required:
+      - id
+      - address
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: The party that this address belongs to
+        address:
+          $ref: '#/components/schemas/Address'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
     Address:
       type: object
       required:
@@ -232,66 +277,6 @@ components:
           type: string
         country:
           type: string
-    SpringBootErrorResponse:
-      type: object
-      description: Spring Boot's default error body. Emitted by the servlet container itself when a request ends in an error status with no response body written by the application, rather than by this app's own error handling - so it does not match the `HttpError` shape used elsewhere in this API.
-      properties:
-        timestamp:
-          type: integer
-          description: Epoch milliseconds
-        status:
-          type: integer
-        error:
-          type: string
-        path:
-          type: string
-    Refdata:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          readOnly: true
-        label:
-          type: string
-        value:
-          type: string
-    ResultsMeta:
-      type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    PartyAddress:
-      type: object
-      required:
-      - id
-      - address
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-          readOnly: true
-          description: The party that this address belongs to
-        address:
-          $ref: '#/components/schemas/Address'
     AlternateEmailAddress:
       type: object
       required:
@@ -313,6 +298,28 @@ components:
         email:
           type: string
           format: email
+    Refdata:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+    PartyResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/PartyResultsArray'
     Party:
       type: object
       required:
@@ -353,63 +360,50 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AlternateEmailAddress'
-    ValidationError:
+    SpringBootErrorResponse:
       type: object
-      required:
-      - message
-      - path
-      - _links
+      description: Spring Boot's default error body. Emitted by the servlet container itself when a request ends in an error status with no response body written by the application, rather than by this app's own error handling - so it does not match the `HttpError` shape used elsewhere in this API.
       properties:
-        message:
+        timestamp:
+          type: integer
+          description: Epoch milliseconds
+        status:
+          type: integer
+        error:
           type: string
         path:
           type: string
-        _links:
-          type: object
-          required:
-          - self
-          properties:
-            self:
-              type: object
-              required:
-              - href
-              properties:
-                href:
-                  type: string
-                  format: uri
-    PartyResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/Party'
   parameters:
-    filters:
+    stats:
       in: query
-      name: filters
+      name: stats
       required: false
       schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
+        type: boolean
     perPage:
       in: query
       name: perPage
       required: false
       schema:
         type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
+    partyId:
+      in: path
+      name: id
+      description: UUID for a party
       required: true
+      schema:
+        type: string
+        format: uuid
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
       schema:
         type: string
     offset:
@@ -424,20 +418,18 @@ components:
       required: false
       schema:
         type: string
-    partyId:
-      in: path
-      name: id
-      description: UUID for a party
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
       required: true
       schema:
         type: string
-        format: uuid
-    stats:
+    page:
       in: query
-      name: stats
+      name: page
       required: false
       schema:
-        type: boolean
+        type: integer
     match:
       in: query
       name: match
@@ -453,6 +445,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-oa-openapi.json
-- folio-mod-oa-openapi.yml

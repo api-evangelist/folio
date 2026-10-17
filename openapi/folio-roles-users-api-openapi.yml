@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Roles Users API
+  title: Mod Roles Keycloak Roles Users API
   version: v1
-  description: 'Operations tagged roles-users across 2 of this provider''s published API definitions: folio-mod-roles-keycloak-openapi.json, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Mod Roles Keycloak API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -62,9 +62,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Find user roles
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /roles/users/{id}:
     get:
       description: Get roles user by user ID
@@ -124,10 +121,32 @@ paths:
           description: Delete a roles user
       summary: Delete user roles
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
+  responses:
+    notFoundResponse:
+      description: Not found error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/notFoundResponse'
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/badRequestResponse'
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
   parameters:
     offset:
       in: query
@@ -139,23 +158,6 @@ components:
         default: 0
         minimum: 0
       example: 2
-    pathUserId:
-      in: path
-      required: true
-      name: id
-      description: User identifier
-      schema:
-        type: string
-        format: uuid
-      example: 1e111e76-1111-401c-ad8e-0d121a11111e
-    query:
-      in: query
-      name: query
-      description: A query string to filter users based on matching criteria in fields.
-      required: false
-      schema:
-        type: string
-      example: role
     limit:
       in: query
       name: limit
@@ -166,22 +168,24 @@ components:
         default: 10
         minimum: 0
       example: 20
+    query:
+      in: query
+      name: query
+      description: A query string to filter users based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+      example: role
+    pathUserId:
+      in: path
+      required: true
+      name: id
+      description: User identifier
+      schema:
+        type: string
+        format: uuid
+      example: 1e111e76-1111-401c-ad8e-0d121a11111e
   schemas:
-    userRoles:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: userRoles.json
-      title: List of User-Role Relation Items Schema
-      description: List of user-role relation items
-      type: object
-      properties:
-        userRoles:
-          description: List of user-role relation items
-          type: array
-          items:
-            $ref: '#/components/schemas/userRole'
-        totalRecords:
-          description: The total number of user-role relation items matching the provided criteria
-          type: integer
     userRolesRequest:
       $schema: http://json-schema.org/draft-04/schema#
       id: userRolesRequest.json
@@ -200,30 +204,21 @@ components:
             type: string
             format: uuid
             description: Role identifier (UUID)
-    errors:
-      description: A set of errors
+    userRoles:
       $schema: http://json-schema.org/draft-04/schema#
-      type: object
-    userRole:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: userRole.json
-      title: User-Role Relation Model Schema
-      description: User-role relation model
+      id: userRoles.json
+      title: List of User-Role Relation Items Schema
+      description: List of user-role relation items
       type: object
       properties:
-        userId:
-          type: string
-          format: uuid
-          description: ID of the user
-        roleId:
-          type: string
-          format: uuid
-          description: Role identifier
-        metadata:
-          $ref: '#/components/schemas/metadata'
-      required:
-      - userId
-      - roleId
+        userRoles:
+          description: List of user-role relation items
+          type: array
+          items:
+            $ref: '#/components/schemas/userRole'
+        totalRecords:
+          description: The total number of user-role relation items matching the provided criteria
+          type: integer
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -247,52 +242,27 @@ components:
           type: string
           format: uuid
       additionalProperties: false
-  responses:
-    internalServerErrorResponse:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            $ref: '#/components/examples/internalServerErrorResponse'
-    notFoundResponse:
-      description: Not found error response in JSON format for validation errors.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            $ref: '#/components/examples/notFoundResponse'
-    badRequestResponse:
-      description: Error response in JSON format for validation errors.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            $ref: '#/components/examples/badRequestResponse'
-  examples:
-    notFoundResponse:
+    userRole:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: userRole.json
+      title: User-Role Relation Model Schema
+      description: User-role relation model
       type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    userRoleRequest:
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: ID of the user
+        roleId:
+          type: string
+          format: uuid
+          description: Role identifier
+        metadata:
+          $ref: '#/components/schemas/metadata'
+      required:
+      - userId
+      - roleId
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
       type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    internalServerErrorResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    badRequestResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    userRolesResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-x-refined-from:
-- folio-mod-roles-keycloak-openapi.json
-- folio-mod-roles-keycloak-openapi.yml

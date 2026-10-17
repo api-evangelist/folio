@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Capability Set API
+  title: Mod Roles Keycloak Capability Set API
   version: v1
-  description: 'Operations tagged capability-set across 2 of this provider''s published API definitions: folio-mod-roles-keycloak-openapi.json, folio-mod-roles-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Mod Roles Keycloak API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -34,9 +34,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Find capability sets
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /capability-sets/{id}:
     get:
       description: Get capability set by ID
@@ -60,47 +57,7 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Get capability set by id
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
-  parameters:
-    offset:
-      in: query
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      required: false
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-      example: 2
-    pathEntityId:
-      in: path
-      required: true
-      name: id
-      description: Entity id
-      schema:
-        type: string
-        format: uuid
-    query:
-      in: query
-      name: query
-      description: A query string to filter users based on matching criteria in fields.
-      required: false
-      schema:
-        type: string
-      example: role
-    limit:
-      in: query
-      name: limit
-      description: Limit the number of elements returned in the response.
-      required: false
-      schema:
-        type: integer
-        default: 10
-        minimum: 0
-      example: 20
   schemas:
     capabilitySet:
       $schema: http://json-schema.org/draft-04/schema#
@@ -169,10 +126,6 @@ components:
       - delete
       - manage
       - execute
-    errors:
-      description: A set of errors
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
     capabilitySets:
       $schema: http://json-schema.org/draft-04/schema#
       title: Capability Sets Object Schema
@@ -192,14 +145,6 @@ components:
           format: int64
       required:
       - capabilities
-    capabilityType:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: The type of capability
-      type: string
-      enum:
-      - settings
-      - data
-      - procedural
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -223,15 +168,19 @@ components:
           type: string
           format: uuid
       additionalProperties: false
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+    capabilityType:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: The type of capability
+      type: string
+      enum:
+      - settings
+      - data
+      - procedural
   responses:
-    internalServerErrorResponse:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            $ref: '#/components/examples/internalServerErrorResponse'
     notFoundResponse:
       description: Not found error response in JSON format for validation errors.
       content:
@@ -248,27 +197,48 @@ components:
             $ref: '#/components/schemas/errors'
           example:
             $ref: '#/components/examples/badRequestResponse'
-  examples:
-    capabilitySetResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    notFoundResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
     internalServerErrorResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    badRequestResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-    capabilitySetsResponse:
-      type: object
-      description: Referenced by this document but never defined in it. API Evangelist added this empty placeholder so the document resolves; the shape is unknown and is NOT a claim about the API.
-      x-ae-placeholder: true
-x-refined-from:
-- folio-mod-roles-keycloak-openapi.json
-- folio-mod-roles-keycloak-openapi.yml
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            $ref: '#/components/examples/internalServerErrorResponse'
+  parameters:
+    offset:
+      in: query
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      required: false
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      example: 2
+    pathEntityId:
+      in: path
+      required: true
+      name: id
+      description: Entity id
+      schema:
+        type: string
+        format: uuid
+    limit:
+      in: query
+      name: limit
+      description: Limit the number of elements returned in the response.
+      required: false
+      schema:
+        type: integer
+        default: 10
+        minimum: 0
+      example: 20
+    query:
+      in: query
+      name: query
+      description: A query string to filter users based on matching criteria in fields.
+      required: false
+      schema:
+        type: string
+      example: role

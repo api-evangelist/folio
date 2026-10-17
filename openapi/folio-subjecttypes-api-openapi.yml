@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Subject Types API
+  title: Inventory Subject Types API
   version: v1
-  description: 'Operations tagged subjectTypes across 2 of this provider''s published API definitions: folio-edge-inventory-openapi.json, folio-edge-inventory-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Inventory API
 servers:
 - url: /inventory
 tags:
@@ -36,10 +36,38 @@ paths:
           $ref: '#/components/responses/notAuthorizedResponse'
         '500':
           $ref: '#/components/responses/internalServerErrorResponse'
-    servers:
-    - url: /inventory
 components:
+  parameters:
+    x-okapi-token-header:
+      name: x-okapi-token
+      in: header
+      description: x-okapi-token header value
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant-header:
+      name: x-okapi-tenant
+      in: header
+      description: x-okapi-tenant header value
+      required: false
+      schema:
+        type: string
+    request-query-parameters:
+      name: requestQueryParameters
+      in: query
+      description: Request query parameters(query, limit, offset and etc.) as object.
+      schema:
+        $ref: '#/components/schemas/RequestQueryParameters'
   schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          description: Error status code
+          type: integer
+        errorMessage:
+          description: Error message text
+          type: string
     RequestQueryParameters:
       type: object
       properties:
@@ -67,25 +95,7 @@ components:
         expand:
           type: string
           description: Whether or not to expand the id fields
-    Error:
-      type: object
-      properties:
-        code:
-          description: Error status code
-          type: integer
-        errorMessage:
-          description: Error message text
-          type: string
   responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example:
-            code: 500
-            errorMessage: internal error
-          schema:
-            $ref: '#/components/schemas/Error'
     badRequestResponse:
       description: Validation errors
       content:
@@ -93,6 +103,15 @@ components:
           example:
             code: 400
             errorMessage: Validation error
+          schema:
+            $ref: '#/components/schemas/Error'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example:
+            code: 500
+            errorMessage: internal error
           schema:
             $ref: '#/components/schemas/Error'
     notAuthorizedResponse:
@@ -104,27 +123,3 @@ components:
             errorMessage: Unauthorized request
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    x-okapi-token-header:
-      name: x-okapi-token
-      in: header
-      description: x-okapi-token header value
-      required: false
-      schema:
-        type: string
-    request-query-parameters:
-      name: requestQueryParameters
-      in: query
-      description: Request query parameters(query, limit, offset and etc.) as object.
-      schema:
-        $ref: '#/components/schemas/RequestQueryParameters'
-    x-okapi-tenant-header:
-      name: x-okapi-tenant
-      in: header
-      description: x-okapi-tenant header value
-      required: false
-      schema:
-        type: string
-x-refined-from:
-- folio-edge-inventory-openapi.json
-- folio-edge-inventory-openapi.yml

@@ -1,8 +1,10 @@
 openapi: 3.2.0
 info:
-  title: Folio Patron Requests API
+  title: Edge ILL FOLIO Patron Requests API
+  description: 'Edge API that proxies external client requests to the FOLIO mod-ill module.
+
+    Endpoints mirror the mod-ill `ill` interface as declared in its module descriptor.'
   version: 1.0.0
-  description: 'Operations tagged PatronRequests across 2 of this provider''s published API definitions: folio-edge-ill-openapi.json, folio-edge-ill-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /
 tags:
@@ -187,8 +189,6 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       summary: Open URL
       x-summary-source: derived
-    servers:
-    - url: /
   /illService/tenants/{tenantId}/patronrequests/{patronRequestId}/agreeCopyright:
     put:
       tags:
@@ -213,8 +213,6 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       summary: Agree copyright
       x-summary-source: derived
-    servers:
-    - url: /
   /illService/tenants/{tenantId}/patronrequests/{patronRequestId}/fetchCopyright:
     get:
       tags:
@@ -239,8 +237,6 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       summary: Fetch copyright
       x-summary-source: derived
-    servers:
-    - url: /
   /illService/tenants/{tenantId}/patronrequests/{patronRequestId}/viewDocument:
     get:
       tags:
@@ -266,8 +262,6 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       summary: View document
       x-summary-source: derived
-    servers:
-    - url: /
 components:
   parameters:
     tenant-id:
@@ -285,19 +279,6 @@ components:
         type: string
       example: 3c3f172c-6874-4c56-88e1-2350a3d90320
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      example:
-        name: field
-        value: must not be empty
     error:
       description: An error
       type: object
@@ -322,6 +303,19 @@ components:
         parameters:
         - name: id
           value: 5ac63bf6-20e4-4449-9efd-01dbca051acf
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        name: field
+        value: must not be empty
     errors:
       description: A set of errors
       type: object
@@ -357,21 +351,6 @@ components:
               type: InternalServerErrorException
               message: Unknown Service Exception
             total_records: 1
-    BadRequest:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-          example:
-            errors:
-            - code: validation
-              type: BadRequest
-              message: The input provided is invalid.
-              parameters:
-              - name: field
-                value: must not be empty
-            total_records: 1
     NotFound:
       description: Resource Not Found
       content:
@@ -387,6 +366,18 @@ components:
               - name: id
                 value: 5ac63bf6-20e4-4449-9efd-01dbca051acf
             total_records: 1
-x-refined-from:
-- folio-edge-ill-openapi.json
-- folio-edge-ill-openapi.yml
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+          example:
+            errors:
+            - code: validation
+              type: BadRequest
+              message: The input provided is invalid.
+              parameters:
+              - name: field
+                value: must not be empty
+            total_records: 1

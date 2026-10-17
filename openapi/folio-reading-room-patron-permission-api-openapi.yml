@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Reading Room Patron Permission API
+  title: Reading Room Patron Permission API
+  description: Patron Permission API
   version: 1.0.0
-  description: 'Operations tagged Reading Room Patron Permission across 2 of this provider''s published API definitions: folio-mod-reading-room-patron-permission-openapi.json, folio-mod-reading-room-patron-permission-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Reading Room Patron Permission
 paths:
@@ -43,20 +43,59 @@ paths:
       tags:
       - Reading Room Patron Permission
 components:
-  parameters:
-    servicePointId:
-      in: query
-      name: servicePointId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: false
-    userId:
-      in: path
-      name: patronId
-      schema:
-        $ref: '#/components/schemas/uuid'
-      required: true
   schemas:
+    Parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    Metadata:
+      type: object
+      title: Metadata
+      description: Metadata about creation and changes to records
+      properties:
+        createdDate:
+          type: string
+          description: Date and time when the record was created
+        createdByUserId:
+          $ref: '#/components/schemas/uuid'
+          description: ID of the user who created the record
+        updatedDate:
+          type: string
+          description: Date and time when the record was last updated
+        updatedByUserId:
+          $ref: '#/components/schemas/uuid'
+          description: ID of the user who last updated the record
+    Error:
+      description: An error
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          type: string
+          description: Error message code
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/Parameters'
+      additionalProperties: false
+      required:
+      - message
+    uuid:
+      type: string
+      format: uuid
     PatronPermission:
       description: Patron permission for a reading room
       type: object
@@ -88,84 +127,26 @@ components:
         metadata:
           type: object
           $ref: '#/components/schemas/Metadata'
-    Error:
-      description: An error
-      type: object
-      properties:
-        message:
-          type: string
-          minLength: 1
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          type: string
-          description: Error message code
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/Parameters'
-      additionalProperties: false
-      required:
-      - message
-    Parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          type: string
-          minLength: 1
-        value:
-          type: string
-      additionalProperties: false
-      required:
-      - key
-    Metadata:
-      type: object
-      title: Metadata
-      description: Metadata about creation and changes to records
-      properties:
-        createdDate:
-          type: string
-          description: Date and time when the record was created
-        createdByUserId:
-          $ref: '#/components/schemas/uuid'
-          description: ID of the user who created the record
-        updatedDate:
-          type: string
-          description: Date and time when the record was last updated
-        updatedByUserId:
-          $ref: '#/components/schemas/uuid'
-          description: ID of the user who last updated the record
-    uuid:
-      type: string
-      format: uuid
-    PatronPermissionCollection:
-      type: array
-      description: The list of patronPermissions
-      items:
-        $ref: '#/components/schemas/PatronPermission'
     Parameters:
       description: List of key/value parameters of an error
       type: array
       items:
         $ref: '#/components/schemas/Parameter'
       additionalProperties: false
+    PatronPermissionCollection:
+      type: array
+      description: The list of patronPermissions
+      items:
+        $ref: '#/components/schemas/PatronPermission'
   responses:
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
     NotFound:
       description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
       content:
         application/json:
           schema:
@@ -176,6 +157,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/PatronPermissionCollection'
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   requestBodies:
     patronPermissionBody:
       description: Collection of patron permissions
@@ -184,6 +171,16 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/PatronPermissionCollection'
-x-refined-from:
-- folio-mod-reading-room-patron-permission-openapi.json
-- folio-mod-reading-room-patron-permission-openapi.yml
+  parameters:
+    servicePointId:
+      in: query
+      name: servicePointId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: false
+    userId:
+      in: path
+      name: patronId
+      schema:
+        $ref: '#/components/schemas/uuid'
+      required: true

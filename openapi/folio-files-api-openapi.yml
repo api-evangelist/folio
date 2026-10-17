@@ -5,7 +5,7 @@ info:
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Files across 4 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-licenses-openapi.json, folio-mod-agreements-openapi.yml, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Files across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-licenses-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -388,50 +388,6 @@ components:
       required: false
       schema:
         type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    stats:
-      in: query
-      name: stats
-      required: false
-      schema:
-        type: boolean
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    fileId:
-      in: path
-      name: fileId
-      description: UUID for a file
-      required: true
-      schema:
-        type: string
-        format: uuid
-    match:
-      in: query
-      name: match
-      required: false
-      schema:
-        type: string
     term:
       in: query
       name: term
@@ -444,6 +400,50 @@ components:
       required: false
       schema:
         type: string
+    fileId:
+      in: path
+      name: fileId
+      description: UUID for a file
+      required: true
+      schema:
+        type: string
+        format: uuid
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
   schemas:
     HttpError:
       type: object
@@ -452,43 +452,6 @@ components:
           type: string
         error:
           type: integer
-    GrailsErrorResponse:
-      type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
-      required:
-      - error
-      - timestamp
-      - message
-      properties:
-        error:
-          type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
-        message:
-          type: string
-        exception:
-          type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
-    FileResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/File'
-    FileResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/FileResultsArray'
     ApplicationError:
       type: object
       properties:
@@ -507,21 +470,20 @@ components:
                 type: string
               object:
                 type: string
-    ResultsMeta:
+    FileResults:
       type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/FileResultsArray'
+    FileResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/File'
     File:
       type: object
       required:
@@ -546,32 +508,44 @@ components:
         size:
           type: integer
           description: Size of the uploaded file in bytes
-    FileUpload:
+    GrailsErrorResponse:
       type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
       required:
-      - id
+      - error
+      - timestamp
+      - message
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        name:
-          type: string
-          description: Original filename of the uploaded file
-        contentType:
-          type: string
-          description: MIME type of the uploaded file
-        size:
+        error:
           type: integer
-          description: Size of the uploaded file in bytes
-        modified:
+          description: HTTP status code
+        timestamp:
           type: string
           format: date-time
-          readOnly: true
-    FileUploadResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/FileUpload'
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
+          type: array
+          items:
+            type: string
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
     ValidationError:
       type: object
       required:
@@ -624,6 +598,32 @@ components:
                 type: array
                 items:
                   $ref: '#/components/schemas/ValidationError'
+    FileUploadResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/FileUpload'
+    FileUpload:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          description: Original filename of the uploaded file
+        contentType:
+          type: string
+          description: MIME type of the uploaded file
+        size:
+          type: integer
+          description: Size of the uploaded file in bytes
+        modified:
+          type: string
+          format: date-time
+          readOnly: true
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -636,5 +636,3 @@ components:
 x-refined-from:
 - folio-mod-agreements-openapi.json
 - folio-mod-licenses-openapi.json
-- folio-mod-agreements-openapi.yml
-- folio-mod-licenses-openapi.yml

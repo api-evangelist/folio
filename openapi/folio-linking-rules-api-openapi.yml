@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Linking Rules API
+  description: Entity Links API
+  title: Entities Links Linking Rules API
   version: v1.0
-  description: 'Operations tagged linking-rules across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://localhost:8081
 tags:
@@ -39,8 +39,6 @@ paths:
       - linking-rules
       summary: Get instance authority linking rules
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
   /linking-rules/instance-authority/{ruleId}:
     get:
       description: Retrieve instance-authority linking rule by ID
@@ -130,53 +128,16 @@ paths:
       - linking-rules
       summary: Patch instance authority linking rule by id
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
 components:
   schemas:
-    linkingRulePatchRequest:
-      description: Linking rule PATCH request
+    error_parameters_inner:
       properties:
-        id:
-          type: integer
-        autoLinkingEnabled:
-          type: boolean
-        authoritySubfields:
-          items:
-            $ref: '#/components/schemas/charString'
-          type: array
-          uniqueItems: true
-      title: Linking rule PATCH request
-      type: object
-    subfieldModification:
-      description: Subfield modification to link source and target subfields.
-      example:
-        source: source
-        target: target
-      properties:
-        source:
-          description: A string that must contain one character
+        key:
+          description: Parameter key
           type: string
-        target:
-          description: A string that must contain one character
+        value:
+          description: Parameter value
           type: string
-      title: Subfield modification.
-      type: object
-    subfieldValidation:
-      description: Subfield validation before linking.
-      example:
-        existence:
-        - key: true
-        - key: true
-      properties:
-        existence:
-          description: Specify if subfield should exist or not.
-          items:
-            additionalProperties:
-              type: boolean
-            type: object
-          type: array
-      title: Subfield validation.
       type: object
     charString:
       description: A string that must contain one character
@@ -239,14 +200,49 @@ components:
             $ref: '#/components/schemas/error_parameters_inner'
           type: array
       type: object
-    error_parameters_inner:
+    subfieldModification:
+      description: Subfield modification to link source and target subfields.
+      example:
+        source: source
+        target: target
       properties:
-        key:
-          description: Parameter key
+        source:
+          description: A string that must contain one character
           type: string
-        value:
-          description: Parameter value
+        target:
+          description: A string that must contain one character
           type: string
+      title: Subfield modification.
+      type: object
+    subfieldValidation:
+      description: Subfield validation before linking.
+      example:
+        existence:
+        - key: true
+        - key: true
+      properties:
+        existence:
+          description: Specify if subfield should exist or not.
+          items:
+            additionalProperties:
+              type: boolean
+            type: object
+          type: array
+      title: Subfield validation.
+      type: object
+    linkingRulePatchRequest:
+      description: Linking rule PATCH request
+      properties:
+        id:
+          type: integer
+        autoLinkingEnabled:
+          type: boolean
+        authoritySubfields:
+          items:
+            $ref: '#/components/schemas/charString'
+          type: array
+          uniqueItems: true
+      title: Linking rule PATCH request
       type: object
     errors:
       description: Errors response
@@ -267,6 +263,3 @@ components:
             $ref: '#/components/schemas/error'
           type: array
       type: object
-x-refined-from:
-- folio-mod-entities-links-openapi.json
-- folio-mod-entities-links-openapi.yml

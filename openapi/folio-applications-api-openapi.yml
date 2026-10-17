@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Applications API
+  title: Manager Applications API
   version: v1
-  description: 'Operations tagged applications across 2 of this provider''s published API definitions: folio-mgr-applications-am-openapi.json, folio-mgr-applications-am-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Manager Applications API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -66,9 +66,6 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Get applications by query
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /applications/cleanup:
     post:
       operationId: cleanupApplications
@@ -94,9 +91,6 @@ paths:
                 $ref: '#/components/schemas/errors'
       summary: Cleanup applications
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /applications/{id}:
     get:
       operationId: getApplicationById
@@ -136,9 +130,6 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Deregister application by id
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /applications/validate:
     post:
       operationId: validateApplicationDescriptor
@@ -161,9 +152,6 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Validate application descriptor
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /applications/validate-interfaces:
     post:
       operationId: validateModulesInterfaceIntegrity
@@ -184,9 +172,6 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Validate modules interface integrity
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /applications/validate-descriptors:
     post:
       operationId: validateDescriptorsDependenciesIntegrity
@@ -211,15 +196,178 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Validate descriptors dependencies integrity
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
+  parameters:
+    validation-mode:
+      in: query
+      name: mode
+      required: false
+      description: Validation mode to be applied
+      schema:
+        $ref: '#/components/schemas/validationMode'
+    appName:
+      in: query
+      name: appName
+      required: false
+      description: Filter results by application name.
+      schema:
+        type: string
+      example: my-app
+    query-offset:
+      in: query
+      required: false
+      name: offset
+      description: Skip over a number of elements by specifying an offset value for the query.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    query-limit:
+      in: query
+      required: false
+      name: limit
+      description: Limit the number of elements returned in the response.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 500
+        default: 10
+    order:
+      in: query
+      name: order
+      required: false
+      description: Sort order of the results.
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+        default: desc
+      example: desc
+    preRelease:
+      in: query
+      name: preRelease
+      required: false
+      description: 'Control whether pre-release versions are included.
+
+        - "true" → include all versions (default)
+
+        - "false" → only stable releases
+
+        - "only" → only pre-releases
+
+        '
+      schema:
+        type: string
+        enum:
+        - true
+        - false
+        - only
+        default: true
+      example: false
+    latest:
+      in: query
+      name: latest
+      required: false
+      description: Limit results to the latest N releases per application name using SemVer comparison. Common use case - latest=1 for the most recent release.
+      schema:
+        type: integer
+        minimum: 1
+    check:
+      in: query
+      name: check
+      required: false
+      description: 'Whether to run default validation of application descriptor or not
+
+        Default validation mode specified in the application properties
+
+        '
+      schema:
+        type: boolean
+        default: true
+    x-okapi-token:
+      name: x-okapi-token
+      in: header
+      required: false
+      description: An OKAPI authentication token
+      schema:
+        type: string
+    orderBy:
+      in: query
+      name: orderBy
+      required: false
+      description: Field name to order results by.
+      schema:
+        type: string
+        enum:
+        - id
+        - version
+        default: version
+      example: version
+    full:
+      name: full
+      in: query
+      required: false
+      description: Show full information in the response including ModuleDescriptors
+      schema:
+        type: boolean
+        default: false
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity/document id
+      schema:
+        type: string
+    cql-query:
+      name: query
+      in: query
+      description: A CQL query string with search conditions.
+      schema:
+        type: string
   schemas:
-    moduleDescriptor:
+    validationMode:
       $schema: http://json-schema.org/draft-04/schema#
-      description: A FOLIO Module
+      type: string
+      description: Validation mode
+      enum:
+      - default
+      - basic
+      - onCreate
+      default: default
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: string
+      description: Error message code
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
+    applicationIds:
+      type: array
+      items:
+        type: string
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
       type: object
+      properties:
+        errors:
+          id: errors
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    version:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^(\d+)\.(\d+)\.(\d+)(?:-([\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*))?(?:\+[\dA-Za-z-]+)?$
     parameter:
       description: List of key/value parameters of an error
       $schema: http://json-schema.org/draft-04/schema#
@@ -298,79 +446,35 @@ components:
           description: Deployment information
           $ref: '#/components/schemas/applicationDeployment'
       additionalProperties: true
-    applicationReferences:
+    module:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
-      description: Collection of application ids
+      description: Module
+      x-implements:
+      - org.folio.common.domain.model.Artifact
+      allOf:
+      - $ref: '#/components/schemas/artifact'
       properties:
-        applicationIds:
-          description: List of application ids
-          type: array
-          minItems: 1
-          uniqueItems: true
-          items:
-            description: A Name-Version id of application
-            type: string
-      required:
-      - applicationIds
-    applicationIds:
-      type: array
-      items:
-        type: string
-    validationMode:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: string
-      description: Validation mode
-      enum:
-      - default
-      - basic
-      - onCreate
-      default: default
-    errors:
-      description: A set of errors
+        url:
+          description: URL to the artifact
+          type: string
+    error:
+      description: An error
       $schema: http://json-schema.org/draft-04/schema#
       type: object
       properties:
-        errors:
-          id: errors
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-    parameters:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
-    metadata:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: Metadata Schema
-      description: Metadata about creation and changes to records, provided by the server (client should not provide)
-      type: object
-      properties:
-        createdDate:
-          description: Date and time when the record was created
+        message:
           type: string
-          format: date-time
-        createdBy:
-          description: ID of the user who created the record (when available)
+          description: Error message text
+        type:
           type: string
-          format: uuid
-        modifiedDate:
-          description: Date and time when the record was last updated
-          type: string
-          format: date-time
-        modifiedBy:
-          description: ID of the user who last updated the record (when available)
-          type: string
-          format: uuid
-      additionalProperties: false
-      required:
-      - createdDate
+          description: Error message type
+        code:
+          description: Error message code
+          $ref: '#/components/schemas/errorCode'
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
     applicationDescriptors:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -388,52 +492,54 @@ components:
       required:
       - applicationDescriptors
       - totalRecords
-    errorCode:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: string
-      description: Error message code
-      enum:
-      - unknown_error
-      - service_error
-      - validation_error
-      - not_found_error
-      - found_error
-    version:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^(\d+)\.(\d+)\.(\d+)(?:-([\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*))?(?:\+[\dA-Za-z-]+)?$
-    module:
+    applicationReferences:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
-      description: Module
-      x-implements:
-      - org.folio.common.domain.model.Artifact
-      allOf:
-      - $ref: '#/components/schemas/artifact'
+      description: Collection of application ids
       properties:
-        url:
-          description: URL to the artifact
-          type: string
-    artifact:
+        applicationIds:
+          description: List of application ids
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            description: A Name-Version id of application
+            type: string
+      required:
+      - applicationIds
+    dependency:
       $schema: http://json-schema.org/draft-04/schema#
-      title: Application Artifact Schema
-      description: Artifact Descriptor for Application Manager Installer
       type: object
+      description: Dependency
+      x-class-extra-annotation: '@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"id"})'
       properties:
-        id:
-          description: A Name-Version id for identifying this artifact
-          type: string
         name:
           description: Artifact name
           type: string
         version:
-          description: The version of an artifact (semantic version approach)
-          $ref: '#/components/schemas/version'
+          description: The concrete version of an artifact (semantic version) or the version range
+          type: string
+          x-extra-annotation: '@org.folio.common.domain.validation.constraints.SemVersionOrRange'
+        optional:
+          description: Indicates whether the dependency is optional
+          type: boolean
+          default: false
+        preRelease:
+          description: 'Controls pre-release (e.g. SNAPSHOT) inclusion when resolving this dependency''s version range: ''true'' includes pre-release alongside stable, picking the overall highest match (default); ''false'' resolves stable versions only; ''only'' resolves pre-release versions only.'
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          - only
+          default: 'true'
       additionalProperties: false
       required:
       - name
       - version
+    moduleDescriptor:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A FOLIO Module
+      type: object
     applicationDeployment:
       $schema: http://json-schema.org/draft-04/schema#
       title: Application Deployment Schema
@@ -508,189 +614,59 @@ components:
       - cleanedIds
       - skippedIds
       - failedIds
-    dependency:
+    metadata:
       $schema: http://json-schema.org/draft-04/schema#
+      title: Metadata Schema
+      description: Metadata about creation and changes to records, provided by the server (client should not provide)
       type: object
-      description: Dependency
-      x-class-extra-annotation: '@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"id"})'
       properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+          format: date-time
+        createdBy:
+          description: ID of the user who created the record (when available)
+          type: string
+          format: uuid
+        modifiedDate:
+          description: Date and time when the record was last updated
+          type: string
+          format: date-time
+        modifiedBy:
+          description: ID of the user who last updated the record (when available)
+          type: string
+          format: uuid
+      additionalProperties: false
+      required:
+      - createdDate
+    artifact:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Application Artifact Schema
+      description: Artifact Descriptor for Application Manager Installer
+      type: object
+      properties:
+        id:
+          description: A Name-Version id for identifying this artifact
+          type: string
         name:
           description: Artifact name
           type: string
         version:
-          description: The concrete version of an artifact (semantic version) or the version range
-          type: string
-          x-extra-annotation: '@org.folio.common.domain.validation.constraints.SemVersionOrRange'
-        optional:
-          description: Indicates whether the dependency is optional
-          type: boolean
-          default: false
-        preRelease:
-          description: 'Controls pre-release (e.g. SNAPSHOT) inclusion when resolving this dependency''s version range: ''true'' includes pre-release alongside stable, picking the overall highest match (default); ''false'' resolves stable versions only; ''only'' resolves pre-release versions only.'
-          type: string
-          enum:
-          - 'true'
-          - 'false'
-          - only
-          default: 'true'
+          description: The version of an artifact (semantic version approach)
+          $ref: '#/components/schemas/version'
       additionalProperties: false
       required:
       - name
       - version
-    error:
-      description: An error
+    parameters:
+      description: List of key/value parameters of an error
       $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          description: Error message code
-          $ref: '#/components/schemas/errorCode'
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-  parameters:
-    preRelease:
-      in: query
-      name: preRelease
-      required: false
-      description: 'Control whether pre-release versions are included.
-
-        - "true" → include all versions (default)
-
-        - "false" → only stable releases
-
-        - "only" → only pre-releases
-
-        '
-      schema:
-        type: string
-        enum:
-        - true
-        - false
-        - only
-        default: true
-      example: false
-    full:
-      name: full
-      in: query
-      required: false
-      description: Show full information in the response including ModuleDescriptors
-      schema:
-        type: boolean
-        default: false
-    orderBy:
-      in: query
-      name: orderBy
-      required: false
-      description: Field name to order results by.
-      schema:
-        type: string
-        enum:
-        - id
-        - version
-        default: version
-      example: version
-    cql-query:
-      name: query
-      in: query
-      description: A CQL query string with search conditions.
-      schema:
-        type: string
-    x-okapi-token:
-      name: x-okapi-token
-      in: header
-      required: false
-      description: An OKAPI authentication token
-      schema:
-        type: string
-    query-limit:
-      in: query
-      required: false
-      name: limit
-      description: Limit the number of elements returned in the response.
-      schema:
-        type: integer
-        minimum: 0
-        maximum: 500
-        default: 10
-    path-entity-id:
-      in: path
-      required: true
-      name: id
-      description: Entity/document id
-      schema:
-        type: string
-    order:
-      in: query
-      name: order
-      required: false
-      description: Sort order of the results.
-      schema:
-        type: string
-        enum:
-        - asc
-        - desc
-        default: desc
-      example: desc
-    check:
-      in: query
-      name: check
-      required: false
-      description: 'Whether to run default validation of application descriptor or not
-
-        Default validation mode specified in the application properties
-
-        '
-      schema:
-        type: boolean
-        default: true
-    validation-mode:
-      in: query
-      name: mode
-      required: false
-      description: Validation mode to be applied
-      schema:
-        $ref: '#/components/schemas/validationMode'
-    latest:
-      in: query
-      name: latest
-      required: false
-      description: Limit results to the latest N releases per application name using SemVer comparison. Common use case - latest=1 for the most recent release.
-      schema:
-        type: integer
-        minimum: 1
-    query-offset:
-      in: query
-      required: false
-      name: offset
-      description: Skip over a number of elements by specifying an offset value for the query.
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-    appName:
-      in: query
-      name: appName
-      required: false
-      description: Filter results by application name.
-      schema:
-        type: string
-      example: my-app
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
   responses:
     bad-request:
       description: Error response if request body contains validation error (in json format)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    entity-not-found:
-      description: Error response if entity is not found by id (in json format)
       content:
         application/json:
           schema:
@@ -701,6 +677,9 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mgr-applications-am-openapi.json
-- folio-mgr-applications-am-openapi.yml
+    entity-not-found:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'

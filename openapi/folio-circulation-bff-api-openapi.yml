@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Circulation Bff API
+  title: requests Circulation Bff API
   version: v1
-  description: 'Operations tagged Circulation Bff across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Circulation Bff
 paths:
@@ -96,174 +95,6 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      example:
-        key: source
-        value: 'null'
-    checkOutResponse:
-      type: object
-      description: Check-out response
-      properties:
-        id:
-          description: Unique ID (generated UUID) of the loan
-          type: string
-        userId:
-          description: ID of the patron the item was lent to. Required for open loans, not required for closed loans (for anonymization).
-          type: string
-        borrower:
-          description: Additional information about the borrower of the item, taken from the user referred to by the userId
-          type: object
-          properties:
-            firstName:
-              description: First name of the borrower (read-only, defined by the server)
-              type: string
-            lastName:
-              description: Last name of the borrower (read-only, defined by the server)
-              type: string
-            middleName:
-              description: Middle name of the borrower (read-only, defined by the server)
-              type: string
-            barcode:
-              description: Barcode used to identify the borrower (read-only, defined by the server)
-              type: string
-            preferredFirstName:
-              description: Preferred first name of the borrower (read-only, defined by the server)
-              type: string
-            patronGroup:
-              description: Current patron group of the borrower (read-only, defined by the server)
-              type: string
-          additionalProperties: true
-        proxyUserId:
-          description: ID of the user representing a proxy for the patron
-          type: string
-        itemId:
-          description: ID of the item lent to the patron
-          type: string
-        loanPolicyId:
-          description: ID of last policy used in relation to this loan
-          type: string
-        loanPolicy:
-          description: Additional information about the loan policy of the item, taken from the loanPolicyId
-          type: object
-          properties:
-            name:
-              description: Name of last policy used in relation to this loan (read-only, defined by the server)
-              type: string
-          additionalProperties: true
-        overdueFinePolicyId:
-          description: ID of last overdue fine policy used in relation to this loan
-          type: string
-        overdueFinePolicy:
-          description: Additional information about the overdue fine policy of the item
-          type: object
-          properties:
-            name:
-              description: Name of last overdue fine policy used (read-only, defined by the server)
-              type: string
-          additionalProperties: true
-        lostItemPolicyId:
-          description: ID of last lost item policy used in relation to this loan
-          type: string
-        lostItemPolicy:
-          description: Additional information about the lost item policy
-          type: object
-          properties:
-            name:
-              description: Name of last lost item policy used (read-only, defined by the server)
-              type: string
-          additionalProperties: true
-        item:
-          description: Additional information about the item
-          type: object
-          properties:
-            id:
-              description: ID of the item
-              type: string
-            title:
-              description: The title of the item lent to the patron
-              type: string
-            barcode:
-              description: The barcode of the item
-              type: string
-            status:
-              description: Overall status of the item
-              type: object
-              properties:
-                name:
-                  description: Name of the item status
-                  type: string
-                date:
-                  description: Date time when status was last changed
-                  type: string
-                  format: date-time
-              additionalProperties: true
-          additionalProperties: true
-        loanDate:
-          description: Date and time when the loan began
-          type: string
-          format: date-time
-        dueDate:
-          description: Date and time when the item is due to be returned
-          type: string
-          format: date-time
-        returnDate:
-          description: Date and time when the item was returned
-          type: string
-          format: date-time
-        action:
-          description: Last action performed on a loan (e.g., checkedout, checkedin)
-          type: string
-        renewalCount:
-          description: Count of how many times a loan has been renewed
-          type: integer
-          minimum: 0
-        feesAndFines:
-          description: Fees and fines associated with loans
-          type: object
-          properties:
-            amountRemainingToPay:
-              description: Total remaining amount due on fees and fines for the loan (read-only, defined by the server)
-              type: number
-          additionalProperties: true
-        metadata:
-          description: Metadata about creation and changes to loan, provided by the server (client should not provide)
-          type: object
-      additionalProperties: true
-    requestSearchIndex:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Request fields used for search
-      type: object
-      properties:
-        callNumberComponents:
-          type: object
-          description: Effective call number components
-          properties:
-            callNumber:
-              type: string
-              description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
-            prefix:
-              type: string
-              description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
-            suffix:
-              type: string
-              description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
-          additionalProperties: false
-        shelvingOrder:
-          type: string
-          description: A system generated normalization of the call number that allows for call number sorting in reports and search results
-        pickupServicePointName:
-          description: The name of the request pickup service point
-          type: string
-      additionalProperties: false
     bffRequest:
       description: Request for an item that might be at a different location or already checked out to another patron
       type: object
@@ -473,176 +304,6 @@ components:
       - fulfillmentPreference
       - instanceId
       - requestLevel
-    overrideBlocks:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Blocks to override (e.g. during checkout or renewal)
-      properties:
-        itemNotLoanableBlock:
-          description: '''Item not loanable'' block'
-          type: object
-          properties:
-            dueDate:
-              description: Due date for a new loan
-              type: string
-              format: date-time
-          additionalProperties: false
-          required:
-          - dueDate
-        patronBlock:
-          description: Automated patron block
-          type: object
-          additionalProperties: false
-        itemLimitBlock:
-          description: Item limit block
-          type: object
-          additionalProperties: false
-        renewalBlock:
-          description: Renewal block
-          type: object
-          additionalProperties: false
-        renewalDueDateRequiredBlock:
-          description: Override renewal block which requires due date field
-          type: object
-          properties:
-            dueDate:
-              description: Due date for a new loan
-              type: string
-              format: date-time
-          additionalProperties: false
-          required:
-          - dueDate
-        comment:
-          description: Reason for override
-          type: string
-      additionalProperties: false
-    checkInRequest:
-      type: object
-      description: Check-in request
-      properties:
-        itemBarcode:
-          description: Item barcode
-          type: string
-        servicePointId:
-          description: ID of the service point where item is being checked-in
-          type: string
-          format: uuid
-        checkInDate:
-          description: Date and time of item check-in
-          type: string
-          format: date-time
-        claimedReturnedResolution:
-          description: Describes how the library resolved the situation where the item was claimed returned
-          type: string
-        sessionId:
-          description: Randomly generated UUID which must be the same for all check-in requests issued in scope of the same check-in session
-          type: string
-          format: uuid
-      required:
-      - itemBarcode
-      - servicePointId
-      - checkInDate
-    metadata:
-      type: object
-      description: Record metadata
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          type: string
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          type: string
-        createdByUsername:
-          description: Username of the user who created the record (when available)
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          type: string
-        updatedByUsername:
-          description: Username of the user who last updated the record (when available)
-          type: string
-    errorResponse:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      example:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-    checkOutRequest:
-      type: object
-      description: Check-out request
-      properties:
-        itemBarcode:
-          description: Barcode of the item to be lent to the patron
-          type: string
-        userBarcode:
-          description: Barcode of the user (representing the patron) the item is to be lent to
-          type: string
-        proxyUserBarcode:
-          description: Barcode of the user representing a proxy for the patron
-          type: string
-        loanDate:
-          description: When the loan is to begin, defaults to current date and time
-          type: string
-          format: date-time
-        servicePointId:
-          description: Service point where the item has been checked out
-          type: string
-          format: uuid
-        overrideBlocks:
-          description: Blocks to override
-          type: object
-          properties:
-            itemNotLoanableBlock:
-              description: '''Item not loanable'' block'
-              type: object
-              properties:
-                dueDate:
-                  description: Due date for a new loan
-                  type: string
-                  format: date-time
-              required:
-              - dueDate
-            patronBlock:
-              description: Automated patron block
-              type: object
-            itemLimitBlock:
-              description: Item limit block
-              type: object
-            renewalBlock:
-              description: Renewal block
-              type: object
-            renewalDueDateRequiredBlock:
-              description: Override renewal block which requires due date field
-              type: object
-              properties:
-                dueDate:
-                  description: Due date for a new loan
-                  type: string
-                  format: date-time
-              required:
-              - dueDate
-            comment:
-              description: Reason for override
-              type: string
-      required:
-      - itemBarcode
-      - userBarcode
-      - servicePointId
     request:
       description: Request for an item that might be at a different location or already checked out to another patron
       type: object
@@ -961,20 +622,153 @@ components:
       - requestType
       - requestDate
       - fulfillmentPreference
-    patronGroup:
-      description: patron group
+    checkOutResponse:
       type: object
+      description: Check-out response
       properties:
         id:
-          description: ID of the patron group
+          description: Unique ID (generated UUID) of the loan
           type: string
-          $ref: '#/components/schemas/uuid'
-        group:
-          description: The unique name of the patron group
+        userId:
+          description: ID of the patron the item was lent to. Required for open loans, not required for closed loans (for anonymization).
           type: string
-        desc:
-          description: A description of the patron group
+        borrower:
+          description: Additional information about the borrower of the item, taken from the user referred to by the userId
+          type: object
+          properties:
+            firstName:
+              description: First name of the borrower (read-only, defined by the server)
+              type: string
+            lastName:
+              description: Last name of the borrower (read-only, defined by the server)
+              type: string
+            middleName:
+              description: Middle name of the borrower (read-only, defined by the server)
+              type: string
+            barcode:
+              description: Barcode used to identify the borrower (read-only, defined by the server)
+              type: string
+            preferredFirstName:
+              description: Preferred first name of the borrower (read-only, defined by the server)
+              type: string
+            patronGroup:
+              description: Current patron group of the borrower (read-only, defined by the server)
+              type: string
+          additionalProperties: true
+        proxyUserId:
+          description: ID of the user representing a proxy for the patron
           type: string
+        itemId:
+          description: ID of the item lent to the patron
+          type: string
+        loanPolicyId:
+          description: ID of last policy used in relation to this loan
+          type: string
+        loanPolicy:
+          description: Additional information about the loan policy of the item, taken from the loanPolicyId
+          type: object
+          properties:
+            name:
+              description: Name of last policy used in relation to this loan (read-only, defined by the server)
+              type: string
+          additionalProperties: true
+        overdueFinePolicyId:
+          description: ID of last overdue fine policy used in relation to this loan
+          type: string
+        overdueFinePolicy:
+          description: Additional information about the overdue fine policy of the item
+          type: object
+          properties:
+            name:
+              description: Name of last overdue fine policy used (read-only, defined by the server)
+              type: string
+          additionalProperties: true
+        lostItemPolicyId:
+          description: ID of last lost item policy used in relation to this loan
+          type: string
+        lostItemPolicy:
+          description: Additional information about the lost item policy
+          type: object
+          properties:
+            name:
+              description: Name of last lost item policy used (read-only, defined by the server)
+              type: string
+          additionalProperties: true
+        item:
+          description: Additional information about the item
+          type: object
+          properties:
+            id:
+              description: ID of the item
+              type: string
+            title:
+              description: The title of the item lent to the patron
+              type: string
+            barcode:
+              description: The barcode of the item
+              type: string
+            status:
+              description: Overall status of the item
+              type: object
+              properties:
+                name:
+                  description: Name of the item status
+                  type: string
+                date:
+                  description: Date time when status was last changed
+                  type: string
+                  format: date-time
+              additionalProperties: true
+          additionalProperties: true
+        loanDate:
+          description: Date and time when the loan began
+          type: string
+          format: date-time
+        dueDate:
+          description: Date and time when the item is due to be returned
+          type: string
+          format: date-time
+        returnDate:
+          description: Date and time when the item was returned
+          type: string
+          format: date-time
+        action:
+          description: Last action performed on a loan (e.g., checkedout, checkedin)
+          type: string
+        renewalCount:
+          description: Count of how many times a loan has been renewed
+          type: integer
+          minimum: 0
+        feesAndFines:
+          description: Fees and fines associated with loans
+          type: object
+          properties:
+            amountRemainingToPay:
+              description: Total remaining amount due on fees and fines for the loan (read-only, defined by the server)
+              type: number
+          additionalProperties: true
+        metadata:
+          description: Metadata about creation and changes to loan, provided by the server (client should not provide)
+          type: object
+      additionalProperties: true
+    uuid:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
+      type: string
+      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
     checkInResponse:
       type: object
       description: Check-in response
@@ -1197,11 +991,49 @@ components:
                   type: string
               additionalProperties: true
           additionalProperties: true
-    uuid:
+    overrideBlocks:
       $schema: http://json-schema.org/draft-04/schema#
-      description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
-      type: string
-      pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$
+      type: object
+      description: Blocks to override (e.g. during checkout or renewal)
+      properties:
+        itemNotLoanableBlock:
+          description: '''Item not loanable'' block'
+          type: object
+          properties:
+            dueDate:
+              description: Due date for a new loan
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - dueDate
+        patronBlock:
+          description: Automated patron block
+          type: object
+          additionalProperties: false
+        itemLimitBlock:
+          description: Item limit block
+          type: object
+          additionalProperties: false
+        renewalBlock:
+          description: Renewal block
+          type: object
+          additionalProperties: false
+        renewalDueDateRequiredBlock:
+          description: Override renewal block which requires due date field
+          type: object
+          properties:
+            dueDate:
+              description: Due date for a new loan
+              type: string
+              format: date-time
+          additionalProperties: false
+          required:
+          - dueDate
+        comment:
+          description: Reason for override
+          type: string
+      additionalProperties: false
     error:
       description: An error
       type: object
@@ -1219,14 +1051,174 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/parameter'
-  examples:
-    unknownError:
-      value:
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
         errors:
         - message: Illegal argument error
           type: IllegalArgumentException
           code: unknown_error
         total_records: 1
+    checkOutRequest:
+      type: object
+      description: Check-out request
+      properties:
+        itemBarcode:
+          description: Barcode of the item to be lent to the patron
+          type: string
+        userBarcode:
+          description: Barcode of the user (representing the patron) the item is to be lent to
+          type: string
+        proxyUserBarcode:
+          description: Barcode of the user representing a proxy for the patron
+          type: string
+        loanDate:
+          description: When the loan is to begin, defaults to current date and time
+          type: string
+          format: date-time
+        servicePointId:
+          description: Service point where the item has been checked out
+          type: string
+          format: uuid
+        overrideBlocks:
+          description: Blocks to override
+          type: object
+          properties:
+            itemNotLoanableBlock:
+              description: '''Item not loanable'' block'
+              type: object
+              properties:
+                dueDate:
+                  description: Due date for a new loan
+                  type: string
+                  format: date-time
+              required:
+              - dueDate
+            patronBlock:
+              description: Automated patron block
+              type: object
+            itemLimitBlock:
+              description: Item limit block
+              type: object
+            renewalBlock:
+              description: Renewal block
+              type: object
+            renewalDueDateRequiredBlock:
+              description: Override renewal block which requires due date field
+              type: object
+              properties:
+                dueDate:
+                  description: Due date for a new loan
+                  type: string
+                  format: date-time
+              required:
+              - dueDate
+            comment:
+              description: Reason for override
+              type: string
+      required:
+      - itemBarcode
+      - userBarcode
+      - servicePointId
+    checkInRequest:
+      type: object
+      description: Check-in request
+      properties:
+        itemBarcode:
+          description: Item barcode
+          type: string
+        servicePointId:
+          description: ID of the service point where item is being checked-in
+          type: string
+          format: uuid
+        checkInDate:
+          description: Date and time of item check-in
+          type: string
+          format: date-time
+        claimedReturnedResolution:
+          description: Describes how the library resolved the situation where the item was claimed returned
+          type: string
+        sessionId:
+          description: Randomly generated UUID which must be the same for all check-in requests issued in scope of the same check-in session
+          type: string
+          format: uuid
+      required:
+      - itemBarcode
+      - servicePointId
+      - checkInDate
+    patronGroup:
+      description: patron group
+      type: object
+      properties:
+        id:
+          description: ID of the patron group
+          type: string
+          $ref: '#/components/schemas/uuid'
+        group:
+          description: The unique name of the patron group
+          type: string
+        desc:
+          description: A description of the patron group
+          type: string
+    requestSearchIndex:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Request fields used for search
+      type: object
+      properties:
+        callNumberComponents:
+          type: object
+          description: Effective call number components
+          properties:
+            callNumber:
+              type: string
+              description: Effective Call Number is an identifier assigned to an item or its holding and associated with the item.
+            prefix:
+              type: string
+              description: Effective Call Number Prefix is the prefix of the identifier assigned to an item or its holding and associated with the item.
+            suffix:
+              type: string
+              description: Effective Call Number Suffix is the suffix of the identifier assigned to an item or its holding and associated with the item.
+          additionalProperties: false
+        shelvingOrder:
+          type: string
+          description: A system generated normalization of the call number that allows for call number sorting in reports and search results
+        pickupServicePointName:
+          description: The name of the request pickup service point
+          type: string
+      additionalProperties: false
+    metadata:
+      type: object
+      description: Record metadata
+      properties:
+        createdDate:
+          description: Date and time when the record was created
+          type: string
+        createdByUserId:
+          description: ID of the user who created the record (when available)
+          type: string
+        createdByUsername:
+          description: Username of the user who created the record (when available)
+          type: string
+        updatedDate:
+          description: Date and time when the record was last updated
+          type: string
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
+          type: string
+        updatedByUsername:
+          description: Username of the user who last updated the record (when available)
+          type: string
+  examples:
     validationErrorResponse:
       value:
         errors:
@@ -1236,6 +1228,13 @@ components:
           parameters:
           - key: parameter
             value: 'null'
+        total_records: 1
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
         total_records: 1
   responses:
     internalServerErrorResponse:
@@ -1265,6 +1264,3 @@ components:
           examples:
             validationErrorResponse:
               $ref: '#/components/examples/validationErrorResponse'
-x-refined-from:
-- folio-mod-circulation-bff-circulationbff-openapi.json
-- folio-mod-circulation-bff-circulationbff-openapi.yml

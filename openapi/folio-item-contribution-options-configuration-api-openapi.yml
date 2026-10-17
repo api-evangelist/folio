@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Item Contribution Options Configuration API
+  title: INN-Reach Settings Item Contribution Options Configuration…
   version: v1
-  description: 'Operations tagged item-contribution-options-configuration across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -78,24 +77,27 @@ paths:
       - $ref: '#/components/parameters/centralServerId'
       summary: Create item contribution options configuration
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
+  responses:
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    validationErrorDTO:
-      description: Validation error
-      type: object
-      properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
-      additionalProperties: false
-      required:
-      - fieldName
-      - message
     Error:
       type: object
       properties:
@@ -158,6 +160,20 @@ components:
           type: object
           $ref: '#/components/schemas/metadata'
       additionalProperties: false
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
     metadata:
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -188,25 +204,6 @@ components:
       additionalProperties: false
       required:
       - createdDate
-  responses:
-    trait_response_404:
-      description: Item not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    trait_response_validation_400:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/validationErrorsDTO'
-    trait_response_500:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
     centralServerId:
       name: centralServerId
@@ -215,6 +212,3 @@ components:
       schema:
         type: string
         format: uuid
-x-refined-from:
-- folio-mod-inn-reach-settings-openapi.json
-- folio-mod-inn-reach-settings-openapi.yml

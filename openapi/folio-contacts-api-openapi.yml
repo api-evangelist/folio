@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Contacts API
   version: 7.3.0
+  title: Folio Licenses Contacts API
+  description: API for the Folio library services platform mod-licenses app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Contacts across 2 of this provider''s published API definitions: folio-mod-licenses-openapi.json, folio-mod-licenses-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -55,10 +55,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /licenses/contacts/{contactId}:
     get:
       tags:
@@ -89,74 +85,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
-  parameters:
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    stats:
-      in: query
-      name: stats
-      required: false
-      schema:
-        type: boolean
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    contactId:
-      in: path
-      name: contactId
-      description: ID for an internal contact
-      required: true
-      schema:
-        type: string
-    match:
-      in: query
-      name: match
-      required: false
-      schema:
-        type: string
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
   schemas:
+    InternalContactResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/InternalContactResultsArray'
+    RefDataCategory:
+      type: object
+      required:
+      - id
+      properties:
+        desc:
+          type: string
+        id:
+          type: string
+          readOnly: true
+        internal:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/RefData'
     InternalContact:
       type: object
       required:
@@ -181,6 +137,24 @@ components:
           oneOf:
           - type: string
           - $ref: '#/components/schemas/RefData'
+    InternalContactResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/InternalContact'
+    RefData:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+        owner:
+          $ref: '#/components/schemas/RefDataCategory'
     GrailsErrorResponse:
       type: object
       description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
@@ -204,50 +178,6 @@ components:
           type: array
           items:
             type: string
-    RefData:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          readOnly: true
-        label:
-          type: string
-        value:
-          type: string
-        owner:
-          $ref: '#/components/schemas/RefDataCategory'
-    InternalContactResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/InternalContactResultsArray'
-    InternalContactResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/InternalContact'
-    RefDataCategory:
-      type: object
-      required:
-      - id
-      properties:
-        desc:
-          type: string
-        id:
-          type: string
-          readOnly: true
-        internal:
-          type: boolean
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/RefData'
     ResultsMeta:
       type: object
       properties:
@@ -263,6 +193,68 @@ components:
           type: integer
         totalRecords:
           type: integer
+  parameters:
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    contactId:
+      in: path
+      name: contactId
+      description: ID for an internal contact
+      required: true
+      schema:
+        type: string
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -272,6 +264,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-licenses-openapi.json
-- folio-mod-licenses-openapi.yml

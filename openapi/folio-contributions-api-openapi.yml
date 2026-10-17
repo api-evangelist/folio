@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Contributions API
+  title: INN-Reach Contribution Contributions API
   version: v1
-  description: 'Operations tagged contributions across 2 of this provider''s published API definitions: folio-mod-inn-reach-contribution-openapi.json, folio-mod-inn-reach-contribution-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -45,8 +44,6 @@ paths:
       - $ref: '#/components/parameters/centralServerId'
       summary: Cancel current contribution by server id
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
   /central-servers/{centralServerId}/contributions/history:
     get:
       description: Get a list of Inn-Reach contributions for the given central server
@@ -70,8 +67,6 @@ paths:
       - $ref: '#/components/parameters/trait_pageable_limit'
       summary: Get contribution history by server id
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
   /central-servers/{centralServerId}/contributions:
     post:
       description: Start initial contribution process
@@ -89,40 +84,8 @@ paths:
       - $ref: '#/components/parameters/centralServerId'
       summary: Start initial contribution
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
   schemas:
-    validationErrorDTO:
-      description: Validation error
-      type: object
-      properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
-      additionalProperties: false
-      required:
-      - fieldName
-      - message
-    contributionsDTO:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: INN-Reach contribution history of job execution status tracking and basic statistics
-      type: object
-      properties:
-        totalRecords:
-          description: Total records
-          type: integer
-        contributionHistory:
-          description: List of INN-Reach contribution job execution status tracking and basic statistics
-          type: array
-          items:
-            $ref: '#/components/schemas/contributionDTO'
-      additionalProperties: false
-      required:
-      - contributions
     mappingValidationStatusDTO:
       $schema: http://json-schema.org/draft-04/schema#
       description: Mapping validation status
@@ -157,6 +120,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/validationErrorDTO'
+    contributionsDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: INN-Reach contribution history of job execution status tracking and basic statistics
+      type: object
+      properties:
+        totalRecords:
+          description: Total records
+          type: integer
+        contributionHistory:
+          description: List of INN-Reach contribution job execution status tracking and basic statistics
+          type: array
+          items:
+            $ref: '#/components/schemas/contributionDTO'
+      additionalProperties: false
+      required:
+      - contributions
     contributionDTO:
       $schema: http://json-schema.org/draft-04/schema#
       description: INN-Reach contribution job execution status tracking and basic statistics
@@ -263,6 +242,20 @@ components:
       additionalProperties: false
       required:
       - createdDate
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
     contributionErrorDTO:
       $schema: http://json-schema.org/draft-04/schema#
       description: INN-Reach contribution job execution status tracking and basic statistics
@@ -306,15 +299,13 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
       schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
+        type: string
+        format: uuid
     trait_pageable_offset:
       name: offset
       in: query
@@ -324,13 +315,12 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-    centralServerId:
-      name: centralServerId
-      in: path
-      required: true
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
       schema:
-        type: string
-        format: uuid
-x-refined-from:
-- folio-mod-inn-reach-contribution-openapi.json
-- folio-mod-inn-reach-contribution-openapi.yml
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer

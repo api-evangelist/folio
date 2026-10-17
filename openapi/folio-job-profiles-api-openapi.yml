@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Job Profiles API
+  title: Data export Job Profiles API
   version: v1
-  description: 'Operations tagged Job Profiles across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Data export API
 servers:
 - url: /data-export/
 tags:
@@ -127,8 +127,6 @@ paths:
       - Job Profiles
       summary: Post job profile
       x-summary-source: derived
-    servers:
-    - url: /data-export/
   /job-profiles/{jobProfileId}:
     get:
       description: Get specific job profile
@@ -267,64 +265,8 @@ paths:
       - Job Profiles
       summary: Delete job profile by id
       x-summary-source: derived
-    servers:
-    - url: /data-export/
 components:
   schemas:
-    userInfo:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: User information
-      type: object
-      additionalProperties: false
-      properties:
-        firstName:
-          description: User first name
-          type: string
-        lastName:
-          description: User last name
-          type: string
-        userName:
-          description: User name (nickname)
-          type: string
-    jobProfileCollection:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Collection of Job Profiles
-      type: object
-      additionalProperties: false
-      properties:
-        jobProfiles:
-          description: List of Job Profiles
-          type: array
-          id: jobProfileList
-          items:
-            type: object
-            $ref: '#/components/schemas/jobProfile'
-        totalRecords:
-          description: Total number of Job Profiles
-          type: integer
-      required:
-      - jobProfiles
-      - totalRecords
-    protocol:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: TCP/IP
-      type: object
-      properties:
-        name:
-          description: TCP/IP name
-          type: string
-        host:
-          description: The host
-          type: string
-        port:
-          description: The port
-          type: string
-        authentication:
-          description: The authentication
-          type: string
-        description:
-          description: The description
-          type: string
     jobProfile:
       $schema: http://json-schema.org/draft-04/schema#
       description: Job profile
@@ -381,21 +323,21 @@ components:
       required:
       - name
       - mappingProfileId
-    errors:
+    userInfo:
       $schema: http://json-schema.org/draft-04/schema#
+      description: User information
       type: object
-      description: Error collection
+      additionalProperties: false
       properties:
-        errors:
-          description: list of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total records
-          type: integer
+        firstName:
+          description: User first name
+          type: string
+        lastName:
+          description: User last name
+          type: string
+        userName:
+          description: User name (nickname)
+          type: string
     uuid:
       type: string
       format: uuid
@@ -419,17 +361,25 @@ components:
           $ref: '#/components/schemas/parameters'
       required:
       - message
-    parameters:
+    jobProfileCollection:
       $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      description: Error parameters
-      items:
-        type: object
-        properties:
-          key:
-            type: string
-          value:
-            type: string
+      description: Collection of Job Profiles
+      type: object
+      additionalProperties: false
+      properties:
+        jobProfiles:
+          description: List of Job Profiles
+          type: array
+          id: jobProfileList
+          items:
+            type: object
+            $ref: '#/components/schemas/jobProfile'
+        totalRecords:
+          description: Total number of Job Profiles
+          type: integer
+      required:
+      - jobProfiles
+      - totalRecords
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -461,6 +411,52 @@ components:
       additionalProperties: false
       required:
       - createdDate
+    protocol:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: TCP/IP
+      type: object
+      properties:
+        name:
+          description: TCP/IP name
+          type: string
+        host:
+          description: The host
+          type: string
+        port:
+          description: The port
+          type: string
+        authentication:
+          description: The authentication
+          type: string
+        description:
+          description: The description
+          type: string
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer
   parameters:
     trait_used_in_completed_jobs:
       name: used
@@ -470,15 +466,12 @@ components:
       schema:
         default: false
         type: boolean
-    trait_pageable_limit:
-      name: limit
+    trait_queryable:
+      name: query
       in: query
-      description: Limit the number of elements returned in the response
+      description: A query string to filter rules based on matching criteria in fields.
       schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
+        type: string
     trait_pageable_offset:
       name: offset
       in: query
@@ -488,12 +481,12 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-    trait_queryable:
-      name: query
+    trait_pageable_limit:
+      name: limit
       in: query
-      description: A query string to filter rules based on matching criteria in fields.
+      description: Limit the number of elements returned in the response
       schema:
-        type: string
-x-refined-from:
-- folio-mod-data-export-openapi.json
-- folio-mod-data-export-openapi.yml
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer

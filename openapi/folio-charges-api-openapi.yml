@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Charges API
   version: 3.2.0
+  title: Folio Open Access Management Charges API
+  description: API for the Folio library services platform mod-oa app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Charges across 2 of this provider''s published API definitions: folio-mod-oa-openapi.json, folio-mod-oa-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -86,10 +86,6 @@ paths:
                 $ref: '#/components/schemas/ValidationErrorResponse'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /oa/charges/{id}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -178,75 +174,158 @@ paths:
                 $ref: '#/components/schemas/SpringBootErrorResponse'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
-  parameters:
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
-    stats:
-      in: query
-      name: stats
-      required: false
-      schema:
-        type: boolean
-    chargeId:
-      in: path
-      name: id
-      description: UUID for a charge
-      required: true
-      schema:
-        type: string
-        format: uuid
-    match:
-      in: query
-      name: match
-      required: false
-      schema:
-        type: string
   schemas:
+    ValidationError:
+      type: object
+      required:
+      - message
+      - path
+      - _links
+      properties:
+        message:
+          type: string
+        path:
+          type: string
+        _links:
+          type: object
+          required:
+          - self
+          properties:
+            self:
+              type: object
+              required:
+              - href
+              properties:
+                href:
+                  type: string
+                  format: uri
+    ValidationErrorResponse:
+      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
+      oneOf:
+      - $ref: '#/components/schemas/ValidationError'
+      - type: object
+        required:
+        - total
+        - _embedded
+        properties:
+          total:
+            type: integer
+          _embedded:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
+    SpringBootErrorResponse:
+      type: object
+      description: Spring Boot's default error body. Emitted by the servlet container itself when a request ends in an error status with no response body written by the application, rather than by this app's own error handling - so it does not match the `HttpError` shape used elsewhere in this API.
+      properties:
+        timestamp:
+          type: integer
+          description: Epoch milliseconds
+        status:
+          type: integer
+        error:
+          type: string
+        path:
+          type: string
+    ChargeResults:
+      type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/ChargeResultsArray'
+    ExchangeRate:
+      type: object
+      required:
+      - id
+      - fromCurrency
+      - toCurrency
+      - coefficient
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        fromCurrency:
+          type: string
+        toCurrency:
+          type: string
+        coefficient:
+          type: number
+    Refdata:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          readOnly: true
+        label:
+          type: string
+        value:
+          type: string
+    MonetaryValue:
+      type: object
+      required:
+      - id
+      - baseCurrency
+      - value
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        baseCurrency:
+          type: string
+        value:
+          type: number
+          multipleOf: 0.01
+          description: Monetary amount, fixed to 2 decimal places
+    Payer:
+      type: object
+      required:
+      - id
+      - payer
+      - payerAmount
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        payer:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        payerAmount:
+          type: number
+        payerNote:
+          type: string
+    ChargeResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Charge'
     Charge:
       type: object
       required:
@@ -313,156 +392,69 @@ components:
         estimatedPrice:
           readOnly: true
           $ref: '#/components/schemas/MonetaryValue'
-    ExchangeRate:
-      type: object
-      required:
-      - id
-      - fromCurrency
-      - toCurrency
-      - coefficient
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        fromCurrency:
-          type: string
-        toCurrency:
-          type: string
-        coefficient:
-          type: number
-    ChargeResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/Charge'
-    ValidationErrorResponse:
-      description: 'Validation error body returned when a create/update request fails domain-object validation. Shape depends on the number of errors: a single ValidationError when there is exactly one, otherwise a wrapper with a count and an embedded array.'
-      oneOf:
-      - $ref: '#/components/schemas/ValidationError'
-      - type: object
-        required:
-        - total
-        - _embedded
-        properties:
-          total:
-            type: integer
-          _embedded:
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ValidationError'
-    Refdata:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          readOnly: true
-        label:
-          type: string
-        value:
-          type: string
-    SpringBootErrorResponse:
-      type: object
-      description: Spring Boot's default error body. Emitted by the servlet container itself when a request ends in an error status with no response body written by the application, rather than by this app's own error handling - so it does not match the `HttpError` shape used elsewhere in this API.
-      properties:
-        timestamp:
-          type: integer
-          description: Epoch milliseconds
-        status:
-          type: integer
-        error:
-          type: string
-        path:
-          type: string
-    ResultsMeta:
-      type: object
-      properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    MonetaryValue:
-      type: object
-      required:
-      - id
-      - baseCurrency
-      - value
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        baseCurrency:
-          type: string
-        value:
-          type: number
-          multipleOf: 0.01
-          description: Monetary amount, fixed to 2 decimal places
-    Payer:
-      type: object
-      required:
-      - id
-      - payer
-      - payerAmount
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        payer:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-        payerAmount:
-          type: number
-        payerNote:
-          type: string
-    ChargeResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/ChargeResultsArray'
-    ValidationError:
-      type: object
-      required:
-      - message
-      - path
-      - _links
-      properties:
-        message:
-          type: string
-        path:
-          type: string
-        _links:
-          type: object
-          required:
-          - self
-          properties:
-            self:
-              type: object
-              required:
-              - href
-              properties:
-                href:
-                  type: string
-                  format: uri
+  parameters:
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    chargeId:
+      in: path
+      name: id
+      description: UUID for a charge
+      required: true
+      schema:
+        type: string
+        format: uuid
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -472,6 +464,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-oa-openapi.json
-- folio-mod-oa-openapi.yml

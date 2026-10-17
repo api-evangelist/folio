@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Login API
+  title: Mod Keycloak Login API
   version: v1
-  description: 'Operations tagged login across 2 of this provider''s published API definitions: folio-mod-login-keycloak-openapi.json, folio-mod-login-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Mod Login Keycloak API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -50,9 +50,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Login
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /authn/login-with-expiry:
     post:
       description: Get an expiring refresh and access token
@@ -83,9 +80,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Login with expiry
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /authn/refresh:
     post:
       description: Get a new refresh and access token
@@ -109,9 +103,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Refresh token
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /authn/logout:
     post:
       description: Logs the user out on their current device
@@ -131,9 +122,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Logout
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /authn/logout-all:
     post:
       description: Logs the user out on all of their devices
@@ -151,9 +139,6 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Logout all
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /authn/token:
     get:
       description: Get a new login token from the authorization code
@@ -191,24 +176,51 @@ paths:
           $ref: '#/components/responses/internalServerErrorResponse'
       summary: Token
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
+  parameters:
+    userAgentHeader:
+      in: header
+      required: false
+      name: userAgent
+      description: Used to identify the Operating System and Browser of the web-server
+      schema:
+        type: string
+    folioRefreshTokenRequired:
+      in: cookie
+      required: true
+      name: folioRefreshToken
+      description: Refresh token cookie
+      schema:
+        type: string
+    redirect-uri:
+      in: query
+      required: true
+      name: redirect-uri
+      description: initial uri that was used as redirect uri for getting authentication code
+      schema:
+        type: string
+    folioRefreshToken:
+      in: cookie
+      required: false
+      name: folioRefreshToken
+      description: Refresh token cookie
+      schema:
+        type: string
+    xForwardedForHeader:
+      in: header
+      required: false
+      name: forwardedFor
+      description: -< HTTP header field is a common method for identifying the originating IP address of a client connecting to a web server through an HTTP proxy or load balancer
+      schema:
+        type: string
+    code:
+      in: query
+      required: true
+      name: code
+      description: temporary authentication code
+      schema:
+        type: string
   schemas:
-    parameter:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: parameter.json
-      title: Key/Value Parameter Schema
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
     loginCredentials:
       $schema: http://json-schema.org/draft-04/schema#
       id: loginCredentials.json
@@ -227,37 +239,14 @@ components:
           type: string
       required:
       - password
-    errorCode:
+    parameters:
       $schema: http://json-schema.org/draft-04/schema#
-      id: errorCode.json
-      title: Error Code Schema
-      description: Error message code
-      type: string
-      enum:
-      - unknown_error
-      - service_error
-      - validation_error
-      - not_found_error
-      - found_error
-      - token.parse.failure
-      - token.refresh.unprocessable
-      - token.logout.unprocessable
-      - unauthorized_error
-    loginResponseWithExpiry:
-      $schema: http://json-schema.org/draft-04/schema#
-      title: Login Response With Expiry Schema
-      description: Object returned on successful login or on token refresh
-      type: object
-      properties:
-        accessTokenExpiration:
-          description: The time in UTC after which the access token will be considered expired. Time format is ISO 8601.
-          type: string
-        refreshTokenExpiration:
-          description: The time in UTC after which the refresh token will be considered expired. Time format is ISO 8601.
-          type: string
-      required:
-      - accessTokenExpiration
-      - refreshTokenExpiration
+      id: parameters.json
+      title: List of Parameters Schema
+      description: List of key/value parameters of an error
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
     error:
       $schema: http://json-schema.org/draft-04/schema#
       id: error.json
@@ -277,29 +266,6 @@ components:
         parameters:
           description: List of key/value parameters of an error
           $ref: '#/components/schemas/parameters'
-    errors:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: Errors Schema
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          id: errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-    parameters:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: parameters.json
-      title: List of Parameters Schema
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
     loginResponse:
       $schema: http://json-schema.org/draft-04/schema#
       id: loginResponse.json
@@ -315,58 +281,74 @@ components:
           type: string
       required:
       - okapiToken
-  parameters:
-    redirect-uri:
-      in: query
-      required: true
-      name: redirect-uri
-      description: initial uri that was used as redirect uri for getting authentication code
-      schema:
-        type: string
-    xForwardedForHeader:
-      in: header
-      required: false
-      name: forwardedFor
-      description: -< HTTP header field is a common method for identifying the originating IP address of a client connecting to a web server through an HTTP proxy or load balancer
-      schema:
-        type: string
-    folioRefreshToken:
-      in: cookie
-      required: false
-      name: folioRefreshToken
-      description: Refresh token cookie
-      schema:
-        type: string
-    code:
-      in: query
-      required: true
-      name: code
-      description: temporary authentication code
-      schema:
-        type: string
-    userAgentHeader:
-      in: header
-      required: false
-      name: userAgent
-      description: Used to identify the Operating System and Browser of the web-server
-      schema:
-        type: string
-    folioRefreshTokenRequired:
-      in: cookie
-      required: true
-      name: folioRefreshToken
-      description: Refresh token cookie
-      schema:
-        type: string
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: errorCode.json
+      title: Error Code Schema
+      description: Error message code
+      type: string
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
+      - token.parse.failure
+      - token.refresh.unprocessable
+      - token.logout.unprocessable
+      - unauthorized_error
+    parameter:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: parameter.json
+      title: Key/Value Parameter Schema
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    loginResponseWithExpiry:
+      $schema: http://json-schema.org/draft-04/schema#
+      title: Login Response With Expiry Schema
+      description: Object returned on successful login or on token refresh
+      type: object
+      properties:
+        accessTokenExpiration:
+          description: The time in UTC after which the access token will be considered expired. Time format is ISO 8601.
+          type: string
+        refreshTokenExpiration:
+          description: The time in UTC after which the refresh token will be considered expired. Time format is ISO 8601.
+          type: string
+      required:
+      - accessTokenExpiration
+      - refreshTokenExpiration
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: Errors Schema
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
   responses:
-    badRequestResponse:
-      description: Error response in JSON format for validation errors.
+    internalServerErrorResponse:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
-    internalServerErrorResponse:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+    badRequestResponse:
+      description: Error response in JSON format for validation errors.
       content:
         application/json:
           schema:
@@ -377,6 +359,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mod-login-keycloak-openapi.json
-- folio-mod-login-keycloak-openapi.yml

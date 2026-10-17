@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Profile Controller API
+  title: OpenAPI definition Profile Controller API
   version: v0
-  description: 'Operations tagged profile-controller across 2 of this provider''s published API definitions: folio-mod-workflow-openapi-openapi.json, folio-mod-workflow-openapi-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: http://localhost:9000
   description: Generated server url
@@ -23,9 +22,6 @@ paths:
                 $ref: '#/components/schemas/RepresentationModelObject'
       summary: List all forms of metadata
       x-summary-source: derived
-    servers:
-    - url: http://localhost:9000
-      description: Generated server url
   /profile/nodes:
     get:
       tags:
@@ -46,9 +42,6 @@ paths:
                 $ref: '#/components/schemas/JsonSchema'
       summary: Descriptor
       x-summary-source: derived
-    servers:
-    - url: http://localhost:9000
-      description: Generated server url
   /profile/triggers:
     get:
       tags:
@@ -69,9 +62,6 @@ paths:
                 $ref: '#/components/schemas/JsonSchema'
       summary: Descriptor 1
       x-summary-source: derived
-    servers:
-    - url: http://localhost:9000
-      description: Generated server url
   /profile/workflows:
     get:
       tags:
@@ -92,9 +82,6 @@ paths:
                 $ref: '#/components/schemas/JsonSchema'
       summary: Descriptor 2
       x-summary-source: derived
-    servers:
-    - url: http://localhost:9000
-      description: Generated server url
 components:
   schemas:
     JsonSchema:
@@ -120,17 +107,23 @@ components:
           type: string
         $schema:
           type: string
-    AbstractJsonSchemaPropertyObject:
-      type: object
-      properties:
-        title:
-          type: string
-        readOnly:
-          type: boolean
     Links:
       type: object
       additionalProperties:
         $ref: '#/components/schemas/Link'
+    Item:
+      type: object
+      properties:
+        type:
+          type: string
+        properties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/AbstractJsonSchemaPropertyObject'
+        requiredProperties:
+          type: array
+          items:
+            type: string
     RepresentationModelObject:
       type: object
       properties:
@@ -155,19 +148,10 @@ components:
           type: string
         templated:
           type: boolean
-    Item:
+    AbstractJsonSchemaPropertyObject:
       type: object
       properties:
-        type:
+        title:
           type: string
-        properties:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/AbstractJsonSchemaPropertyObject'
-        requiredProperties:
-          type: array
-          items:
-            type: string
-x-refined-from:
-- folio-mod-workflow-openapi-openapi.json
-- folio-mod-workflow-openapi-openapi.yml
+        readOnly:
+          type: boolean

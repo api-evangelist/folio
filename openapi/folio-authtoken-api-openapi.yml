@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Authtoken API
+  title: Mod Login Keycloak Authtoken API
   version: v1
-  description: 'Operations tagged authtoken across 2 of this provider''s published API definitions: folio-mod-login-keycloak-openapi.json, folio-mod-login-keycloak-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Mod Login Keycloak API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -41,9 +41,6 @@ paths:
           $ref: '#/components/responses/notImplementedEntityResponse'
       summary: Token legacy
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /refreshtoken:
     post:
       operationId: token-sign-legacy
@@ -75,9 +72,6 @@ paths:
           $ref: '#/components/responses/notImplementedEntityResponse'
       summary: Token sign legacy
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /token/sign:
     post:
       operationId: token-sign
@@ -111,9 +105,6 @@ paths:
           $ref: '#/components/responses/notImplementedEntityResponse'
       summary: Token sign
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /token/refresh:
     post:
       description: '***Not Implemented***
@@ -147,9 +138,6 @@ paths:
           $ref: '#/components/responses/notImplementedEntityResponse'
       summary: Token refresh
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /token/invalidate:
     post:
       operationId: token-invalidate
@@ -175,9 +163,6 @@ paths:
           $ref: '#/components/responses/notImplementedEntityResponse'
       summary: Token invalidate
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /token/invalidate-all:
     post:
       operationId: token-invalidate-all
@@ -197,11 +182,83 @@ paths:
           $ref: '#/components/responses/notImplementedEntityResponse'
       summary: Token invalidate all
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
   schemas:
+    token:
+      description: The signed JWT token based on the payload
+      type: object
+      properties:
+        token:
+          type: string
+          description: The JWT token
+      required:
+      - token
+      additionalProperties: false
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: Errors Schema
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          id: errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: error.json
+      title: Error Schema
+      description: An error object
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          description: Error message code
+          $ref: '#/components/schemas/errorCode'
+        parameters:
+          description: List of key/value parameters of an error
+          $ref: '#/components/schemas/parameters'
+    signRefreshToken:
+      description: The request to sign a new refresh token
+      type: object
+      properties:
+        userId:
+          type: string
+          description: The user id of the request
+          format: uuid
+        sub:
+          type: string
+          description: The subject (user id) of the request
+      required:
+      - userId
+      - sub
+      additionalProperties: false
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      id: errorCode.json
+      title: Error Code Schema
+      description: Error message code
+      type: string
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
+      - token.parse.failure
+      - token.refresh.unprocessable
+      - token.logout.unprocessable
+      - unauthorized_error
     parameter:
       $schema: http://json-schema.org/draft-04/schema#
       id: parameter.json
@@ -215,15 +272,15 @@ components:
         value:
           description: Parameter value
           type: string
-    tokenResponseLegacy:
-      description: The signed JWT token based on the payload
+    refreshToken:
+      description: The refresh token being presented to get a new refresh token and access token
       type: object
       properties:
-        token:
+        refreshToken:
           type: string
-          description: The JWT token
+          description: The JWE refresh token
       required:
-      - token
+      - refreshToken
       additionalProperties: false
     signTokenPayload:
       description: The POST body for the request to generate a signed token
@@ -250,7 +307,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/parameter'
-    token:
+    tokenResponseLegacy:
       description: The signed JWT token based on the payload
       type: object
       properties:
@@ -260,51 +317,6 @@ components:
       required:
       - token
       additionalProperties: false
-    errorCode:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: errorCode.json
-      title: Error Code Schema
-      description: Error message code
-      type: string
-      enum:
-      - unknown_error
-      - service_error
-      - validation_error
-      - not_found_error
-      - found_error
-      - token.parse.failure
-      - token.refresh.unprocessable
-      - token.logout.unprocessable
-      - unauthorized_error
-    refreshToken:
-      description: The refresh token being presented to get a new refresh token and access token
-      type: object
-      properties:
-        refreshToken:
-          type: string
-          description: The JWE refresh token
-      required:
-      - refreshToken
-      additionalProperties: false
-    error:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: error.json
-      title: Error Schema
-      description: An error object
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          description: Error message code
-          $ref: '#/components/schemas/errorCode'
-        parameters:
-          description: List of key/value parameters of an error
-          $ref: '#/components/schemas/parameters'
     tokenResponse:
       description: A signed JWT token when used in the context of a dummy token. Otherwise, a signed JWT access token and a signed JWE refresh token.
       type: object
@@ -319,43 +331,6 @@ components:
           type: string
           description: An access token
       additionalProperties: false
-    errors:
-      $schema: http://json-schema.org/draft-04/schema#
-      id: Errors Schema
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          id: errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-    signRefreshToken:
-      description: The request to sign a new refresh token
-      type: object
-      properties:
-        userId:
-          type: string
-          description: The user id of the request
-          format: uuid
-        sub:
-          type: string
-          description: The subject (user id) of the request
-      required:
-      - userId
-      - sub
-      additionalProperties: false
-  responses:
-    notImplementedEntityResponse:
-      description: Error response in JSON format for endpoints that are not implemented.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
   parameters:
     okapi-url-required:
       in: header
@@ -371,6 +346,10 @@ components:
       required: true
       schema:
         type: string
-x-refined-from:
-- folio-mod-login-keycloak-openapi.json
-- folio-mod-login-keycloak-openapi.yml
+  responses:
+    notImplementedEntityResponse:
+      description: Error response in JSON format for endpoints that are not implemented.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'

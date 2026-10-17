@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Entitlements API
   version: 7.3.0
+  title: Folio ERM Agreements Entitlements API
+  description: API for the Folio library services platform mod-agreements app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Entitlements across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -79,10 +79,6 @@ paths:
                 $ref: '#/components/schemas/ApplicationError'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/entitlements/{entitlementId}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -159,130 +155,23 @@ paths:
                 $ref: '#/components/schemas/HttpError'
         '500':
           description: Internal server error
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
   schemas:
     EntitlementResultsArray:
       type: array
       items:
         $ref: '#/components/schemas/Entitlement'
-    IdentifierOccurrence:
-      type: object
-      properties:
-        title:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-        identifier:
-          $ref: '#/components/schemas/Identifier'
-        status:
-          $ref: '#/components/schemas/Refdata'
-    EntitlementOption:
-      allOf:
-      - oneOf:
-        - $ref: '#/components/schemas/PackageContentItem'
-        - $ref: '#/components/schemas/Package'
-      - type: object
-        properties:
-          _object:
-            oneOf:
-            - $ref: '#/components/schemas/TitleInstance'
-            - $ref: '#/components/schemas/PlatformTitleInstance'
-            - $ref: '#/components/schemas/PackageContentItem'
-            - $ref: '#/components/schemas/Package'
-            discriminator:
-              propertyName: class
-              mapping:
-                org.olf.kb.TitleInstance: '#/components/schemas/TitleInstance'
-                org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
-                org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
-                org.olf.kb.Pkg: '#/components/schemas/Package'
-    Embargo:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        movingWallStart:
-          $ref: '#/components/schemas/EmbargoStatement'
-        movingWallEnd:
-          $ref: '#/components/schemas/EmbargoStatement'
-    PackageDescriptionUrl:
+    AlternateResourceName:
       type: object
       required:
       - id
-      properties:
-        id:
-          type: string
-          format: uuid
-        url:
-          type: string
-          format: uri
-    AlternateName:
-      type: object
-      required:
       - name
       properties:
         id:
           type: string
           format: uuid
-          readOnly: true
         name:
           type: string
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-          readOnly: true
-          description: Agreements that owns the alternate name
-    TitleInstanceRef:
-      description: A lightweight representation of a title instance, used where a title references another title (e.g. `TitleInstance.relatedTitles`). Unlike the full `TitleInstance` representation, fields such as `class`, `dateCreated` and `coverage` are not populated on this partial view, and it does not nest further `relatedTitles`.
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          dateMonographPublished:
-            type: string
-            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
-          firstAuthor:
-            type: string
-          firstEditor:
-            type: string
-          longName:
-            type: string
-            readOnly: true
-          monographEdition:
-            type: string
-          monographVolume:
-            type: string
-          work:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-    UsageDataProvider:
-      type: object
-      properties:
-        id:
-          type: string
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-        remoteId:
-          type: string
-          format: uuid
-        remoteId_object:
-          type: object
     CustomPropertyValue:
       type: object
       properties:
@@ -302,6 +191,46 @@ components:
           - $ref: '#/components/schemas/Refdata'
         type:
           $ref: '#/components/schemas/CustomPropertyDefinition'
+    TitleInstance:
+      type: object
+      required:
+      - name
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.TitleInstance
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          identifiers:
+            type: array
+            items:
+              $ref: '#/components/schemas/IdentifierOccurrence'
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+          relatedTitles:
+            type: array
+            readOnly: true
+            items:
+              $ref: '#/components/schemas/TitleInstanceRef'
     Package:
       type: object
       required:
@@ -355,17 +284,44 @@ components:
               $ref: '#/components/schemas/AvailabilityConstraint'
           resourceCount:
             type: integer
-    AlternateResourceName:
+    Organisation:
       type: object
-      required:
-      - id
-      - name
       properties:
         id:
           type: string
           format: uuid
         name:
           type: string
+        orgsUuid:
+          type: string
+          format: uuid
+        orgsUuid_object:
+          type: object
+    TitleInstanceRef:
+      description: A lightweight representation of a title instance, used where a title references another title (e.g. `TitleInstance.relatedTitles`). Unlike the full `TitleInstance` representation, fields such as `class`, `dateCreated` and `coverage` are not populated on this partial view, and it does not nest further `relatedTitles`.
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          dateMonographPublished:
+            type: string
+            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
+          firstAuthor:
+            type: string
+          firstEditor:
+            type: string
+          longName:
+            type: string
+            readOnly: true
+          monographEdition:
+            type: string
+          monographVolume:
+            type: string
+          work:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
     Entitlement:
       type: object
       properties:
@@ -456,208 +412,6 @@ components:
           - detached
           - external
           - internal
-    ErmResource:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        class:
-          type: string
-          enum:
-          - org.olf.kb.TitleInstance
-          - org.olf.kb.PlatformTitleInstance
-          - org.olf.kb.PackageContentItem
-          - org.olf.kb.Pkg
-        coverage:
-          type: array
-          items:
-            $ref: '#/components/schemas/CoverageStatement'
-        customCoverage:
-          type: boolean
-        dateCreated:
-          type: string
-          format: date-time
-        lastUpdated:
-          type: string
-          format: date-time
-        name:
-          type: string
-        normalizedName:
-          type: string
-          readOnly: true
-        description:
-          type: string
-        publicationType:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-        suppressFromDiscovery:
-          type: boolean
-        subType:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/Tag'
-        type:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-        alternateResourceNames:
-          type: array
-          items:
-            $ref: '#/components/schemas/AlternateResourceName'
-        identifiers:
-          type: array
-          items:
-            $ref: '#/components/schemas/IdentifierOccurrence'
-        _object:
-          description: The full, type-specific representation of this resource (fields vary depending on `class`)
-          oneOf:
-          - $ref: '#/components/schemas/TitleInstance'
-          - $ref: '#/components/schemas/PlatformTitleInstance'
-          - $ref: '#/components/schemas/PackageContentItem'
-          - $ref: '#/components/schemas/Package'
-          discriminator:
-            propertyName: class
-            mapping:
-              org.olf.kb.TitleInstance: '#/components/schemas/TitleInstance'
-              org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
-              org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
-              org.olf.kb.Pkg: '#/components/schemas/Package'
-    PurchaseOrderLine:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-        poLineId:
-          type: string
-          format: uuid
-    TitleInstance:
-      type: object
-      required:
-      - name
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.TitleInstance
-          dateMonographPublished:
-            type: string
-            pattern: ^\d{4}(-((0[0-9])|(1[0-2]))(-(([0-2][0-9])|3[0-1]))?)?\$
-          firstAuthor:
-            type: string
-          firstEditor:
-            type: string
-          identifiers:
-            type: array
-            items:
-              $ref: '#/components/schemas/IdentifierOccurrence'
-          longName:
-            type: string
-            readOnly: true
-          monographEdition:
-            type: string
-          monographVolume:
-            type: string
-          work:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-          relatedTitles:
-            type: array
-            readOnly: true
-            items:
-              $ref: '#/components/schemas/TitleInstanceRef'
-    InternalContact:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        owner:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-        role:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-        user:
-          type: string
-          format: uuid
-    CoverageStatement:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        summary:
-          type: string
-        startVolume:
-          type: string
-        startIssue:
-          type: string
-        endVolume:
-          type: string
-        endIssue:
-          type: string
-    PackageContentItem:
-      type: object
-      required:
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.PackageContentItem
-          accessStart:
-            type: string
-            format: date
-          accessEnd:
-            type: string
-            format: date
-          addedTimestamp:
-            type: integer
-          depth:
-            type: string
-          lastSeenTimestamp:
-            type: integer
-          longName:
-            type: string
-          note:
-            type: string
-          removedTimestamp:
-            type: integer
-          embargo:
-            $ref: '#/components/schemas/Embargo'
-          pkg:
-            $ref: '#/components/schemas/Package'
-          pti:
-            $ref: '#/components/schemas/PlatformTitleInstance'
     Agreement:
       type: object
       required:
@@ -801,6 +555,21 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/CustomPropertyValue'
+    ResultsMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
     AgreementRelationship:
       properties:
         id:
@@ -814,36 +583,6 @@ components:
           $ref: '#/components/schemas/AgreementRelationshipAgreement'
         inward:
           $ref: '#/components/schemas/AgreementRelationshipAgreement'
-    PlatformTitleInstance:
-      type: object
-      required:
-      - platform
-      - titleInstance
-      - class
-      allOf:
-      - $ref: '#/components/schemas/ErmResource'
-      - properties:
-          class:
-            enum:
-            - org.olf.kb.PlatformTitleInstance
-          longName:
-            type: string
-          platform:
-            $ref: '#/components/schemas/Platform'
-          titleInstance:
-            $ref: '#/components/schemas/TitleInstance'
-          url:
-            type: string
-            format: uri
-    Refdata:
-      type: object
-      properties:
-        id:
-          type: string
-        label:
-          type: string
-        value:
-          type: string
     RefdataCategory:
       type: object
       properties:
@@ -857,24 +596,83 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Refdata'
-    ApplicationError:
+    EntitlementResults:
       type: object
+      required:
+      - results
+      allOf:
+      - $ref: '#/components/schemas/ResultsMeta'
+      - type: object
+      - properties:
+          results:
+            $ref: '#/components/schemas/EntitlementResultsArray'
+    AvailabilityConstraint:
+      type: object
+      required:
+      - id
+      - body
       properties:
-        total:
-          type: integer
-        errors:
+        id:
+          type: string
+          format: uuid
+        body:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    Platform:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        locators:
           type: array
           items:
             type: object
             properties:
-              code:
+              domainName:
                 type: string
-              i18n_code:
+              id:
                 type: string
-              message:
-                type: string
-              object:
-                type: string
+                format: uuid
+    InternalContact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        role:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        user:
+          type: string
+          format: uuid
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        normValue:
+          type: string
+        value:
+          type: string
     DocumentAttachment:
       type: object
       required:
@@ -905,17 +703,27 @@ components:
           - $ref: '#/components/schemas/Refdata'
         fileUpload:
           $ref: '#/components/schemas/File'
-    EmbargoStatement:
+    PackageDescriptionUrl:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+    Embargo:
       type: object
       properties:
-        unit:
+        id:
           type: string
-          enum:
-          - days
-          - months
-          - years
-        length:
-          type: integer
+          format: uuid
+        movingWallStart:
+          $ref: '#/components/schemas/EmbargoStatement'
+        movingWallEnd:
+          $ref: '#/components/schemas/EmbargoStatement'
     File:
       type: object
       required:
@@ -940,32 +748,147 @@ components:
         size:
           type: integer
           description: Size of the uploaded file in bytes
-    AvailabilityConstraint:
+    AlternateName:
       type: object
       required:
-      - id
-      - body
+      - name
       properties:
         id:
           type: string
           format: uuid
-        body:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-    ContentType:
+          readOnly: true
+        name:
+          type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+          readOnly: true
+          description: Agreements that owns the alternate name
+    IdentifierOccurrence:
+      type: object
+      properties:
+        title:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        identifier:
+          $ref: '#/components/schemas/Identifier'
+        status:
+          $ref: '#/components/schemas/Refdata'
+    EmbargoStatement:
+      type: object
+      properties:
+        unit:
+          type: string
+          enum:
+          - days
+          - months
+          - years
+        length:
+          type: integer
+    EntitlementOption:
+      allOf:
+      - oneOf:
+        - $ref: '#/components/schemas/PackageContentItem'
+        - $ref: '#/components/schemas/Package'
+      - type: object
+        properties:
+          _object:
+            oneOf:
+            - $ref: '#/components/schemas/TitleInstance'
+            - $ref: '#/components/schemas/PlatformTitleInstance'
+            - $ref: '#/components/schemas/PackageContentItem'
+            - $ref: '#/components/schemas/Package'
+            discriminator:
+              propertyName: class
+              mapping:
+                org.olf.kb.TitleInstance: '#/components/schemas/TitleInstance'
+                org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
+                org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
+                org.olf.kb.Pkg: '#/components/schemas/Package'
+    PackageContentItem:
       type: object
       required:
-      - id
-      - contentType
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PackageContentItem
+          accessStart:
+            type: string
+            format: date
+          accessEnd:
+            type: string
+            format: date
+          addedTimestamp:
+            type: integer
+          depth:
+            type: string
+          lastSeenTimestamp:
+            type: integer
+          longName:
+            type: string
+          note:
+            type: string
+          removedTimestamp:
+            type: integer
+          embargo:
+            $ref: '#/components/schemas/Embargo'
+          pkg:
+            $ref: '#/components/schemas/Package'
+          pti:
+            $ref: '#/components/schemas/PlatformTitleInstance'
+    PlatformTitleInstance:
+      type: object
+      required:
+      - platform
+      - titleInstance
+      - class
+      allOf:
+      - $ref: '#/components/schemas/ErmResource'
+      - properties:
+          class:
+            enum:
+            - org.olf.kb.PlatformTitleInstance
+          longName:
+            type: string
+          platform:
+            $ref: '#/components/schemas/Platform'
+          titleInstance:
+            $ref: '#/components/schemas/TitleInstance'
+          url:
+            type: string
+            format: uri
+    UsageDataProvider:
+      type: object
       properties:
         id:
           type: string
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        remoteId:
+          type: string
           format: uuid
-        contentType:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
+        remoteId_object:
+          type: object
+    HttpError:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: integer
     CustomPropertyDefinition:
       type: object
       properties:
@@ -990,47 +913,144 @@ components:
           description: Java class name indicating the property type (e.g. CustomPropertyInteger, CustomPropertyText, CustomPropertyRefdata)
         category:
           $ref: '#/components/schemas/RefdataCategory'
-    ResultsMeta:
+    ApplicationError:
       type: object
       properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
         total:
           type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
-    Platform:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
+    ContentType:
       type: object
       required:
-      - name
+      - id
+      - contentType
+      properties:
+        id:
+          type: string
+          format: uuid
+        contentType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    LinkedLicense:
+      type: object
+      properties:
+        amendments:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedAmendment'
+        id:
+          type: string
+        owner:
+          type: string
+          format: uuid
+        remoteId:
+          type: string
+          format: uuid
+        remoteId_object:
+          type: object
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+    CoverageStatement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        summary:
+          type: string
+        startVolume:
+          type: string
+        startIssue:
+          type: string
+        endVolume:
+          type: string
+        endIssue:
+          type: string
+    Refdata:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+    PurchaseOrderLine:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+        poLineId:
+          type: string
+          format: uuid
+    AgreementContentType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        contentType:
+          $ref: '#/components/schemas/Refdata'
+    AgreementRelationshipAgreement:
       properties:
         id:
           type: string
           format: uuid
         name:
           type: string
-        dateCreated:
+        agreementStatus:
+          $ref: '#/components/schemas/Refdata'
+        startDate:
           type: string
-          format: date-time
-        lastUpdated:
+          format: date
+        endDate:
           type: string
-          format: date-time
-        locators:
-          type: array
-          items:
-            type: object
-            properties:
-              domainName:
-                type: string
-              id:
-                type: string
-                format: uuid
+          format: date
+    LinkedAmendment:
+      type: object
+      properties:
+        amendmentId:
+          type: string
+          format: uuid
+        id:
+          type: string
+          format: uuid
+        owner:
+          type: string
+          format: uuid
+        status:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
     AgreementOrg:
       type: object
       properties:
@@ -1078,93 +1098,6 @@ components:
                 - $ref: '#/components/schemas/Refdata'
               note:
                 type: string
-    EntitlementResults:
-      type: object
-      required:
-      - results
-      allOf:
-      - $ref: '#/components/schemas/ResultsMeta'
-      - type: object
-      - properties:
-          results:
-            $ref: '#/components/schemas/EntitlementResultsArray'
-    HttpError:
-      type: object
-      properties:
-        message:
-          type: string
-        error:
-          type: integer
-    AgreementRelationshipAgreement:
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        agreementStatus:
-          $ref: '#/components/schemas/Refdata'
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-    AgreementContentType:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        contentType:
-          $ref: '#/components/schemas/Refdata'
-    Tag:
-      type: object
-      properties:
-        id:
-          type: integer
-        normValue:
-          type: string
-        value:
-          type: string
-    LinkedLicense:
-      type: object
-      properties:
-        amendments:
-          type: array
-          items:
-            $ref: '#/components/schemas/LinkedAmendment'
-        id:
-          type: string
-        owner:
-          type: string
-          format: uuid
-        remoteId:
-          type: string
-          format: uuid
-        remoteId_object:
-          type: object
-        status:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
-    LinkedAmendment:
-      type: object
-      properties:
-        amendmentId:
-          type: string
-          format: uuid
-        id:
-          type: string
-          format: uuid
-        owner:
-          type: string
-          format: uuid
-        status:
-          oneOf:
-          - type: string
-          - $ref: '#/components/schemas/Refdata'
     Identifier:
       type: object
       properties:
@@ -1175,44 +1108,79 @@ components:
               type: string
         value:
           type: string
-    Organisation:
+    ErmResource:
       type: object
       properties:
         id:
           type: string
           format: uuid
+        class:
+          type: string
+          enum:
+          - org.olf.kb.TitleInstance
+          - org.olf.kb.PlatformTitleInstance
+          - org.olf.kb.PackageContentItem
+          - org.olf.kb.Pkg
+        coverage:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoverageStatement'
+        customCoverage:
+          type: boolean
+        dateCreated:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
         name:
           type: string
-        orgsUuid:
+        normalizedName:
           type: string
-          format: uuid
-        orgsUuid_object:
-          type: object
+          readOnly: true
+        description:
+          type: string
+        publicationType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        suppressFromDiscovery:
+          type: boolean
+        subType:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        type:
+          oneOf:
+          - type: string
+          - $ref: '#/components/schemas/Refdata'
+        alternateResourceNames:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternateResourceName'
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentifierOccurrence'
+        _object:
+          description: The full, type-specific representation of this resource (fields vary depending on `class`)
+          oneOf:
+          - $ref: '#/components/schemas/TitleInstance'
+          - $ref: '#/components/schemas/PlatformTitleInstance'
+          - $ref: '#/components/schemas/PackageContentItem'
+          - $ref: '#/components/schemas/Package'
+          discriminator:
+            propertyName: class
+            mapping:
+              org.olf.kb.TitleInstance: '#/components/schemas/TitleInstance'
+              org.olf.kb.PlatformTitleInstance: '#/components/schemas/PlatformTitleInstance'
+              org.olf.kb.PackageContentItem: '#/components/schemas/PackageContentItem'
+              org.olf.kb.Pkg: '#/components/schemas/Package'
   parameters:
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
     entitlementId:
       in: path
       name: entitlementId
@@ -1221,10 +1189,28 @@ components:
       schema:
         type: string
         format: uuid
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    filters:
+      in: query
+      name: filters
+      required: false
       schema:
         type: string
     offset:
@@ -1239,12 +1225,18 @@ components:
       required: false
       schema:
         type: string
-    stats:
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    page:
       in: query
-      name: stats
+      name: page
       required: false
       schema:
-        type: boolean
+        type: integer
     match:
       in: query
       name: match
@@ -1260,6 +1252,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-agreements-openapi.json
-- folio-mod-agreements-openapi.yml

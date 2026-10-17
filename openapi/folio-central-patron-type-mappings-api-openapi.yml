@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Central Patron Type Mappings API
+  title: INN-Reach Settings Central Patron Type Mappings API
   version: v1
-  description: 'Operations tagged central-patron-type-mappings across 2 of this provider''s published API definitions: folio-mod-inn-reach-settings-openapi.json, folio-mod-inn-reach-settings-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: /inn-reach/
 tags:
@@ -53,24 +52,27 @@ paths:
       - $ref: '#/components/parameters/centralServerId'
       summary: Update central patron type mappings
       x-summary-source: derived
-    servers:
-    - url: /inn-reach/
 components:
+  responses:
+    trait_response_404:
+      description: Item not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    trait_response_validation_400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/validationErrorsDTO'
+    trait_response_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
-    validationErrorDTO:
-      description: Validation error
-      type: object
-      properties:
-        fieldName:
-          type: string
-          description: Field name
-        message:
-          type: string
-          description: Validation error message text
-      additionalProperties: false
-      required:
-      - fieldName
-      - message
     Error:
       type: object
       properties:
@@ -86,6 +88,47 @@ components:
       additionalProperties: false
       required:
       - message
+    validationErrorsDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        validationErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/validationErrorDTO'
+    validationErrorDTO:
+      description: Validation error
+      type: object
+      properties:
+        fieldName:
+          type: string
+          description: Field name
+        message:
+          type: string
+          description: Validation error message text
+      additionalProperties: false
+      required:
+      - fieldName
+      - message
+    centralPatronTypeMappingsDTO:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Central patron type mapping collection
+      type: object
+      properties:
+        centralPatronTypeMappings:
+          description: List of central patron type mappings
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/centralPatronTypeMappingDTO'
+        totalRecords:
+          type: integer
+      additionalProperties: false
+      required:
+      - centralPatronTypeMappings
     metadata:
       title: Metadata Schema
       description: Metadata about creation and changes to records, provided by the server (client should not provide)
@@ -116,22 +159,6 @@ components:
       additionalProperties: false
       required:
       - createdDate
-    centralPatronTypeMappingsDTO:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Central patron type mapping collection
-      type: object
-      properties:
-        centralPatronTypeMappings:
-          description: List of central patron type mappings
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/centralPatronTypeMappingDTO'
-        totalRecords:
-          type: integer
-      additionalProperties: false
-      required:
-      - centralPatronTypeMappings
     centralPatronTypeMappingDTO:
       $schema: http://json-schema.org/draft-04/schema#
       description: Central patron type mapping
@@ -157,46 +184,14 @@ components:
       required:
       - centralPatronType
       - barcode
-    validationErrorsDTO:
-      type: object
-      properties:
-        code:
-          type: integer
-        message:
-          type: string
-        validationErrors:
-          type: array
-          items:
-            $ref: '#/components/schemas/validationErrorDTO'
-  responses:
-    trait_response_404:
-      description: Item not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    trait_response_validation_400:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/validationErrorsDTO'
-    trait_response_500:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
-    trait_pageable_limit:
-      name: limit
-      in: query
-      description: Limit the number of elements returned in the response
+    centralServerId:
+      name: centralServerId
+      in: path
+      required: true
       schema:
-        default: 10
-        minimum: 0
-        maximum: 2147483647
-        type: integer
+        type: string
+        format: uuid
     trait_pageable_offset:
       name: offset
       in: query
@@ -206,13 +201,12 @@ components:
         minimum: 0
         maximum: 2147483647
         type: integer
-    centralServerId:
-      name: centralServerId
-      in: path
-      required: true
+    trait_pageable_limit:
+      name: limit
+      in: query
+      description: Limit the number of elements returned in the response
       schema:
-        type: string
-        format: uuid
-x-refined-from:
-- folio-mod-inn-reach-settings-openapi.json
-- folio-mod-inn-reach-settings-openapi.yml
+        default: 10
+        minimum: 0
+        maximum: 2147483647
+        type: integer

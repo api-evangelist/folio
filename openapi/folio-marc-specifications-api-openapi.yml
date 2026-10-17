@@ -1,10 +1,10 @@
 openapi: 3.2.0
 info:
-  title: Folio Marc Specifications API
+  title: quickMARC Marc Specifications API
   version: '1.2'
+  description: API for retrieving MARC field specifications by record type and field tag
   contact:
     name: FOLIO
-  description: 'Operations tagged marc-specifications across 2 of this provider''s published API definitions: folio-mod-quick-marc-marc-specifications-openapi.json, folio-mod-quick-marc-marc-specifications-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-edev-spitfire-diku.ci.folio.org
   description: Development environment.
@@ -72,19 +72,86 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-    servers:
-    - url: https://folio-edev-spitfire-diku.ci.folio.org
-      description: Development environment.
-    - url: https://folio-etesting-{environment}.ci.folio.org
-      description: Reference environments.
-      variables:
-        environment:
-          default: snapshot-diku
-          enum:
-          - snapshot-diku
-          - sprint-fs09000000
 components:
   schemas:
+    marcFormat:
+      type: string
+      description: MARC Format
+      enum:
+      - BIBLIOGRAPHIC
+      - HOLDINGS
+      - AUTHORITY
+    error:
+      type: object
+      description: Error response
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: may not be null
+        type:
+          type: string
+          description: Error type identifier
+          example: '1'
+        code:
+          type: string
+          description: Error code
+          example: '-1'
+        parameters:
+          type: array
+          description: Additional error parameters
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: moduleTo
+              value:
+                type: string
+                example: 'null'
+    marcSpecification:
+      type: object
+      description: MARC specification definition
+      properties:
+        tag:
+          description: Field's tag
+          type: string
+          pattern: ^[0-9]{3}$
+          example: 008
+        format:
+          $ref: '#/components/schemas/marcFormat'
+        label:
+          description: Label of the specification
+          type: string
+        url:
+          description: Url to details about field spec
+          type: string
+          format: uri
+        repeatable:
+          description: If this field can appear multiple time in MARC record
+          type: boolean
+        required:
+          description: If this field is required in MARC record
+          type: boolean
+        spec:
+          type: object
+          description: Details of the specification
+          properties:
+            types:
+              description: Array of types
+              type: array
+              items:
+                $ref: '#/components/schemas/marcSpecificationType'
+          required:
+          - types
+      required:
+      - tag
+      - format
+      - label
+      - url
+      - repeatable
+      - required
+      - spec
     marcSpecificationItem:
       type: object
       description: Specification item definition
@@ -131,13 +198,18 @@ components:
       - length
       - isArray
       - readOnly
-    marcFormat:
-      type: string
-      description: MARC Format
-      enum:
-      - BIBLIOGRAPHIC
-      - HOLDINGS
-      - AUTHORITY
+    marcSpecificationItemValue:
+      type: object
+      description: Specification item value definition
+      properties:
+        code:
+          description: Value code
+          type: string
+          example: e
+        name:
+          description: Value name
+          type: string
+          example: Detailed date
     marcSpecificationType:
       type: object
       description: Specification type definition
@@ -165,46 +237,6 @@ components:
       - code
       - identifiedBy
       - items
-    marcSpecificationItemValue:
-      type: object
-      description: Specification item value definition
-      properties:
-        code:
-          description: Value code
-          type: string
-          example: e
-        name:
-          description: Value name
-          type: string
-          example: Detailed date
-    error:
-      type: object
-      description: Error response
-      properties:
-        message:
-          type: string
-          description: Error message
-          example: may not be null
-        type:
-          type: string
-          description: Error type identifier
-          example: '1'
-        code:
-          type: string
-          description: Error code
-          example: '-1'
-        parameters:
-          type: array
-          description: Additional error parameters
-          items:
-            type: object
-            properties:
-              key:
-                type: string
-                example: moduleTo
-              value:
-                type: string
-                example: 'null'
     marcSpecificationCondition:
       type: object
       description: Specification condition definition
@@ -227,49 +259,3 @@ components:
       required:
       - tag
       - positions
-    marcSpecification:
-      type: object
-      description: MARC specification definition
-      properties:
-        tag:
-          description: Field's tag
-          type: string
-          pattern: ^[0-9]{3}$
-          example: 008
-        format:
-          $ref: '#/components/schemas/marcFormat'
-        label:
-          description: Label of the specification
-          type: string
-        url:
-          description: Url to details about field spec
-          type: string
-          format: uri
-        repeatable:
-          description: If this field can appear multiple time in MARC record
-          type: boolean
-        required:
-          description: If this field is required in MARC record
-          type: boolean
-        spec:
-          type: object
-          description: Details of the specification
-          properties:
-            types:
-              description: Array of types
-              type: array
-              items:
-                $ref: '#/components/schemas/marcSpecificationType'
-          required:
-          - types
-      required:
-      - tag
-      - format
-      - label
-      - url
-      - repeatable
-      - required
-      - spec
-x-refined-from:
-- folio-mod-quick-marc-marc-specifications-openapi.json
-- folio-mod-quick-marc-marc-specifications-openapi.yml

@@ -1,8 +1,7 @@
 openapi: 3.2.0
 info:
-  title: Folio Multi Item Batch Requests API
+  title: Circulation BFF requests Multi Item Batch Requests API
   version: v1
-  description: 'Operations tagged multiItemBatchRequests across 2 of this provider''s published API definitions: folio-mod-circulation-bff-circulationbff-openapi.json, folio-mod-circulation-bff-circulationbff-openapi.yml. Each path carries the servers of the definition it was published in.'
 tags:
 - name: multiItemBatchRequests
 paths:
@@ -234,6 +233,62 @@ paths:
       summary: Get multi item batch request details by batch id
       x-summary-source: derived
 components:
+  examples:
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    validationErrorResponse:
+      value:
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+  responses:
+    notFoundResponse:
+      description: Not found
+      content:
+        application/json:
+          example:
+            errors:
+            - message: Not found
+            total_records: 1
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            unknownError:
+              $ref: '#/components/examples/unknownError'
+    badRequestResponse:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            validationErrorResponse:
+              $ref: '#/components/examples/validationErrorResponse'
+    unprocessableEntityResponse:
+      description: Validation error for the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errorResponse'
+          examples:
+            response:
+              $ref: '#/components/examples/validationErrorResponse'
   parameters:
     offset:
       name: offset
@@ -258,167 +313,6 @@ components:
         minimum: 0
         maximum: 2147483647
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      example:
-        key: source
-        value: 'null'
-    batchRequest:
-      type: object
-      description: Mediated Multi-Item Batch Request
-      properties:
-        batchId:
-          description: UUID of the batch request
-          $ref: '#/components/schemas/uuid'
-        requesterId:
-          description: UUID of the requesting user (patron)
-          $ref: '#/components/schemas/uuid'
-        patronComments:
-          description: Comments made by the patron
-          type: string
-        mediatedWorkflow:
-          description: Mediated workflow that mediated batch request follows
-          type: string
-          enum:
-          - Multi-Item request
-        itemRequests:
-          description: Multi Item batch request details that represents info for the array of item requests
-          type: array
-          items:
-            type: object
-            properties:
-              itemId:
-                description: UUID of the item being requested
-                $ref: '#/components/schemas/uuid'
-              pickupServicePointId:
-                description: UUID of the pickup service point
-                $ref: '#/components/schemas/uuid'
-            additionalProperties: false
-            required:
-            - itemId
-            - pickupServicePointId
-      additionalProperties: false
-      required:
-      - requesterId
-      - itemRequests
-      - mediatedWorkflow
-    errorResponse:
-      description: A set of errors
-      type: object
-      properties:
-        errors:
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
-      example:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-    batchRequestDetail:
-      type: object
-      description: Multi-Item Batch Request Detail
-      properties:
-        batchId:
-          description: UUID of the mediated batch request
-          $ref: '#/components/schemas/uuid'
-        itemId:
-          description: UUID of the item
-          $ref: '#/components/schemas/uuid'
-        requesterId:
-          description: UUID of the requesting patron (user)
-          $ref: '#/components/schemas/uuid'
-        pickupServicePointId:
-          description: UUID of the pickup service point
-          $ref: '#/components/schemas/uuid'
-        mediatedRequestStatus:
-          description: Status of the batch request detail
-          type: string
-          enum:
-          - Pending
-          - In progress
-          - Completed
-          - Failed
-        requestStatus:
-          description: Status of circulation request
-          type: string
-        confirmedRequestId:
-          description: Confirmed circulation request ID
-          $ref: '#/components/schemas/uuid'
-        errorCode:
-          description: Error code if the request failed
-          type: string
-        errorDetails:
-          description: Error details if the request failed
-          type: string
-        patronComments:
-          description: Comments made by the patron
-          type: string
-        metadata:
-          description: request metadata
-          type: object
-          $ref: '#/components/schemas/metadata'
-      additionalProperties: false
-      required:
-      - batchId
-      - requesterId
-      - mediatedRequestStatus
-    batchRequestCollectionResponse:
-      description: Collection of Multi-Item Batch Requests
-      type: object
-      properties:
-        mediatedBatchRequests:
-          description: A list of multi-item batch requests
-          type: array
-          items:
-            $ref: '#/components/schemas/batchRequestResponse'
-        totalRecords:
-          description: Total number of requests
-          type: integer
-      additionalProperties: false
-      required:
-      - mediatedBatchRequests
-      - totalRecords
-    batchRequestDetailsResponse:
-      description: Collection of multi-item batch request details
-      type: object
-      properties:
-        mediatedBatchRequestDetails:
-          description: A list of batch request details
-          type: array
-          items:
-            $ref: '#/components/schemas/batchRequestDetail'
-        totalRecords:
-          description: Total number of requests
-          type: integer
-        instance:
-          description: Instance data resolved for the requested instance id
-          type: object
-          properties:
-            id:
-              description: UUID of the instance
-              $ref: '#/components/schemas/uuid'
-            title:
-              description: Title of the instance
-              type: string
-          additionalProperties: false
-      additionalProperties: false
-      required:
-      - mediatedBatchRequestDetails
-      - totalRecords
     uuid:
       $schema: http://json-schema.org/draft-04/schema#
       description: A universally unique identifier (UUID), this is a 128-bit number used to identify a record and is shown in hex with dashes, for example 6312d172-f0cf-40f6-b27d-9fa8feaf332f; the UUID version must be from 1-5; see https://dev.folio.org/guides/uuids/
@@ -501,6 +395,76 @@ components:
       - requestDate
       - mediatedRequestStatus
       - mediatedWorkflow
+    errorResponse:
+      description: A set of errors
+      type: object
+      properties:
+        errors:
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      example:
+        key: source
+        value: 'null'
+    batchRequest:
+      type: object
+      description: Mediated Multi-Item Batch Request
+      properties:
+        batchId:
+          description: UUID of the batch request
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: UUID of the requesting user (patron)
+          $ref: '#/components/schemas/uuid'
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        mediatedWorkflow:
+          description: Mediated workflow that mediated batch request follows
+          type: string
+          enum:
+          - Multi-Item request
+        itemRequests:
+          description: Multi Item batch request details that represents info for the array of item requests
+          type: array
+          items:
+            type: object
+            properties:
+              itemId:
+                description: UUID of the item being requested
+                $ref: '#/components/schemas/uuid'
+              pickupServicePointId:
+                description: UUID of the pickup service point
+                $ref: '#/components/schemas/uuid'
+            additionalProperties: false
+            required:
+            - itemId
+            - pickupServicePointId
+      additionalProperties: false
+      required:
+      - requesterId
+      - itemRequests
+      - mediatedWorkflow
     metadata:
       type: object
       description: Record metadata
@@ -523,62 +487,94 @@ components:
         updatedByUsername:
           description: Username of the user who last updated the record (when available)
           type: string
-  examples:
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
-    unknownError:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-  responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            unknownError:
-              $ref: '#/components/examples/unknownError'
-    notFoundResponse:
-      description: Not found
-      content:
-        application/json:
-          example:
-            errors:
-            - message: Not found
-            total_records: 1
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-    unprocessableEntityResponse:
-      description: Validation error for the request.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            response:
-              $ref: '#/components/examples/validationErrorResponse'
-    badRequestResponse:
-      description: Validation errors
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errorResponse'
-          examples:
-            validationErrorResponse:
-              $ref: '#/components/examples/validationErrorResponse'
-x-refined-from:
-- folio-mod-circulation-bff-circulationbff-openapi.json
-- folio-mod-circulation-bff-circulationbff-openapi.yml
+    batchRequestDetailsResponse:
+      description: Collection of multi-item batch request details
+      type: object
+      properties:
+        mediatedBatchRequestDetails:
+          description: A list of batch request details
+          type: array
+          items:
+            $ref: '#/components/schemas/batchRequestDetail'
+        totalRecords:
+          description: Total number of requests
+          type: integer
+        instance:
+          description: Instance data resolved for the requested instance id
+          type: object
+          properties:
+            id:
+              description: UUID of the instance
+              $ref: '#/components/schemas/uuid'
+            title:
+              description: Title of the instance
+              type: string
+          additionalProperties: false
+      additionalProperties: false
+      required:
+      - mediatedBatchRequestDetails
+      - totalRecords
+    batchRequestDetail:
+      type: object
+      description: Multi-Item Batch Request Detail
+      properties:
+        batchId:
+          description: UUID of the mediated batch request
+          $ref: '#/components/schemas/uuid'
+        itemId:
+          description: UUID of the item
+          $ref: '#/components/schemas/uuid'
+        requesterId:
+          description: UUID of the requesting patron (user)
+          $ref: '#/components/schemas/uuid'
+        pickupServicePointId:
+          description: UUID of the pickup service point
+          $ref: '#/components/schemas/uuid'
+        mediatedRequestStatus:
+          description: Status of the batch request detail
+          type: string
+          enum:
+          - Pending
+          - In progress
+          - Completed
+          - Failed
+        requestStatus:
+          description: Status of circulation request
+          type: string
+        confirmedRequestId:
+          description: Confirmed circulation request ID
+          $ref: '#/components/schemas/uuid'
+        errorCode:
+          description: Error code if the request failed
+          type: string
+        errorDetails:
+          description: Error details if the request failed
+          type: string
+        patronComments:
+          description: Comments made by the patron
+          type: string
+        metadata:
+          description: request metadata
+          type: object
+          $ref: '#/components/schemas/metadata'
+      additionalProperties: false
+      required:
+      - batchId
+      - requesterId
+      - mediatedRequestStatus
+    batchRequestCollectionResponse:
+      description: Collection of Multi-Item Batch Requests
+      type: object
+      properties:
+        mediatedBatchRequests:
+          description: A list of multi-item batch requests
+          type: array
+          items:
+            $ref: '#/components/schemas/batchRequestResponse'
+        totalRecords:
+          description: Total number of requests
+          type: integer
+      additionalProperties: false
+      required:
+      - mediatedBatchRequests
+      - totalRecords

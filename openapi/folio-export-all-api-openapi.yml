@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Export All API
+  title: Data export Export All API
   version: v1
-  description: 'Operations tagged Export All across 2 of this provider''s published API definitions: folio-mod-data-export-openapi.json, folio-mod-data-export-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Data export API
 servers:
 - url: /data-export/
 tags:
@@ -53,10 +53,28 @@ paths:
       - Export All
       summary: Post export all
       x-summary-source: derived
-    servers:
-    - url: /data-export/
 components:
   schemas:
+    error:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          type: object
+          $ref: '#/components/schemas/parameters'
+      required:
+      - message
     exportAllRequest:
       $schema: http://json-schema.org/draft-04/schema#
       description: Necessary data to start export all process
@@ -87,52 +105,6 @@ components:
           description: 'Meta information '
           type: object
           $ref: '#/components/schemas/metadata'
-    error:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Error
-      properties:
-        message:
-          description: Error message
-          type: string
-        type:
-          description: Error type
-          type: string
-        code:
-          description: Error code
-          type: string
-        parameters:
-          description: Error parameters
-          type: object
-          $ref: '#/components/schemas/parameters'
-      required:
-      - message
-    errors:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Error collection
-      properties:
-        errors:
-          description: list of errors
-          id: errors
-          type: array
-          items:
-            type: object
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total records
-          type: integer
-    parameters:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      description: Error parameters
-      items:
-        type: object
-        properties:
-          key:
-            type: string
-          value:
-            type: string
     metadata:
       $schema: http://json-schema.org/draft-04/schema#
       title: Metadata Schema
@@ -164,6 +136,29 @@ components:
       additionalProperties: false
       required:
       - createdDate
-x-refined-from:
-- folio-mod-data-export-openapi.json
-- folio-mod-data-export-openapi.yml
+    parameters:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      description: Error parameters
+      items:
+        type: object
+        properties:
+          key:
+            type: string
+          value:
+            type: string
+    errors:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Error collection
+      properties:
+        errors:
+          description: list of errors
+          id: errors
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total records
+          type: integer

@@ -1,10 +1,12 @@
 openapi: 3.2.0
 info:
-  title: Folio Browse API
-  version: v4.1.0
   contact:
     name: Spitfire team
-  description: 'Operations tagged browse across 2 of this provider''s published API definitions: folio-mod-search-openapi.json, folio-mod-search-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'API for searching, browsing, and managing facets for various record types, including instances, holdings, and authorities.
+
+    It also provides endpoints for configuring search and browse features, as well as managing the search index.'
+  title: Search Browse API
+  version: v4.1.0
 servers:
 - description: Development environments.
   url: https://{environment}-okapi.ci.folio.org
@@ -116,23 +118,6 @@ paths:
       summary: Browse Instance Call Numbers
       tags:
       - Browse
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /browse/classification-numbers/{browseOptionId}/instances:
     get:
       description: Provides list of classification numbers
@@ -223,23 +208,6 @@ paths:
       summary: Browse Instance Classifications
       tags:
       - Browse
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /browse/subjects/instances:
     get:
       description: Provides list of instances for browsing by subject
@@ -324,23 +292,6 @@ paths:
       summary: Browse Instance Subjects
       tags:
       - Browse
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /browse/contributors/instances:
     get:
       description: Provides list of instances for browsing by contributor
@@ -425,23 +376,6 @@ paths:
       summary: Browse Instance Contributors
       tags:
       - Browse
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
   /browse/authorities:
     get:
       description: Provides list of authorities by headingRef
@@ -543,126 +477,8 @@ paths:
       summary: Browse Authorities
       tags:
       - Browse
-    servers:
-    - description: Development environments.
-      url: https://{environment}-okapi.ci.folio.org
-      variables:
-        environment:
-          default: folio-dev-spitfire
-          enum:
-          - folio-dev-spitfire
-          - folio-perf-spitfire
-    - description: Reference environments.
-      url: https://folio-{environment}-okapi.dev.folio.org
-      variables:
-        environment:
-          default: snapshot
-          enum:
-          - snapshot
-          - snapshot-2
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      example:
-        key: source
-        value: 'null'
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      type: object
-    identifier:
-      additionalProperties: false
-      description: Resource identifier
-      example:
-        value: value
-        identifierTypeId: identifierTypeId
-      properties:
-        value:
-          description: Resource identifier value
-          type: string
-        identifierTypeId:
-          description: Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)
-          type: string
-      type: object
-    browseOptionType:
-      description: Browse option type
-      enum:
-      - all
-      - lc
-      - dewey
-      - nlm
-      - sudoc
-      - other
-      type: string
-    classificationNumberBrowseItem:
-      description: Classification number browse search result item
-      example:
-        id: id
-        classificationNumber: classificationNumber
-        classificationTypeId: classificationTypeId
-        isAnchor: true
-        instanceTitle: instanceTitle
-        instanceContributors:
-        - instanceContributors
-        - instanceContributors
-        totalRecords: 6
-      properties:
-        id:
-          description: Classification number ID
-          type: string
-        classificationNumber:
-          description: Classification number value to display
-          type: string
-        classificationTypeId:
-          description: Classification type ID value
-          type: string
-        isAnchor:
-          description: Marks if current value is anchor or not
-          type: boolean
-        instanceTitle:
-          description: Instance title
-          type: string
-        instanceContributors:
-          description: List of contributor names.
-          items:
-            description: Contributor name
-            type: string
-          type: array
-        totalRecords:
-          description: Amount of records for the classification number value
-          type: integer
-      required:
-      - classificationNumber
-      - id
-      - totalRecords
-      type: object
-    metadata:
-      additionalProperties: false
-      description: Record metadata
-      example:
-        createdDate: createdDate
-        createdByUserId: createdByUserId
-        updatedDate: updatedDate
-        updatedByUserId: updatedByUserId
-      properties:
-        createdDate:
-          description: Date and time when the record was created
-          type: string
-        createdByUserId:
-          description: ID of the user who created the record (when available)
-          type: string
-        updatedDate:
-          description: Date and time when the record was last updated
-          type: string
-        updatedByUserId:
-          description: ID of the user who last updated the record (when available)
-          type: string
-      type: object
     contributorBrowseResult:
       description: Instance contributor browse search response
       example:
@@ -702,102 +518,17 @@ components:
             $ref: '#/components/schemas/instanceContributorBrowseItem'
           type: array
       type: object
-    subjectBrowseResult:
-      description: Subject browse search response
+    authorityNote:
       example:
-        totalRecords: 0
-        prev: prev
-        next: next
-        items:
-        - value: value
-          isAnchor: true
-          totalRecords: 6
-          authorityId: authorityId
-          sourceId: sourceId
-          typeId: typeId
-        - value: value
-          isAnchor: true
-          totalRecords: 6
-          authorityId: authorityId
-          sourceId: sourceId
-          typeId: typeId
+        noteTypeId: '{}'
+        note: note
       properties:
-        totalRecords:
-          description: Amount of items to display
-          type: integer
-        prev:
-          description: Previous value for browsing backward
+        noteTypeId:
+          description: ID of the type of note
+          type: object
+        note:
+          description: Text content of the note
           type: string
-        next:
-          description: Next value for browsing forward
-          type: string
-        items:
-          description: List of subject browse items
-          items:
-            $ref: '#/components/schemas/subjectBrowseItem'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-      type: object
-    errorResponse:
-      description: A set of errors
-      example:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-      properties:
-        errors:
-          description: List of errors
-          items:
-            $ref: '#/components/schemas/error'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-        total_records:
-          description: Total number of errors
-          type: integer
-      type: object
-    classificationNumberBrowseResult:
-      description: Classification number browse search response
-      example:
-        totalRecords: 0
-        prev: prev
-        next: next
-        items:
-        - id: id
-          classificationNumber: classificationNumber
-          classificationTypeId: classificationTypeId
-          isAnchor: true
-          instanceTitle: instanceTitle
-          instanceContributors:
-          - instanceContributors
-          - instanceContributors
-          totalRecords: 6
-        - id: id
-          classificationNumber: classificationNumber
-          classificationTypeId: classificationTypeId
-          isAnchor: true
-          instanceTitle: instanceTitle
-          instanceContributors:
-          - instanceContributors
-          - instanceContributors
-          totalRecords: 6
-      properties:
-        totalRecords:
-          description: Amount of items to display
-          type: integer
-        prev:
-          description: Previous value for browsing backward
-          type: string
-        next:
-          description: Next value for browsing forward
-          type: string
-        items:
-          description: List of classification number browse items
-          items:
-            $ref: '#/components/schemas/classificationNumberBrowseItem'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
       type: object
     subjectBrowseItem:
       description: Subject browse search result item
@@ -827,6 +558,420 @@ components:
         typeId:
           description: ID of subject type
           type: string
+      type: object
+    instanceContributorBrowseItem:
+      description: Instance contributor browse search result item
+      example:
+        name: name
+        contributorTypeId:
+        - contributorTypeId
+        - contributorTypeId
+        contributorNameTypeId: contributorNameTypeId
+        authorityId: authorityId
+        isAnchor: true
+        totalRecords: 6
+      properties:
+        name:
+          description: Personal name, corporate name, meeting name
+          type: string
+        contributorTypeId:
+          description: IDs for the contributor type term
+          items:
+            description: ID for the contributor type term
+            type: string
+          type: array
+        contributorNameTypeId:
+          description: Contributor type terms defined by the MARC code list for relators
+          type: string
+        authorityId:
+          description: ID of authority record that controls the contributor
+          type: string
+        isAnchor:
+          description: Marks if current value is anchor or not
+          type: boolean
+        totalRecords:
+          description: Amount of records for the subject browse item
+          type: integer
+      type: object
+    parameter:
+      description: List of key/value parameters of an error
+      example:
+        key: source
+        value: 'null'
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    authorityBrowseResult:
+      description: Authority browse search response
+      example:
+        totalRecords: 0
+        prev: prev
+        next: next
+        items:
+        - authority:
+            id: id
+            tenantId: tenantId
+            shared: true
+            source: source
+            sourceFileId: sourceFileId
+            naturalId: naturalId
+            personalName: personalName
+            sftPersonalName:
+            - sftPersonalName
+            - sftPersonalName
+            saftPersonalName:
+            - saftPersonalName
+            - saftPersonalName
+            personalNameTitle: personalNameTitle
+            sftPersonalNameTitle:
+            - sftPersonalNameTitle
+            - sftPersonalNameTitle
+            saftPersonalNameTitle:
+            - saftPersonalNameTitle
+            - saftPersonalNameTitle
+            corporateName: corporateName
+            sftCorporateName:
+            - sftCorporateName
+            - sftCorporateName
+            saftCorporateName:
+            - saftCorporateName
+            - saftCorporateName
+            corporateNameTitle: corporateNameTitle
+            sftCorporateNameTitle:
+            - sftCorporateNameTitle
+            - sftCorporateNameTitle
+            saftCorporateNameTitle:
+            - saftCorporateNameTitle
+            - saftCorporateNameTitle
+            meetingName: meetingName
+            sftMeetingName:
+            - sftMeetingName
+            - sftMeetingName
+            saftMeetingName:
+            - saftMeetingName
+            - saftMeetingName
+            meetingNameTitle: meetingNameTitle
+            sftMeetingNameTitle:
+            - sftMeetingNameTitle
+            - sftMeetingNameTitle
+            saftMeetingNameTitle:
+            - saftMeetingNameTitle
+            - saftMeetingNameTitle
+            uniformTitle: uniformTitle
+            sftUniformTitle:
+            - sftUniformTitle
+            - sftUniformTitle
+            saftUniformTitle:
+            - saftUniformTitle
+            - saftUniformTitle
+            namedEvent: namedEvent
+            sftNamedEvent:
+            - sftNamedEvent
+            - sftNamedEvent
+            saftNamedEvent:
+            - saftNamedEvent
+            - saftNamedEvent
+            generalSubdivision: generalSubdivision
+            sftGeneralSubdivision:
+            - sftGeneralSubdivision
+            - sftGeneralSubdivision
+            saftGeneralSubdivision:
+            - saftGeneralSubdivision
+            - saftGeneralSubdivision
+            topicalTerm: topicalTerm
+            sftTopicalTerm:
+            - sftTopicalTerm
+            - sftTopicalTerm
+            saftTopicalTerm:
+            - saftTopicalTerm
+            - saftTopicalTerm
+            subjectHeadings: subjectHeadings
+            geographicName: geographicName
+            sftGeographicName:
+            - sftGeographicName
+            - sftGeographicName
+            saftGeographicName:
+            - saftGeographicName
+            - saftGeographicName
+            genreTerm: genreTerm
+            sftGenreTerm:
+            - sftGenreTerm
+            - sftGenreTerm
+            saftGenreTerm:
+            - saftGenreTerm
+            - saftGenreTerm
+            chronTerm: chronTerm
+            sftChronTerm:
+            - sftChronTerm
+            - sftChronTerm
+            saftChronTerm:
+            - saftChronTerm
+            - saftChronTerm
+            mediumPerfTerm: mediumPerfTerm
+            sftMediumPerfTerm:
+            - sftMediumPerfTerm
+            - sftMediumPerfTerm
+            saftMediumPerfTerm:
+            - saftMediumPerfTerm
+            - saftMediumPerfTerm
+            geographicSubdivision: geographicSubdivision
+            sftGeographicSubdivision:
+            - sftGeographicSubdivision
+            - sftGeographicSubdivision
+            saftGeographicSubdivision:
+            - saftGeographicSubdivision
+            - saftGeographicSubdivision
+            chronSubdivision: chronSubdivision
+            sftChronSubdivision:
+            - sftChronSubdivision
+            - sftChronSubdivision
+            saftChronSubdivision:
+            - saftChronSubdivision
+            - saftChronSubdivision
+            formSubdivision: formSubdivision
+            sftFormSubdivision:
+            - sftFormSubdivision
+            - sftFormSubdivision
+            saftFormSubdivision:
+            - saftFormSubdivision
+            - saftFormSubdivision
+            identifiers:
+            - value: value
+              identifierTypeId: identifierTypeId
+            - value: value
+              identifierTypeId: identifierTypeId
+            notes:
+            - noteTypeId: '{}'
+              note: note
+            - noteTypeId: '{}'
+              note: note
+            metadata:
+              createdDate: createdDate
+              createdByUserId: createdByUserId
+              updatedDate: updatedDate
+              updatedByUserId: updatedByUserId
+            headingType: headingType
+            authRefType: authRefType
+            headingRef: headingRef
+            numberOfTitles: 6
+          headingRef: headingRef
+          isAnchor: true
+        - authority:
+            id: id
+            tenantId: tenantId
+            shared: true
+            source: source
+            sourceFileId: sourceFileId
+            naturalId: naturalId
+            personalName: personalName
+            sftPersonalName:
+            - sftPersonalName
+            - sftPersonalName
+            saftPersonalName:
+            - saftPersonalName
+            - saftPersonalName
+            personalNameTitle: personalNameTitle
+            sftPersonalNameTitle:
+            - sftPersonalNameTitle
+            - sftPersonalNameTitle
+            saftPersonalNameTitle:
+            - saftPersonalNameTitle
+            - saftPersonalNameTitle
+            corporateName: corporateName
+            sftCorporateName:
+            - sftCorporateName
+            - sftCorporateName
+            saftCorporateName:
+            - saftCorporateName
+            - saftCorporateName
+            corporateNameTitle: corporateNameTitle
+            sftCorporateNameTitle:
+            - sftCorporateNameTitle
+            - sftCorporateNameTitle
+            saftCorporateNameTitle:
+            - saftCorporateNameTitle
+            - saftCorporateNameTitle
+            meetingName: meetingName
+            sftMeetingName:
+            - sftMeetingName
+            - sftMeetingName
+            saftMeetingName:
+            - saftMeetingName
+            - saftMeetingName
+            meetingNameTitle: meetingNameTitle
+            sftMeetingNameTitle:
+            - sftMeetingNameTitle
+            - sftMeetingNameTitle
+            saftMeetingNameTitle:
+            - saftMeetingNameTitle
+            - saftMeetingNameTitle
+            uniformTitle: uniformTitle
+            sftUniformTitle:
+            - sftUniformTitle
+            - sftUniformTitle
+            saftUniformTitle:
+            - saftUniformTitle
+            - saftUniformTitle
+            namedEvent: namedEvent
+            sftNamedEvent:
+            - sftNamedEvent
+            - sftNamedEvent
+            saftNamedEvent:
+            - saftNamedEvent
+            - saftNamedEvent
+            generalSubdivision: generalSubdivision
+            sftGeneralSubdivision:
+            - sftGeneralSubdivision
+            - sftGeneralSubdivision
+            saftGeneralSubdivision:
+            - saftGeneralSubdivision
+            - saftGeneralSubdivision
+            topicalTerm: topicalTerm
+            sftTopicalTerm:
+            - sftTopicalTerm
+            - sftTopicalTerm
+            saftTopicalTerm:
+            - saftTopicalTerm
+            - saftTopicalTerm
+            subjectHeadings: subjectHeadings
+            geographicName: geographicName
+            sftGeographicName:
+            - sftGeographicName
+            - sftGeographicName
+            saftGeographicName:
+            - saftGeographicName
+            - saftGeographicName
+            genreTerm: genreTerm
+            sftGenreTerm:
+            - sftGenreTerm
+            - sftGenreTerm
+            saftGenreTerm:
+            - saftGenreTerm
+            - saftGenreTerm
+            chronTerm: chronTerm
+            sftChronTerm:
+            - sftChronTerm
+            - sftChronTerm
+            saftChronTerm:
+            - saftChronTerm
+            - saftChronTerm
+            mediumPerfTerm: mediumPerfTerm
+            sftMediumPerfTerm:
+            - sftMediumPerfTerm
+            - sftMediumPerfTerm
+            saftMediumPerfTerm:
+            - saftMediumPerfTerm
+            - saftMediumPerfTerm
+            geographicSubdivision: geographicSubdivision
+            sftGeographicSubdivision:
+            - sftGeographicSubdivision
+            - sftGeographicSubdivision
+            saftGeographicSubdivision:
+            - saftGeographicSubdivision
+            - saftGeographicSubdivision
+            chronSubdivision: chronSubdivision
+            sftChronSubdivision:
+            - sftChronSubdivision
+            - sftChronSubdivision
+            saftChronSubdivision:
+            - saftChronSubdivision
+            - saftChronSubdivision
+            formSubdivision: formSubdivision
+            sftFormSubdivision:
+            - sftFormSubdivision
+            - sftFormSubdivision
+            saftFormSubdivision:
+            - saftFormSubdivision
+            - saftFormSubdivision
+            identifiers:
+            - value: value
+              identifierTypeId: identifierTypeId
+            - value: value
+              identifierTypeId: identifierTypeId
+            notes:
+            - noteTypeId: '{}'
+              note: note
+            - noteTypeId: '{}'
+              note: note
+            metadata:
+              createdDate: createdDate
+              createdByUserId: createdByUserId
+              updatedDate: updatedDate
+              updatedByUserId: updatedByUserId
+            headingType: headingType
+            authRefType: authRefType
+            headingRef: headingRef
+            numberOfTitles: 6
+          headingRef: headingRef
+          isAnchor: true
+      properties:
+        totalRecords:
+          description: Amount of items to display
+          type: integer
+        prev:
+          description: Previous value for browsing backward
+          type: string
+        next:
+          description: Next value for browsing forward
+          type: string
+        items:
+          description: List of authority browse items
+          items:
+            $ref: '#/components/schemas/authorityBrowseItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+      type: object
+    browseOptionType:
+      description: Browse option type
+      enum:
+      - all
+      - lc
+      - dewey
+      - nlm
+      - sudoc
+      - other
+      type: string
+    callNumberBrowseItem:
+      description: Call number browse search result item
+      example:
+        fullCallNumber: fullCallNumber
+        callNumber: callNumber
+        callNumberPrefix: callNumberPrefix
+        callNumberSuffix: callNumberSuffix
+        callNumberTypeId: callNumberTypeId
+        instanceTitle: instanceTitle
+        isAnchor: true
+        totalRecords: 6
+      properties:
+        fullCallNumber:
+          description: Full call number (includes callNumber, callNumberSuffix)
+          type: string
+        callNumber:
+          description: Call number
+          type: string
+        callNumberPrefix:
+          description: Call number prefix
+          type: string
+        callNumberSuffix:
+          description: Call number suffix
+          type: string
+        callNumberTypeId:
+          description: Call number type ID
+          type: string
+        instanceTitle:
+          description: Instance title
+          type: string
+        isAnchor:
+          description: Marks if current value is anchor or not
+          type: boolean
+        totalRecords:
+          description: Amount of records for the call number value
+          type: integer
       type: object
     authority:
       description: An authority description
@@ -1268,6 +1413,202 @@ components:
           description: Generated field by mod-search, used to count the total number of bib records linked to this authority record
           type: integer
       type: object
+    error:
+      description: An error
+      properties:
+        message:
+          description: Error message text
+          type: string
+        type:
+          description: Error message type
+          type: string
+        code:
+          description: Error message code
+          type: string
+        parameters:
+          items:
+            $ref: '#/components/schemas/parameter'
+          type: array
+      type: object
+    errorResponse:
+      description: A set of errors
+      example:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+        total_records:
+          description: Total number of errors
+          type: integer
+      type: object
+    classificationNumberBrowseItem:
+      description: Classification number browse search result item
+      example:
+        id: id
+        classificationNumber: classificationNumber
+        classificationTypeId: classificationTypeId
+        isAnchor: true
+        instanceTitle: instanceTitle
+        instanceContributors:
+        - instanceContributors
+        - instanceContributors
+        totalRecords: 6
+      properties:
+        id:
+          description: Classification number ID
+          type: string
+        classificationNumber:
+          description: Classification number value to display
+          type: string
+        classificationTypeId:
+          description: Classification type ID value
+          type: string
+        isAnchor:
+          description: Marks if current value is anchor or not
+          type: boolean
+        instanceTitle:
+          description: Instance title
+          type: string
+        instanceContributors:
+          description: List of contributor names.
+          items:
+            description: Contributor name
+            type: string
+          type: array
+        totalRecords:
+          description: Amount of records for the classification number value
+          type: integer
+      required:
+      - classificationNumber
+      - id
+      - totalRecords
+      type: object
+    subjectBrowseResult:
+      description: Subject browse search response
+      example:
+        totalRecords: 0
+        prev: prev
+        next: next
+        items:
+        - value: value
+          isAnchor: true
+          totalRecords: 6
+          authorityId: authorityId
+          sourceId: sourceId
+          typeId: typeId
+        - value: value
+          isAnchor: true
+          totalRecords: 6
+          authorityId: authorityId
+          sourceId: sourceId
+          typeId: typeId
+      properties:
+        totalRecords:
+          description: Amount of items to display
+          type: integer
+        prev:
+          description: Previous value for browsing backward
+          type: string
+        next:
+          description: Next value for browsing forward
+          type: string
+        items:
+          description: List of subject browse items
+          items:
+            $ref: '#/components/schemas/subjectBrowseItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+      type: object
+    callNumberBrowseResult:
+      description: Call number browse search response
+      example:
+        totalRecords: 0
+        prev: prev
+        next: next
+        items:
+        - fullCallNumber: fullCallNumber
+          callNumber: callNumber
+          callNumberPrefix: callNumberPrefix
+          callNumberSuffix: callNumberSuffix
+          callNumberTypeId: callNumberTypeId
+          instanceTitle: instanceTitle
+          isAnchor: true
+          totalRecords: 6
+        - fullCallNumber: fullCallNumber
+          callNumber: callNumber
+          callNumberPrefix: callNumberPrefix
+          callNumberSuffix: callNumberSuffix
+          callNumberTypeId: callNumberTypeId
+          instanceTitle: instanceTitle
+          isAnchor: true
+          totalRecords: 6
+      properties:
+        totalRecords:
+          description: Amount of items to display
+          type: integer
+        prev:
+          description: Previous value for browsing backward
+          type: string
+        next:
+          description: Next value for browsing forward
+          type: string
+        items:
+          description: List of call number browse items
+          items:
+            $ref: '#/components/schemas/callNumberBrowseItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+      type: object
+    classificationNumberBrowseResult:
+      description: Classification number browse search response
+      example:
+        totalRecords: 0
+        prev: prev
+        next: next
+        items:
+        - id: id
+          classificationNumber: classificationNumber
+          classificationTypeId: classificationTypeId
+          isAnchor: true
+          instanceTitle: instanceTitle
+          instanceContributors:
+          - instanceContributors
+          - instanceContributors
+          totalRecords: 6
+        - id: id
+          classificationNumber: classificationNumber
+          classificationTypeId: classificationTypeId
+          isAnchor: true
+          instanceTitle: instanceTitle
+          instanceContributors:
+          - instanceContributors
+          - instanceContributors
+          totalRecords: 6
+      properties:
+        totalRecords:
+          description: Amount of items to display
+          type: integer
+        prev:
+          description: Previous value for browsing backward
+          type: string
+        next:
+          description: Next value for browsing forward
+          type: string
+        items:
+          description: List of classification number browse items
+          items:
+            $ref: '#/components/schemas/classificationNumberBrowseItem'
+          type: array
+          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
+      type: object
     authorityBrowseItem:
       description: Authority browse result item
       example:
@@ -1429,519 +1770,83 @@ components:
           description: Marks if current value is anchor or not
           type: boolean
       type: object
-    callNumberBrowseItem:
-      description: Call number browse search result item
+    metadata:
+      additionalProperties: false
+      description: Record metadata
       example:
-        fullCallNumber: fullCallNumber
-        callNumber: callNumber
-        callNumberPrefix: callNumberPrefix
-        callNumberSuffix: callNumberSuffix
-        callNumberTypeId: callNumberTypeId
-        instanceTitle: instanceTitle
-        isAnchor: true
-        totalRecords: 6
+        createdDate: createdDate
+        createdByUserId: createdByUserId
+        updatedDate: updatedDate
+        updatedByUserId: updatedByUserId
       properties:
-        fullCallNumber:
-          description: Full call number (includes callNumber, callNumberSuffix)
+        createdDate:
+          description: Date and time when the record was created
           type: string
-        callNumber:
-          description: Call number
+        createdByUserId:
+          description: ID of the user who created the record (when available)
           type: string
-        callNumberPrefix:
-          description: Call number prefix
+        updatedDate:
+          description: Date and time when the record was last updated
           type: string
-        callNumberSuffix:
-          description: Call number suffix
-          type: string
-        callNumberTypeId:
-          description: Call number type ID
-          type: string
-        instanceTitle:
-          description: Instance title
-          type: string
-        isAnchor:
-          description: Marks if current value is anchor or not
-          type: boolean
-        totalRecords:
-          description: Amount of records for the call number value
-          type: integer
-      type: object
-    instanceContributorBrowseItem:
-      description: Instance contributor browse search result item
-      example:
-        name: name
-        contributorTypeId:
-        - contributorTypeId
-        - contributorTypeId
-        contributorNameTypeId: contributorNameTypeId
-        authorityId: authorityId
-        isAnchor: true
-        totalRecords: 6
-      properties:
-        name:
-          description: Personal name, corporate name, meeting name
-          type: string
-        contributorTypeId:
-          description: IDs for the contributor type term
-          items:
-            description: ID for the contributor type term
-            type: string
-          type: array
-        contributorNameTypeId:
-          description: Contributor type terms defined by the MARC code list for relators
-          type: string
-        authorityId:
-          description: ID of authority record that controls the contributor
-          type: string
-        isAnchor:
-          description: Marks if current value is anchor or not
-          type: boolean
-        totalRecords:
-          description: Amount of records for the subject browse item
-          type: integer
-      type: object
-    authorityNote:
-      example:
-        noteTypeId: '{}'
-        note: note
-      properties:
-        noteTypeId:
-          description: ID of the type of note
-          type: object
-        note:
-          description: Text content of the note
+        updatedByUserId:
+          description: ID of the user who last updated the record (when available)
           type: string
       type: object
-    authorityBrowseResult:
-      description: Authority browse search response
+    identifier:
+      additionalProperties: false
+      description: Resource identifier
       example:
-        totalRecords: 0
-        prev: prev
-        next: next
-        items:
-        - authority:
-            id: id
-            tenantId: tenantId
-            shared: true
-            source: source
-            sourceFileId: sourceFileId
-            naturalId: naturalId
-            personalName: personalName
-            sftPersonalName:
-            - sftPersonalName
-            - sftPersonalName
-            saftPersonalName:
-            - saftPersonalName
-            - saftPersonalName
-            personalNameTitle: personalNameTitle
-            sftPersonalNameTitle:
-            - sftPersonalNameTitle
-            - sftPersonalNameTitle
-            saftPersonalNameTitle:
-            - saftPersonalNameTitle
-            - saftPersonalNameTitle
-            corporateName: corporateName
-            sftCorporateName:
-            - sftCorporateName
-            - sftCorporateName
-            saftCorporateName:
-            - saftCorporateName
-            - saftCorporateName
-            corporateNameTitle: corporateNameTitle
-            sftCorporateNameTitle:
-            - sftCorporateNameTitle
-            - sftCorporateNameTitle
-            saftCorporateNameTitle:
-            - saftCorporateNameTitle
-            - saftCorporateNameTitle
-            meetingName: meetingName
-            sftMeetingName:
-            - sftMeetingName
-            - sftMeetingName
-            saftMeetingName:
-            - saftMeetingName
-            - saftMeetingName
-            meetingNameTitle: meetingNameTitle
-            sftMeetingNameTitle:
-            - sftMeetingNameTitle
-            - sftMeetingNameTitle
-            saftMeetingNameTitle:
-            - saftMeetingNameTitle
-            - saftMeetingNameTitle
-            uniformTitle: uniformTitle
-            sftUniformTitle:
-            - sftUniformTitle
-            - sftUniformTitle
-            saftUniformTitle:
-            - saftUniformTitle
-            - saftUniformTitle
-            namedEvent: namedEvent
-            sftNamedEvent:
-            - sftNamedEvent
-            - sftNamedEvent
-            saftNamedEvent:
-            - saftNamedEvent
-            - saftNamedEvent
-            generalSubdivision: generalSubdivision
-            sftGeneralSubdivision:
-            - sftGeneralSubdivision
-            - sftGeneralSubdivision
-            saftGeneralSubdivision:
-            - saftGeneralSubdivision
-            - saftGeneralSubdivision
-            topicalTerm: topicalTerm
-            sftTopicalTerm:
-            - sftTopicalTerm
-            - sftTopicalTerm
-            saftTopicalTerm:
-            - saftTopicalTerm
-            - saftTopicalTerm
-            subjectHeadings: subjectHeadings
-            geographicName: geographicName
-            sftGeographicName:
-            - sftGeographicName
-            - sftGeographicName
-            saftGeographicName:
-            - saftGeographicName
-            - saftGeographicName
-            genreTerm: genreTerm
-            sftGenreTerm:
-            - sftGenreTerm
-            - sftGenreTerm
-            saftGenreTerm:
-            - saftGenreTerm
-            - saftGenreTerm
-            chronTerm: chronTerm
-            sftChronTerm:
-            - sftChronTerm
-            - sftChronTerm
-            saftChronTerm:
-            - saftChronTerm
-            - saftChronTerm
-            mediumPerfTerm: mediumPerfTerm
-            sftMediumPerfTerm:
-            - sftMediumPerfTerm
-            - sftMediumPerfTerm
-            saftMediumPerfTerm:
-            - saftMediumPerfTerm
-            - saftMediumPerfTerm
-            geographicSubdivision: geographicSubdivision
-            sftGeographicSubdivision:
-            - sftGeographicSubdivision
-            - sftGeographicSubdivision
-            saftGeographicSubdivision:
-            - saftGeographicSubdivision
-            - saftGeographicSubdivision
-            chronSubdivision: chronSubdivision
-            sftChronSubdivision:
-            - sftChronSubdivision
-            - sftChronSubdivision
-            saftChronSubdivision:
-            - saftChronSubdivision
-            - saftChronSubdivision
-            formSubdivision: formSubdivision
-            sftFormSubdivision:
-            - sftFormSubdivision
-            - sftFormSubdivision
-            saftFormSubdivision:
-            - saftFormSubdivision
-            - saftFormSubdivision
-            identifiers:
-            - value: value
-              identifierTypeId: identifierTypeId
-            - value: value
-              identifierTypeId: identifierTypeId
-            notes:
-            - noteTypeId: '{}'
-              note: note
-            - noteTypeId: '{}'
-              note: note
-            metadata:
-              createdDate: createdDate
-              createdByUserId: createdByUserId
-              updatedDate: updatedDate
-              updatedByUserId: updatedByUserId
-            headingType: headingType
-            authRefType: authRefType
-            headingRef: headingRef
-            numberOfTitles: 6
-          headingRef: headingRef
-          isAnchor: true
-        - authority:
-            id: id
-            tenantId: tenantId
-            shared: true
-            source: source
-            sourceFileId: sourceFileId
-            naturalId: naturalId
-            personalName: personalName
-            sftPersonalName:
-            - sftPersonalName
-            - sftPersonalName
-            saftPersonalName:
-            - saftPersonalName
-            - saftPersonalName
-            personalNameTitle: personalNameTitle
-            sftPersonalNameTitle:
-            - sftPersonalNameTitle
-            - sftPersonalNameTitle
-            saftPersonalNameTitle:
-            - saftPersonalNameTitle
-            - saftPersonalNameTitle
-            corporateName: corporateName
-            sftCorporateName:
-            - sftCorporateName
-            - sftCorporateName
-            saftCorporateName:
-            - saftCorporateName
-            - saftCorporateName
-            corporateNameTitle: corporateNameTitle
-            sftCorporateNameTitle:
-            - sftCorporateNameTitle
-            - sftCorporateNameTitle
-            saftCorporateNameTitle:
-            - saftCorporateNameTitle
-            - saftCorporateNameTitle
-            meetingName: meetingName
-            sftMeetingName:
-            - sftMeetingName
-            - sftMeetingName
-            saftMeetingName:
-            - saftMeetingName
-            - saftMeetingName
-            meetingNameTitle: meetingNameTitle
-            sftMeetingNameTitle:
-            - sftMeetingNameTitle
-            - sftMeetingNameTitle
-            saftMeetingNameTitle:
-            - saftMeetingNameTitle
-            - saftMeetingNameTitle
-            uniformTitle: uniformTitle
-            sftUniformTitle:
-            - sftUniformTitle
-            - sftUniformTitle
-            saftUniformTitle:
-            - saftUniformTitle
-            - saftUniformTitle
-            namedEvent: namedEvent
-            sftNamedEvent:
-            - sftNamedEvent
-            - sftNamedEvent
-            saftNamedEvent:
-            - saftNamedEvent
-            - saftNamedEvent
-            generalSubdivision: generalSubdivision
-            sftGeneralSubdivision:
-            - sftGeneralSubdivision
-            - sftGeneralSubdivision
-            saftGeneralSubdivision:
-            - saftGeneralSubdivision
-            - saftGeneralSubdivision
-            topicalTerm: topicalTerm
-            sftTopicalTerm:
-            - sftTopicalTerm
-            - sftTopicalTerm
-            saftTopicalTerm:
-            - saftTopicalTerm
-            - saftTopicalTerm
-            subjectHeadings: subjectHeadings
-            geographicName: geographicName
-            sftGeographicName:
-            - sftGeographicName
-            - sftGeographicName
-            saftGeographicName:
-            - saftGeographicName
-            - saftGeographicName
-            genreTerm: genreTerm
-            sftGenreTerm:
-            - sftGenreTerm
-            - sftGenreTerm
-            saftGenreTerm:
-            - saftGenreTerm
-            - saftGenreTerm
-            chronTerm: chronTerm
-            sftChronTerm:
-            - sftChronTerm
-            - sftChronTerm
-            saftChronTerm:
-            - saftChronTerm
-            - saftChronTerm
-            mediumPerfTerm: mediumPerfTerm
-            sftMediumPerfTerm:
-            - sftMediumPerfTerm
-            - sftMediumPerfTerm
-            saftMediumPerfTerm:
-            - saftMediumPerfTerm
-            - saftMediumPerfTerm
-            geographicSubdivision: geographicSubdivision
-            sftGeographicSubdivision:
-            - sftGeographicSubdivision
-            - sftGeographicSubdivision
-            saftGeographicSubdivision:
-            - saftGeographicSubdivision
-            - saftGeographicSubdivision
-            chronSubdivision: chronSubdivision
-            sftChronSubdivision:
-            - sftChronSubdivision
-            - sftChronSubdivision
-            saftChronSubdivision:
-            - saftChronSubdivision
-            - saftChronSubdivision
-            formSubdivision: formSubdivision
-            sftFormSubdivision:
-            - sftFormSubdivision
-            - sftFormSubdivision
-            saftFormSubdivision:
-            - saftFormSubdivision
-            - saftFormSubdivision
-            identifiers:
-            - value: value
-              identifierTypeId: identifierTypeId
-            - value: value
-              identifierTypeId: identifierTypeId
-            notes:
-            - noteTypeId: '{}'
-              note: note
-            - noteTypeId: '{}'
-              note: note
-            metadata:
-              createdDate: createdDate
-              createdByUserId: createdByUserId
-              updatedDate: updatedDate
-              updatedByUserId: updatedByUserId
-            headingType: headingType
-            authRefType: authRefType
-            headingRef: headingRef
-            numberOfTitles: 6
-          headingRef: headingRef
-          isAnchor: true
+        value: value
+        identifierTypeId: identifierTypeId
       properties:
-        totalRecords:
-          description: Amount of items to display
-          type: integer
-        prev:
-          description: Previous value for browsing backward
+        value:
+          description: Resource identifier value
           type: string
-        next:
-          description: Next value for browsing forward
+        identifierTypeId:
+          description: Resource identifier type (e.g. Control number, LCCN, Other standard identifier, System control number)
           type: string
-        items:
-          description: List of authority browse items
-          items:
-            $ref: '#/components/schemas/authorityBrowseItem'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-      type: object
-    callNumberBrowseResult:
-      description: Call number browse search response
-      example:
-        totalRecords: 0
-        prev: prev
-        next: next
-        items:
-        - fullCallNumber: fullCallNumber
-          callNumber: callNumber
-          callNumberPrefix: callNumberPrefix
-          callNumberSuffix: callNumberSuffix
-          callNumberTypeId: callNumberTypeId
-          instanceTitle: instanceTitle
-          isAnchor: true
-          totalRecords: 6
-        - fullCallNumber: fullCallNumber
-          callNumber: callNumber
-          callNumberPrefix: callNumberPrefix
-          callNumberSuffix: callNumberSuffix
-          callNumberTypeId: callNumberTypeId
-          instanceTitle: instanceTitle
-          isAnchor: true
-          totalRecords: 6
-      properties:
-        totalRecords:
-          description: Amount of items to display
-          type: integer
-        prev:
-          description: Previous value for browsing backward
-          type: string
-        next:
-          description: Next value for browsing forward
-          type: string
-        items:
-          description: List of call number browse items
-          items:
-            $ref: '#/components/schemas/callNumberBrowseItem'
-          type: array
-          x-field-extra-annotation: '@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)'
-      type: object
-    error:
-      description: An error
-      properties:
-        message:
-          description: Error message text
-          type: string
-        type:
-          description: Error message type
-          type: string
-        code:
-          description: Error message code
-          type: string
-        parameters:
-          items:
-            $ref: '#/components/schemas/parameter'
-          type: array
       type: object
   examples:
-    browseSubjectResult:
+    browseContributorsResult:
       value:
-        totalRecords: 10
-        prev: Biology
-        next: Physics
+        totalRecords: 5
+        next: Paul McCartney
         items:
-        - value: Biology
-          isAnchor: true
-          totalRecords: 5
-          authorityId: d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f
-        - value: Chemistry
+        - name: Anthony Kiedis
+          contributorTypeId:
+          - 2a165833-1673-493f-934b-f3d3c8fcb299
+          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
+          authorityId: 7ff32633-cc49-4332-870a-b05e329d2a2d
           isAnchor: false
-          totalRecords: 5
-          authorityId: 11110000-fcf6-45cc-b6da-4420a61ef72c
-        - value: Physics
+          totalRecords: 1
+        - name: Bon Jovi
+          contributorTypeId:
+          - 2a165833-1673-493f-934b-f3d3c8fcb299
+          - 3ae36e29-e38f-457c-8fcf-1974a6cb63d3
+          - 653ffe66-aa3f-4f1c-a090-c42c4011ef40
+          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
+          authorityId: 0a4c6d10-2161-4f64-aace-9e919489b6c9
           isAnchor: false
-          totalRecords: 5
-          authorityId: 5fab345a-30a4-4aee-8667-1e33d4627ce9
-    unknownError:
-      value:
-        errors:
-        - message: Illegal argument error
-          type: IllegalArgumentException
-          code: unknown_error
-        total_records: 1
-    browseCallNumberResult:
-      value:
-        items:
-        - fullCallNumber: NS 1 .B5
-          callNumber: NS 1 .B4
-          callNumberTypeId: 2b94c631-fca9-4892-a730-03ee529ff6c3
-          prefix: pref1
+          totalRecords: 2
+        - name: John Lennon
           isAnchor: true
-          totalRecords: 1
-        - fullCallNumber: NS 1 .B5 suf-1801
-          callNumber: NS 1 .B5
-          suffix: suf-1801
-          isAnchor: true
-          totalRecords: 1
-        prev: NS 1 .B4
-        next: NS 1 .B5 suf-1801
-        totalRecords: 2
-    validationErrorResponse:
-      value:
-        errors:
-        - message: must not be null
-          type: MethodArgumentNotValidException
-          code: validation_error
-          parameters:
-          - key: parameter
-            value: 'null'
-        total_records: 1
+          totalRecords: 0
+        - name: Klaus Meine
+          contributorTypeId:
+          - 2a165833-1673-493f-934b-f3d3c8fcb299
+          - 3ae36e29-e38f-457c-8fcf-1974a6cb63d3
+          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
+          authorityId: 7ff32633-cc49-4332-870a-b05e329d2a2d
+          isAnchor: false
+          totalRecords: 2
+        - name: Paul McCartney
+          contributorTypeId:
+          - 2a165833-1673-493f-934b-f3d3c8fcb299
+          - 3ae36e29-e38f-457c-8fcf-1974a6cb63d3
+          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
+          authorityId: 0a4c6d10-2161-4f64-aace-9e919489b6c9
+          isAnchor: false
+          totalRecords: 2
     browseAuthorityEmptyResponse:
       summary: Empty browse response
       value:
@@ -2022,46 +1927,55 @@ components:
           classificationNumber: TK5105.88815
           classificationTypeId: 7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d
           totalRecords: 5
-    browseContributorsResult:
+    validationErrorResponse:
       value:
-        totalRecords: 5
-        next: Paul McCartney
+        errors:
+        - message: must not be null
+          type: MethodArgumentNotValidException
+          code: validation_error
+          parameters:
+          - key: parameter
+            value: 'null'
+        total_records: 1
+    browseSubjectResult:
+      value:
+        totalRecords: 10
+        prev: Biology
+        next: Physics
         items:
-        - name: Anthony Kiedis
-          contributorTypeId:
-          - 2a165833-1673-493f-934b-f3d3c8fcb299
-          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
-          authorityId: 7ff32633-cc49-4332-870a-b05e329d2a2d
-          isAnchor: false
-          totalRecords: 1
-        - name: Bon Jovi
-          contributorTypeId:
-          - 2a165833-1673-493f-934b-f3d3c8fcb299
-          - 3ae36e29-e38f-457c-8fcf-1974a6cb63d3
-          - 653ffe66-aa3f-4f1c-a090-c42c4011ef40
-          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
-          authorityId: 0a4c6d10-2161-4f64-aace-9e919489b6c9
-          isAnchor: false
-          totalRecords: 2
-        - name: John Lennon
+        - value: Biology
           isAnchor: true
-          totalRecords: 0
-        - name: Klaus Meine
-          contributorTypeId:
-          - 2a165833-1673-493f-934b-f3d3c8fcb299
-          - 3ae36e29-e38f-457c-8fcf-1974a6cb63d3
-          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
-          authorityId: 7ff32633-cc49-4332-870a-b05e329d2a2d
+          totalRecords: 5
+          authorityId: d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f
+        - value: Chemistry
           isAnchor: false
-          totalRecords: 2
-        - name: Paul McCartney
-          contributorTypeId:
-          - 2a165833-1673-493f-934b-f3d3c8fcb299
-          - 3ae36e29-e38f-457c-8fcf-1974a6cb63d3
-          contributorNameTypeId: e2ef4075-310a-4447-a231-712bf10cc985
-          authorityId: 0a4c6d10-2161-4f64-aace-9e919489b6c9
+          totalRecords: 5
+          authorityId: 11110000-fcf6-45cc-b6da-4420a61ef72c
+        - value: Physics
           isAnchor: false
-          totalRecords: 2
-x-refined-from:
-- folio-mod-search-openapi.json
-- folio-mod-search-openapi.yml
+          totalRecords: 5
+          authorityId: 5fab345a-30a4-4aee-8667-1e33d4627ce9
+    unknownError:
+      value:
+        errors:
+        - message: Illegal argument error
+          type: IllegalArgumentException
+          code: unknown_error
+        total_records: 1
+    browseCallNumberResult:
+      value:
+        items:
+        - fullCallNumber: NS 1 .B5
+          callNumber: NS 1 .B4
+          callNumberTypeId: 2b94c631-fca9-4892-a730-03ee529ff6c3
+          prefix: pref1
+          isAnchor: true
+          totalRecords: 1
+        - fullCallNumber: NS 1 .B5 suf-1801
+          callNumber: NS 1 .B5
+          suffix: suf-1801
+          isAnchor: true
+          totalRecords: 1
+        prev: NS 1 .B4
+        next: NS 1 .B5 suf-1801
+        totalRecords: 2

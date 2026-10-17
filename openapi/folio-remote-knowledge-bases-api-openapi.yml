@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Folio Remote Knowledge Bases API
   version: 7.3.0
+  title: Folio ERM Agreements Remote Knowledge Bases API
+  description: API for the Folio library services platform mod-agreements app
   contact:
     name: Knowledge Integration
     url: https://www.k-int.com
-  description: 'Operations tagged Remote Knowledge Bases across 2 of this provider''s published API definitions: folio-mod-agreements-openapi.json, folio-mod-agreements-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-snapshot-okapi.dev.folio.org
 - url: https://folio-snapshot-2-okapi.dev.folio.org
@@ -87,10 +87,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
   /erm/kbs/{kbId}:
     parameters:
     - $ref: '#/components/parameters/x-okapi-tenant'
@@ -189,105 +185,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GrailsErrorResponse'
-    servers:
-    - url: https://folio-snapshot-okapi.dev.folio.org
-    - url: https://folio-snapshot-2-okapi.dev.folio.org
-    - url: https://folio-etesting-snapshot-kong.ci.folio.org
 components:
-  parameters:
-    kbId:
-      in: path
-      name: kbId
-      description: UUID for a remote Knowledge Base
-      required: true
-      schema:
-        type: string
-        format: uuid
-    offset:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-    perPage:
-      in: query
-      name: perPage
-      required: false
-      schema:
-        type: integer
-    page:
-      in: query
-      name: page
-      required: false
-      schema:
-        type: integer
-    filters:
-      in: query
-      name: filters
-      required: false
-      schema:
-        type: string
-    stats:
-      in: query
-      name: stats
-      required: false
-      schema:
-        type: boolean
-    x-okapi-tenant:
-      in: header
-      name: x-okapi-tenant
-      required: true
-      schema:
-        type: string
-    match:
-      in: query
-      name: match
-      required: false
-      schema:
-        type: string
-    term:
-      in: query
-      name: term
-      required: false
-      schema:
-        type: string
-    sort:
-      in: query
-      name: sort
-      required: false
-      schema:
-        type: string
   schemas:
-    HttpError:
+    KbResultsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Kb'
+    ResultsMeta:
       type: object
       properties:
-        message:
-          type: string
-        error:
+        meta:
+          type: object
+        page:
           type: integer
-    GrailsErrorResponse:
-      type: object
-      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
-      required:
-      - error
-      - timestamp
-      - message
-      properties:
-        error:
+        pageSize:
           type: integer
-          description: HTTP status code
-        timestamp:
-          type: string
-          format: date-time
-        message:
-          type: string
-        exception:
-          type: string
-          description: Exception class and message.
-        stackTrace:
-          type: array
-          items:
-            type: string
+        total:
+          type: integer
+        totalPages:
+          type: integer
+        totalRecords:
+          type: integer
     KbResults:
       type: object
       required:
@@ -298,15 +216,31 @@ components:
       - properties:
           results:
             $ref: '#/components/schemas/KbResultsArray'
-    Refdata:
+    HttpError:
       type: object
       properties:
-        id:
+        message:
           type: string
-        label:
-          type: string
-        value:
-          type: string
+        error:
+          type: integer
+    ApplicationError:
+      type: object
+      properties:
+        total:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              i18n_code:
+                type: string
+              message:
+                type: string
+              object:
+                type: string
     Kb:
       type: object
       required:
@@ -370,43 +304,101 @@ components:
         uri:
           type: string
           format: uri
-    KbResultsArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/Kb'
-    ApplicationError:
+    GrailsErrorResponse:
       type: object
+      description: Error-handler body for an uncaught exception raised during request processing. `exception` and `stackTrace` usually suppressed in production systems
+      required:
+      - error
+      - timestamp
+      - message
       properties:
-        total:
+        error:
           type: integer
-        errors:
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        exception:
+          type: string
+          description: Exception class and message.
+        stackTrace:
           type: array
           items:
-            type: object
-            properties:
-              code:
-                type: string
-              i18n_code:
-                type: string
-              message:
-                type: string
-              object:
-                type: string
-    ResultsMeta:
+            type: string
+    Refdata:
       type: object
       properties:
-        meta:
-          type: object
-        page:
-          type: integer
-        pageSize:
-          type: integer
-        total:
-          type: integer
-        totalPages:
-          type: integer
-        totalRecords:
-          type: integer
+        id:
+          type: string
+        label:
+          type: string
+        value:
+          type: string
+  parameters:
+    offset:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+    kbId:
+      in: path
+      name: kbId
+      description: UUID for a remote Knowledge Base
+      required: true
+      schema:
+        type: string
+        format: uuid
+    term:
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+    x-okapi-tenant:
+      in: header
+      name: x-okapi-tenant
+      required: true
+      schema:
+        type: string
+    sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+    page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+    stats:
+      in: query
+      name: stats
+      required: false
+      schema:
+        type: boolean
+    match:
+      in: query
+      name: match
+      required: false
+      schema:
+        type: string
+    perPage:
+      in: query
+      name: perPage
+      required: false
+      schema:
+        type: integer
+    filters:
+      in: query
+      name: filters
+      required: false
+      schema:
+        type: string
   securitySchemes:
     okapiToken:
       type: apiKey
@@ -416,6 +408,3 @@ components:
       type: apiKey
       in: cookie
       name: folioAccessToken
-x-refined-from:
-- folio-mod-agreements-openapi.json
-- folio-mod-agreements-openapi.yml

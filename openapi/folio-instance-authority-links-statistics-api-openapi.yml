@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Instance Authority Links Statistics API
+  description: Entity Links API
+  title: Entities Links Instance Authority Links Statistics API
   version: v1.0
-  description: 'Operations tagged instance-authority-links-statistics across 2 of this provider''s published API definitions: folio-mod-entities-links-openapi.json, folio-mod-entities-links-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://localhost:8081
 tags:
@@ -72,8 +72,6 @@ paths:
       - instance-authority-links-statistics
       summary: Get authority links stats
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
   /links/stats/instance:
     get:
       description: Retrieve linked bib update statistics
@@ -138,10 +136,35 @@ paths:
       - instance-authority-links-statistics
       summary: Get linked bib update stats
       x-summary-source: derived
-    servers:
-    - url: https://localhost:8081
 components:
   schemas:
+    error_parameters_inner:
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      type: object
+    error:
+      description: Error object
+      properties:
+        message:
+          description: Error message
+          type: string
+        type:
+          description: Error type
+          type: string
+        code:
+          description: Error code
+          type: string
+        parameters:
+          description: Error parameters
+          items:
+            $ref: '#/components/schemas/error_parameters_inner'
+          type: array
+      type: object
     authorityControlMetadata:
       description: Meta data for authority control
       example:
@@ -165,19 +188,43 @@ components:
           description: User's last name that triggers record
           type: string
       type: object
+    bibStatsDto:
+      description: Linked bib statistics
+      example:
+        instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        instanceTitle: instanceTitle
+        bibRecordTag: bibRecordTag
+        authorityNaturalId: authorityNaturalId
+        updatedAt: '2000-01-23T04:56:07.000+00:00'
+        errorCause: errorCause
+      properties:
+        instanceId:
+          description: Linked instance id, UUID
+          format: uuid
+          type: string
+        instanceTitle:
+          description: Instance title
+          type: string
+        bibRecordTag:
+          description: Bib record tag
+          type: string
+        authorityNaturalId:
+          description: Linked authority natural id
+          type: string
+        updatedAt:
+          description: Link last updated at
+          format: date-time
+          type: string
+        errorCause:
+          description: Cause of error for updating linked bib
+          type: string
+      type: object
     linkStatus:
       description: Link status
       enum:
       - ACTUAL
       - ERROR
       - NEW
-      type: string
-    linkAction:
-      description: Type of change
-      enum:
-      - DELETE
-      - UPDATE_NATURAL_ID
-      - UPDATE_HEADING
       type: string
     authorityStatsDtoCollection:
       description: Collection of authority changes statistic. Shared and local when consortium member; shared when consortium central
@@ -221,111 +268,6 @@ components:
           description: Authority changes statistic
           items:
             $ref: '#/components/schemas/authorityStatsDto'
-          type: array
-        next:
-          description: Next response item date to seek by
-          format: date-time
-          type: string
-      type: object
-    error_parameters_inner:
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      type: object
-    error:
-      description: Error object
-      properties:
-        message:
-          description: Error message
-          type: string
-        type:
-          description: Error type
-          type: string
-        code:
-          description: Error code
-          type: string
-        parameters:
-          description: Error parameters
-          items:
-            $ref: '#/components/schemas/error_parameters_inner'
-          type: array
-      type: object
-    bibStatsDto:
-      description: Linked bib statistics
-      example:
-        instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        instanceTitle: instanceTitle
-        bibRecordTag: bibRecordTag
-        authorityNaturalId: authorityNaturalId
-        updatedAt: '2000-01-23T04:56:07.000+00:00'
-        errorCause: errorCause
-      properties:
-        instanceId:
-          description: Linked instance id, UUID
-          format: uuid
-          type: string
-        instanceTitle:
-          description: Instance title
-          type: string
-        bibRecordTag:
-          description: Bib record tag
-          type: string
-        authorityNaturalId:
-          description: Linked authority natural id
-          type: string
-        updatedAt:
-          description: Link last updated at
-          format: date-time
-          type: string
-        errorCause:
-          description: Cause of error for updating linked bib
-          type: string
-      type: object
-    errors:
-      description: Errors response
-      example:
-        Error:
-          value:
-            errors:
-            - message: may not be null
-              type: 1
-              code: -1
-              parameters:
-              - key: moduleTo
-                value: null
-      properties:
-        errors:
-          description: List of errors
-          items:
-            $ref: '#/components/schemas/error'
-          type: array
-      type: object
-    bibStatsDtoCollection:
-      description: Collection of changes statistic. For local bibs when consortium member; shared when consortium central
-      example:
-        stats:
-        - instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          instanceTitle: instanceTitle
-          bibRecordTag: bibRecordTag
-          authorityNaturalId: authorityNaturalId
-          updatedAt: '2000-01-23T04:56:07.000+00:00'
-          errorCause: errorCause
-        - instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          instanceTitle: instanceTitle
-          bibRecordTag: bibRecordTag
-          authorityNaturalId: authorityNaturalId
-          updatedAt: '2000-01-23T04:56:07.000+00:00'
-          errorCause: errorCause
-        next: '2000-01-23T04:56:07.000+00:00'
-      properties:
-        stats:
-          description: Changes statistic
-          items:
-            $ref: '#/components/schemas/bibStatsDto'
           type: array
         next:
           description: Next response item date to seek by
@@ -389,6 +331,57 @@ components:
         metadata:
           $ref: '#/components/schemas/authorityControlMetadata'
       type: object
-x-refined-from:
-- folio-mod-entities-links-openapi.json
-- folio-mod-entities-links-openapi.yml
+    bibStatsDtoCollection:
+      description: Collection of changes statistic. For local bibs when consortium member; shared when consortium central
+      example:
+        stats:
+        - instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          instanceTitle: instanceTitle
+          bibRecordTag: bibRecordTag
+          authorityNaturalId: authorityNaturalId
+          updatedAt: '2000-01-23T04:56:07.000+00:00'
+          errorCause: errorCause
+        - instanceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          instanceTitle: instanceTitle
+          bibRecordTag: bibRecordTag
+          authorityNaturalId: authorityNaturalId
+          updatedAt: '2000-01-23T04:56:07.000+00:00'
+          errorCause: errorCause
+        next: '2000-01-23T04:56:07.000+00:00'
+      properties:
+        stats:
+          description: Changes statistic
+          items:
+            $ref: '#/components/schemas/bibStatsDto'
+          type: array
+        next:
+          description: Next response item date to seek by
+          format: date-time
+          type: string
+      type: object
+    errors:
+      description: Errors response
+      example:
+        Error:
+          value:
+            errors:
+            - message: may not be null
+              type: 1
+              code: -1
+              parameters:
+              - key: moduleTo
+                value: null
+      properties:
+        errors:
+          description: List of errors
+          items:
+            $ref: '#/components/schemas/error'
+          type: array
+      type: object
+    linkAction:
+      description: Type of change
+      enum:
+      - DELETE
+      - UPDATE_NATURAL_ID
+      - UPDATE_HEADING
+      type: string

@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Module Bootstrap API
+  title: Manager Applications Module Bootstrap API
   version: v1
-  description: 'Operations tagged module-bootstrap across 2 of this provider''s published API definitions: folio-mgr-applications-am-openapi.json, folio-mgr-applications-am-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Manager Applications API
 servers:
 - url: http://localhost:8081
   description: Locally deployed server
@@ -30,9 +30,6 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Get module bootstrap
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
   /modules/{id}/bootstrap:
     get:
       operationId: getModuleIngressBootstrap
@@ -82,30 +79,43 @@ paths:
           $ref: '#/components/responses/internal-server-error'
       summary: Get module egress bootstrap
       x-summary-source: derived
-    servers:
-    - url: http://localhost:8081
-      description: Locally deployed server
 components:
-  responses:
-    bad-request:
-      description: Error response if request body contains validation error (in json format)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    entity-not-found:
-      description: Error response if entity is not found by id (in json format)
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
-    internal-server-error:
-      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/errors'
+  parameters:
+    path-entity-id:
+      in: path
+      required: true
+      name: id
+      description: Entity/document id
+      schema:
+        type: string
   schemas:
+    error:
+      description: An error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message text
+        type:
+          type: string
+          description: Error message type
+        code:
+          description: Error message code
+          $ref: '#/components/schemas/errorCode'
+        parameters:
+          description: Error message parameters
+          $ref: '#/components/schemas/parameters'
+    errorCode:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: string
+      description: Error message code
+      enum:
+      - unknown_error
+      - service_error
+      - validation_error
+      - not_found_error
+      - found_error
     parameter:
       description: List of key/value parameters of an error
       $schema: http://json-schema.org/draft-04/schema#
@@ -143,91 +153,6 @@ components:
       required:
       - moduleId
       - applicationId
-    parameters:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
-    moduleBootstrapInterface:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: An interface that a module can provide
-      type: object
-      properties:
-        id:
-          description: Interface ID
-          type: string
-        version:
-          description: Interface version in major.minor format
-          type: string
-        interfaceType:
-          description: Interface type
-          type: string
-        endpoints:
-          description: Endpoint entries for this interface
-          type: array
-          items:
-            $ref: '#/components/schemas/moduleBootstrapEndpoint'
-      required:
-      - id
-      - version
-      - endpoints
-    errorCode:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: string
-      description: Error message code
-      enum:
-      - unknown_error
-      - service_error
-      - validation_error
-      - not_found_error
-      - found_error
-    moduleBootstrap:
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      description: Bootstrap information of the module
-      properties:
-        module:
-          description: Discovery information of the module
-          $ref: '#/components/schemas/moduleBootstrapDiscovery'
-        requiredModules:
-          description: Discovery information for the required modules
-          type: array
-          items:
-            $ref: '#/components/schemas/moduleBootstrapDiscovery'
-      required:
-      - module
-    error:
-      description: An error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        message:
-          type: string
-          description: Error message text
-        type:
-          type: string
-          description: Error message type
-        code:
-          description: Error message code
-          $ref: '#/components/schemas/errorCode'
-        parameters:
-          description: Error message parameters
-          $ref: '#/components/schemas/parameters'
-    errors:
-      description: A set of errors
-      $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        errors:
-          id: errors
-          description: List of errors
-          type: array
-          items:
-            $ref: '#/components/schemas/error'
-        total_records:
-          description: Total number of errors
-          type: integer
     moduleBootstrapEndpoint:
       $schema: http://json-schema.org/draft-04/schema#
       description: An endpoint that an interface can provide
@@ -259,6 +184,64 @@ components:
           type: array
           items:
             type: string
+    moduleBootstrap:
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      description: Bootstrap information of the module
+      properties:
+        module:
+          description: Discovery information of the module
+          $ref: '#/components/schemas/moduleBootstrapDiscovery'
+        requiredModules:
+          description: Discovery information for the required modules
+          type: array
+          items:
+            $ref: '#/components/schemas/moduleBootstrapDiscovery'
+      required:
+      - module
+    moduleBootstrapInterface:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: An interface that a module can provide
+      type: object
+      properties:
+        id:
+          description: Interface ID
+          type: string
+        version:
+          description: Interface version in major.minor format
+          type: string
+        interfaceType:
+          description: Interface type
+          type: string
+        endpoints:
+          description: Endpoint entries for this interface
+          type: array
+          items:
+            $ref: '#/components/schemas/moduleBootstrapEndpoint'
+      required:
+      - id
+      - version
+      - endpoints
+    parameters:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: array
+      items:
+        $ref: '#/components/schemas/parameter'
+    errors:
+      description: A set of errors
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        errors:
+          id: errors
+          description: List of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+        total_records:
+          description: Total number of errors
+          type: integer
     egressBootstrapRequest:
       $schema: http://json-schema.org/draft-04/schema#
       type: object
@@ -284,14 +267,22 @@ components:
             $ref: '#/components/schemas/moduleBootstrapDiscovery'
       required:
       - requiredModules
-  parameters:
-    path-entity-id:
-      in: path
-      required: true
-      name: id
-      description: Entity/document id
-      schema:
-        type: string
-x-refined-from:
-- folio-mgr-applications-am-openapi.json
-- folio-mgr-applications-am-openapi.yml
+  responses:
+    bad-request:
+      description: Error response if request body contains validation error (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    internal-server-error:
+      description: Error response for unhandled or critical server exceptions, e.g. NullPointerException.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'
+    entity-not-found:
+      description: Error response if entity is not found by id (in json format)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors'

@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Folio Fql Query API
   version: v1
-  description: 'Operations tagged fqlQuery across 4 of this provider''s published API definitions: folio-folio-query-tool-metadata-querytool-openapi.json, folio-mod-fqm-manager-openapi.json, folio-folio-query-tool-metadata-querytool-openapi.yml, folio-mod-fqm-manager-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged fqlQuery across 2 of this provider''s published API definitions: folio-folio-query-tool-metadata-querytool-openapi.json, folio-mod-fqm-manager-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://folio-etesting-snapshot-kong.ci.folio.org/
 tags:
@@ -202,41 +202,6 @@ paths:
     - url: https://folio-etesting-snapshot-kong.ci.folio.org/
 components:
   schemas:
-    parameter:
-      description: List of key/value parameters of an error
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-      additionalProperties: false
-      required:
-      - key
-    UUID:
-      description: The content row represented as a map.
-      type: string
-      format: uuid
-    parameters:
-      description: List of key/value parameters of an error
-      type: array
-      items:
-        $ref: '#/components/schemas/parameter'
-    queryResultIds:
-      type: array
-      items:
-        type: array
-        items:
-          type: string
-    QueryIdentifier:
-      description: The identifier of the query.
-      type: object
-      properties:
-        queryId:
-          $ref: '#/components/schemas/UUID'
-      additionalProperties: false
     ContentsRequest:
       description: Request for a set of contents
       type: object
@@ -266,6 +231,35 @@ components:
       - fields
       - ids
       additionalProperties: false
+    contents:
+      type: array
+      items:
+        type: object
+        additionalProperties:
+          type: object
+    SubmitQuery:
+      description: Request to submit query
+      type: object
+      properties:
+        fqlQuery:
+          type: string
+        entityTypeId:
+          $ref: '#/components/schemas/UUID'
+        fields:
+          description: Fields to be included in query results
+          type: array
+          items:
+            type: string
+        sortResults:
+          description: Whether to sort results based on entity type's sort criteria
+          type: boolean
+        maxSize:
+          description: Maximum number of results to retrieve for the query
+          type: integer
+      required:
+      - entityTypeId
+      - fqlQuery
+      additionalProperties: false
     ResultsetPage:
       type: object
       description: The page with content.
@@ -281,6 +275,25 @@ components:
       required:
       - content
       additionalProperties: false
+    parameter:
+      description: List of key/value parameters of an error
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+      additionalProperties: false
+      required:
+      - key
+    queryResultIds:
+      type: array
+      items:
+        type: array
+        items:
+          type: string
     QueryDetails:
       type: object
       description: The page with content.
@@ -341,34 +354,6 @@ components:
       - queryId
       - fqlQuery
       additionalProperties: false
-    SubmitQuery:
-      description: Request to submit query
-      type: object
-      properties:
-        fqlQuery:
-          type: string
-        entityTypeId:
-          $ref: '#/components/schemas/UUID'
-        fields:
-          description: Fields to be included in query results
-          type: array
-          items:
-            type: string
-        sortResults:
-          description: Whether to sort results based on entity type's sort criteria
-          type: boolean
-        maxSize:
-          description: Maximum number of results to retrieve for the query
-          type: integer
-      required:
-      - entityTypeId
-      - fqlQuery
-      additionalProperties: false
-    ResultsetContent:
-      description: The content row represented as a map.
-      type: object
-      additionalProperties:
-        type: object
     error:
       description: An error
       type: object
@@ -386,12 +371,27 @@ components:
       required:
       - message
       - code
-    contents:
+    QueryIdentifier:
+      description: The identifier of the query.
+      type: object
+      properties:
+        queryId:
+          $ref: '#/components/schemas/UUID'
+      additionalProperties: false
+    ResultsetContent:
+      description: The content row represented as a map.
+      type: object
+      additionalProperties:
+        type: object
+    UUID:
+      description: The content row represented as a map.
+      type: string
+      format: uuid
+    parameters:
+      description: List of key/value parameters of an error
       type: array
       items:
-        type: object
-        additionalProperties:
-          type: object
+        $ref: '#/components/schemas/parameter'
     queryStatusSummaries:
       type: array
       items:
@@ -433,16 +433,20 @@ components:
       - startedAt
       - numFields
   parameters:
-    limit:
-      name: limit
+    queryId:
+      name: queryId
+      in: path
+      required: true
+      description: UUID of the query
+      schema:
+        $ref: '#/components/schemas/UUID'
+    fqlQuery:
+      name: query
       in: query
       schema:
-        type: integer
-        default: 100
-        minimum: 1
-        maximum: 2147483647
-      required: false
-      description: Limit the number of elements returned in the response
+        type: string
+      required: true
+      description: A complete query expressed as a FQL string. It should contain the from part that defines the entity type and the where/criteria part.
     offset:
       name: offset
       in: query
@@ -453,6 +457,23 @@ components:
         maximum: 2147483647
       required: false
       description: Skip over a number of elements by specifying an offset value for the query
+    entityTypeIdQueryParam:
+      name: entityTypeId
+      in: query
+      required: true
+      description: UUID of the entity type
+      schema:
+        $ref: '#/components/schemas/UUID'
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 100
+        minimum: 1
+        maximum: 2147483647
+      required: false
+      description: Limit the number of elements returned in the response
     includeResults:
       name: includeResults
       in: query
@@ -469,27 +490,6 @@ components:
           type: string
       required: false
       description: fields to include in the query results
-    queryId:
-      name: queryId
-      in: path
-      required: true
-      description: UUID of the query
-      schema:
-        $ref: '#/components/schemas/UUID'
-    entityTypeIdQueryParam:
-      name: entityTypeId
-      in: query
-      required: true
-      description: UUID of the entity type
-      schema:
-        $ref: '#/components/schemas/UUID'
-    fqlQuery:
-      name: query
-      in: query
-      schema:
-        type: string
-      required: true
-      description: A complete query expressed as a FQL string. It should contain the from part that defines the entity type and the where/criteria part.
   responses:
     badRequestResponse:
       description: Invalid request
@@ -503,5 +503,3 @@ components:
 x-refined-from:
 - folio-folio-query-tool-metadata-querytool-openapi.json
 - folio-mod-fqm-manager-openapi.json
-- folio-folio-query-tool-metadata-querytool-openapi.yml
-- folio-mod-fqm-manager-openapi.yml

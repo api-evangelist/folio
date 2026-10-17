@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Folio Authority API
+  title: Linked Data Authority API
   version: v1
-  description: 'Operations tagged authority across 2 of this provider''s published API definitions: folio-mod-linked-data-openapi.json, folio-mod-linked-data-openapi.yml. Each path carries the servers of the definition it was published in.'
+  description: Linked Data service API
 tags:
 - name: authority
 paths:
@@ -32,51 +32,13 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    assignmentCheckResponseDto:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: MARC authority assignment check response
-      type: object
-      properties:
-        validAssignment:
-          type: boolean
-          description: Indicates if the assignment is valid
-        invalidAssignmentReason:
-          type: string
-          enum:
-          - UNSUPPORTED_MARC
-          - NOT_VALID_FOR_TARGET
-          description: Indicates the reason why the assignment is not valid. Only present if 'validAssignment' is false.
-      required:
-      - validAssignment
-    parameter:
+    parameters:
       description: List of key/value parameters of an error
       $schema: http://json-schema.org/draft-04/schema#
-      type: object
-      properties:
-        key:
-          description: Parameter key
-          type: string
-        value:
-          description: Parameter value
-          type: string
-    assignmentCheckDto:
-      $schema: http://json-schema.org/draft-04/schema#
-      description: Container for raw marc and target type
-      type: object
-      properties:
-        rawMarc:
-          type: string
-          description: Raw MARC json
-        target:
-          type: string
-          enum:
-          - CREATOR_OF_WORK
-          - SUBJECT_OF_WORK
-          - DEGREE_GRANTING_INSTITUTION
-          description: Target type
-      required:
-      - rawMarc
-      - target
+      type: array
+      items:
+        type: object
+        $ref: '#/components/schemas/parameter'
     error:
       description: An error
       $schema: http://json-schema.org/draft-04/schema#
@@ -95,6 +57,51 @@ components:
           type: object
           description: Error message parameters
           $ref: '#/components/schemas/parameters'
+    assignmentCheckDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: Container for raw marc and target type
+      type: object
+      properties:
+        rawMarc:
+          type: string
+          description: Raw MARC json
+        target:
+          type: string
+          enum:
+          - CREATOR_OF_WORK
+          - SUBJECT_OF_WORK
+          - DEGREE_GRANTING_INSTITUTION
+          description: Target type
+      required:
+      - rawMarc
+      - target
+    parameter:
+      description: List of key/value parameters of an error
+      $schema: http://json-schema.org/draft-04/schema#
+      type: object
+      properties:
+        key:
+          description: Parameter key
+          type: string
+        value:
+          description: Parameter value
+          type: string
+    assignmentCheckResponseDto:
+      $schema: http://json-schema.org/draft-04/schema#
+      description: MARC authority assignment check response
+      type: object
+      properties:
+        validAssignment:
+          type: boolean
+          description: Indicates if the assignment is valid
+        invalidAssignmentReason:
+          type: string
+          enum:
+          - UNSUPPORTED_MARC
+          - NOT_VALID_FOR_TARGET
+          description: Indicates the reason why the assignment is not valid. Only present if 'validAssignment' is false.
+      required:
+      - validAssignment
     errors:
       description: A set of errors
       $schema: http://json-schema.org/draft-04/schema#
@@ -110,21 +117,7 @@ components:
         total_records:
           description: Total number of errors
           type: integer
-    parameters:
-      description: List of key/value parameters of an error
-      $schema: http://json-schema.org/draft-04/schema#
-      type: array
-      items:
-        type: object
-        $ref: '#/components/schemas/parameter'
   responses:
-    internalServerErrorResponse:
-      description: When unhandled exception occurred during code execution, e.g. NullPointerException
-      content:
-        application/json:
-          example: example/unknownError.sample
-          schema:
-            $ref: '#/components/schemas/errors'
     badRequestResponse:
       description: Validation errors
       content:
@@ -132,6 +125,10 @@ components:
           example: examples/validationErrorResponse.sample
           schema:
             $ref: '#/components/schemas/errors'
-x-refined-from:
-- folio-mod-linked-data-openapi.json
-- folio-mod-linked-data-openapi.yml
+    internalServerErrorResponse:
+      description: When unhandled exception occurred during code execution, e.g. NullPointerException
+      content:
+        application/json:
+          example: example/unknownError.sample
+          schema:
+            $ref: '#/components/schemas/errors'
